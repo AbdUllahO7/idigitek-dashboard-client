@@ -59,7 +59,6 @@ export default function UsersPage() {
 
   // Simulate API fetch
   useEffect(() => {
-   
       setUserData(users)
 
   }, [])

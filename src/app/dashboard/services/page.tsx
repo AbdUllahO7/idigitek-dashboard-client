@@ -3,7 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { TableLoader } from "@/src/components/ui/loader"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
-import { Badge } from "lucide-react"
+import { Badge, Plus } from "lucide-react"
+import Link from "next/link"
 import { useState, useEffect } from "react"
 
 
@@ -57,7 +58,7 @@ const products = [
  * Products page component
  * Displays a list of products with their details
  */
-export default function ProductsPage() {
+export default function ServicesPage() {
   const [loading, setLoading] = useState(false)
   const [productData, setProductData] = useState<typeof products>([])
 
@@ -72,6 +73,7 @@ export default function ProductsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Products</h1>
+        <Link className="bg-primary text-white py-3 px-3 rounded-xl flex gap-2 dark:text-black" href="services/addService"><Plus/> Add New Product</Link>
       </div>
 
       {/* Products table */}

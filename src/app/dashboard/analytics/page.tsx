@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src
 import { CardLoader, ContentLoader } from "@/src/components/ui/loader"
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { TabsContent } from "@radix-ui/react-tabs"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 
 /**
