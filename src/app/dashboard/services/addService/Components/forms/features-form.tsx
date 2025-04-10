@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useImperativeHandle, useEffect, useState } from "react"
+import { forwardRef, useImperativeHandle, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -22,27 +22,32 @@ import { Plus, Trash2, X } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
 import { Label } from "@/src/components/ui/label"
-import { ImageUpload } from "@/src/lib/ImageUploder"
+import { ImageUpload } from "@/src/lib/ImageUploader"
 
 interface FeaturesFormProps {
   languages: readonly string[]
   onDataChange?: (data: any) => void
 }
 
+// Define interfaces to improve type safety
+interface FeatureContent {
+  heading: string;
+  description: string;
+  features: string[];
+  image: string;
+  imageAlt: string;
+  imagePosition: "left" | "right";
+}
+
+interface Feature {
+  id: string;
+  title: string;
+  content: FeatureContent;
+}
+
 // Create a dynamic schema based on available languages
 const createFeaturesSchema = (languages: readonly string[]) => {
   const languageFields: Record<string, any> = {}
-
-  // Define feature content schema without the image field
-  const featureContentSchema = z.object({
-    heading: z.string().min(1, { message: "Heading is required" }),
-    description: z.string().min(1, { message: "Description is required" }),
-    features: z
-      .array(z.string().min(1, { message: "Feature cannot be empty" }))
-      .min(1, { message: "At least one feature is required" }),
-    imageAlt: z.string().min(1, { message: "Image alt text is required" }),
-    imagePosition: z.enum(["left", "right"]),
-  })
 
   languages.forEach((lang) => {
     languageFields[lang] = z
@@ -50,30 +55,33 @@ const createFeaturesSchema = (languages: readonly string[]) => {
         z.object({
           id: z.string().min(1, { message: "ID is required" }),
           title: z.string().min(1, { message: "Title is required" }),
-          content: featureContentSchema,
+          content: z.object({
+            heading: z.string().min(1, { message: "Heading is required" }),
+            description: z.string().min(1, { message: "Description is required" }),
+            features: z
+              .array(z.string().min(1, { message: "Feature cannot be empty" }))
+              .min(1, { message: "At least one feature is required" }),
+            image: z.string().min(1, { message: "Image is required" }),
+            imageAlt: z.string().min(1, { message: "Image alt text is required" }),
+            imagePosition: z.enum(["left", "right"]),
+          }),
         }),
       )
       .min(1, { message: "At least one feature is required" })
   })
 
-  // Add the shared images object
-  languageFields.shared = z.object({
-    images: z.record(z.string(), z.string().min(1, { message: "Image is required" }))
-  })
-
   return z.object(languageFields)
 }
+
+// Helper type to infer the schema type
+type FeaturesSchemaType = ReturnType<typeof createFeaturesSchema>;
 
 const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChange }, ref) => {
   const featuresSchema = createFeaturesSchema(languages)
 
   // Create default values for the form
   const createDefaultValues = (languages: readonly string[]) => {
-    const defaultValues: Record<string, any> = {
-      shared: {
-        images: {} // Empty images record initially
-      }
-    }
+    const defaultValues: Record<string, Feature[]> = {}
 
     languages.forEach((lang) => {
       defaultValues[lang] = [
@@ -84,6 +92,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
             heading: "",
             description: "",
             features: [""],
+            image: "",
             imageAlt: "",
             imagePosition: "right",
           },
@@ -94,7 +103,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
     return defaultValues
   }
 
-  const form = useForm<z.infer<typeof featuresSchema>>({
+  const form = useForm<z.infer<FeaturesSchemaType>>({
     resolver: zodResolver(featuresSchema),
     defaultValues: createDefaultValues(languages),
   })
@@ -106,23 +115,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
       if (!isValid) {
         throw new Error("Features form has validation errors")
       }
-      
-      // Transform data to the expected format with the image field in each feature
-      const formData = form.getValues()
-      const sharedImages = formData.shared.images
-      
-      const transformedData: Record<string, any> = {}
-      languages.forEach(lang => {
-        transformedData[lang] = formData[lang].map(feature => ({
-          ...feature,
-          content: {
-            ...feature.content,
-            image: sharedImages[feature.id] || "" // Add the image from shared images
-          }
-        }))
-      })
-      
-      return transformedData
+      return form.getValues()
     },
     form: form,
   }))
@@ -131,57 +124,32 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
   useEffect(() => {
     const subscription = form.watch((value) => {
       if (onDataChange) {
-        // Transform data before sending to parent
-        const sharedImages = value.shared?.images || {}
-        
-        const transformedData: Record<string, any> = {}
-        languages.forEach(lang => {
-          const langData = value[lang] || []
-          transformedData[lang] = langData.map(feature => {
-            if (!feature) return null // Skip if feature is undefined
-            return {
-              ...feature,
-              content: {
-                ...feature.content,
-                image: sharedImages[feature.id] || "" // Add the image from shared images
-              }
-            }
-          }).filter(Boolean) // Remove any null values
-        })
-        
-        onDataChange(transformedData)
+        onDataChange(value)
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [form, onDataChange, languages])
+  }, [form, onDataChange])
 
   // Function to add a new feature
   const addFeature = (lang: string) => {
     const currentFeatures = form.getValues()[lang] || []
-    const newId = `feature-${Date.now()}`
-    
-    form.setValue(lang, [
+    const newIndex = currentFeatures.length + 1
+    form.setValue(lang as any, [
       ...currentFeatures,
       {
-        id: newId,
+        id: `feature-${newIndex}`,
         title: "",
         content: {
           heading: "",
           description: "",
           features: [""],
+          image: "",
           imageAlt: "",
-          imagePosition: "right",
+          imagePosition: "right" as const,
         },
       },
     ])
-    
-    // Initialize the image for this feature ID
-    const currentImages = form.getValues().shared.images
-    form.setValue("shared.images", {
-      ...currentImages,
-      [newId]: ""
-    })
   }
 
   // Function to remove a feature
@@ -196,30 +164,9 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
       return
     }
 
-    const featureId = currentFeatures[index].id
-    
-    // Remove the feature
     const updatedFeatures = [...currentFeatures]
     updatedFeatures.splice(index, 1)
-    form.setValue(lang, updatedFeatures)
-    
-    // Check if this feature ID is used in other languages
-    let isUsedElsewhere = false
-    languages.forEach(otherLang => {
-      if (otherLang === lang) return // Skip current language
-      
-      const otherLangFeatures = form.getValues()[otherLang] || []
-      if (otherLangFeatures.some(f => f.id === featureId)) {
-        isUsedElsewhere = true
-      }
-    })
-    
-    // Only remove from shared images if not used elsewhere
-    if (!isUsedElsewhere) {
-      const currentImages = form.getValues().shared.images
-      const { [featureId]: _, ...restImages } = currentImages
-      form.setValue("shared.images", restImages)
-    }
+    form.setValue(lang as any, updatedFeatures)
   }
 
   // Function to add a new feature item
@@ -236,7 +183,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
       },
     }
 
-    form.setValue(lang, updatedFeatures)
+    form.setValue(lang as any, updatedFeatures)
   }
 
   // Function to remove a feature item
@@ -265,7 +212,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
       },
     }
 
-    form.setValue(lang, updatedFeatures)
+    form.setValue(lang as any, updatedFeatures)
   }
 
   return (
@@ -285,7 +232,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
               </CardHeader>
               <CardContent className="space-y-4">
                 <Accordion type="single" collapsible className="w-full">
-                  {form.watch(lang)?.map((feature, index) => (
+                  {form.watch(lang as any)?.map((feature: Feature, index: number) => (
                     <AccordionItem key={index} value={`item-${index}`}>
                       <div className="flex items-center justify-between">
                         <AccordionTrigger className="flex-1">
@@ -310,7 +257,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
                             <div className="grid grid-cols-2 gap-4">
                               <FormField
                                 control={form.control}
-                                name={`${lang}.${index}.id`}
+                                name={`${lang}.${index}.id` as any}
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormLabel>ID</FormLabel>
@@ -325,7 +272,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
 
                               <FormField
                                 control={form.control}
-                                name={`${lang}.${index}.title`}
+                                name={`${lang}.${index}.title` as any}
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormLabel>Title</FormLabel>
@@ -340,7 +287,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
 
                             <FormField
                               control={form.control}
-                              name={`${lang}.${index}.content.heading`}
+                              name={`${lang}.${index}.content.heading` as any}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Heading</FormLabel>
@@ -354,7 +301,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
 
                             <FormField
                               control={form.control}
-                              name={`${lang}.${index}.content.description`}
+                              name={`${lang}.${index}.content.description` as any}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Description</FormLabel>
@@ -380,11 +327,11 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
                                 </Button>
                               </div>
 
-                              {feature.content.features.map((_, featureItemIndex) => (
+                              {feature.content.features.map((featureItem: string, featureItemIndex: number) => (
                                 <FormField
                                   key={featureItemIndex}
                                   control={form.control}
-                                  name={`${lang}.${index}.content.features.${featureItemIndex}`}
+                                  name={`${lang}.${index}.content.features.${featureItemIndex}` as any}
                                   render={({ field }) => (
                                     <FormItem className="flex items-center gap-2">
                                       <div className="flex-1">
@@ -410,57 +357,54 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
                             <div className="grid grid-cols-2 gap-4">
                               <FormField
                                 control={form.control}
-                                name={`shared.images.${feature.id}`}
+                                name={`${lang}.${index}.content.image` as any}
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormLabel>Feature Image</FormLabel>
                                     <FormControl>
                                       <ImageUpload value={field.value} onChange={field.onChange} />
                                     </FormControl>
-                                    <FormDescription>This image will be used across all languages</FormDescription>
                                     <FormMessage />
                                   </FormItem>
                                 )}
                               />
 
-                              <div className="grid gap-4">
-                                <FormField
-                                  control={form.control}
-                                  name={`${lang}.${index}.content.imageAlt`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Image Alt Text</FormLabel>
-                                      <FormControl>
-                                        <Input placeholder="Image description" {...field} />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-
-                                <FormField
-                                  control={form.control}
-                                  name={`${lang}.${index}.content.imagePosition`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Image Position</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select position" />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          <SelectItem value="left">Left</SelectItem>
-                                          <SelectItem value="right">Right</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
+                              <FormField
+                                control={form.control}
+                                name={`${lang}.${index}.content.imageAlt` as any}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Image Alt Text</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Image description" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             </div>
+
+                            <FormField
+                              control={form.control}
+                              name={`${lang}.${index}.content.imagePosition` as any}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Image Position</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select position" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="left">Left</SelectItem>
+                                      <SelectItem value="right">Right</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </CardContent>
                         </Card>
                       </AccordionContent>

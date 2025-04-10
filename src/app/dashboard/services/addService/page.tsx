@@ -10,7 +10,7 @@ import BenefitsForm from "./Components/forms/benefits-form"
 import FeaturesForm from "./Components/forms/features-form"
 import ProcessStepsForm from "./Components/forms/process-steps-form"
 import FaqForm from "./Components/forms/faq-form"
-import { HeroForm } from "./Components/forms/hero-form"
+import HeroForm from "./Components/forms/hero-form"
 
 // Define the type for our form data
 export type FormData = {
@@ -30,11 +30,11 @@ export default function AdminDashboard() {
   const tabOrder = ["hero", "benefits", "features", "process", "faq"]
 
   // Create refs for each form
-  const heroFormRef = useRef(null)
-  const benefitsFormRef = useRef(null)
-  const featuresFormRef = useRef(null)
-  const processStepsFormRef = useRef(null)
-  const faqFormRef = useRef(null)
+  const heroFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
+  const benefitsFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
+  const featuresFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
+  const processStepsFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
+  const faqFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
 
   // State to store all form data
   const [formData, setFormData] = useState<FormData>({
