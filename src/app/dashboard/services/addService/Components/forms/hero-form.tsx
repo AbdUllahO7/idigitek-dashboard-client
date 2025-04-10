@@ -1,59 +1,89 @@
 "use client"
 
+import { forwardRef, useImperativeHandle, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
-import { ImageUpload } from "@/src/lib/ImageUploder"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { ImageUpload } from "@/src/lib/ImageUploader"
 
 interface HeroFormProps {
   languages: readonly string[]
+  onDataChange?: (data: any) => void
 }
 
+// Define a type-safe schema for the form
 const createHeroSchema = (languages: readonly string[]) => {
-  const languageFields: Record<string, any> = {}
-
+  // Create a record of language fields
+  const schemaShape: Record<string, any> = {
+    backgroundImage: z.string().min(1, { message: "Background image is required" }),
+  };
+  
+  // Add language-specific fields
   languages.forEach((lang) => {
-    languageFields[lang] = z.object({
+    schemaShape[lang] = z.object({
       title: z.string().min(1, { message: "Title is required" }),
       description: z.string().min(1, { message: "Description is required" }),
       backLinkText: z.string().min(1, { message: "Back link text is required" }),
-    })
-  })
+    });
+  });
+  
+  return z.object(schemaShape);
+};
 
-  return z.object({
-    backgroundImage: z.string().min(1, { message: "Background image is required" }),
-    ...languageFields,
-  })
-}
+// Helper type to infer the schema type
+type SchemaType = ReturnType<typeof createHeroSchema>;
 
 const createDefaultValues = (languages: readonly string[]) => {
   const defaultValues: Record<string, any> = {
     backgroundImage: "",
-  }
+  };
 
   languages.forEach((lang) => {
     defaultValues[lang] = {
       title: "",
       description: "",
       backLinkText: "",
-    }
-  })
+    };
+  });
 
-  return defaultValues
-}
+  return defaultValues;
+};
 
-export const HeroForm = ({ languages }: HeroFormProps) => {
-  const formSchema = createHeroSchema(languages)
-  const defaultValues = createDefaultValues(languages)
-
-  const form = useForm<z.infer<typeof formSchema>>({
+const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, ref) => {
+  const formSchema = createHeroSchema(languages);
+  
+  // Use explicit typing for the form
+  const form = useForm<z.infer<SchemaType>>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues,
-  })
+    defaultValues: createDefaultValues(languages),
+  });
+
+  // Expose form data to parent component
+  useImperativeHandle(ref, () => ({
+    getFormData: async () => {
+      const isValid = await form.trigger();
+      if (!isValid) {
+        throw new Error("Hero form has validation errors");
+      }
+      return form.getValues();
+    },
+    form: form,
+  }));
+
+  // Update parent component with form data on change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (onDataChange) {
+        onDataChange(value);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, onDataChange]);
 
   return (
     <div className="space-y-6">
@@ -98,9 +128,10 @@ export const HeroForm = ({ languages }: HeroFormProps) => {
                 <CardDescription>Manage hero content for {lang.toUpperCase()}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Use type assertion to handle dynamic field paths */}
                 <FormField
                   control={form.control}
-                  name={`${lang}.title`}
+                  name={`${lang}.title` as any}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Title</FormLabel>
@@ -114,7 +145,7 @@ export const HeroForm = ({ languages }: HeroFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name={`${lang}.description`}
+                  name={`${lang}.description` as any}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
@@ -128,18 +159,14 @@ export const HeroForm = ({ languages }: HeroFormProps) => {
 
                 <FormField
                   control={form.control}
-                  name={`${lang}.backLinkText`}
+                  name={`${lang}.backLinkText` as any}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Button Text</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Get Started"
-                          value={field.value}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                          disabled={field.disabled}
-                          name={field.name}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -153,4 +180,8 @@ export const HeroForm = ({ languages }: HeroFormProps) => {
       </Form>
     </div>
   )
-}
+});
+
+HeroForm.displayName = "HeroForm";
+
+export default HeroForm;
