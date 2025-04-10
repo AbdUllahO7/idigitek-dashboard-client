@@ -1,201 +1,259 @@
 "use client"
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { useState, useRef } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 
 import { Button } from "@/src/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
-import { Alert, AlertDescription } from "@/src/components/ui/alert"
-import { Check } from "lucide-react"
-import { useServiceData } from "@/src/hooks/use-service-data"
-import { validateServiceData } from "@/src/lib/service-validator"
-import { ServiceHeader } from "./components/service-header"
-import { ImportDataDialog } from "./components/import-data-dialog"
-import { HeroSection } from "./components/hero-section"
-import { BenefitsSection } from "./components/benefits-section"
-import { FeaturesSection } from "./components/features-section"
-import { ProcessSection } from "./components/process-section"
-import { FaqSection } from "./components/faq-section"
+import { toast } from "@/src/components/ui/use-toast"
+import { Loader2, ArrowLeft, ArrowRight } from "lucide-react"
+import BenefitsForm from "./Components/forms/benefits-form"
+import FeaturesForm from "./Components/forms/features-form"
+import ProcessStepsForm from "./Components/forms/process-steps-form"
+import FaqForm from "./Components/forms/faq-form"
+import { HeroForm } from "./Components/forms/hero-form"
 
+// Define the type for our form data
+export type FormData = {
+  hero: any
+  benefits: any
+  features: any
+  processSteps: any
+  faq: any
+}
 
-export default function ServiceDashboard() {
-  const [activeLanguage, setActiveLanguage] = useState("en")
+export default function AdminDashboard() {
+  const languages = ["en", "ar", "fr"] as const
   const [activeTab, setActiveTab] = useState("hero")
-  const [notification, setNotification] = useState<{ type: string; message: string } | null>(null)
-  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { serviceData, setServiceData, loadSampleData } = useServiceData()
+  // Define tab order for navigation
+  const tabOrder = ["hero", "benefits", "features", "process", "faq"]
 
-  // Show notification
-  const showNotification = (type: string, message: string) => {
-    setNotification({ type, message })
-    setTimeout(() => setNotification(null), 3000)
+  // Create refs for each form
+  const heroFormRef = useRef(null)
+  const benefitsFormRef = useRef(null)
+  const featuresFormRef = useRef(null)
+  const processStepsFormRef = useRef(null)
+  const faqFormRef = useRef(null)
+
+  // State to store all form data
+  const [formData, setFormData] = useState<FormData>({
+    hero: {},
+    benefits: {},
+    features: {},
+    processSteps: {},
+    faq: {},
+  })
+
+  // Function to update form data
+  const updateFormData = (section: keyof FormData, data: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      [section]: data,
+    }))
   }
 
-  // Handle form submission with validation
-  const handleSubmit = () => {
-    // Validate the data
-    const { isValid, errors } = validateServiceData(serviceData)
+  // Function to save all data
+  const saveAllData = async () => {
+    setIsSubmitting(true)
 
-    if (!isValid) {
-      setValidationErrors(errors)
-      showNotification("error", "Please fix the validation errors before saving")
-      return
+    try {
+      // Validate all forms
+      try {
+        if (heroFormRef.current) {
+          await heroFormRef.current.getFormData()
+        }
+        if (benefitsFormRef.current) {
+          await benefitsFormRef.current.getFormData()
+        }
+        if (featuresFormRef.current) {
+          await featuresFormRef.current.getFormData()
+        }
+        if (processStepsFormRef.current) {
+          await processStepsFormRef.current.getFormData()
+        }
+        if (faqFormRef.current) {
+          await faqFormRef.current.getFormData()
+        }
+
+        // If all validations pass, use the collected form data
+        console.log("All data saved:", formData)
+
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+
+        toast({
+          title: "All data saved successfully",
+          description: "Your Smart Drive content has been updated across all sections and languages.",
+        })
+      } catch (error) {
+        console.error("Form validation error:", error)
+        toast({
+          title: "Validation Error",
+          description: "Please make sure all required fields are filled correctly.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error saving data:", error)
+      toast({
+        title: "Error saving data",
+        description: "There was an error saving your data. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
     }
-
-    // Clear any previous validation errors
-    setValidationErrors({})
-
-    // Here you would typically send the data to your API
-    console.log("Submitting service data:", serviceData)
-
-    // Show success notification
-    showNotification("success", "Service data saved successfully!")
   }
 
-  // Handle sample data loading
-  const handleLoadSampleData = () => {
-    loadSampleData()
-    setValidationErrors({})
-    showNotification("info", "Sample data loaded successfully!")
+  // Get the current form ref based on active tab
+  const getCurrentFormRef = () => {
+    switch (activeTab) {
+      case "hero":
+        return heroFormRef
+      case "benefits":
+        return benefitsFormRef
+      case "features":
+        return featuresFormRef
+      case "process":
+        return processStepsFormRef
+      case "faq":
+        return faqFormRef
+      default:
+        return null
+    }
   }
+
+  // Function to handle tab change with validation
+  const handleTabChange = async (newTab: string) => {
+    // If trying to go forward, validate the current form
+    const currentIndex = tabOrder.indexOf(activeTab)
+    const newIndex = tabOrder.indexOf(newTab)
+
+    if (newIndex > currentIndex) {
+      try {
+        // Validate current form before proceeding
+        const currentFormRef = getCurrentFormRef()
+        await currentFormRef?.current?.getFormData()
+        setActiveTab(newTab)
+      } catch (error) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields before proceeding.",
+          variant: "destructive",
+        })
+      }
+    } else {
+      // If going backward, no validation needed
+      setActiveTab(newTab)
+    }
+  }
+
+  // Function to navigate to next tab
+  const goToNextTab = async () => {
+    const currentIndex = tabOrder.indexOf(activeTab)
+    if (currentIndex < tabOrder.length - 1) {
+      const nextTab = tabOrder[currentIndex + 1]
+      handleTabChange(nextTab)
+    }
+  }
+
+  // Function to navigate to previous tab
+  const goToPreviousTab = () => {
+    const currentIndex = tabOrder.indexOf(activeTab)
+    if (currentIndex > 0) {
+      const prevTab = tabOrder[currentIndex - 1]
+      setActiveTab(prevTab)
+    }
+  }
+
+  // Check if current tab is the last one
+  const isLastTab = activeTab === tabOrder[tabOrder.length - 1]
+  const isFirstTab = activeTab === tabOrder[0]
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <ServiceHeader activeLanguage={activeLanguage} setActiveLanguage={setActiveLanguage} onSubmit={handleSubmit} />
+    <div className="container py-10">
+      <div className="flex flex-col space-y-8">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Smart Drive Admin Dashboard</h1>
+          <p className="text-muted-foreground">Manage your Smart Drive content across multiple languages</p>
+        </div>
 
-      {/* Notification */}
-      <AnimatePresence>
-        {notification && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Alert
-              className={`${
-                notification.type === "success"
-                  ? "bg-green-50 border-green-200"
-                  : notification.type === "error"
-                    ? "bg-red-50 border-red-200"
-                    : "bg-blue-50 border-blue-200"
-              }`}
-            >
-              <AlertDescription
-                className={`${
-                  notification.type === "success"
-                    ? "text-green-800"
-                    : notification.type === "error"
-                      ? "text-red-800"
-                      : "text-blue-800"
-                } flex items-center gap-2`}
-              >
-                {notification.type === "success" ? <Check className="h-4 w-4" /> : null}
-                {notification.message}
-              </AlertDescription>
-            </Alert>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <div className="flex flex-col space-y-2">
+          <h2 className="text-lg font-medium">Languages</h2>
+          <div className="flex flex-wrap gap-2">
+            {languages.map((lang) => (
+              <div key={lang} className="bg-primary text-primary-foreground px-3 py-1 rounded-md text-sm font-medium">
+                {lang.toUpperCase()}
+              </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Import Data Dialog */}
-      {/* <ImportDataDialog onLoadSampleData={handleLoadSampleData} /> */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="hero">Hero</TabsTrigger>
+            <TabsTrigger value="benefits">Benefits</TabsTrigger>
+            <TabsTrigger value="features">Features</TabsTrigger>
+            <TabsTrigger value="process">Process Steps</TabsTrigger>
+            <TabsTrigger value="faq">FAQ</TabsTrigger>
+          </TabsList>
 
-      {/* Main Content */}
-      <Tabs defaultValue="hero" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full mb-6">
-          <TabsTrigger value="hero">Hero Section</TabsTrigger>
-          <TabsTrigger value="benefits">Benefits</TabsTrigger>
-          <TabsTrigger value="features">Features</TabsTrigger>
-          <TabsTrigger value="process">Process Steps</TabsTrigger>
-          <TabsTrigger value="faq">FAQ</TabsTrigger>
-        </TabsList>
+          <TabsContent value="hero" className="space-y-4">
+            <HeroForm languages={languages} ref={heroFormRef} onDataChange={(data) => updateFormData("hero", data)} />
+          </TabsContent>
 
-        {/* Hero Section Tab */}
-        <TabsContent value="hero" className="space-y-4">
-          <HeroSection
-            activeLanguage={activeLanguage}
-            serviceData={serviceData}
-            setServiceData={setServiceData}
-            errors={validationErrors.hero || {}}
-          />
-        </TabsContent>
+          <TabsContent value="benefits" className="space-y-4">
+            <BenefitsForm
+              languages={languages}
+              ref={benefitsFormRef}
+              onDataChange={(data) => updateFormData("benefits", data)}
+            />
+          </TabsContent>
 
-        {/* Benefits Tab */}
-        <TabsContent value="benefits" className="space-y-4">
-          <BenefitsSection
-            activeLanguage={activeLanguage}
-            serviceData={serviceData}
-            setServiceData={setServiceData}
-            errors={validationErrors.benefits || {}}
-          />
-        </TabsContent>
+          <TabsContent value="features" className="space-y-4">
+            <FeaturesForm
+              languages={languages}
+              ref={featuresFormRef}
+              onDataChange={(data) => updateFormData("features", data)}
+            />
+          </TabsContent>
 
-        {/* Features Tab */}
-        <TabsContent value="features" className="space-y-4">
-          <FeaturesSection
-            activeLanguage={activeLanguage}
-            serviceData={serviceData}
-            setServiceData={setServiceData}
-            errors={validationErrors.features || {}}
-          />
-        </TabsContent>
+          <TabsContent value="process" className="space-y-4">
+            <ProcessStepsForm
+              languages={languages}
+              ref={processStepsFormRef}
+              onDataChange={(data) => updateFormData("processSteps", data)}
+            />
+          </TabsContent>
 
-        {/* Process Steps Tab */}
-        <TabsContent value="process" className="space-y-4">
-          <ProcessSection
-            activeLanguage={activeLanguage}
-            serviceData={serviceData}
-            setServiceData={setServiceData}
-            errors={validationErrors.processSteps || {}}
-          />
-        </TabsContent>
+          <TabsContent value="faq" className="space-y-4">
+            <FaqForm languages={languages} ref={faqFormRef} onDataChange={(data) => updateFormData("faq", data)} />
+          </TabsContent>
+        </Tabs>
 
-        {/* FAQ Tab */}
-        <TabsContent value="faq" className="space-y-4">
-          <FaqSection
-            activeLanguage={activeLanguage}
-            serviceData={serviceData}
-            setServiceData={setServiceData}
-            errors={validationErrors.faq || {}}
-          />
-        </TabsContent>
-      </Tabs>
+        <div className="pt-6 border-t flex justify-between">
+          {!isFirstTab && (
+            <Button onClick={goToPreviousTab} variant="outline" className="flex items-center">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Previous
+            </Button>
+          )}
 
-      {/* Navigation Buttons */}
-      <div className="flex justify-between mt-8">
-        <Button
-          variant="outline"
-          onClick={() => {
-            const tabs = ["hero", "benefits", "features", "process", "faq"]
-            const currentIndex = tabs.indexOf(activeTab)
-            if (currentIndex > 0) {
-              setActiveTab(tabs[currentIndex - 1])
-            }
-          }}
-          disabled={activeTab === "hero"}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" /> Previous
-        </Button>
+          <div className="flex-1" />
 
-        <Button
-          variant="outline"
-          onClick={() => {
-            const tabs = ["hero", "benefits", "features", "process", "faq"]
-            const currentIndex = tabs.indexOf(activeTab)
-            if (currentIndex < tabs.length - 1) {
-              setActiveTab(tabs[currentIndex + 1])
-            }
-          }}
-          disabled={activeTab === "faq"}
-          className="gap-2"
-        >
-          Next <ArrowRight className="h-4 w-4" />
-        </Button>
+          {!isLastTab ? (
+            <Button onClick={goToNextTab} className="flex items-center">
+              Next
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          ) : (
+            <Button onClick={saveAllData} disabled={isSubmitting} className="h-12 text-lg" size="lg">
+              {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+              Save All Content
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )
