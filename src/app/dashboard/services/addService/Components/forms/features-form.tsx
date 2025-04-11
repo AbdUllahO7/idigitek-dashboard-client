@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useImperativeHandle, useEffect } from "react"
+import { forwardRef, useImperativeHandle, useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -18,7 +18,7 @@ import {
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { toast } from "@/src/components/ui/use-toast"
-import { Plus, Trash2, X } from "lucide-react"
+import { Plus, Trash2, X, Save } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
 import { Label } from "@/src/components/ui/label"
@@ -31,18 +31,18 @@ interface FeaturesFormProps {
 
 // Define interfaces to improve type safety
 interface FeatureContent {
-  heading: string;
-  description: string;
-  features: string[];
-  image: string;
-  imageAlt: string;
-  imagePosition: "left" | "right";
+  heading: string
+  description: string
+  features: string[]
+  image: string
+  imageAlt: string
+  imagePosition: "left" | "right"
 }
 
 interface Feature {
-  id: string;
-  title: string;
-  content: FeatureContent;
+  id: string
+  title: string
+  content: FeatureContent
 }
 
 // Create a dynamic schema based on available languages
@@ -74,7 +74,7 @@ const createFeaturesSchema = (languages: readonly string[]) => {
 }
 
 // Helper type to infer the schema type
-type FeaturesSchemaType = ReturnType<typeof createFeaturesSchema>;
+type FeaturesSchemaType = ReturnType<typeof createFeaturesSchema>
 
 const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChange }, ref) => {
   const featuresSchema = createFeaturesSchema(languages)
@@ -103,6 +103,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
     return defaultValues
   }
 
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
   const form = useForm<z.infer<FeaturesSchemaType>>({
     resolver: zodResolver(featuresSchema),
     defaultValues: createDefaultValues(languages),
@@ -118,11 +120,14 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
       return form.getValues()
     },
     form: form,
+    hasUnsavedChanges,
+    resetUnsavedChanges: () => setHasUnsavedChanges(false),
   }))
 
   // Update parent component with form data on change
   useEffect(() => {
     const subscription = form.watch((value) => {
+      setHasUnsavedChanges(true)
       if (onDataChange) {
         onDataChange(value)
       }
@@ -130,6 +135,18 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
 
     return () => subscription.unsubscribe()
   }, [form, onDataChange])
+
+  const handleSave = async () => {
+    const isValid = await form.trigger()
+    if (isValid) {
+      // Here you would typically save to an API
+      toast({
+        title: "Features content saved",
+        description: "Your features content has been saved successfully.",
+      })
+      setHasUnsavedChanges(false)
+    }
+  }
 
   // Function to add a new feature
   const addFeature = (lang: string) => {
@@ -421,6 +438,12 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
           ))}
         </div>
       </Form>
+      <div className="flex justify-end mt-6">
+        <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
+          <Save className="mr-2 h-4 w-4" />
+          Save Features Content
+        </Button>
+      </div>
     </div>
   )
 })
