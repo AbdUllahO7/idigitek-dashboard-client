@@ -1,13 +1,12 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Badge } from "@/src/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { TableLoader } from "@/src/components/ui/loader"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 import { Plus } from "lucide-react"
 import Link from "next/link"
-import { useState, useEffect } from "react"
-
+import ServiceSectionComponent, { ServiceSection } from "@/src/components/add-secton-basic-info"
 
 /**
  * Sample Service data
@@ -56,17 +55,17 @@ const service = [
 ]
 
 /**
- * service page component
- * Displays a list of service with their details
+ * Service page component
+ * Displays a list of services with their details and service sections
  */
 export default function ServicesPage() {
   const [loading, setLoading] = useState(false)
   const [productData, setProductData] = useState<typeof service>([])
+  const [serviceSection, setServiceSection] = useState<ServiceSection | null>(null)
 
   // Simulate API fetch
   useEffect(() => {
-      setProductData(service)
-
+    setProductData(service)
   }, [])
 
   return (
@@ -74,8 +73,19 @@ export default function ServicesPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Services</h1>
-        <Link className="bg-primary text-white py-2 px-2 rounded-xl flex gap-2 dark:text-black" href="services/addService"><Plus/> Add New Service</Link>
+        <Link
+          className={`bg-primary text-white py-2 px-2 rounded-xl flex gap-2 dark:text-black ${
+            !serviceSection ? "opacity-50 pointer-events-none" : ""
+          }`}
+          href={serviceSection ? "services/addService" : "#"}
+          aria-disabled={!serviceSection}
+        >
+          <Plus /> Add New Service
+        </Link>
       </div>
+
+      {/* Service Section Component */}
+      <ServiceSectionComponent serviceSection={serviceSection} onSectionChange={setServiceSection} />
 
       {/* Products table */}
       <Card>
@@ -85,7 +95,7 @@ export default function ServicesPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <TableLoader />
+            <div className="h-24 flex items-center justify-center">Loading...</div>
           ) : (
             <Table>
               <TableHeader>
