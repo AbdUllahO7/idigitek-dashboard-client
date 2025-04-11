@@ -10,6 +10,24 @@ import { Checkbox } from "@/src/components/ui/checkbox"
 import { Label } from "@/src/components/ui/label"
 import { useToast } from "@/src/components/ui/use-toast"
 
+// Helper function to set cookies
+const setCookie = (name: string, value: string, days = 7) => {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString()
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`
+}
+
+// Helper function to get cookies
+const getCookie = (name: string) => {
+  if (typeof document === "undefined") return null
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) {
+    const cookieValue = parts.pop()?.split(";").shift()
+    return cookieValue ? decodeURIComponent(cookieValue) : null
+  }
+  return null
+}
+
 export default function ConfigurationPage() {
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
   const [selectedSections, setSelectedSections] = useState<string[]>([])
@@ -50,11 +68,12 @@ export default function ConfigurationPage() {
     { id: "testimonialsSection", name: "Testimonials " },
   ]
 
-  // Load saved selections from localStorage when component mounts
+  // Load saved selections from localStorage and cookies when component mounts
   useEffect(() => {
     // Only run on the client side
     if (typeof window !== "undefined") {
       try {
+        // Try to get from localStorage first
         const savedLanguages = localStorage.getItem("selectedLanguages")
         const savedSections = localStorage.getItem("selectedSections")
 
@@ -65,13 +84,34 @@ export default function ConfigurationPage() {
         if (savedSections) {
           setSelectedSections(JSON.parse(savedSections))
         }
+
+        // If localStorage is empty, try to get from cookies
+        if (!savedLanguages || !savedSections) {
+          const cookieLanguages = getCookie("selectedLanguages")
+          const cookieSections = getCookie("selectedSections")
+
+          if (cookieLanguages && !savedLanguages) {
+            const parsedLanguages = JSON.parse(cookieLanguages)
+            setSelectedLanguages(parsedLanguages)
+            localStorage.setItem("selectedLanguages", cookieLanguages)
+          }
+
+          if (cookieSections && !savedSections) {
+            const parsedSections = JSON.parse(cookieSections)
+            setSelectedSections(parsedSections)
+            localStorage.setItem("selectedSections", cookieSections)
+          }
+        }
+
+        // Removed default values setting - let the user start with empty selections
       } catch (error) {
         console.error("Error loading saved selections:", error)
+        // No default values set on error either
       }
     }
   }, [])
 
-  // Function to save selections to localStorage and proceed to dashboard
+  // Function to save selections to localStorage and cookies, then proceed to dashboard
   const saveSelectionsAndProceed = () => {
     setIsSaving(true)
 
@@ -87,9 +127,16 @@ export default function ConfigurationPage() {
         return
       }
 
+      const languagesJson = JSON.stringify(selectedLanguages)
+      const sectionsJson = JSON.stringify(selectedSections)
+
       // Save to localStorage
-      localStorage.setItem("selectedLanguages", JSON.stringify(selectedLanguages))
-      localStorage.setItem("selectedSections", JSON.stringify(selectedSections))
+      localStorage.setItem("selectedLanguages", languagesJson)
+      localStorage.setItem("selectedSections", sectionsJson)
+
+      // Save to cookies for middleware access
+      setCookie("selectedLanguages", languagesJson)
+      setCookie("selectedSections", sectionsJson)
 
       // Show success message
       setShowSavedMessage(true)
@@ -119,8 +166,16 @@ export default function ConfigurationPage() {
     setIsSaving(true)
 
     try {
-      localStorage.setItem("selectedLanguages", JSON.stringify(selectedLanguages))
-      localStorage.setItem("selectedSections", JSON.stringify(selectedSections))
+      const languagesJson = JSON.stringify(selectedLanguages)
+      const sectionsJson = JSON.stringify(selectedSections)
+
+      // Save to localStorage
+      localStorage.setItem("selectedLanguages", languagesJson)
+      localStorage.setItem("selectedSections", sectionsJson)
+
+      // Save to cookies for middleware access
+      setCookie("selectedLanguages", languagesJson)
+      setCookie("selectedSections", sectionsJson)
 
       // Show success message
       setShowSavedMessage(true)
@@ -231,15 +286,15 @@ export default function ConfigurationPage() {
                   <motion.div key={language.id} variants={itemVariants}>
                     <div
                       className={`
-                        flex items-center space-x-2 rounded-lg border p-3 transition-all
-                        ${
-                          selectedLanguages.includes(language.id)
-                            ? "border-slate-800 bg-slate-50 dark:border-slate-200 dark:bg-slate-700 shadow-sm cursor-pointer"
-                            : isLanguageSelectionDisabled(language.id)
-                              ? "border-slate-200 dark:border-slate-700 opacity-50 cursor-not-allowed"
-                              : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
-                        }
-                      `}
+                          flex items-center space-x-2 rounded-lg border p-3 transition-all
+                          ${
+                            selectedLanguages.includes(language.id)
+                              ? "border-slate-800 bg-slate-50 dark:border-slate-200 dark:bg-slate-700 shadow-sm cursor-pointer"
+                              : isLanguageSelectionDisabled(language.id)
+                                ? "border-slate-200 dark:border-slate-700 opacity-50 cursor-not-allowed"
+                                : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
+                          }
+                        `}
                       onClick={() => !isLanguageSelectionDisabled(language.id) && toggleLanguage(language.id)}
                     >
                       <Checkbox
@@ -300,13 +355,13 @@ export default function ConfigurationPage() {
                   <motion.div key={section.id} variants={itemVariants}>
                     <div
                       className={`
-                        flex items-center space-x-2 rounded-lg border p-3 cursor-pointer transition-all
-                        ${
-                          selectedSections.includes(section.id)
-                            ? "border-slate-800 bg-slate-50 dark:border-slate-200 dark:bg-slate-700 shadow-sm"
-                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
-                        }
-                      `}
+                          flex items-center space-x-2 rounded-lg border p-3 cursor-pointer transition-all
+                          ${
+                            selectedSections.includes(section.id)
+                              ? "border-slate-800 bg-slate-50 dark:border-slate-200 dark:bg-slate-700 shadow-sm"
+                              : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                          }
+                        `}
                       onClick={() => toggleSection(section.id)}
                     >
                       <Checkbox

@@ -25,14 +25,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {/* Navigation event handlers */}
-          <NavigationEvents />
-          <NavigationProgress />
-          {children}
+            <NavigationEvents />
+            <NavigationProgress />
+            {children}
         </ThemeProvider>
       </body>
     </html>

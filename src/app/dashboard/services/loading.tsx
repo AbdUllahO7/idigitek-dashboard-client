@@ -1,8 +1,8 @@
 import { PageLoader } from "@/src/components/ui/loader";
 
 /**
- * Products page loading component
+ * services page loading component
  */
-export default function ProductsLoading() {
-  return <PageLoader text="Loading products..." />
+export default function servicesLoading() {
+  return <PageLoader text="Loading services..." />
 }

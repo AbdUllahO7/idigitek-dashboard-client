@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import DashboardSidebar from "@/src/components/dashboard/dashboard-sidebar"
 import DashboardHeader from "@/src/components/dashboard/dashboard-header"
@@ -20,6 +20,23 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+
+  // Check for valid selections on client side as a fallback
+  useEffect(() => {
+    try {
+      const selectedLanguages = JSON.parse(localStorage.getItem('selectedLanguages') || '[]')
+      const selectedSections = JSON.parse(localStorage.getItem('selectedSections') || '[]')
+      
+      if (!selectedLanguages.length || !selectedSections.length) {
+        router.replace('/websiteConfiguration')
+      }
+    } catch (error) {
+      router.replace('/websiteConfiguration')
+    }
+  }, [router])
+
+
 
   // Handle responsive sidebar
   useEffect(() => {
