@@ -1,20 +1,21 @@
 "use client"
 
+import { Badge } from "@/src/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { TableLoader } from "@/src/components/ui/loader"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
-import { Badge, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 
 
 /**
- * Sample product data
+ * Sample Service data
  */
-const products = [
+const service = [
   {
     id: "1",
-    name: "Product A",
+    name: "SERA",
     category: "Electronics",
     price: "$299.99",
     stock: 45,
@@ -22,7 +23,7 @@ const products = [
   },
   {
     id: "2",
-    name: "Product B",
+    name: "SERB",
     category: "Clothing",
     price: "$59.99",
     stock: 12,
@@ -30,7 +31,7 @@ const products = [
   },
   {
     id: "3",
-    name: "Product C",
+    name: "Service",
     category: "Home",
     price: "$129.99",
     stock: 0,
@@ -38,7 +39,7 @@ const products = [
   },
   {
     id: "4",
-    name: "Product D",
+    name: "Service",
     category: "Electronics",
     price: "$499.99",
     stock: 28,
@@ -46,7 +47,7 @@ const products = [
   },
   {
     id: "5",
-    name: "Product E",
+    name: "Service",
     category: "Books",
     price: "$19.99",
     stock: 3,
@@ -55,16 +56,16 @@ const products = [
 ]
 
 /**
- * Products page component
- * Displays a list of products with their details
+ * service page component
+ * Displays a list of service with their details
  */
 export default function ServicesPage() {
   const [loading, setLoading] = useState(false)
-  const [productData, setProductData] = useState<typeof products>([])
+  const [productData, setProductData] = useState<typeof service>([])
 
   // Simulate API fetch
   useEffect(() => {
-      setProductData(products)
+      setProductData(service)
 
   }, [])
 
@@ -72,15 +73,15 @@ export default function ServicesPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-        <Link className="bg-primary text-white py-3 px-3 rounded-xl flex gap-2 dark:text-black" href="services/addService"><Plus/> Add New Product</Link>
+        <h1 className="text-3xl font-bold tracking-tight">Services</h1>
+        <Link className="bg-primary text-white py-2 px-2 rounded-xl flex gap-2 dark:text-black" href="services/addService"><Plus/> Add New Service</Link>
       </div>
 
       {/* Products table */}
       <Card>
         <CardHeader>
-          <CardTitle>Product Inventory</CardTitle>
-          <CardDescription>Manage your product inventory and stock levels.</CardDescription>
+          <CardTitle>Service Inventory</CardTitle>
+          <CardDescription>Manage your Service inventory and stock levels.</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
