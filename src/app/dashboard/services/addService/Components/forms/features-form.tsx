@@ -18,11 +18,18 @@ import {
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { toast } from "@/src/components/ui/use-toast"
-import { Plus, Trash2, X, Save } from "lucide-react"
+import { Plus, Trash2, X, Save, AlertTriangle } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
 import { Label } from "@/src/components/ui/label"
 import { ImageUpload } from "@/src/lib/ImageUploader"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog"
 
 interface FeaturesFormProps {
   languages: readonly string[]
@@ -104,6 +111,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
   }
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false)
+  const [featureCountMismatch, setFeatureCountMismatch] = useState(false)
 
   const form = useForm<z.infer<FeaturesSchemaType>>({
     resolver: zodResolver(featuresSchema),
@@ -124,10 +133,23 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
     resetUnsavedChanges: () => setHasUnsavedChanges(false),
   }))
 
+  // Check if all languages have the same number of features
+  const validateFeatureCounts = () => {
+    const values = form.getValues()
+    const counts = languages.map(lang => values[lang]?.length || 0)
+    
+    // Check if all counts are the same
+    const allEqual = counts.every(count => count === counts[0])
+    setFeatureCountMismatch(!allEqual)
+    
+    return allEqual
+  }
+
   // Update parent component with form data on change
   useEffect(() => {
     const subscription = form.watch((value) => {
       setHasUnsavedChanges(true)
+      validateFeatureCounts()
       if (onDataChange) {
         onDataChange(value)
       }
@@ -138,12 +160,43 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
 
   const handleSave = async () => {
     const isValid = await form.trigger()
+    const hasEqualFeatureCounts = validateFeatureCounts()
+
+    if (!hasEqualFeatureCounts) {
+      setIsValidationDialogOpen(true)
+      return
+    }
+
     if (isValid) {
       // Here you would typically save to an API
       toast({
         title: "Features content saved",
         description: "Your features content has been saved successfully.",
       })
+
+      // Get the form values
+      const formData = form.getValues()
+
+      // Convert the form data to an array format
+      const featuresArray = Object.entries(formData).flatMap(([language, features]) => {
+        return features.map((feature: Feature) => ({
+          language,
+          id: feature.id,
+          title: feature.title,
+          content: {
+            heading: feature.content.heading,
+            description: feature.content.description,
+            features: feature.content.features,
+            image: feature.content.image,
+            imageAlt: feature.content.imageAlt,
+            imagePosition: feature.content.imagePosition,
+          },
+        }))
+      })
+
+      // Log the array to console
+      console.log("Features data as array:", featuresArray)
+
       setHasUnsavedChanges(false)
     }
   }
@@ -230,6 +283,15 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
     }
 
     form.setValue(lang as any, updatedFeatures)
+  }
+
+  // Function to get feature counts by language
+  const getFeatureCountsByLanguage = () => {
+    const values = form.getValues()
+    return languages.map(lang => ({
+      language: lang,
+      count: values[lang]?.length || 0
+    }))
   }
 
   return (
@@ -439,11 +501,48 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
         </div>
       </Form>
       <div className="flex justify-end mt-6">
-        <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
+        {featureCountMismatch && (
+          <div className="flex items-center text-amber-500 mr-4">
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            <span className="text-sm">Each language must have the same number of features</span>
+          </div>
+        )}
+        <Button 
+          type="button" 
+          onClick={handleSave} 
+          disabled={!hasUnsavedChanges || featureCountMismatch} 
+          className="flex items-center"
+        >
           <Save className="mr-2 h-4 w-4" />
           Save Features Content
         </Button>
       </div>
+
+      {/* Validation Dialog */}
+      <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Feature Count Mismatch</DialogTitle>
+            <DialogDescription>
+              <div className="mt-4 mb-4">
+                Each language must have the same number of features before saving. Please add or remove features to ensure all languages have the same count:
+              </div>
+              <ul className="list-disc pl-6 space-y-1">
+                {getFeatureCountsByLanguage().map(({ language, count }) => (
+                  <li key={language}>
+                    <span className="font-semibold uppercase">{language}</span>: {count} features
+                  </li>
+                ))}
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setIsValidationDialogOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })

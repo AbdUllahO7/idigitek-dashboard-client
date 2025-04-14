@@ -10,8 +10,16 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { toast } from "@/src/components/ui/use-toast"
-import { Plus, Trash2, Save } from "lucide-react"
+import { Plus, Trash2, Save, AlertTriangle } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog"
+
 interface BenefitsFormProps {
   languages: readonly string[]
   onDataChange?: (data: any) => void
@@ -74,6 +82,8 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
   })
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false)
+  const [benefitCountMismatch, setBenefitCountMismatch] = useState(false)
 
   // Expose form data to parent component
   useImperativeHandle(ref, () => ({
@@ -89,10 +99,23 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
     resetUnsavedChanges: () => setHasUnsavedChanges(false),
   }))
 
+  // Check if all languages have the same number of benefits
+  const validateBenefitCounts = () => {
+    const values = form.getValues()
+    const counts = languages.map(lang => values[lang]?.length || 0)
+    
+    // Check if all counts are the same
+    const allEqual = counts.every(count => count === counts[0])
+    setBenefitCountMismatch(!allEqual)
+    
+    return allEqual
+  }
+
   // Update parent component with form data on change
   useEffect(() => {
     const subscription = form.watch((value) => {
       setHasUnsavedChanges(true)
+      validateBenefitCounts()
       if (onDataChange) {
         onDataChange(value)
       }
@@ -103,12 +126,34 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
 
   const handleSave = async () => {
     const isValid = await form.trigger()
+    const hasEqualBenefitCounts = validateBenefitCounts()
+
+    if (!hasEqualBenefitCounts) {
+      setIsValidationDialogOpen(true)
+      return
+    }
+
     if (isValid) {
       // Here you would typically save to an API
       toast({
         title: "Benefits content saved",
         description: "Your benefits content has been saved successfully.",
       })
+
+      // Get the form values
+      const formData = form.getValues()
+
+      // Convert the form data to an array format
+      const benefitsArray = Object.entries(formData).flatMap(([language, benefits]) => {
+        return benefits.map((benefit: any) => ({
+          language,
+          ...benefit,
+        }))
+      })
+
+      // Log the array to console
+      console.log("Benefits data as array:", benefitsArray)
+
       setHasUnsavedChanges(false)
     }
   }
@@ -141,6 +186,15 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
     const updatedBenefits = [...currentBenefits]
     updatedBenefits.splice(index, 1)
     form.setValue(lang, updatedBenefits)
+  }
+
+  // Function to get benefit counts by language
+  const getBenefitCountsByLanguage = () => {
+    const values = form.getValues()
+    return languages.map(lang => ({
+      language: lang,
+      count: values[lang]?.length || 0
+    }))
   }
 
   return (
@@ -239,11 +293,48 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
         </div>
       </Form>
       <div className="flex justify-end mt-6">
-        <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
+        {benefitCountMismatch && (
+          <div className="flex items-center text-amber-500 mr-4">
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            <span className="text-sm">Each language must have the same number of benefits</span>
+          </div>
+        )}
+        <Button 
+          type="button" 
+          onClick={handleSave} 
+          disabled={!hasUnsavedChanges || benefitCountMismatch} 
+          className="flex items-center"
+        >
           <Save className="mr-2 h-4 w-4" />
           Save Benefits Content
         </Button>
       </div>
+
+      {/* Validation Dialog */}
+      <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Benefit Count Mismatch</DialogTitle>
+            <DialogDescription>
+              <div className="mt-4 mb-4">
+                Each language must have the same number of benefits before saving. Please add or remove benefits to ensure all languages have the same count:
+              </div>
+              <ul className="list-disc pl-6 space-y-1">
+                {getBenefitCountsByLanguage().map(({ language, count }) => (
+                  <li key={language}>
+                    <span className="font-semibold uppercase">{language}</span>: {count} benefits
+                  </li>
+                ))}
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setIsValidationDialogOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })

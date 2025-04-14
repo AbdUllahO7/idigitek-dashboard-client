@@ -2,7 +2,15 @@
 
 import { forwardRef, useImperativeHandle, useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/src/components/ui/form"
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -23,77 +31,75 @@ const createHeroSchema = (languages: readonly string[]) => {
   // Create a record of language fields
   const schemaShape: Record<string, any> = {
     backgroundImage: z.string().min(1, { message: "Background image is required" }),
-  };
-  
+  }
+
   // Add language-specific fields
   languages.forEach((lang) => {
     schemaShape[lang] = z.object({
       title: z.string().min(1, { message: "Title is required" }),
       description: z.string().min(1, { message: "Description is required" }),
       backLinkText: z.string().min(1, { message: "Back link text is required" }),
-    });
-  });
-  
-  return z.object(schemaShape);
-};
+    })
+  })
+
+  return z.object(schemaShape)
+}
 
 // Helper type to infer the schema type
-type SchemaType = ReturnType<typeof createHeroSchema>;
+type SchemaType = ReturnType<typeof createHeroSchema>
 
 const createDefaultValues = (languages: readonly string[]) => {
   const defaultValues: Record<string, any> = {
     backgroundImage: "",
-  };
+  }
 
   languages.forEach((lang) => {
     defaultValues[lang] = {
       title: "",
       description: "",
       backLinkText: "",
-    };
-  });
+    }
+  })
 
-  return defaultValues;
-};
+  return defaultValues
+}
 
 const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, ref) => {
-  const formSchema = createHeroSchema(languages);
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  
+  const formSchema = createHeroSchema(languages)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
   // Use explicit typing for the form
   const form = useForm<z.infer<SchemaType>>({
     resolver: zodResolver(formSchema),
     defaultValues: createDefaultValues(languages),
-  });
+  })
 
   // Expose form data to parent component
   useImperativeHandle(ref, () => ({
     getFormData: async () => {
-      const isValid = await form.trigger();
+      const isValid = await form.trigger()
       if (!isValid) {
-        throw new Error("Hero form has validation errors");
+        throw new Error("Hero form has validation errors")
       }
-      return form.getValues();
+      return form.getValues()
     },
     form: form,
     hasUnsavedChanges,
     resetUnsavedChanges: () => setHasUnsavedChanges(false),
-  }));
+  }))
 
   // Update parent component with form data on change
   useEffect(() => {
     const subscription = form.watch((value) => {
       setHasUnsavedChanges(true)
       if (onDataChange) {
-        onDataChange(value);
+        onDataChange(value)
       }
-    });
-  
+    })
 
-    return () => subscription.unsubscribe();
-  }, [form, onDataChange]);
+    return () => subscription.unsubscribe()
+  }, [form, onDataChange])
 
-  
   const handleSave = async () => {
     const isValid = await form.trigger()
     if (isValid) {
@@ -102,6 +108,26 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
         title: "Benefits content saved",
         description: "Your benefits content has been saved successfully.",
       })
+
+      // Get the form values
+      const formData = form.getValues()
+
+      // Convert the form data to an array format
+      const dataArray = Object.entries(formData).map(([key, value]) => {
+        if (key === "backgroundImage") {
+          return { type: "backgroundImage", value }
+        } else {
+          // This is a language entry
+          return {
+            language: key,
+            ...value,
+          }
+        }
+      })
+
+      // Log the array to console
+      console.log("Form data as array:", dataArray)
+
       setHasUnsavedChanges(false)
     }
   }
@@ -184,10 +210,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
                     <FormItem>
                       <FormLabel>Button Text</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Get Started"
-                          {...field}
-                        />
+                        <Input placeholder="Get Started" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -198,16 +221,16 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
           ))}
         </div>
       </Form>
-       <div className="flex justify-end mt-6">
-              <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
-                <Save className="mr-2 h-4 w-4" />
-                Save Benefits Content
-              </Button>
-            </div>
+      <div className="flex justify-end mt-6">
+        <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
+          <Save className="mr-2 h-4 w-4" />
+          Save Benefits Content
+        </Button>
+      </div>
     </div>
   )
-});
+})
 
-HeroForm.displayName = "HeroForm";
+HeroForm.displayName = "HeroForm"
 
-export default HeroForm;
+export default HeroForm
