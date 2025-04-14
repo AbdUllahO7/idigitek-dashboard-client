@@ -1,8 +1,19 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import NProgress from "nprogress"
+
+// Separate component that uses searchParams
+function SearchParamsWatcher() {
+  const searchParams = useSearchParams()
+  
+  useEffect(() => {
+    NProgress.done()
+  }, [searchParams])
+  
+  return null
+}
 
 /**
  * Navigation Progress component
@@ -10,7 +21,6 @@ import NProgress from "nprogress"
  */
 export function NavigationProgress() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   // Configure NProgress
   NProgress.configure({
@@ -75,10 +85,14 @@ export function NavigationProgress() {
     }
   }, [])
 
-  // Reset progress when the route changes
+  // Reset progress when pathname changes
   useEffect(() => {
     NProgress.done()
-  }, [pathname, searchParams])
+  }, [pathname])
 
-  return null
+  return (
+    <Suspense fallback={null}>
+      <SearchParamsWatcher />
+    </Suspense>
+  )
 }

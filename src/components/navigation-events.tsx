@@ -1,8 +1,19 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { FullPageLoader } from "./ui/loader"
+
+// Component that uses searchParams
+function SearchParamsWatcher({ setIsNavigating }: { setIsNavigating: (value: boolean) => void }) {
+  const searchParams = useSearchParams()
+  
+  useEffect(() => {
+    setIsNavigating(false)
+  }, [searchParams, setIsNavigating])
+  
+  return null
+}
 
 /**
  * Navigation Events component
@@ -10,7 +21,6 @@ import { FullPageLoader } from "./ui/loader"
  */
 export function NavigationEvents() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const [isNavigating, setIsNavigating] = useState(false)
   const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null)
 
@@ -46,10 +56,17 @@ export function NavigationEvents() {
     }
   }, [loadingTimeout])
 
-  // Reset loading state when the route changes
+  // Reset loading state when pathname changes
   useEffect(() => {
     setIsNavigating(false)
-  }, [pathname, searchParams])
+  }, [pathname])
 
-  return isNavigating ? <FullPageLoader text="Navigating..." /> : null
+  return (
+    <>
+      <Suspense fallback={null}>
+        <SearchParamsWatcher setIsNavigating={setIsNavigating} />
+      </Suspense>
+      {isNavigating ? <FullPageLoader text="Navigating..." /> : null}
+    </>
+  )
 }

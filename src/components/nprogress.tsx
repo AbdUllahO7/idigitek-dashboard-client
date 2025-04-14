@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import NProgress from "nprogress"
 
@@ -13,9 +13,21 @@ NProgress.configure({
   trickleSpeed: 200,
 })
 
+// Create a separate component for the search params logic
+function NavigationProgressWithSearchParams() {
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  
+  // Reset progress when the route changes
+  useEffect(() => {
+    NProgress.done()
+  }, [pathname, searchParams])
+  
+  return null
+}
+
 export function NavigationProgress() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     // Create custom CSS for NProgress
@@ -67,10 +79,14 @@ export function NavigationProgress() {
     }
   }, [])
 
-  // Reset progress when the route changes
+  // Reset progress when pathname changes
   useEffect(() => {
     NProgress.done()
-  }, [pathname, searchParams])
+  }, [pathname])
 
-  return null
+  return (
+    <Suspense fallback={null}>
+      <NavigationProgressWithSearchParams />
+    </Suspense>
+  )
 }
