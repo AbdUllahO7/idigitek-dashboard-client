@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 import { Plus } from "lucide-react"
 import Link from "next/link"
-import ServiceSectionComponent, { ServiceSection } from "@/src/components/add-secton-basic-info"
+import MultilingualServiceSectionComponent from "./components/add-secton-basic-info"
 
 /**
  * Sample Service data
@@ -85,7 +85,7 @@ export default function ServicesPage() {
       </div>
 
       {/* Service Section Component */}
-      <ServiceSectionComponent serviceSection={serviceSection} onSectionChange={setServiceSection} />
+      <MultilingualServiceSectionComponent serviceSection={serviceSection} onSectionChange={setServiceSection} />
 
       {/* Products table */}
       <Card>
