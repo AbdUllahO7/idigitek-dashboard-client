@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { toast } from "@/src/components/ui/use-toast"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, Save } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 interface BenefitsFormProps {
   languages: readonly string[]
@@ -73,6 +73,8 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
     defaultValues: createDefaultValues(languages),
   })
 
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
   // Expose form data to parent component
   useImperativeHandle(ref, () => ({
     getFormData: async () => {
@@ -83,11 +85,14 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
       return form.getValues()
     },
     form: form,
+    hasUnsavedChanges,
+    resetUnsavedChanges: () => setHasUnsavedChanges(false),
   }))
 
   // Update parent component with form data on change
   useEffect(() => {
     const subscription = form.watch((value) => {
+      setHasUnsavedChanges(true)
       if (onDataChange) {
         onDataChange(value)
       }
@@ -95,6 +100,18 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
 
     return () => subscription.unsubscribe()
   }, [form, onDataChange])
+
+  const handleSave = async () => {
+    const isValid = await form.trigger()
+    if (isValid) {
+      // Here you would typically save to an API
+      toast({
+        title: "Benefits content saved",
+        description: "Your benefits content has been saved successfully.",
+      })
+      setHasUnsavedChanges(false)
+    }
+  }
 
   // Function to add a new benefit
   const addBenefit = (lang: string) => {
@@ -221,6 +238,12 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languages, onDataChan
           ))}
         </div>
       </Form>
+      <div className="flex justify-end mt-6">
+        <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
+          <Save className="mr-2 h-4 w-4" />
+          Save Benefits Content
+        </Button>
+      </div>
     </div>
   )
 })

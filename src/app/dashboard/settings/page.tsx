@@ -9,6 +9,8 @@ import { Label } from "@/src/components/ui/label"
 import { Input } from "@/src/components/ui/input"
 import { Button } from "@/src/components/ui/button"
 import { Switch } from "@/src/components/ui/switch"
+import { Edit } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 /**
  * Settings page component
@@ -17,6 +19,11 @@ import { Switch } from "@/src/components/ui/switch"
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
+
+  const handleNavigate = () => { 
+    router.push("/websiteConfiguration")
+  }
 
 
   return (
@@ -24,6 +31,10 @@ export default function SettingsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <Button onClick={handleNavigate} variant="outline">
+          <Edit/>
+            <span className="text-sm font-medium  ">Edit Sections</span>
+        </Button>
       </div>
 
       {/* Settings tabs */}
@@ -34,7 +45,7 @@ export default function SettingsPage() {
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
-
+        
         {/* Account tab content */}
         <TabsContent value="account" className="space-y-6">
           {loading ? (

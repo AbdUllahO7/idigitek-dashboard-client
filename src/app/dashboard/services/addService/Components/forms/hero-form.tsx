@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useImperativeHandle, useEffect } from "react"
+import { forwardRef, useImperativeHandle, useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Input } from "@/src/components/ui/input"
@@ -9,6 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { ImageUpload } from "@/src/lib/ImageUploader"
+import { Button } from "@/src/components/ui/button"
+import { Save } from "lucide-react"
+import { toast } from "@/src/hooks/use-toast"
 
 interface HeroFormProps {
   languages: readonly string[]
@@ -55,6 +58,7 @@ const createDefaultValues = (languages: readonly string[]) => {
 
 const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, ref) => {
   const formSchema = createHeroSchema(languages);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   
   // Use explicit typing for the form
   const form = useForm<z.infer<SchemaType>>({
@@ -72,19 +76,35 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
       return form.getValues();
     },
     form: form,
+    hasUnsavedChanges,
+    resetUnsavedChanges: () => setHasUnsavedChanges(false),
   }));
 
   // Update parent component with form data on change
   useEffect(() => {
     const subscription = form.watch((value) => {
+      setHasUnsavedChanges(true)
       if (onDataChange) {
         onDataChange(value);
       }
     });
+  
 
     return () => subscription.unsubscribe();
   }, [form, onDataChange]);
 
+  
+  const handleSave = async () => {
+    const isValid = await form.trigger()
+    if (isValid) {
+      // Here you would typically save to an API
+      toast({
+        title: "Benefits content saved",
+        description: "Your benefits content has been saved successfully.",
+      })
+      setHasUnsavedChanges(false)
+    }
+  }
   return (
     <div className="space-y-6">
       <Form {...form}>
@@ -178,6 +198,12 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
           ))}
         </div>
       </Form>
+       <div className="flex justify-end mt-6">
+              <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
+                <Save className="mr-2 h-4 w-4" />
+                Save Benefits Content
+              </Button>
+            </div>
     </div>
   )
 });

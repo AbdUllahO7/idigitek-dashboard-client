@@ -21,7 +21,7 @@ export type FormData = {
   faq: any
 }
 
-export default function AdminDashboard() {
+export default function addService() {
   const languages = ["en", "ar", "fr"] as const
   const [activeTab, setActiveTab] = useState("hero")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -30,11 +30,11 @@ export default function AdminDashboard() {
   const tabOrder = ["hero", "benefits", "features", "process", "faq"]
 
   // Create refs for each form
-  const heroFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
-  const benefitsFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
-  const featuresFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
-  const processStepsFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
-  const faqFormRef = useRef<{ getFormData: () => Promise<void> } | null>(null)
+  const heroFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
+  const benefitsFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
+  const featuresFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
+  const processStepsFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
+  const faqFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
 
   // State to store all form data
   const [formData, setFormData] = useState<FormData>({
@@ -45,12 +45,31 @@ export default function AdminDashboard() {
     faq: {},
   })
 
+  // Add this state to track if any form has unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
   // Function to update form data
   const updateFormData = (section: keyof FormData, data: any) => {
     setFormData((prev) => ({
       ...prev,
       [section]: data,
     }))
+
+    // Check if any form has unsaved changes
+    checkUnsavedChanges()
+  }
+
+  // Add this function to check if any form has unsaved changes
+  const checkUnsavedChanges = () => {
+    const heroHasChanges = heroFormRef.current?.hasUnsavedChanges || false
+    const benefitsHasChanges = benefitsFormRef.current?.hasUnsavedChanges || false
+    const featuresHasChanges = featuresFormRef.current?.hasUnsavedChanges || false
+    const processStepsHasChanges = processStepsFormRef.current?.hasUnsavedChanges || false
+    const faqHasChanges = faqFormRef.current?.hasUnsavedChanges || false
+
+    setHasUnsavedChanges(
+      heroHasChanges || benefitsHasChanges || featuresHasChanges || processStepsHasChanges || faqHasChanges,
+    )
   }
 
   // Function to save all data
@@ -135,6 +154,17 @@ export default function AdminDashboard() {
         // Validate current form before proceeding
         const currentFormRef = getCurrentFormRef()
         await currentFormRef?.current?.getFormData()
+
+        // Check if there are unsaved changes
+        if (hasUnsavedChanges) {
+          toast({
+            title: "Unsaved Changes",
+            description: "Please save your changes before proceeding.",
+            variant: "destructive",
+          })
+          return
+        }
+
         setActiveTab(newTab)
       } catch (error) {
         toast({
@@ -144,7 +174,17 @@ export default function AdminDashboard() {
         })
       }
     } else {
-      // If going backward, no validation needed
+      // If going backward, check for unsaved changes
+      if (hasUnsavedChanges) {
+        toast({
+          title: "Unsaved Changes",
+          description: "Please save your changes before proceeding.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // If no unsaved changes, allow navigation
       setActiveTab(newTab)
     }
   }
@@ -153,13 +193,45 @@ export default function AdminDashboard() {
   const goToNextTab = async () => {
     const currentIndex = tabOrder.indexOf(activeTab)
     if (currentIndex < tabOrder.length - 1) {
-      const nextTab = tabOrder[currentIndex + 1]
-      handleTabChange(nextTab)
+      try {
+        // Validate current form before proceeding
+        const currentFormRef = getCurrentFormRef()
+        await currentFormRef?.current?.getFormData()
+
+        // Check if there are unsaved changes
+        if (hasUnsavedChanges) {
+          toast({
+            title: "Unsaved Changes",
+            description: "Please save your changes before proceeding.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        const nextTab = tabOrder[currentIndex + 1]
+        setActiveTab(nextTab)
+      } catch (error) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields before proceeding.",
+          variant: "destructive",
+        })
+      }
     }
   }
 
   // Function to navigate to previous tab
   const goToPreviousTab = () => {
+    // Check if there are unsaved changes
+    if (hasUnsavedChanges) {
+      toast({
+        title: "Unsaved Changes",
+        description: "Please save your changes before proceeding.",
+        variant: "destructive",
+      })
+      return
+    }
+
     const currentIndex = tabOrder.indexOf(activeTab)
     if (currentIndex > 0) {
       const prevTab = tabOrder[currentIndex - 1]
@@ -234,7 +306,12 @@ export default function AdminDashboard() {
 
         <div className="pt-6 border-t flex justify-between">
           {!isFirstTab && (
-            <Button onClick={goToPreviousTab} variant="outline" className="flex items-center">
+            <Button
+              onClick={goToPreviousTab}
+              variant="outline"
+              className="flex items-center"
+              disabled={hasUnsavedChanges}
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Previous
             </Button>
@@ -243,7 +320,7 @@ export default function AdminDashboard() {
           <div className="flex-1" />
 
           {!isLastTab ? (
-            <Button onClick={goToNextTab} className="flex items-center">
+            <Button onClick={goToNextTab} className="flex items-center" disabled={hasUnsavedChanges}>
               Next
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
