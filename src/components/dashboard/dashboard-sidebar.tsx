@@ -75,12 +75,6 @@ const allNavItems: NavItem[] = [
     sectionId: "service", // Show when "service" section is selected
   },
   {
-    title: "Services Management",
-    href: "/dashboard/services-management",
-    icon: Package,
-    sectionId: "servicesSection", // Show when "servicesSection" section is selected
-  },
-  {
     title: "Blog",
     href: "/dashboard/blog",
     icon: FileText,

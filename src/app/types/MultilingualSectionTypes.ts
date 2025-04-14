@@ -25,6 +25,8 @@ export interface MultilingualSectionProps {
   // Component configuration
   sectionTitle: string
   sectionDescription?: string
+
+  sectionName?:string
   
   // Data configuration
   fields: FieldConfig[]

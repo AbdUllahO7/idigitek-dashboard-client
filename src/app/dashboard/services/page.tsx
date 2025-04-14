@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import { Badge } from "@/src/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
-import { Plus } from "lucide-react"
+import { Plus, Info, ArrowRight, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
-import { FieldConfig, LanguageConfig, MultilingualSectionData } from "../../types/MultilingualSectionTypes"
+import type { FieldConfig, LanguageConfig, MultilingualSectionData } from "../../types/MultilingualSectionTypes"
 import MultilingualSectionComponent from "@/src/components/dashboard/MultilingualSectionComponent"
 
 /**
@@ -100,8 +100,8 @@ export default function ServicesPage() {
         </Link>
       </div>
 
-        {/* Service Section Component */}
-        <MultilingualSectionComponent
+      {/* Service Section Component */}
+      <MultilingualSectionComponent
           sectionTitle="Multilingual Service Section"
           sectionDescription="Manage your service section in multiple languages."
           fields={serviceFields}
@@ -111,8 +111,9 @@ export default function ServicesPage() {
           addButtonLabel="Add Section"
           editButtonLabel="Edit Section"
           saveButtonLabel="Save Section"
+          sectionName = "Services"
           noDataMessage="No service section added yet. Click the 'Add Section' button to create one."
-        />
+      />
 
       {/* Products table */}
       <Card>
