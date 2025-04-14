@@ -125,113 +125,23 @@ export default function addService() {
     }
   }
 
-  // Get the current form ref based on active tab
-  const getCurrentFormRef = () => {
-    switch (activeTab) {
-      case "hero":
-        return heroFormRef
-      case "benefits":
-        return benefitsFormRef
-      case "features":
-        return featuresFormRef
-      case "process":
-        return processStepsFormRef
-      case "faq":
-        return faqFormRef
-      default:
-        return null
-    }
+  // Modified to allow free tab navigation without validation
+  const handleTabChange = (newTab: string) => {
+    // Set the active tab without validation
+    setActiveTab(newTab)
   }
 
-  // Function to handle tab change with validation
-  const handleTabChange = async (newTab: string) => {
-    // If trying to go forward, validate the current form
-    const currentIndex = tabOrder.indexOf(activeTab)
-    const newIndex = tabOrder.indexOf(newTab)
-
-    if (newIndex > currentIndex) {
-      try {
-        // Validate current form before proceeding
-        const currentFormRef = getCurrentFormRef()
-        await currentFormRef?.current?.getFormData()
-
-        // Check if there are unsaved changes
-        if (hasUnsavedChanges) {
-          toast({
-            title: "Unsaved Changes",
-            description: "Please save your changes before proceeding.",
-            variant: "destructive",
-          })
-          return
-        }
-
-        setActiveTab(newTab)
-      } catch (error) {
-        toast({
-          title: "Validation Error",
-          description: "Please fill in all required fields before proceeding.",
-          variant: "destructive",
-        })
-      }
-    } else {
-      // If going backward, check for unsaved changes
-      if (hasUnsavedChanges) {
-        toast({
-          title: "Unsaved Changes",
-          description: "Please save your changes before proceeding.",
-          variant: "destructive",
-        })
-        return
-      }
-
-      // If no unsaved changes, allow navigation
-      setActiveTab(newTab)
-    }
-  }
-
-  // Function to navigate to next tab
-  const goToNextTab = async () => {
+  // Modified to allow free navigation to next tab
+  const goToNextTab = () => {
     const currentIndex = tabOrder.indexOf(activeTab)
     if (currentIndex < tabOrder.length - 1) {
-      try {
-        // Validate current form before proceeding
-        const currentFormRef = getCurrentFormRef()
-        await currentFormRef?.current?.getFormData()
-
-        // Check if there are unsaved changes
-        if (hasUnsavedChanges) {
-          toast({
-            title: "Unsaved Changes",
-            description: "Please save your changes before proceeding.",
-            variant: "destructive",
-          })
-          return
-        }
-
-        const nextTab = tabOrder[currentIndex + 1]
-        setActiveTab(nextTab)
-      } catch (error) {
-        toast({
-          title: "Validation Error",
-          description: "Please fill in all required fields before proceeding.",
-          variant: "destructive",
-        })
-      }
+      const nextTab = tabOrder[currentIndex + 1]
+      setActiveTab(nextTab)
     }
   }
 
-  // Function to navigate to previous tab
+  // Modified to allow free navigation to previous tab
   const goToPreviousTab = () => {
-    // Check if there are unsaved changes
-    if (hasUnsavedChanges) {
-      toast({
-        title: "Unsaved Changes",
-        description: "Please save your changes before proceeding.",
-        variant: "destructive",
-      })
-      return
-    }
-
     const currentIndex = tabOrder.indexOf(activeTab)
     if (currentIndex > 0) {
       const prevTab = tabOrder[currentIndex - 1]
@@ -310,7 +220,6 @@ export default function addService() {
               onClick={goToPreviousTab}
               variant="outline"
               className="flex items-center"
-              disabled={hasUnsavedChanges}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Previous
@@ -319,8 +228,8 @@ export default function addService() {
 
           <div className="flex-1" />
 
-          {!isLastTab ? (
-            <Button onClick={goToNextTab} className="flex items-center" disabled={hasUnsavedChanges}>
+          {/* {!isLastTab ? (
+            <Button onClick={goToNextTab} className="flex items-center">
               Next
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -329,7 +238,7 @@ export default function addService() {
               {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
               Save All Content
             </Button>
-          )}
+          )} */}
         </div>
       </div>
     </div>

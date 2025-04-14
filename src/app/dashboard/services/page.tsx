@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 import { Plus } from "lucide-react"
 import Link from "next/link"
-import MultilingualServiceSectionComponent from "./components/add-secton-basic-info"
+import { FieldConfig, LanguageConfig, MultilingualSectionData } from "../../types/MultilingualSectionTypes"
+import MultilingualSectionComponent from "@/src/components/dashboard/MultilingualSectionComponent"
 
 /**
  * Sample Service data
@@ -61,7 +62,22 @@ const service = [
 export default function ServicesPage() {
   const [loading, setLoading] = useState(false)
   const [productData, setProductData] = useState<typeof service>([])
-  const [serviceSection, setServiceSection] = useState<ServiceSection | null>(null)
+  const [serviceSection, setServiceSection] = useState<MultilingualSectionData | null>(null)
+
+  // Define languages for the multilingual section
+  const languages: LanguageConfig[] = [
+    { id: "lang1", label: "English" },
+    { id: "lang2", label: "French" },
+    { id: "lang3", label: "Spanish" },
+  ]
+
+  // Define fields for the service section
+  const serviceFields: FieldConfig[] = [
+    { id: "sectionLabel", label: "Section Label", type: "text", required: true },
+    { id: "sectionTitle", label: "Section Title", type: "text", required: true },
+    { id: "sectionDescription", label: "Section Description", type: "textarea", required: true },
+    { id: "serviceDetails", label: "Service Details", type: "badge", required: true },
+  ]
 
   // Simulate API fetch
   useEffect(() => {
@@ -84,8 +100,19 @@ export default function ServicesPage() {
         </Link>
       </div>
 
-      {/* Service Section Component */}
-      <MultilingualServiceSectionComponent serviceSection={serviceSection} onSectionChange={setServiceSection} />
+        {/* Service Section Component */}
+        <MultilingualSectionComponent
+          sectionTitle="Multilingual Service Section"
+          sectionDescription="Manage your service section in multiple languages."
+          fields={serviceFields}
+          languages={languages}
+          sectionData={serviceSection}
+          onSectionChange={setServiceSection}
+          addButtonLabel="Add Section"
+          editButtonLabel="Edit Section"
+          saveButtonLabel="Save Section"
+          noDataMessage="No service section added yet. Click the 'Add Section' button to create one."
+        />
 
       {/* Products table */}
       <Card>
