@@ -8,6 +8,7 @@ import { Input } from "../ui/input"
 import { ThemeToggle } from "../theme-toggle"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { useAuth } from "@/src/context/AuthContext"
 
 /**
  * Props for the DashboardHeader component
@@ -22,6 +23,30 @@ interface DashboardHeaderProps {
  * Contains the top navigation bar with search, notifications, and user menu
  */
 export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: DashboardHeaderProps) {
+
+
+    const { logout  } = useAuth();
+
+
+     const handleSubmit = async (e: React.FormEvent) => {
+
+        e.preventDefault()
+
+    
+        try {
+
+          // Call the login function from our auth context
+          await logout()
+          
+          // Trigger navigation event manually (if needed for your app)
+          document.dispatchEvent(new Event("navigationstart"))
+          
+    
+        } catch (err: any) {
+        console.log(err)
+        }
+      }
+  
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 shadow-sm">
       {/* Mobile sidebar toggle */}
@@ -79,7 +104,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
             </DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSubmit}>Log out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

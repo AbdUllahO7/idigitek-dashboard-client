@@ -6,11 +6,7 @@ import { FullPageLoader } from "./ui/loader"
 
 // Component that uses searchParams
 function SearchParamsWatcher({ setIsNavigating }: { setIsNavigating: (value: boolean) => void }) {
-  const searchParams = useSearchParams()
-  
-  useEffect(() => {
-    setIsNavigating(false)
-  }, [searchParams, setIsNavigating])
+
   
   return null
 }
@@ -24,15 +20,15 @@ export function NavigationEvents() {
   const [isNavigating, setIsNavigating] = useState(false)
   const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null)
 
-  useEffect(() => {
+  // useEffect(() => {
     // Handler for navigation start
-    const handleRouteChangeStart = () => {
-      // Set a minimum loading time to avoid flickering for fast navigations
-      const timeout = setTimeout(() => {
-        setIsNavigating(true)
-      }, 100)
-      setLoadingTimeout(timeout)
-    }
+    // const handleRouteChangeStart = () => {
+    //   // Set a minimum loading time to avoid flickering for fast navigations
+    //   const timeout = setTimeout(() => {
+    //     setIsNavigating(true)
+    //   }, 100)
+    //   setLoadingTimeout(timeout)
+    // }
 
     // Handler for navigation end
     const handleRouteChangeComplete = () => {
@@ -43,18 +39,18 @@ export function NavigationEvents() {
     }
 
     // Add event listeners for route changes
-    document.addEventListener("navigationstart", handleRouteChangeStart)
-    document.addEventListener("navigationend", handleRouteChangeComplete)
+    // document.addEventListener("navigationstart", handleRouteChangeStart)
+    // document.addEventListener("navigationend", handleRouteChangeComplete)
 
     // Clean up event listeners
-    return () => {
-      if (loadingTimeout) {
-        clearTimeout(loadingTimeout)
-      }
-      document.removeEventListener("navigationstart", handleRouteChangeStart)
-      document.removeEventListener("navigationend", handleRouteChangeComplete)
-    }
-  }, [loadingTimeout])
+  //   return () => {
+  //     if (loadingTimeout) {
+  //       clearTimeout(loadingTimeout)
+  //     }
+  //     document.removeEventListener("navigationstart", handleRouteChangeStart)
+  //     document.removeEventListener("navigationend", handleRouteChangeComplete)
+  //   }
+  // }, [loadingTimeout])
 
   // Reset loading state when pathname changes
   useEffect(() => {
