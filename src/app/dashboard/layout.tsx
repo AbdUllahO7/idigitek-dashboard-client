@@ -1,16 +1,17 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import DashboardSidebar from "@/src/components/dashboard/dashboard-sidebar"
 import DashboardHeader from "@/src/components/dashboard/dashboard-header"
+import { useAuth } from "@/src/context/AuthContext"
+import ProtectedRoute from "@/src/components/auth/ProtectedRoute"
 
 /**
  * Dashboard layout component
- * Provides the layout structure for all dashboard pages
+ * Provides the layout structure for all dashboard pages with authentication protection
  */
 export default function DashboardLayout({
   children,
@@ -21,22 +22,23 @@ export default function DashboardLayout({
   const [isMobile, setIsMobile] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { isAuthenticated, isLoading } = useAuth()
 
   // Check for valid selections on client side as a fallback
   useEffect(() => {
-    try {
-      const selectedLanguages = JSON.parse(localStorage.getItem('selectedLanguages') || '[]')
-      const selectedSections = JSON.parse(localStorage.getItem('selectedSections') || '[]')
-      
-      if (!selectedLanguages.length || !selectedSections.length) {
+    if (!isLoading && isAuthenticated) {
+      try {
+        const selectedLanguages = JSON.parse(localStorage.getItem('selectedLanguages') || '[]')
+        const selectedSections = JSON.parse(localStorage.getItem('selectedSections') || '[]')
+        
+        if (!selectedLanguages.length || !selectedSections.length) {
+          router.replace('/websiteConfiguration')
+        }
+      } catch (error) {
         router.replace('/websiteConfiguration')
       }
-    } catch (error) {
-      router.replace('/websiteConfiguration')
     }
-  }, [router])
-
-
+  }, [router, isLoading, isAuthenticated])
 
   // Handle responsive sidebar
   useEffect(() => {
@@ -66,39 +68,42 @@ export default function DashboardLayout({
     }
   }, [pathname, isMobile])
 
+  // Use the ProtectedRoute component to secure the dashboard
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Animated sidebar */}
-      <AnimatePresence mode="wait">
-        {isSidebarOpen && (
-          <motion.div
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 280, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-y-0 left-0 z-20 w-[280px] border-r bg-background shadow-sm lg:relative"
-          >
-            <DashboardSidebar />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <ProtectedRoute>
+      <div className="flex h-screen overflow-hidden bg-background">
+        {/* Animated sidebar */}
+        <AnimatePresence mode="wait">
+          {isSidebarOpen && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 280, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="fixed inset-y-0 left-0 z-20 w-[280px] border-r bg-background shadow-sm lg:relative"
+            >
+              <DashboardSidebar />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <DashboardHeader isSidebarOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-        <main className="flex-1 overflow-auto p-4 transition-all duration-300 ease-in-out">
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="container mx-auto"
-          >
-            {children}
-          </motion.div>
-        </main>
+        {/* Main content area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <DashboardHeader isSidebarOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+          <main className="flex-1 overflow-auto p-4 transition-all duration-300 ease-in-out">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="container mx-auto"
+            >
+              {children}
+            </motion.div>
+          </main>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   )
 }

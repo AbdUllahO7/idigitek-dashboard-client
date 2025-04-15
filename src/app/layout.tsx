@@ -5,6 +5,8 @@ import './globals.css'
 import { ThemeProvider } from "../components/theme-provider" 
 import { NavigationEvents } from "../components/navigation-events"
 import { NavigationProgress } from "../components/navigation-progress"
+import { AuthProvider } from "../context/AuthContext"
+import QueryProvider from "../providers/QueryProvider"
 
 // Load Inter font
 const inter = Inter({ subsets: ["latin"] })
@@ -13,7 +15,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Dashboard",
   description: "Modern dashboard with Next.js, Tailwind CSS, and shadcn/ui",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 /**
@@ -30,16 +32,16 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {/* Navigation event handlers */}
-            <NavigationEvents />
-            <NavigationProgress />
-            {children}
+          <QueryProvider>
+            <AuthProvider>
+              {/* Navigation event handlers */}
+              <NavigationEvents />
+              <NavigationProgress />
+              {children}
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
   )
 }
-
-
-
-
