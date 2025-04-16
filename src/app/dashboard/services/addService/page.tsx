@@ -1,16 +1,17 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
-
 import { Button } from "@/src/components/ui/button"
 import { toast } from "@/src/components/ui/use-toast"
-import { Loader2, ArrowLeft, ArrowRight } from "lucide-react"
+import { Loader2, ArrowLeft, ArrowRight, Save, Globe, Layout, Sparkles, ListChecks, HelpCircle } from "lucide-react"
 import BenefitsForm from "./Components/forms/benefits-form"
 import FeaturesForm from "./Components/forms/features-form"
 import ProcessStepsForm from "./Components/forms/process-steps-form"
 import FaqForm from "./Components/forms/faq-form"
 import HeroForm from "./Components/forms/hero-form"
+import { Card, CardContent } from "@/src/components/ui/card"
 
 // Define the type for our form data
 export type FormData = {
@@ -21,13 +22,40 @@ export type FormData = {
   faq: any
 }
 
-export default function addService() {
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 100, damping: 10 },
+  },
+}
+
+export default function AddService() {
   const languages = ["en", "ar", "fr"] as const
   const [activeTab, setActiveTab] = useState("hero")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   // Define tab order for navigation
   const tabOrder = ["hero", "benefits", "features", "process", "faq"]
+  const tabIcons = {
+    hero: <Layout className="h-4 w-4" />,
+    benefits: <Sparkles className="h-4 w-4" />,
+    features: <ListChecks className="h-4 w-4" />,
+    process: <ArrowRight className="h-4 w-4" />,
+    faq: <HelpCircle className="h-4 w-4" />,
+  }
 
   // Create refs for each form
   const heroFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
@@ -71,6 +99,25 @@ export default function addService() {
       heroHasChanges || benefitsHasChanges || featuresHasChanges || processStepsHasChanges || faqHasChanges,
     )
   }
+
+  // Calculate progress
+  useEffect(() => {
+    const calculateProgress = () => {
+      const totalSections = 5 // hero, benefits, features, process, faq
+      let completedSections = 0
+
+      // Check if each section has data
+      if (Object.keys(formData.hero).length > 0) completedSections++
+      if (Object.keys(formData.benefits).length > 0) completedSections++
+      if (Object.keys(formData.features).length > 0) completedSections++
+      if (Object.keys(formData.processSteps).length > 0) completedSections++
+      if (Object.keys(formData.faq).length > 0) completedSections++
+
+      return (completedSections / totalSections) * 100
+    }
+
+    setProgress(calculateProgress())
+  }, [formData])
 
   // Function to save all data
   const saveAllData = async () => {
@@ -154,72 +201,131 @@ export default function addService() {
   const isFirstTab = activeTab === tabOrder[0]
 
   return (
-    <div className="container py-10">
+    <motion.div className="container py-10" initial="hidden" animate="visible" variants={containerVariants}>
       <div className="flex flex-col space-y-8">
-        <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Smart Drive Admin Dashboard</h1>
+        <motion.div className="flex flex-col space-y-2" variants={itemVariants}>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
+            Smart Drive Admin Dashboard
+          </h1>
           <p className="text-muted-foreground">Manage your Smart Drive content across multiple languages</p>
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col space-y-2">
-          <h2 className="text-lg font-medium">Languages</h2>
-          <div className="flex flex-wrap gap-2">
-            {languages.map((lang) => (
-              <div key={lang} className="bg-primary text-primary-foreground px-3 py-1 rounded-md text-sm font-medium">
-                {lang.toUpperCase()}
+        <motion.div variants={itemVariants}>
+          <Card className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border border-slate-200 dark:border-slate-700">
+            <CardContent className="p-6">
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                    <h2 className="text-lg font-medium">Languages</h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-500">Completion:</span>
+                    <div className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium">{Math.round(progress)}%</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {languages.map((lang) => (
+                    <div
+                      key={lang}
+                      className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm flex items-center gap-2"
+                    >
+                      <Globe className="h-4 w-4" />
+                      {lang.toUpperCase()}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="hero">Hero</TabsTrigger>
-            <TabsTrigger value="benefits">Benefits</TabsTrigger>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="process">Process Steps</TabsTrigger>
-            <TabsTrigger value="faq">FAQ</TabsTrigger>
-          </TabsList>
+        <motion.div
+          variants={itemVariants}
+          className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden"
+        >
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="w-full p-0 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 rounded-none">
+              {tabOrder.map((tab) => (
+                <TabsTrigger
+                  key={tab}
+                  value={tab}
+                  className="flex-1 py-3 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none"
+                >
+                  <div className="flex items-center gap-2">
+                    {tabIcons[tab as keyof typeof tabIcons]}
+                    <span className="capitalize">{tab}</span>
+                  </div>
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-          <TabsContent value="hero" className="space-y-4">
-            <HeroForm languages={languages} ref={heroFormRef} onDataChange={(data) => updateFormData("hero", data)} />
-          </TabsContent>
+            <div className="p-6">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TabsContent value="hero" className="mt-0">
+                    <HeroForm
+                      languages={languages}
+                      ref={heroFormRef}
+                      onDataChange={(data) => updateFormData("hero", data)}
+                    />
+                  </TabsContent>
 
-          <TabsContent value="benefits" className="space-y-4">
-            <BenefitsForm
-              languages={languages}
-              ref={benefitsFormRef}
-              onDataChange={(data) => updateFormData("benefits", data)}
-            />
-          </TabsContent>
+                  <TabsContent value="benefits" className="mt-0">
+                    <BenefitsForm
+                      languages={languages}
+                      ref={benefitsFormRef}
+                      onDataChange={(data) => updateFormData("benefits", data)}
+                    />
+                  </TabsContent>
 
-          <TabsContent value="features" className="space-y-4">
-            <FeaturesForm
-              languages={languages}
-              ref={featuresFormRef}
-              onDataChange={(data) => updateFormData("features", data)}
-            />
-          </TabsContent>
+                  <TabsContent value="features" className="mt-0">
+                    <FeaturesForm
+                      languages={languages}
+                      ref={featuresFormRef}
+                      onDataChange={(data) => updateFormData("features", data)}
+                    />
+                  </TabsContent>
 
-          <TabsContent value="process" className="space-y-4">
-            <ProcessStepsForm
-              languages={languages}
-              ref={processStepsFormRef}
-              onDataChange={(data) => updateFormData("processSteps", data)}
-            />
-          </TabsContent>
+                  <TabsContent value="process" className="mt-0">
+                    <ProcessStepsForm
+                      languages={languages}
+                      ref={processStepsFormRef}
+                      onDataChange={(data) => updateFormData("processSteps", data)}
+                    />
+                  </TabsContent>
 
-          <TabsContent value="faq" className="space-y-4">
-            <FaqForm languages={languages} ref={faqFormRef} onDataChange={(data) => updateFormData("faq", data)} />
-          </TabsContent>
-        </Tabs>
+                  <TabsContent value="faq" className="mt-0">
+                    <FaqForm
+                      languages={languages}
+                      ref={faqFormRef}
+                      onDataChange={(data) => updateFormData("faq", data)}
+                    />
+                  </TabsContent>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </Tabs>
+        </motion.div>
 
-        <div className="pt-6 border-t flex justify-between">
+        <motion.div variants={itemVariants} className="pt-6 border-t flex justify-between">
           {!isFirstTab && (
             <Button
               onClick={goToPreviousTab}
               variant="outline"
-              className="flex items-center"
+              className="flex items-center border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800/50"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Previous
@@ -228,19 +334,35 @@ export default function addService() {
 
           <div className="flex-1" />
 
-          {/* {!isLastTab ? (
-            <Button onClick={goToNextTab} className="flex items-center">
+          {!isLastTab ? (
+            <Button
+              onClick={goToNextTab}
+              className="flex items-center bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20"
+            >
               Next
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={saveAllData} disabled={isSubmitting} className="h-12 text-lg" size="lg">
-              {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-              Save All Content
+            <Button
+              onClick={saveAllData}
+              disabled={isSubmitting}
+              className="h-12 text-lg bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-5 w-5" />
+                  Save All Content
+                </>
+              )}
             </Button>
-          )} */}
-        </div>
+          )}
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }

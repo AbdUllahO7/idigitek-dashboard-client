@@ -1,11 +1,11 @@
 // src/lib/api-client.ts
 import axios from 'axios';
 
-// Get API URL from environment variables
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
 
-// Create axios instance with default config
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+const CLIENT_ID = Math.random().toString(36).substring(2, 9);
+
 const apiClient = axios.create({
   baseURL: `${API_URL}/api/${API_VERSION}`,
   headers: {
@@ -13,65 +13,106 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor for adding auth token
-apiClient.interceptors.request.use(
-  (config) => {
-    // Get token from localStorage in client-side code
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Track if the client has been initialized (to prevent double initialization in dev mode)
+let isInitialized = false;
 
-// Response interceptor for handling errors
-// Response interceptor for handling errors
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    
-    // If error is 401 (Unauthorized) and we haven't tried to refresh the token yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+// Only run this setup once
+if (!isInitialized && typeof window !== 'undefined') {
+  console.log(`[API ${CLIENT_ID}] Initializing API client`);
+  
+  // Setup initial auth header if token exists
+  const token = localStorage.getItem('token');
+  if (token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log(`[API ${CLIENT_ID}] Initialized with existing token`);
+  }
+  
+  // Add a request interceptor to check for token and set it for each request
+  apiClient.interceptors.request.use(
+    (config) => {
+      // Only run on client side
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`;
+        }
+      }
+      return config;
+    },
+    (error) => {
+      console.error(`[API ${CLIENT_ID}] Request error:`, error);
+      return Promise.reject(error);
+    }
+  );
+  
+  // Add a response interceptor to handle token refresh
+  apiClient.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
+      const originalRequest = error.config;
       
-      try {
-        // Try to refresh the token
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (refreshToken) {
-          const { data } = await axios.post(`${API_URL}/api/${API_VERSION}/auth/refresh-token`, {
-            refreshToken,
-          });
+      // If we get a 401 Unauthorized error and we haven't already tried to refresh
+      if (error.response?.status === 401 && !originalRequest._retry && typeof window !== 'undefined') {
+        originalRequest._retry = true;
+        console.log(`[API ${CLIENT_ID}] Received 401, attempting token refresh`);
+        
+        try {
+          const refreshToken = localStorage.getItem('refreshToken');
           
-          // If token refresh successful, update tokens in localStorage
-          // Adapt this to match your API's response structure
-          if (data.data && data.data.tokens && data.data.tokens.accessToken) {
-            localStorage.setItem('token', data.data.tokens.accessToken);
-            if (data.data.tokens.refreshToken) {
-              localStorage.setItem('refreshToken', data.data.tokens.refreshToken);
-            }
+          if (refreshToken) {
+            // Call your refresh token endpoint
+            const response = await axios.post('/api/auth/refresh-token', { refreshToken });
             
-            // Update header and retry the original request
-            apiClient.defaults.headers.common.Authorization = `Bearer ${data.data.tokens.accessToken}`;
-            originalRequest.headers.Authorization = `Bearer ${data.data.tokens.accessToken}`;
-            return apiClient(originalRequest);
+            if (response.data && response.data.data && response.data.data.tokens) {
+              console.log(`[API ${CLIENT_ID}] Token refresh successful`);
+              // Save the new tokens
+              localStorage.setItem('token', response.data.data.tokens.accessToken);
+              if (response.data.data.tokens.refreshToken) {
+                localStorage.setItem('refreshToken', response.data.data.tokens.refreshToken);
+              }
+              
+              // Update auth header and retry original request
+              originalRequest.headers['Authorization'] = `Bearer ${response.data.data.tokens.accessToken}`;
+              return axios(originalRequest);
+            }
+          }
+          
+          console.log(`[API ${CLIENT_ID}] Token refresh failed, no valid refresh token`);
+        } catch (refreshError) {
+          console.error(`[API ${CLIENT_ID}] Token refresh failed:`, refreshError);
+          
+          // Clear tokens on refresh failure
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          sessionStorage.removeItem('userData');
+          
+          // Optionally redirect to login page on authentication failure
+          if (typeof window !== 'undefined') {
+            console.log(`[API ${CLIENT_ID}] Clearing auth state after refresh failure`);
           }
         }
-      } catch (refreshError) {
-        // If refresh fails, logout the user
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/sign-in';
-        return Promise.reject(refreshError);
       }
+      
+      // Log other errors
+      if (error.response) {
+        console.error(`[API ${CLIENT_ID}] Response error:`, {
+          status: error.response.status,
+          data: error.response.data,
+          url: originalRequest?.url
+        });
+      } else if (error.request) {
+        console.error(`[API ${CLIENT_ID}] Request made but no response:`, error.request);
+      } else {
+        console.error(`[API ${CLIENT_ID}] Error setting up request:`, error.message);
+      }
+      
+      return Promise.reject(error);
     }
-    
-    return Promise.reject(error);
-  }
-);
+  );
+  
+  isInitialized = true;
+}
 
 export default apiClient;

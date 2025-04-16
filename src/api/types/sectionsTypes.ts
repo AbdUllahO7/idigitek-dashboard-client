@@ -2,11 +2,12 @@ export interface Section {
     _id?: string;
     section_name: string;
     description?: string;
-    isActive: boolean;
-    order: number;
-    subSections: string[];
+    isActive?: boolean;
+    order?: number;
+    subSections?: string[];
     createdAt?: string;
     updatedAt?: string;
+    image?: string
   }
   
   // Create DTO type for creating a new section
@@ -16,6 +17,8 @@ export interface Section {
     isActive?: boolean;
     order?: number;
     subSections?: string[];
+    image?: string
+
   }
   
   // Create DTO type for updating a section
@@ -25,4 +28,5 @@ export interface Section {
     isActive?: boolean;
     order?: number;
     subSections?: string[];
+    image?: string
   }
