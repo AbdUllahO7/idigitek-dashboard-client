@@ -1,11 +1,10 @@
-import React from 'react'
+import { redirect } from "next/navigation"
 
-const Home = () => {
-  return (
-    <div>
-        Home
-    </div>
-  )
+/**
+ * Home page
+ * Redirects to the sign-in page
+ */
+export default function Home() {
+  // Redirect to sign-in page
+  redirect("/sign-in")
 }
-
-export default Home
