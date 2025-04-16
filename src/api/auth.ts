@@ -119,7 +119,6 @@ export const useRegister = () => {
 export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
-      console.log(`[AuthAPI ${API_ID}] Logout attempt`);
       
       try {
         // Check if we have a token before attempting to call the logout endpoint
@@ -128,17 +127,14 @@ export const useLogout = () => {
           // Send logout request to API but don't wait for it to complete
           // This way we always clear local storage regardless of API response
           apiClient.post('/auth/logout').catch(err => {
-            console.error(`[AuthAPI ${API_ID}] Logout API error (non-blocking):`, err);
           });
         }
       } catch (error) {
-        console.error(`[AuthAPI ${API_ID}] Error during logout:`, error);
       } finally {
         // Always clear local storage, even if API call fails
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         sessionStorage.removeItem('userData');
-        console.log(`[AuthAPI ${API_ID}] Cleared auth tokens`);
       }
       return true; // Always return success
     }
@@ -149,11 +145,9 @@ export const useLogout = () => {
 export const useCurrentUser = () => {
   return useMutation({
     mutationFn: async () => {
-      console.log(`[AuthAPI] Fetching current user`);
       
       try {
         const response = await apiClient.get('/users/me');
-        console.log(`[AuthAPI] Current user response:`, response.data);
         
         // Check all possible paths for user data
         let userData = null;
@@ -161,36 +155,29 @@ export const useCurrentUser = () => {
         if (response.data && response.data.user) {
           // First check the expected path
           userData = response.data.user;
-          console.log(`[AuthAPI] Found user at response.data.user`);
         } else if (response.data && response.data.data) {
           // Check if data is nested in a 'data' field
           if (response.data.data.user) {
             // Check if user is in data.data.user
             userData = response.data.data.user;
-            console.log(`[AuthAPI] Found user at response.data.data.user`);
           } else {
             // Maybe the data itself is the user object - check for required fields
             const possibleUser = response.data.data;
             if (possibleUser.id && possibleUser.email) {
               userData = possibleUser;
-              console.log(`[AuthAPI] Found user directly in response.data.data`);
             }
           }
         }
         
         if (userData) {
-          console.log(`[AuthAPI] Successfully extracted user data:`, userData);
           return userData;
         } else {
-          console.error(`[AuthAPI] No user data found in response`);
           return null;
         }
       } catch (error: any) {
-        console.error(`[AuthAPI] Error fetching user:`, error);
         
         // For 401/403 errors, clear tokens
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          console.error(`[AuthAPI] Authentication error fetching user:`, error.response.status);
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
           sessionStorage.removeItem('userData');
@@ -202,3 +189,4 @@ export const useCurrentUser = () => {
     }
   });
 };
+
