@@ -29,14 +29,12 @@ export default function ProtectedRoute({
   // Use a state with intentional delay for better UX
   const [readyToRender, setReadyToRender] = useState(false);
   
-  console.log(`[ProtectedRoute ${ROUTE_ID}] Initial state:`, { isAuthenticated, isLoading, user: user?.name });
   
   // Add a delay before initial redirect to prevent flash of protected content
   useEffect(() => {
     // Only set this once
     if (!hasRenderedRef.current) {
       const timer = setTimeout(() => {
-        console.log(`[ProtectedRoute ${ROUTE_ID}] Ready to render`);
         setReadyToRender(true);
         hasRenderedRef.current = true;
       }, 300); // Small delay to allow auth state to be fully determined
@@ -56,16 +54,10 @@ export default function ProtectedRoute({
     if (redirectingRef.current) {
       return;
     }
-    
-    console.log(`[ProtectedRoute ${ROUTE_ID}] Checking auth:`, { 
-      isAuthenticated, 
-      hasUser: !!user,
-      pathname 
-    });
+
     
     // If not authenticated, redirect to sign-in
     if (!isAuthenticated) {
-      console.log(`[ProtectedRoute ${ROUTE_ID}] Not authenticated, redirecting to sign-in`);
       redirectingRef.current = true;
       router.push(`/sign-in?redirect=${encodeURIComponent(pathname)}`);
       return;
@@ -75,9 +67,8 @@ export default function ProtectedRoute({
     if (isAuthenticated && user && allowedRoles.length > 0) {
       const hasPermission = allowedRoles.includes(user.role);
       if (!hasPermission) {
-        console.log(`[ProtectedRoute ${ROUTE_ID}] Unauthorized role (${user.role}), redirecting`);
         redirectingRef.current = true;
-        router.push('/unauthorized');
+        router.push('/sign-in');
       }
     }
   }, [isLoading, isAuthenticated, user, router, pathname, allowedRoles, readyToRender]);
@@ -99,11 +90,9 @@ export default function ProtectedRoute({
   
   // If role check is needed and user doesn't have permission
   if (allowedRoles.length > 0 && user && !allowedRoles.includes(user.role)) {
-    console.log(`[ProtectedRoute ${ROUTE_ID}] Not showing content - role not allowed`);
     return null;
   }
   
   // If all checks pass, render the children
-  console.log(`[ProtectedRoute ${ROUTE_ID}] All checks passed, rendering children`);
   return <>{children}</>;
 }

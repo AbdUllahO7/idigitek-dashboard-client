@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import { Button } from "../ui/button"
 import { cn } from "@/src/lib/utils"
+import { useAuth } from "@/src/context/AuthContext"
 
 /**
  * Navigation item interface
@@ -37,6 +38,7 @@ interface NavItem {
   href: string
   icon: React.ElementType
   sectionId?: string // The section ID this nav item corresponds to
+  roles?: string[] // Roles that can access this nav item
 }
 
 /**
@@ -167,7 +169,7 @@ const allNavItems: NavItem[] = [
     title: "Web Configurations",
     href: "/dashboard/addWebSiteConfiguration",
     icon: Settings,
-    // Settings is always shown
+    roles: ['superAdmin'], // Only superAdmin can see this
   },
 ]
 
@@ -180,37 +182,48 @@ export default function DashboardSidebar() {
   const router = useRouter()
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { isAuthenticated, user, isLoading:userIsLoading } = useAuth();
 
   useEffect(() => {
     // Load selected sections from localStorage
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && !userIsLoading) {
       try {
         const savedSections = localStorage.getItem("selectedSections")
+        const selectedSections = savedSections ? JSON.parse(savedSections) as string[] : []
 
-        if (savedSections) {
-          const selectedSections = JSON.parse(savedSections) as string[]
+       
+        const filteredNavItems = allNavItems.filter((item) => {
+          // Check if the item has role restrictions
+          if (item.roles && user?.role) {
+            // If item has role restrictions, user must have one of those roles
+            if (!item.roles.includes(user.role)) {
+              return false
+            }
+          }
 
-          // Filter navigation items based on selected sections
-          const filteredNavItems = allNavItems.filter((item) => {
-            // Include items that don't have a sectionId (always shown)
-            // Or items whose sectionId is in the selected sections
-            return !item.sectionId || selectedSections.includes(item.sectionId)
-          })
+          // Include items that don't have a sectionId (always shown)
+          // Or items whose sectionId is in the selected sections
+          return !item.sectionId || selectedSections.includes(item.sectionId)
+        })
 
-          setNavItems(filteredNavItems)
-        } else {
-          // If no sections are saved, show only the items without sectionId
-          setNavItems(allNavItems.filter((item) => !item.sectionId))
-        }
+        setNavItems(filteredNavItems)
       } catch (error) {
         console.error("Error loading saved sections:", error)
-        // In case of error, show only the items without sectionId
-        setNavItems(allNavItems.filter((item) => !item.sectionId))
+        // In case of error, show only the items without sectionId and respect role restrictions
+        setNavItems(allNavItems.filter((item) => {
+          // Check role restrictions
+          if (item.roles && user?.role) {
+            if (!item.roles.includes(user.role)) {
+              return false
+            }
+          }
+          return !item.sectionId
+        }))
       } finally {
         setIsLoading(false)
       }
     }
-  }, [])
+  }, [user, userIsLoading])
 
   /**
    * Handle navigation with loading indicator
@@ -220,7 +233,7 @@ export default function DashboardSidebar() {
   }
 
   // Show loading state while fetching sections
-  if (isLoading) {
+  if (isLoading || userIsLoading) {
     return (
       <div className="flex h-full flex-col border-r dark:border-slate-700 bg-background dark:bg-slate-900">
         <div className="flex h-16 items-center border-b dark:border-slate-700 px-6">

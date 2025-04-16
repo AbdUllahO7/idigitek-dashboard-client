@@ -50,7 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const stateLockRef = useRef(false);
   const stateVersionRef = useRef(0);
 
-  console.log(`[Auth ${CONTEXT_ID}] Provider initialized, user:`, user);
   
   const loginMutation = useLogin();
   const registerMutation = useRegister();
@@ -60,11 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Persist user data to both refs and sessionStorage
   const persistUser = (userData: User | null) => {
     if (stateLockRef.current) {
-      console.log(`[Auth ${CONTEXT_ID}] State locked, skipping update`);
       return;
     }
 
-    console.log(`[Auth ${CONTEXT_ID}] Persisting user:`, userData);
     
     // Lock the state to prevent rapid changes
     stateLockRef.current = true;
@@ -82,14 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           timestamp: Date.now()
         };
         sessionStorage.setItem('userData', JSON.stringify(userStore));
-        console.log(`[Auth ${CONTEXT_ID}] User data saved to sessionStorage v${stateVersionRef.current}`);
       } catch (e) {
-        console.error(`[Auth ${CONTEXT_ID}] Failed to save user data to sessionStorage:`, e);
       }
     } else if (typeof window !== 'undefined') {
       // Clear sessionStorage when user is null
       sessionStorage.removeItem('userData');
-      console.log(`[Auth ${CONTEXT_ID}] User data cleared from sessionStorage`);
     }
     
     // Update state
@@ -105,10 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setupAuthHeader = (token: string | null) => {
     if (token) {
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      console.log(`[Auth ${CONTEXT_ID}] Set auth header with token`);
     } else {
       delete apiClient.defaults.headers.common['Authorization'];
-      console.log(`[Auth ${CONTEXT_ID}] Cleared auth header`);
     }
   };
   
@@ -119,7 +111,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    console.log(`[Auth ${CONTEXT_ID}] Starting initial auth check`);
     
     const checkAuth = async () => {
       try {
@@ -135,7 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const isFresh = Date.now() - userStore.timestamp < 30 * 60 * 1000;
             
             if (userStore.user && isFresh) {
-              console.log(`[Auth ${CONTEXT_ID}] Restored user from sessionStorage:`, userStore.user);
               userRef.current = userStore.user;
               stateVersionRef.current = userStore.version;
               setUser(userStore.user);
@@ -149,7 +139,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           }
         } catch (e) {
-          console.error(`[Auth ${CONTEXT_ID}] Failed to restore from sessionStorage:`, e);
           sessionStorage.removeItem('userData');
         }
         
@@ -157,7 +146,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const token = localStorage.getItem('token');
         
         if (!token) {
-          console.log(`[Auth ${CONTEXT_ID}] No token found, setting user to null`);
           if (!restoredFromSession) {
             persistUser(null);
           }
@@ -168,16 +156,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setupAuthHeader(token);
         
         // Always verify with API for security, even if restored from session
-        console.log(`[Auth ${CONTEXT_ID}] Verifying user with API`);
         
         try {
           const userData = await currentUserMutation.mutateAsync();
-          console.log(`[Auth ${CONTEXT_ID}] API returned user:`, userData);
           
           if (userData) {
             persistUser(userData);
           } else {
-            console.log(`[Auth ${CONTEXT_ID}] API returned no user, clearing auth`);
             localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
             sessionStorage.removeItem('userData');
@@ -185,10 +170,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             persistUser(null);
           }
         } catch (apiError) {
-          console.error(`[Auth ${CONTEXT_ID}] API auth check failed:`, apiError);
           
           if (restoredFromSession) {
-            console.log(`[Auth ${CONTEXT_ID}] Using session data despite API failure`);
             // Keep the session data if API fails but we restored from session
           } else {
             // Clear auth if API fails and we didn't restore from session
@@ -200,7 +183,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (error) {
-        console.error(`[Auth ${CONTEXT_ID}] Auth check error:`, error);
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         sessionStorage.removeItem('userData');
@@ -209,7 +191,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } finally {
         isAuthCheckedRef.current = true;
         setIsLoading(false);
-        console.log(`[Auth ${CONTEXT_ID}] Initial auth check completed`);
       }
     };
     
@@ -217,7 +198,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Listen for storage events (in case another tab logs out)
     const handleStorageChange = (e: StorageEvent) => {
-      console.log(`[Auth ${CONTEXT_ID}] Storage event:`, e.key);
       
       if (e.key === 'token') {
         if (!e.newValue) {
@@ -225,7 +205,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           persistUser(null);
           setupAuthHeader(null);
         } else if (e.newValue !== localStorage.getItem('token')) {
-          console.log(`[Auth ${CONTEXT_ID}] Token changed in another tab, reloading`);
           window.location.reload();
         }
       }
@@ -239,14 +218,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Login function
   const login = async (email: string, password: string) => {
-    console.log(`[Auth ${CONTEXT_ID}] Login attempt:`, email);
     
     try {
       setIsLoading(true);
       
       // Call login mutation
       const response = await loginMutation.mutateAsync({ email, password });
-      console.log(`[Auth ${CONTEXT_ID}] Login response:`, response);
       
       // Get the token from the response or localStorage
       const token = response?.data?.tokens?.accessToken || localStorage.getItem('token');
@@ -256,11 +233,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Get user data
         if (response?.data?.user) {
-          console.log(`[Auth ${CONTEXT_ID}] Using user from login response`);
           persistUser(response.data.user);
         } else {
           // If no user in response, try to fetch it
-          console.log(`[Auth ${CONTEXT_ID}] No user in response, fetching from API`);
           try {
             const userData = await currentUserMutation.mutateAsync();
             if (userData) {
@@ -269,7 +244,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               throw new Error("Failed to get user data");
             }
           } catch (userError) {
-            console.error(`[Auth ${CONTEXT_ID}] Error fetching user data:`, userError);
             // Clear tokens if we can't get user data
             localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
@@ -283,11 +257,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log(`[Auth ${CONTEXT_ID}] Login successful, redirecting to dashboard`);
         router.push('/dashboard');
       } else {
-        console.error(`[Auth ${CONTEXT_ID}] No token received in login response`);
         throw new Error("Authentication failed - no token received");
       }
     } catch (error) {
-      console.error(`[Auth ${CONTEXT_ID}] Login error:`, error);
       // Clear tokens on login failure
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -302,12 +274,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Register function
   const register = async (name: string, email: string, password: string) => {
-    console.log(`[Auth ${CONTEXT_ID}] Register attempt:`, email);
     
     try {
       setIsLoading(true);
       const response = await registerMutation.mutateAsync({ name, email, password });
-      console.log(`[Auth ${CONTEXT_ID}] Register response:`, response);
       
       // Get token from response or localStorage
       const token = response?.data?.tokens?.accessToken || localStorage.getItem('token');
@@ -317,11 +287,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Get user data
         if (response?.data?.user) {
-          console.log(`[Auth ${CONTEXT_ID}] Using user from register response`);
           persistUser(response.data.user);
         } else {
           // If no user in response, try to fetch it
-          console.log(`[Auth ${CONTEXT_ID}] No user in response, fetching from API`);
           const userData = await currentUserMutation.mutateAsync();
           if (userData) {
             persistUser(userData);
@@ -330,14 +298,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
         
-        console.log(`[Auth ${CONTEXT_ID}] Registration successful, redirecting to dashboard`);
         router.push('/dashboard');
       } else {
-        console.error(`[Auth ${CONTEXT_ID}] No token received in register response`);
         throw new Error("Registration failed - no token received");
       }
     } catch (error) {
-      console.error(`[Auth ${CONTEXT_ID}] Registration failed:`, error);
       // Clear tokens on registration failure
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -352,16 +317,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Logout function
   const logout = async () => {
-    console.log(`[Auth ${CONTEXT_ID}] Logout attempt`);
     
     try {
       setIsLoading(true);
       await logoutMutation.mutateAsync();
     } catch (error) {
-      console.error(`[Auth ${CONTEXT_ID}] Logout error:`, error);
     } finally {
       // Always clear everything, even if server-side logout fails
-      console.log(`[Auth ${CONTEXT_ID}] Clearing auth state`);
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       sessionStorage.removeItem('userData');
@@ -375,15 +337,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Calculate authentication status
   const isAuthenticated = user !== null;
   
-  // Debug auth state changes
-  useEffect(() => {
-    console.log(`[Auth ${CONTEXT_ID}] Auth state updated:`, {
-      isAuthenticated,
-      user: user ? `${user.name} (${user.role})` : 'none',
-      version: stateVersionRef.current
-    });
-  }, [user, isAuthenticated]);
-  
+
   return (
     <AuthContext.Provider
       value={{

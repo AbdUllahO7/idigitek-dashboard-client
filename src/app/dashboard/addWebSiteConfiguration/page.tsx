@@ -179,11 +179,7 @@ export default function AdminManagementPage() {
   const languages = extractLanguages();
   const sections = extractSections();
 
-  // Log the data structure for debugging
-  useEffect(() => {
-    console.log("Languages data structure:", languagesData);
-    console.log("Extracted languages:", languages);
-  }, [languagesData]);
+
 
   // Mutations for languages
   const createLanguageMutation = useCreateLanguage();

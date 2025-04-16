@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-const CLIENT_ID = Math.random().toString(36).substring(2, 9);
 
 const apiClient = axios.create({
   baseURL: `${API_URL}/api/${API_VERSION}`,
@@ -18,13 +17,11 @@ let isInitialized = false;
 
 // Only run this setup once
 if (!isInitialized && typeof window !== 'undefined') {
-  console.log(`[API ${CLIENT_ID}] Initializing API client`);
   
   // Setup initial auth header if token exists
   const token = localStorage.getItem('token');
   if (token) {
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log(`[API ${CLIENT_ID}] Initialized with existing token`);
   }
   
   // Add a request interceptor to check for token and set it for each request
@@ -40,7 +37,6 @@ if (!isInitialized && typeof window !== 'undefined') {
       return config;
     },
     (error) => {
-      console.error(`[API ${CLIENT_ID}] Request error:`, error);
       return Promise.reject(error);
     }
   );
@@ -56,7 +52,6 @@ if (!isInitialized && typeof window !== 'undefined') {
       // If we get a 401 Unauthorized error and we haven't already tried to refresh
       if (error.response?.status === 401 && !originalRequest._retry && typeof window !== 'undefined') {
         originalRequest._retry = true;
-        console.log(`[API ${CLIENT_ID}] Received 401, attempting token refresh`);
         
         try {
           const refreshToken = localStorage.getItem('refreshToken');
@@ -66,7 +61,6 @@ if (!isInitialized && typeof window !== 'undefined') {
             const response = await axios.post('/api/auth/refresh-token', { refreshToken });
             
             if (response.data && response.data.data && response.data.data.tokens) {
-              console.log(`[API ${CLIENT_ID}] Token refresh successful`);
               // Save the new tokens
               localStorage.setItem('token', response.data.data.tokens.accessToken);
               if (response.data.data.tokens.refreshToken) {
@@ -79,34 +73,18 @@ if (!isInitialized && typeof window !== 'undefined') {
             }
           }
           
-          console.log(`[API ${CLIENT_ID}] Token refresh failed, no valid refresh token`);
         } catch (refreshError) {
-          console.error(`[API ${CLIENT_ID}] Token refresh failed:`, refreshError);
           
           // Clear tokens on refresh failure
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
           sessionStorage.removeItem('userData');
           
-          // Optionally redirect to login page on authentication failure
-          if (typeof window !== 'undefined') {
-            console.log(`[API ${CLIENT_ID}] Clearing auth state after refresh failure`);
-          }
+      
         }
       }
       
-      // Log other errors
-      if (error.response) {
-        console.error(`[API ${CLIENT_ID}] Response error:`, {
-          status: error.response.status,
-          data: error.response.data,
-          url: originalRequest?.url
-        });
-      } else if (error.request) {
-        console.error(`[API ${CLIENT_ID}] Request made but no response:`, error.request);
-      } else {
-        console.error(`[API ${CLIENT_ID}] Error setting up request:`, error.message);
-      }
+    
       
       return Promise.reject(error);
     }
