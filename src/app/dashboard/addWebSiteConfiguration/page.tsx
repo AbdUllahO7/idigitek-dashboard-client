@@ -13,13 +13,15 @@ import {
   AlertTriangle,
   Check,
   Loader2,
-  RefreshCw
+  ToggleLeft,
+  ToggleRight,
 } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { useToast } from "@/src/components/ui/use-toast"
+import { Checkbox } from "@/src/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -43,8 +45,10 @@ import {
 } from "@/src/components/ui/alert-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { ImageUpload } from "@/src/lib/ImageUploader"
-import { Section, useSections } from "@/src/hooks/webConfiguration/use-sectioın"
-import { Language, useLanguages } from "@/src/hooks/webConfiguration/use-language"
+import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
+import { useSections } from "@/src/hooks/webConfiguration/use-section"
+import { Language } from "@/src/api/types/languagesTypes"
+import { Section } from "@/src/api/types/sectionsTypes"
 
 // Define TypeScript interfaces for our edit and delete operations
 interface EditItemData {
@@ -60,6 +64,7 @@ interface EditItemData {
   type: "language" | "section";
   originalId?: string;
   subSections?: string[] | any[];
+  isActive?: boolean;
 }
 
 interface DeleteItemData {
@@ -74,136 +79,65 @@ interface DeleteItemData {
   subSections?: string[] | any[];
 }
 
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: {
-    count: number;
-    data: T[];
-  };
-  timestamp: string;
-  requestId: string;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: {
-    count: number;
-    data: T[];
-  };
-  timestamp: string;
-  requestId: string;
-}
-
-
 export default function AdminManagementPage() {
   // Get our custom hooks
   const { 
     useGetAll: useGetAllLanguages,
     useCreate: useCreateLanguage,
     useUpdate: useUpdateLanguage,
-    useDelete: useDeleteLanguage
+    useDelete: useDeleteLanguage,
+    useToggleActive: useToggleLanguageActive
   } = useLanguages();
   
   const { 
     useGetAll: useGetAllSections,
     useCreate: useCreateSection,
     useUpdate: useUpdateSection,
-    useDelete: useDeleteSection
+    useDelete: useDeleteSection,
+    useToggleActive: useToggleSectionActive
   } = useSections();
 
   // Use React Query hooks
   const { 
-    data: languagesData, 
+    data: languages, 
     isLoading: isLoadingLanguages,
     error: languagesError,
     refetch: refetchLanguages
   } = useGetAllLanguages();
   
   const { 
-    data: sectionsData, 
+    data: sections, 
     isLoading: isLoadingSections,
     error: sectionsError,
     refetch: refetchSections
   } = useGetAllSections();
 
-  // Extract actual data from the response
-  // Server response structure: { success: true, data: { count: number, data: Language[] }}
-  const extractLanguages = (): Language[] => {
-    if (!languagesData) return [];
-    
-    // If the data is already an array, use it
-    if (Array.isArray(languagesData)) return languagesData;
-    
-    // If data is an ApiResponse type
-    if (
-      typeof languagesData === 'object' && 
-      languagesData !== null && 
-      'data' in languagesData && 
-      languagesData.data && 
-      'data' in languagesData.data && 
-      Array.isArray(languagesData.data.data)
-    ) {
-      return languagesData.data.data;
-    }
-    
-    // Fallback to empty array
-    return [];
-  };
-  
-  const extractSections = (): Section[] => {
-    if (!sectionsData) return [];
-    
-    // If the data is already an array, use it
-    if (Array.isArray(sectionsData)) return sectionsData;
-    
-    // If data is an ApiResponse type
-    if (
-      typeof sectionsData === 'object' && 
-      sectionsData !== null && 
-      'data' in sectionsData && 
-      sectionsData.data && 
-      'data' in sectionsData.data && 
-      Array.isArray(sectionsData.data.data)
-    ) {
-      return sectionsData.data.data;
-    }
-    
-    // Fallback to empty array
-    return [];
-  };
-
-  // Get the languages and sections arrays
-  const languages = extractLanguages();
-  const sections = extractSections();
-
-
-
   // Mutations for languages
   const createLanguageMutation = useCreateLanguage();
   const updateLanguageMutation = useUpdateLanguage();
   const deleteLanguageMutation = useDeleteLanguage();
+  const toggleLanguageActiveMutation = useToggleLanguageActive();
 
   // Mutations for sections
   const createSectionMutation = useCreateSection();
   const updateSectionMutation = useUpdateSection();
   const deleteSectionMutation = useDeleteSection();
+  const toggleSectionActiveMutation = useToggleSectionActive();
 
   const [newLanguage, setNewLanguage] = useState<Language>({ 
     languageID: "", 
     language: "", 
-    subSections: [] 
+    subSections: [],
+    isActive: false
   });
   
   const [newSection, setNewSection] = useState<Section>({ 
     section_name: "", 
     description: "", 
     image: "",
-    isActive: true,
     order: 0,
-    subSections: []
+    subSections: [],
+    isActive: false
   });
   
   const [editItem, setEditItem] = useState<EditItemData | null>(null);
@@ -211,27 +145,6 @@ export default function AdminManagementPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("languages");
   const [showSavedSuccess, setShowSavedSuccess] = useState(false);
-  const [isRefetching, setIsRefetching] = useState(false);
-
-  // Function to handle refetching data
-  const handleRefetch = async () => {
-    setIsRefetching(true);
-    try {
-      await Promise.all([refetchLanguages(), refetchSections()]);
-      toast({
-        title: "Data refreshed",
-        description: "The latest data has been loaded.",
-      });
-    } catch (error) {
-      toast({
-        title: "Refresh failed",
-        description: "Failed to refresh data. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsRefetching(false);
-    }
-  };
 
   // Effect to handle mutations completion
   useEffect(() => {
@@ -239,12 +152,14 @@ export default function AdminManagementPage() {
     const isLanguageMutationSuccess = 
       createLanguageMutation.isSuccess || 
       updateLanguageMutation.isSuccess || 
-      deleteLanguageMutation.isSuccess;
+      deleteLanguageMutation.isSuccess ||
+      toggleLanguageActiveMutation.isSuccess;
     
     const isSectionMutationSuccess = 
       createSectionMutation.isSuccess || 
       updateSectionMutation.isSuccess || 
-      deleteSectionMutation.isSuccess;
+      deleteSectionMutation.isSuccess ||
+      toggleSectionActiveMutation.isSuccess;
     
     if (isLanguageMutationSuccess) {
       refetchLanguages();
@@ -257,9 +172,11 @@ export default function AdminManagementPage() {
     createLanguageMutation.isSuccess, 
     updateLanguageMutation.isSuccess, 
     deleteLanguageMutation.isSuccess,
+    toggleLanguageActiveMutation.isSuccess,
     createSectionMutation.isSuccess,
     updateSectionMutation.isSuccess,
     deleteSectionMutation.isSuccess,
+    toggleSectionActiveMutation.isSuccess,
     refetchLanguages,
     refetchSections
   ]);
@@ -274,7 +191,7 @@ export default function AdminManagementPage() {
       return;
     }
 
-    if (languages.some((lang) => lang.languageID === newLanguage.languageID)) {
+    if (languageArray?.some((lang: Language) => lang.languageID === newLanguage.languageID)) {
       toast({
         title: "Duplicate ID",
         description: "A language with this ID already exists.",
@@ -285,7 +202,7 @@ export default function AdminManagementPage() {
 
     createLanguageMutation.mutate(newLanguage, {
       onSuccess: () => {
-        setNewLanguage({ languageID: "", language: "", subSections: [] });
+        setNewLanguage({ languageID: "", language: "", subSections: [], isActive: false });
         
         toast({
           title: "Language added",
@@ -294,7 +211,7 @@ export default function AdminManagementPage() {
         
         showSuccessMessage();
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast({
           title: "Error adding language",
           description: error.message || "An error occurred while adding the language.",
@@ -313,8 +230,7 @@ export default function AdminManagementPage() {
       });
       return;
     }
-
-    if (sections.some((section) => section.section_name === newSection.section_name)) {
+    if (sectionArray?.some((section: Section) => section.section_name === newSection.section_name)) {
       toast({
         title: "Duplicate name",
         description: "A section with this name already exists.",
@@ -329,9 +245,9 @@ export default function AdminManagementPage() {
           section_name: "", 
           description: "", 
           image: "",
-          isActive: true,
           order: 0,
-          subSections: []
+          subSections: [],
+          isActive: false
         });
         
         toast({
@@ -341,7 +257,7 @@ export default function AdminManagementPage() {
         
         showSuccessMessage();
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast({
           title: "Error adding section",
           description: error.message || "An error occurred while adding the section.",
@@ -358,6 +274,7 @@ export default function AdminManagementPage() {
         _id: language._id,
         languageID: language.languageID,
         language: language.language,
+        isActive: language.isActive,
         type: "language"
       });
     } else {
@@ -367,8 +284,51 @@ export default function AdminManagementPage() {
         section_name: section.section_name,
         image: section.image,
         description: section.description,
+        isActive: section.isActive,
         type: "section"
       });
+    }
+  };
+
+  const handleToggleActive = (id: string, isActive: boolean, type: "language" | "section") => {
+    if (type === "language") {
+      toggleLanguageActiveMutation.mutate(
+        { id, isActive: !isActive },
+        {
+          onSuccess: () => {
+            toast({
+              title: `Language ${!isActive ? "activated" : "deactivated"}`,
+              description: `The language has been ${!isActive ? "activated" : "deactivated"} successfully.`,
+            });
+          },
+          onError: (error: Error) => {
+            toast({
+              title: "Error updating language",
+              description: error.message || "An error occurred while updating the language status.",
+              variant: "destructive",
+            });
+          }
+        }
+      );
+    } else {
+      toggleSectionActiveMutation.mutate(
+        { id, isActive: !isActive },
+        {
+          onSuccess: () => {
+            toast({
+              title: `Section ${!isActive ? "activated" : "deactivated"}`,
+              description: `The section has been ${!isActive ? "activated" : "deactivated"} successfully.`,
+            });
+          },
+          onError: (error: Error) => {
+            toast({
+              title: "Error updating section",
+              description: error.message || "An error occurred while updating the section status.",
+              variant: "destructive",
+            });
+          }
+        }
+      );
     }
   };
 
@@ -393,9 +353,9 @@ export default function AdminManagementPage() {
       }
 
       // Check for duplicate ID only if ID was changed
-      const originalItem = languages.find(item => item._id === editItem._id);
+      const originalItem = languageArray.find((item: Language) => item._id === editItem._id);
       if (originalItem && editItem.languageID !== originalItem.languageID && 
-          languages.some(item => item.languageID === editItem.languageID)) {
+          languageArray.some((item: Language) => item.languageID === editItem.languageID)) {
         toast({
           title: "Duplicate ID",
           description: "A language with this ID already exists.",
@@ -409,7 +369,8 @@ export default function AdminManagementPage() {
         id: editItem._id,
         data: {
           languageID: editItem.languageID,
-          language: editItem.language
+          language: editItem.language,
+          isActive: editItem.isActive
         }
       };
 
@@ -424,7 +385,7 @@ export default function AdminManagementPage() {
           
           showSuccessMessage();
         },
-        onError: (error) => {
+        onError: (error: Error) => {
           toast({
             title: "Error updating language",
             description: error.message || "An error occurred while updating the language.",
@@ -443,9 +404,9 @@ export default function AdminManagementPage() {
       }
 
       // Check for duplicate name only if name was changed
-      const originalItem = sections.find(item => item._id === editItem._id);
+      const originalItem = sectionArray.find((item: Section) => item._id === editItem._id);
       if (originalItem && editItem.section_name !== originalItem.section_name && 
-          sections.some(item => item.section_name === editItem.section_name)) {
+          sectionArray.some((item: Section) => item.section_name === editItem.section_name)) {
         toast({
           title: "Duplicate name",
           description: "A section with this name already exists.",
@@ -460,7 +421,8 @@ export default function AdminManagementPage() {
         data: {
           section_name: editItem.section_name,
           description: editItem.description,
-          image: editItem.image
+          image: editItem.image,
+          isActive: editItem.isActive
         }
       };
 
@@ -475,7 +437,7 @@ export default function AdminManagementPage() {
           
           showSuccessMessage();
         },
-        onError: (error) => {
+        onError: (error: Error) => {
           toast({
             title: "Error updating section",
             description: error.message || "An error occurred while updating the section.",
@@ -499,7 +461,7 @@ export default function AdminManagementPage() {
             setItemToDelete(null);
             showSuccessMessage();
           },
-          onError: (error) => {
+          onError: (error: Error) => {
             toast({
               title: "Error deleting language",
               description: error.message || "An error occurred while deleting the language.",
@@ -518,7 +480,7 @@ export default function AdminManagementPage() {
             setItemToDelete(null);
             showSuccessMessage();
           },
-          onError: (error) => {
+          onError: (error: Error) => {
             toast({
               title: "Error deleting section",
               description: error.message || "An error occurred while deleting the section.",
@@ -561,6 +523,10 @@ export default function AdminManagementPage() {
     visible: { opacity: 1, transition: { duration: 0.6 } }
   };
 
+  // Fixed: Properly extract data from API response
+  const languageArray = languages?.data || [];
+  const sectionArray = sections?.data || [];
+
   // Loading and error states
   if (isLoadingLanguages || isLoadingSections) {
     return (
@@ -585,22 +551,11 @@ export default function AdminManagementPage() {
           </CardHeader>
           <CardContent>
             <p className="text-slate-700 dark:text-slate-300">
-              {languagesError?.message || sectionsError?.message || "Failed to load data. Please try refreshing the page."}
+              {(languagesError as Error)?.message || (sectionsError as Error)?.message || "Failed to load data. Please try refreshing the page."}
             </p>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Button 
-              onClick={handleRefetch} 
-              className="w-full flex items-center gap-2"
-              disabled={isRefetching}
-            >
-              {isRefetching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              Refresh Data
-            </Button>
+            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
           </CardFooter>
         </Card>
       </div>
@@ -632,7 +587,8 @@ export default function AdminManagementPage() {
       {/* Loading indicators for mutations */}
       <AnimatePresence>
         {(createLanguageMutation.isPending || updateLanguageMutation.isPending || deleteLanguageMutation.isPending || 
-          createSectionMutation.isPending || updateSectionMutation.isPending || deleteSectionMutation.isPending) && (
+          createSectionMutation.isPending || updateSectionMutation.isPending || deleteSectionMutation.isPending ||
+          toggleLanguageActiveMutation.isPending || toggleSectionActiveMutation.isPending) && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -666,27 +622,7 @@ export default function AdminManagementPage() {
             Add, edit, or remove languages and sections for your website configuration
           </motion.p>
 
-          {/* Refresh Button */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefetch}
-              disabled={isRefetching}
-              className="flex items-center gap-2"
-            >
-              {isRefetching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              Refresh Data
-            </Button>
-          </motion.div>
+        
         </div>
 
         <Tabs 
@@ -704,11 +640,11 @@ export default function AdminManagementPage() {
             <TabsList className="grid grid-cols-2 w-full max-w-md">
               <TabsTrigger value="languages" className="flex items-center gap-2">
                 <Globe className="h-4 w-4" />
-                Languages ({languages.length})
+                Languages ({languageArray.length})
               </TabsTrigger>
               <TabsTrigger value="sections" className="flex items-center gap-2">
                 <LayoutGrid className="h-4 w-4" />
-                Sections ({sections.length})
+                Sections ({sectionArray.length})
               </TabsTrigger>
             </TabsList>
           </motion.div>
@@ -756,6 +692,21 @@ export default function AdminManagementPage() {
                       />
                     </div>
                   </div>
+                  <div className="mt-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="new-language-active"
+                        checked={newLanguage.isActive || false}
+                        onCheckedChange={(checked) => 
+                          setNewLanguage({ 
+                            ...newLanguage, 
+                            isActive: checked === true 
+                          })
+                        }
+                      />
+                      <Label htmlFor="new-language-active">Active</Label>
+                    </div>
+                  </div>
                 </CardContent>
                 <CardFooter className="flex justify-end">
                   <Button 
@@ -779,13 +730,13 @@ export default function AdminManagementPage() {
                     Manage Languages
                   </CardTitle>
                   <CardDescription>
-                    Edit or remove existing languages ({languages.length} total)
+                    Edit or remove existing languages ({languageArray.length} total)
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {languages.length > 0 ? (
+                  {languageArray.length > 0 ? (
                     <motion.div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3" variants={containerVariants}>
-                      {languages.map((language) => (
+                      {languageArray.map((language: Language) => (
                         <motion.div key={language._id || `lang-${language.languageID}`} variants={itemVariants}>
                           <Card className="border border-slate-200 dark:border-slate-700">
                             <CardContent className="p-4">
@@ -793,8 +744,34 @@ export default function AdminManagementPage() {
                                 <div>
                                   <p className="font-medium">{language.language}</p>
                                   <p className="text-sm text-slate-500">ID: {language.languageID}</p>
+                                  <div className="mt-2">
+                                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                      language.isActive 
+                                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" 
+                                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                                    }`}>
+                                      {language.isActive ? "Active" : "Inactive"}
+                                    </span>
+                                  </div>
                                 </div>
                                 <div className="flex gap-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8"
+                                    onClick={() => handleToggleActive(
+                                      language._id as string, 
+                                      language.isActive || false, 
+                                      "language"
+                                    )}
+                                    disabled={toggleLanguageActiveMutation.isPending}
+                                  >
+                                    {language.isActive ? 
+                                      <ToggleRight className="h-4 w-4 text-green-600" /> : 
+                                      <ToggleLeft className="h-4 w-4 text-slate-600" />
+                                    }
+                                  </Button>
+
                                   <Dialog>
                                     <DialogTrigger asChild>
                                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(language, "language")}>
@@ -830,6 +807,19 @@ export default function AdminManagementPage() {
                                               value={editItem.language}
                                               onChange={(e) => setEditItem({ ...editItem, language: e.target.value })}
                                             />
+                                          </div>
+                                          <div className="flex items-center space-x-2">
+                                            <Checkbox 
+                                              id="edit-language-active"
+                                              checked={editItem.isActive || false}
+                                              onCheckedChange={(checked) => 
+                                                setEditItem({ 
+                                                  ...editItem, 
+                                                  isActive: checked === true 
+                                                })
+                                              }
+                                            />
+                                            <Label htmlFor="edit-language-active">Active</Label>
                                           </div>
                                         </div>
                                       )}
@@ -946,6 +936,20 @@ export default function AdminManagementPage() {
                           className="w-full"
                         />
                       </div>
+                      
+                      <div className="flex items-center space-x-2 mt-2">
+                        <Checkbox 
+                          id="new-section-active"
+                          checked={newSection.isActive || false}
+                          onCheckedChange={(checked) => 
+                            setNewSection({ 
+                              ...newSection, 
+                              isActive: checked === true 
+                            })
+                          }
+                        />
+                        <Label htmlFor="new-section-active">Active</Label>
+                      </div>
                     </div>
                     
                     <div className="space-y-2">
@@ -982,13 +986,13 @@ export default function AdminManagementPage() {
                     Manage Sections
                   </CardTitle>
                   <CardDescription>
-                    Edit or remove existing sections ({sections.length} total)
+                    Edit or remove existing sections ({sectionArray.length} total)
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {sections.length > 0 ? (
+                  {sectionArray.length > 0 ? (
                     <motion.div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3" variants={containerVariants}>
-                      {sections.map((section) => (
+                      {sectionArray.map((section: Section) => (
                         <motion.div key={section._id || `section-${section.section_name}`} variants={itemVariants}>
                           <Card className="border border-slate-200 dark:border-slate-700">
                             <CardContent className="p-4">
@@ -999,8 +1003,34 @@ export default function AdminManagementPage() {
                                     {section.description && (
                                       <p className="text-sm text-slate-500">{section.description}</p>
                                     )}
+                                    <div className="mt-2">
+                                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                        section.isActive 
+                                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" 
+                                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                                      }`}>
+                                        {section.isActive ? "Active" : "Inactive"}
+                                      </span>
+                                    </div>
                                   </div>
                                   <div className="flex gap-2">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-8 w-8"
+                                      onClick={() => handleToggleActive(
+                                        section._id as string, 
+                                        section.isActive || false, 
+                                        "section"
+                                      )}
+                                      disabled={toggleSectionActiveMutation.isPending}
+                                    >
+                                      {section.isActive ? 
+                                        <ToggleRight className="h-4 w-4 text-green-600" /> : 
+                                        <ToggleLeft className="h-4 w-4 text-slate-600" />
+                                      }
+                                    </Button>
+                                    
                                     <Dialog>
                                       <DialogTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(section, "section")}>
@@ -1036,6 +1066,19 @@ export default function AdminManagementPage() {
                                                 value={editItem.description || ""}
                                                 onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
                                               />
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                              <Checkbox 
+                                                id="edit-section-active"
+                                                checked={editItem.isActive || false}
+                                                onCheckedChange={(checked) => 
+                                                  setEditItem({ 
+                                                    ...editItem, 
+                                                    isActive: checked === true 
+                                                  })
+                                                }
+                                              />
+                                              <Label htmlFor="edit-section-active">Active</Label>
                                             </div>
                                             <div className="space-y-2">
                                               <Label>Section Image</Label>

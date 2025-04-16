@@ -1,20 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/src/lib/api-client';
-import { Language } from '@/src/api/types/languagesTypes';
+import { Section } from '@/src/api/types/sectionsTypes';
 
-// Base language hook
-export function useLanguages() {
+// Base section hook
+export function useSections() {
   const queryClient = useQueryClient();
-  const endpoint = '/languages';
+  const endpoint = '/sections';
 
   // Query keys
-  const languagesKey = ['languages'];
-  const languageKey = (id: string) => [...languagesKey, id];
+  const sectionsKey = ['sections'];
+  const sectionKey = (id: string) => [...sectionsKey, id];
 
-  // Get all languages
+  // Get all sections
   const useGetAll = () => {
     return useQuery({
-      queryKey: languagesKey,
+      queryKey: sectionsKey,
       queryFn: async () => {
         const { data } = await apiClient.get(endpoint);
         return data;
@@ -22,10 +22,10 @@ export function useLanguages() {
     });
   };
 
-  // Get a single language by ID
+  // Get a single section by ID
   const useGetById = (id: string) => {
     return useQuery({
-      queryKey: languageKey(id),
+      queryKey: sectionKey(id),
       queryFn: async () => {
         const { data } = await apiClient.get(`${endpoint}/${id}`);
         return data;
@@ -34,32 +34,32 @@ export function useLanguages() {
     });
   };
 
-  // Create a new language
+  // Create a new section
   const useCreate = () => {
     return useMutation({
-      mutationFn: async (createDto: Omit<Language, '_id'>) => {
+      mutationFn: async (createDto: Omit<Section, '_id'>) => {
         const { data } = await apiClient.post(endpoint, createDto);
         return data;
       },
       onSuccess: (data) => {
-        queryClient.invalidateQueries({ queryKey: languagesKey });
+        queryClient.invalidateQueries({ queryKey: sectionsKey });
         if (data._id) {
-          queryClient.setQueryData(languageKey(data._id), data);
+          queryClient.setQueryData(sectionKey(data._id), data);
         }
       },
     });
   };
 
-  // Update a language
+  // Update a section
   const useUpdate = () => {
     return useMutation({
-      mutationFn: async ({ id, data }: { id: string; data: Partial<Language> }) => {
+      mutationFn: async ({ id, data }: { id: string; data: Partial<Section> }) => {
         const { data: responseData } = await apiClient.put(`${endpoint}/${id}`, data);
         return responseData;
       },
       onSuccess: (data, { id }) => {
-        queryClient.setQueryData(languageKey(id), data);
-        queryClient.invalidateQueries({ queryKey: languagesKey });
+        queryClient.setQueryData(sectionKey(id), data);
+        queryClient.invalidateQueries({ queryKey: sectionsKey });
       },
     });
   };
@@ -72,21 +72,21 @@ export function useLanguages() {
         return responseData;
       },
       onSuccess: (data, { id }) => {
-        queryClient.setQueryData(languageKey(id), data);
-        queryClient.invalidateQueries({ queryKey: languagesKey });
+        queryClient.setQueryData(sectionKey(id), data);
+        queryClient.invalidateQueries({ queryKey: sectionsKey });
       },
     });
   };
 
-  // Delete a language
+  // Delete a section
   const useDelete = () => {
     return useMutation({
       mutationFn: async (id: string) => {
         await apiClient.delete(`${endpoint}/${id}`);
       },
       onSuccess: (_, id) => {
-        queryClient.removeQueries({ queryKey: languageKey(id) });
-        queryClient.invalidateQueries({ queryKey: languagesKey });
+        queryClient.removeQueries({ queryKey: sectionKey(id) });
+        queryClient.invalidateQueries({ queryKey: sectionsKey });
       },
     });
   };

@@ -29,6 +29,8 @@ import {
 import { Button } from "../ui/button"
 import { cn } from "@/src/lib/utils"
 import { useAuth } from "@/src/context/AuthContext"
+import { useSections } from "@/src/hooks/webConfiguration/use-section"
+import { Section } from "@/src/api/types/sectionsTypes"
 
 /**
  * Navigation item interface
@@ -48,20 +50,20 @@ const allNavItems: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard",
-    icon: LayoutDashboard,
+    icon: LayoutDashboard, // const 
     // Dashboard is always shown
   },
   {
     title: "Users",
     href: "/dashboard/users",
-    icon: Users,
+    icon: Users, // const 
     // Users is always shown
   },
   {
     title: "Features",
     href: "/dashboard/features",
     icon: Package,
-    sectionId: "features", // Show when "features" section is selected
+    sectionId: "features", // Show when "features" section is selected 
   },
   {
     title: "Hero",
@@ -73,7 +75,7 @@ const allNavItems: NavItem[] = [
     title: "Services",
     href: "/dashboard/services",
     icon: Package,
-    sectionId: "service", // Show when "service" section is selected
+    sectionId: "services", // Show when "service" section is selected
   },
   {
     title: "Blog",
@@ -97,7 +99,7 @@ const allNavItems: NavItem[] = [
     title: "Contact",
     href: "/dashboard/contact",
     icon: Contact,
-    sectionId: "contactSection", // Show when "contactSection" section is selected
+    sectionId: "contact", // Show when "contactSection" section is selected
   },
   {
     title: "CTA",
@@ -145,7 +147,7 @@ const allNavItems: NavItem[] = [
     title: "Team",
     href: "/dashboard/team",
     icon: UserCircle,
-    sectionId: "teamSection", // Show when "teamSection" section is selected
+    sectionId: "teamSection", // Show when "teamSection" section is selected 
   },
   {
     title: "Technology Stack",
@@ -161,13 +163,13 @@ const allNavItems: NavItem[] = [
   },
   {
     title: "Settings",
-    href: "/dashboard/settings",
+    href: "/dashboard/settings", // const  
     icon: Settings,
     // Settings is always shown
   },
   {
     title: "Web Configurations",
-    href: "/dashboard/addWebSiteConfiguration",
+    href: "/dashboard/addWebSiteConfiguration", // const 
     icon: Settings,
     roles: ['superAdmin'], // Only superAdmin can see this
   },
@@ -182,58 +184,96 @@ export default function DashboardSidebar() {
   const router = useRouter()
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { isAuthenticated, user, isLoading:userIsLoading } = useAuth();
+  const { isAuthenticated, user, isLoading: userIsLoading } = useAuth();
 
+  const { 
+    useGetAll: useGetAllSections
+  } = useSections();
+
+  const { 
+    data: sections, 
+    isLoading: isLoadingSections,
+    error: sectionsError
+  } = useGetAllSections();
+
+  // Extract active sections from the API response
+  const activeSections = sections?.data?.filter((section: Section) => section.isActive) || [];
+  
+  // Create a mapping of section_name to sectionId for easy lookup
+  const sectionNameMap = new Map<string, string>();
+  
   useEffect(() => {
-    // Load selected sections from localStorage
-    if (typeof window !== "undefined" && !userIsLoading) {
+    // Map section IDs to their names from the active sections
+    if (activeSections.length > 0) {
+      activeSections.forEach((section: Section) => {
+        const sectionId = section.section_name.toLowerCase().replace(/\s/g, "");
+        sectionNameMap.set(sectionId, section.section_name);
+      });
+    }
+    
+    if (!userIsLoading && !isLoadingSections) {
       try {
-        const savedSections = localStorage.getItem("selectedSections")
-        const selectedSections = savedSections ? JSON.parse(savedSections) as string[] : []
-
-       
-        const filteredNavItems = allNavItems.filter((item) => {
+        // Get active section IDs from the API data
+        const activeSectionIds = activeSections.map((section: Section) => 
+          section.section_name.toLowerCase().replace(/\s/g, "")
+        );
+        
+        // Store active section IDs in localStorage for persistence
+        localStorage.setItem("selectedSections", JSON.stringify(activeSectionIds));
+        
+        // Filter nav items based on active sections and user roles
+        const filteredNavItems = allNavItems.map(item => {
+          // Create a copy of the item to modify
+          const newItem = { ...item };
+          
+          // If this is a section-based item, update its title from the API data
+          if (item.sectionId && sectionNameMap.has(item.sectionId)) {
+            newItem.title = sectionNameMap.get(item.sectionId) || item.title;
+          }
+          
+          return newItem;
+        }).filter((item) => {
           // Check if the item has role restrictions
           if (item.roles && user?.role) {
             // If item has role restrictions, user must have one of those roles
             if (!item.roles.includes(user.role)) {
-              return false
+              return false;
             }
           }
 
           // Include items that don't have a sectionId (always shown)
-          // Or items whose sectionId is in the selected sections
-          return !item.sectionId || selectedSections.includes(item.sectionId)
-        })
+          // Or items whose sectionId is in the active sections
+          return !item.sectionId || activeSectionIds.includes(item.sectionId);
+        });
 
-        setNavItems(filteredNavItems)
+        setNavItems(filteredNavItems);
       } catch (error) {
-        console.error("Error loading saved sections:", error)
+        console.error("Error processing sections:", error);
         // In case of error, show only the items without sectionId and respect role restrictions
         setNavItems(allNavItems.filter((item) => {
           // Check role restrictions
           if (item.roles && user?.role) {
             if (!item.roles.includes(user.role)) {
-              return false
+              return false;
             }
           }
-          return !item.sectionId
-        }))
+          return !item.sectionId;
+        }));
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
-  }, [user, userIsLoading])
+  }, [user, userIsLoading, sections, isLoadingSections]);
 
   /**
    * Handle navigation with loading indicator
    */
   const handleNavigation = (href: string) => {
-    router.push(href)
+    router.push(href);
   }
 
-  // Show loading state while fetching sections
-  if (isLoading || userIsLoading) {
+  // Show loading state while fetching sections or user
+  if (isLoading || userIsLoading || isLoadingSections) {
     return (
       <div className="flex h-full flex-col border-r dark:border-slate-700 bg-background dark:bg-slate-900">
         <div className="flex h-16 items-center border-b dark:border-slate-700 px-6">
