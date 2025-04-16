@@ -6,7 +6,6 @@ import type React from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
-  BarChart3,
   Home,
   LayoutDashboard,
   LifeBuoy,
@@ -161,6 +160,12 @@ const allNavItems: NavItem[] = [
   {
     title: "Settings",
     href: "/dashboard/settings",
+    icon: Settings,
+    // Settings is always shown
+  },
+  {
+    title: "Web Configurations",
+    href: "/dashboard/addWebSiteConfiguration",
     icon: Settings,
     // Settings is always shown
   },

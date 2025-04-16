@@ -2,6 +2,9 @@
 import { useMutation } from '@tanstack/react-query';
 import apiClient from '../lib/api-client';
 
+// For debugging - each instance gets a unique ID
+const API_ID = Math.random().toString(36).substring(2, 9);
+
 // Request types
 interface LoginCredentials {
   email: string;
@@ -36,21 +39,50 @@ interface AuthResponse {
   requestId: string;
 }
 
+// Helper to safely store tokens
+const storeTokens = (tokens: AuthTokens | undefined | null) => {
+  if (!tokens) {
+    console.log(`[AuthAPI ${API_ID}] No tokens to store`);
+    return false;
+  }
+  
+  try {
+    localStorage.setItem('token', tokens.accessToken);
+    if (tokens.refreshToken) {
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+    }
+    console.log(`[AuthAPI ${API_ID}] Tokens stored successfully`);
+    return true;
+  } catch (e) {
+    console.error(`[AuthAPI ${API_ID}] Failed to store tokens:`, e);
+    return false;
+  }
+};
+
 // Login hook
 export const useLogin = () => {
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      // Don't specify a return type here, let TypeScript infer it
-      const response = await apiClient.post('/auth/login', credentials);
-      const responseData = response.data;
+      console.log(`[AuthAPI ${API_ID}] Login attempt:`, credentials.email);
       
-      // Store tokens in localStorage
-      if (responseData && responseData.data && responseData.data.tokens) {
-        localStorage.setItem('token', responseData.data.tokens.accessToken);
-        localStorage.setItem('refreshToken', responseData.data.tokens.refreshToken);
+      try {
+        const response = await apiClient.post('/auth/login', credentials);
+        const responseData = response.data;
+        
+        console.log(`[AuthAPI ${API_ID}] Login response:`, responseData);
+        
+        // Store tokens in localStorage
+        if (responseData?.data?.tokens) {
+          storeTokens(responseData.data.tokens);
+        } else {
+          console.error(`[AuthAPI ${API_ID}] No tokens in login response`);
+        }
+        
+        return responseData;
+      } catch (error) {
+        console.error(`[AuthAPI ${API_ID}] Login request failed:`, error);
+        throw error;
       }
-
-      return responseData; // Return the full response data
     }
   });
 };
@@ -59,15 +91,26 @@ export const useLogin = () => {
 export const useRegister = () => {
   return useMutation({
     mutationFn: async (userData: RegisterData): Promise<AuthResponse> => {
-      const { data } = await apiClient.post('/auth/register', userData);
+      console.log(`[AuthAPI ${API_ID}] Register attempt:`, userData.email);
       
-      // Store tokens in localStorage - adjust the path based on your API response
-      if (data && data.data && data.data.tokens) {
-        localStorage.setItem('token', data.data.tokens.accessToken);
-        localStorage.setItem('refreshToken', data.data.tokens.refreshToken);
+      try {
+        const response = await apiClient.post('/auth/register', userData);
+        const responseData = response.data;
+        
+        console.log(`[AuthAPI ${API_ID}] Register response:`, responseData);
+        
+        // Store tokens in localStorage
+        if (responseData?.data?.tokens) {
+          storeTokens(responseData.data.tokens);
+        } else {
+          console.error(`[AuthAPI ${API_ID}] No tokens in register response`);
+        }
+        
+        return responseData;
+      } catch (error) {
+        console.error(`[AuthAPI ${API_ID}] Registration request failed:`, error);
+        throw error;
       }
-      
-      return data;
     }
   });
 };
@@ -76,6 +119,8 @@ export const useRegister = () => {
 export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
+      console.log(`[AuthAPI ${API_ID}] Logout attempt`);
+      
       try {
         // Check if we have a token before attempting to call the logout endpoint
         const token = localStorage.getItem('token');
@@ -83,25 +128,77 @@ export const useLogout = () => {
           // Send logout request to API but don't wait for it to complete
           // This way we always clear local storage regardless of API response
           apiClient.post('/auth/logout').catch(err => {
-            console.error("Logout API error (non-blocking):", err);
+            console.error(`[AuthAPI ${API_ID}] Logout API error (non-blocking):`, err);
           });
         }
+      } catch (error) {
+        console.error(`[AuthAPI ${API_ID}] Error during logout:`, error);
       } finally {
         // Always clear local storage, even if API call fails
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('userData');
+        console.log(`[AuthAPI ${API_ID}] Cleared auth tokens`);
       }
       return true; // Always return success
     }
   });
 };
 
-// Get current user hook
+// Get current user hook with retry mechanism
 export const useCurrentUser = () => {
   return useMutation({
     mutationFn: async () => {
-      const { data } = await apiClient.get('/users/me');
-      return data.user;
+      console.log(`[AuthAPI] Fetching current user`);
+      
+      try {
+        const response = await apiClient.get('/users/me');
+        console.log(`[AuthAPI] Current user response:`, response.data);
+        
+        // Check all possible paths for user data
+        let userData = null;
+        
+        if (response.data && response.data.user) {
+          // First check the expected path
+          userData = response.data.user;
+          console.log(`[AuthAPI] Found user at response.data.user`);
+        } else if (response.data && response.data.data) {
+          // Check if data is nested in a 'data' field
+          if (response.data.data.user) {
+            // Check if user is in data.data.user
+            userData = response.data.data.user;
+            console.log(`[AuthAPI] Found user at response.data.data.user`);
+          } else {
+            // Maybe the data itself is the user object - check for required fields
+            const possibleUser = response.data.data;
+            if (possibleUser.id && possibleUser.email) {
+              userData = possibleUser;
+              console.log(`[AuthAPI] Found user directly in response.data.data`);
+            }
+          }
+        }
+        
+        if (userData) {
+          console.log(`[AuthAPI] Successfully extracted user data:`, userData);
+          return userData;
+        } else {
+          console.error(`[AuthAPI] No user data found in response`);
+          return null;
+        }
+      } catch (error: any) {
+        console.error(`[AuthAPI] Error fetching user:`, error);
+        
+        // For 401/403 errors, clear tokens
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          console.error(`[AuthAPI] Authentication error fetching user:`, error.response.status);
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          sessionStorage.removeItem('userData');
+        }
+        
+        // Always return null for user on error
+        return null;
+      }
     }
   });
 };
