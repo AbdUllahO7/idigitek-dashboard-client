@@ -11,11 +11,8 @@ import {
   Info,
   ArrowRight,
   CheckCircle2,
-  Package,
   AlertTriangle,
   XCircle,
-  TrendingUp,
-  DollarSign,
   ShoppingCart,
   Search,
   Edit,
@@ -131,11 +128,7 @@ export default function ServicesPage() {
     { id: "serviceDetails", label: "Service Details", type: "badge", required: true },
   ]
 
-  // Calculate statistics
-  const totalServices = productData.length
-  const inStock = productData.filter((p) => p.status === "In Stock").length
-  const lowStock = productData.filter((p) => p.status === "Low Stock").length
-  const outOfStock = productData.filter((p) => p.status === "Out of Stock").length
+
 
   // Filter products based on search term
   const filteredProducts = productData.filter(
@@ -185,9 +178,7 @@ export default function ServicesPage() {
           </Link>
         </Button>
       </motion.div>
-
-     
-
+      
       {/* Service Section Component */}
       <motion.div variants={itemVariants}>
         <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
