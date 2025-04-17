@@ -1,19 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Activity, CreditCard, DollarSign, Users, ArrowUpRight, Languages, FileText, Globe, Layers } from "lucide-react"
+import { Activity, ArrowUpRight, EllipsisIcon, FileText, Globe, Layers, UserCircle,  } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
-import { CardLoader, ContentLoader } from "@/src/components/ui/loader"
+import { CardLoader } from "@/src/components/ui/loader"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { 
-  AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  AreaChart, Area, BarChart, Bar, LineChart, Line, Tooltip,
   Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts'
 import { useSections } from "@/src/hooks/webConfiguration/use-section"
 import { Section } from "@/src/api/types/sectionsTypes"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { Language } from "@/src/api/types/languagesTypes"
+import { useUsers } from "@/src/hooks/webConfiguration/use-users"
 
 /**
  * Dashboard overview page
@@ -21,7 +22,17 @@ import { Language } from "@/src/api/types/languagesTypes"
  */
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
-  
+
+  // get users
+  const { 
+    useGetAll: useGetAllUsers
+  } = useUsers();
+
+  const { 
+    data: users, 
+    isLoading: isLoadingUsers,
+  } = useGetAllUsers();
+
   // Get data from API hooks
   const { 
     useGetAll: useGetAllSections
@@ -34,13 +45,11 @@ export default function DashboardPage() {
   const { 
     data: sections, 
     isLoading: isLoadingSections,
-    error: sectionsError
   } = useGetAllSections();
 
   const { 
     data: languages, 
     isLoading: isLoadingLanguages,
-    error: languagesError
   } = useGetAllLanguages();
 
   // Extract active sections and languages from the API response
@@ -48,6 +57,20 @@ export default function DashboardPage() {
   const languagesData = languages?.data || [];
   const activeSections = sectionsData.filter((section: Section) => section.isActive) || [];
   const activeLanguages = languagesData.filter((lang: Language) => lang.isActive) || [];
+
+  // Get user role counts
+  const usersData = users?.data || [];
+  const userRoleCounts = usersData.reduce((acc: Record<string, number>, user: any) => {
+    const role = user.role || 'user';
+    acc[role] = (acc[role] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Create user role chart data
+  const userRoleChartData = Object.entries(userRoleCounts).map(([name, value]) => ({
+    name,
+    value
+  }));
   
   // Create data for sections visualization
   const sectionChartData = [
@@ -62,35 +85,19 @@ export default function DashboardPage() {
   ];
   
   // Colors for charts
-  const COLORS = ['#10b981', '#6366f1', '#8b5cf6', '#3b82f6'];
+  const COLORS = ['#10b981', '#6366f1', '#8b5cf6', '#3b82f6', '#ef4444'];
+  const ROLE_COLORS = {
+    'superAdmin': '#ef4444',
+    'admin': '#8b5cf6',
+    'user': '#3b82f6'
+  };
   
   // Set loading state based on API data loading
   useEffect(() => {
-    if (!isLoadingSections && !isLoadingLanguages) {
+    if (!isLoadingSections && !isLoadingLanguages && !isLoadingUsers) {
       setLoading(false);
     }
-  }, [isLoadingSections, isLoadingLanguages]);
-
-  // Generate monthly growth data based on sections and languages
-  const generateMonthlyData = () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonth = new Date().getMonth();
-    
-    return months.map((month, index) => {
-      // Simple algorithm to generate fake growth data based on actual section and language counts
-      const baseValue = (sectionsData.length * 1000) + (languagesData.length * 500);
-      const growth = index <= currentMonth ? 
-        baseValue * (1 + (index / 12)) : 
-        baseValue * (1 + (currentMonth / 12));
-        
-      return {
-        name: month,
-        value: Math.round(growth)
-      };
-    });
-  };
-  
-  const revenueData = generateMonthlyData();
+  }, [isLoadingSections, isLoadingLanguages, isLoadingUsers]);
   
   return (
     <div className="space-y-6">
@@ -106,6 +113,7 @@ export default function DashboardPage() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="w-full justify-start">
           <TabsTrigger value="overview" className="rounded-lg">Overview</TabsTrigger>
+          <TabsTrigger value="users" className="rounded-lg">Users</TabsTrigger>
         </TabsList>
 
         {/* Overview tab content */}
@@ -212,7 +220,7 @@ export default function DashboardPage() {
                   </div>
                 </Card>
 
-                {/* Active Languages card */}
+                {/* Active Languages card - RESTORED */}
                 <Card className="overflow-hidden">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Active Languages</CardTitle>
@@ -222,7 +230,23 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent className="pb-2">
                     <div className="text-2xl font-bold">{activeLanguages.length}</div>
-                    <p className="flex items-center text-xs text-green-600">
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {activeLanguages.slice(0, 3).map((lang: Language) => (
+                        <div
+                          key={lang._id}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded-md text-xs font-medium shadow-sm flex items-center gap-1"
+                        >
+                          <Globe className="h-3 w-3" />
+                          {lang.languageID}
+                        </div>
+                      ))}
+                      {activeLanguages.length > 3 && (
+                        <div className="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 px-2 py-1 rounded-md text-xs font-medium">
+                          +{activeLanguages.length - 3} more
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-2 flex items-center text-xs text-green-600">
                       <ArrowUpRight className="mr-1 h-3 w-3" />
                       {languagesData.length - activeLanguages.length} inactive
                     </p>
@@ -239,9 +263,58 @@ export default function DashboardPage() {
             )}
           </div>
           
+          {/* Add Total Users card in a separate row */}
+          {!loading && (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {/* Total Users card */}
+              <Card className="overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <div className="rounded-full bg-red-100 p-1.5 text-red-600 dark:bg-red-900/40">
+                    <UserCircle className="h-4 w-4" />
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="text-2xl font-bold">{usersData.length}</div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {Object.entries(userRoleCounts).map(([role, count]) => (
+                      <div
+                      key={role}
+                      className={`text-white px-2 py-1 rounded-md text-xs font-medium shadow-sm flex items-center gap-1 ${
+                        role === 'superAdmin' 
+                          ? 'bg-red-500' 
+                          : role === 'admin'
+                            ? 'bg-purple-500'
+                            : 'bg-blue-500'
+                      }`}
+                    >
+                      <UserCircle className="h-3 w-3" />
+                      <span>{`${role}: ${count}`}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <div className="h-10">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={userRoleChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                        {userRoleChartData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={ROLE_COLORS[entry.name as keyof typeof ROLE_COLORS] || '#3b82f6'} 
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+            </div>
+          )}
+          
           {/* Charts section */}
           {!loading && (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {/* Section Distribution Chart */}
               <Card>
                 <CardHeader>
@@ -317,9 +390,115 @@ export default function DashboardPage() {
                   </div>
                 </CardFooter>
               </Card>
+              
+              {/* User Role Distribution Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>User Role Distribution</CardTitle>
+                  <CardDescription>User Types</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="h-80 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={userRoleChartData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {userRoleChartData.map((entry) => (
+                            <Cell 
+                              key={`cell-${entry.name}`} 
+                              fill={ROLE_COLORS[entry.name as keyof typeof ROLE_COLORS] || '#3b82f6'} 
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+                <CardFooter className="border-t px-6 py-4">
+                  <div className="flex justify-between w-full text-sm text-muted-foreground">
+                    <div>Total Users: {usersData.length}</div>
+                    <div>Updated: {new Date().toLocaleDateString()}</div>
+                  </div>
+                </CardFooter>
+              </Card>
             </div>
           )}
-         
+        </TabsContent>
+
+        {/* Users tab content */}
+        <TabsContent value="users" className="space-y-6">
+          {loading ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[1, 2, 3, 4, 5, 6].map((_, index) => (
+                <CardLoader key={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold">User Management</h2>
+                <Button size="sm">
+                  Add User
+                </Button>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {usersData.map((user: any) => (
+                  <Card key={user._id} className="overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium truncate">{user.name || user.email}</CardTitle>
+                      <div className={`rounded-full p-1.5 ${
+                        user.role === 'superAdmin' 
+                          ? 'bg-red-100 text-red-600 dark:bg-red-900/40' 
+                          : user.role === 'admin'
+                            ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/40'
+                            : 'bg-blue-100 text-blue-600 dark:bg-blue-900/40'
+                      }`}>
+                        <UserCircle className="h-4 w-4" />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm truncate text-muted-foreground mb-2">{user.email}</div>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          user.role === 'superAdmin'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                            : user.role === 'admin'
+                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                        }`}>
+                          {user.role}
+                        </span>
+                        {user.isActive ? (
+                          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400">
+                            Inactive
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="border-t px-6 py-3 flex justify-end">
+                      <Button variant="ghost" size="sm">
+                        <EllipsisIcon className="h-4 w-4" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

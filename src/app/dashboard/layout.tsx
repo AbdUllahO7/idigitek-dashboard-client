@@ -8,6 +8,7 @@ import DashboardSidebar from "@/src/components/dashboard/dashboard-sidebar"
 import DashboardHeader from "@/src/components/dashboard/dashboard-header"
 import { useAuth } from "@/src/context/AuthContext"
 import ProtectedRoute from "@/src/components/auth/ProtectedRoute"
+import { RouteGuard } from "@/src/components/dashboard/RouteGuard"
 
 /**
  * Dashboard layout component
@@ -70,7 +71,7 @@ export default function DashboardLayout({
 
   // Use the ProtectedRoute component to secure the dashboard
   return (
-    <ProtectedRoute>
+    <RouteGuard>
       <div className="flex h-screen overflow-hidden bg-background">
         {/* Animated sidebar */}
         <AnimatePresence mode="wait">
@@ -104,6 +105,6 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
-    </ProtectedRoute>
+    </RouteGuard>
   )
 }
