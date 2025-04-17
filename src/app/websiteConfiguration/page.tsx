@@ -9,9 +9,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/src/components/ui/checkbox"
 import { Label } from "@/src/components/ui/label"
 import { useToast } from "@/src/components/ui/use-toast"
-import { useLanguages, Language } from "@/src/hooks/webConfiguration/use-language"
+import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { Section } from "@/src/api/types/sectionsTypes"
 import { useSections } from "@/src/hooks/webConfiguration/use-section"
+import { Language } from "@/src/api/types/languagesTypes"
 
 export default function ConfigurationPage() {
   const [isSaving, setIsSaving] = useState(false)

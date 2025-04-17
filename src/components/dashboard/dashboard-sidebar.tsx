@@ -40,7 +40,7 @@ interface NavItem {
   href: string
   icon: React.ElementType
   sectionId?: string // The section ID this nav item corresponds to
-  roles?: string[] // Roles that can access this nav item
+  roles?: string[] 
 }
 
 /**
@@ -50,12 +50,14 @@ const allNavItems: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard",
+    roles: ['superAdmin'], // Only superAdmin can see this
     icon: LayoutDashboard, // const 
     // Dashboard is always shown
   },
   {
     title: "Users",
     href: "/dashboard/users",
+    roles: ['superAdmin'], // Only superAdmin can see this
     icon: Users, // const 
     // Users is always shown
   },
@@ -184,7 +186,7 @@ export default function DashboardSidebar() {
   const router = useRouter()
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { isAuthenticated, user, isLoading: userIsLoading } = useAuth();
+  const {  user, isLoading: userIsLoading } = useAuth();
 
   const { 
     useGetAll: useGetAllSections

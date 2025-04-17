@@ -41,6 +41,11 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/dashboard') && !hasValidSelections) {
         return NextResponse.redirect(new URL('/websiteConfiguration', request.url))
     }
+     // If user is trying to access dashboard without valid selections, redirect to configuration
+    if (pathname.startsWith('/dashboard') && !hasValidSelections) {
+        return NextResponse.redirect(new URL('/websiteConfiguration', request.url))
+    }
+    
 
     // If user is at the root path, redirect based on selections
     if (pathname === '/') {
@@ -48,6 +53,7 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/dashboard', request.url))
         } else {
             return NextResponse.redirect(new URL('/websiteConfiguration', request.url))
+            
         }
     }
 
