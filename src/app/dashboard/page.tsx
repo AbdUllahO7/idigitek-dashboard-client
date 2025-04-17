@@ -14,7 +14,7 @@ import { useSections } from "@/src/hooks/webConfiguration/use-section"
 import { Section } from "@/src/api/types/sectionsTypes"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { Language } from "@/src/api/types/languagesTypes"
-import { useUsers } from "@/src/hooks/webConfiguration/use-users"
+import { useUsers } from "@/src/hooks/users/use-users"
 
 /**
  * Dashboard overview page
@@ -113,7 +113,6 @@ export default function DashboardPage() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="w-full justify-start">
           <TabsTrigger value="overview" className="rounded-lg">Overview</TabsTrigger>
-          <TabsTrigger value="users" className="rounded-lg">Users</TabsTrigger>
         </TabsList>
 
         {/* Overview tab content */}

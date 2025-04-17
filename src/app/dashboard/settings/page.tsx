@@ -1,210 +1,295 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTheme } from "next-themes"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { ContentLoader } from "@/src/components/ui/loader"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Label } from "@/src/components/ui/label"
 import { Input } from "@/src/components/ui/input"
 import { Button } from "@/src/components/ui/button"
-import { Switch } from "@/src/components/ui/switch"
-import { Edit } from "lucide-react"
+import { Edit, CheckCircle, Lock, Mail, UserCircle, Shield, Activity } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { toast } from "@/src/components/ui/use-toast"
+import { Badge } from "@/src/components/ui/badge"
+import useUsers, { User } from "@/src/hooks/users/use-users"
 
 /**
  * Settings page component
  * Allows users to configure their account and application settings
  */
 export default function SettingsPage() {
-  const [loading, setLoading] = useState(false)
-  const { theme, setTheme } = useTheme()
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { useGetCurrentUser, useUpdateProfile } = useUsers()
+  const { data: currentUserData, isLoading: isUserLoading } = useGetCurrentUser()
+  const updateProfile = useUpdateProfile()
+  const [showSuccess, setShowSuccess] = useState(false)
+
+  // Form state for account information
+  const [formData, setFormData] = useState<Partial<User>>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    role: "",
+    status: undefined
+  })
+
+  // Load user data when available
+  useEffect(() => {
+    if (currentUserData?.data) {
+      const userData = currentUserData.data
+      setFormData({
+        firstName: userData.firstName || "",
+        lastName: userData.lastName || "",
+        email: userData.email || "",
+        role: userData.role || "",
+        status: userData.status || ""
+      })
+      setLoading(false)
+    }
+  }, [currentUserData])
+
+  // Loading state based on API call
+  useEffect(() => {
+    setLoading(isUserLoading)
+  }, [isUserLoading])
 
   const handleNavigate = () => { 
     router.push("/websiteConfiguration")
   }
 
+  const handleInputChange = (e: { target: { id: any; value: any } }) => {
+    const { id, value } = e.target
+    
+    // Map the input IDs to the correct state property names
+    let fieldName;
+    if (id === 'first-name') {
+      fieldName = 'firstName';
+    } else if (id === 'last-name') {
+      fieldName = 'lastName';
+    } else {
+      // For any other fields, just remove dashes
+      fieldName = id.replace('-', '');
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }))
+  }
+
+  const handleUpdateProfile = async () => {
+    try {
+      await updateProfile.mutateAsync({
+        firstName: formData.firstName,
+        lastName: formData.lastName
+      })
+      
+      // Show success indicator
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile information has been updated successfully.",
+        duration: 3000
+      })
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: (error instanceof Error ? error.message : "There was a problem updating your profile"),
+        variant: "destructive",
+        duration: 5000
+      })
+    }
+  }
+
+  // Function to get status badge color
+  const getStatusColor = (status: string | undefined) => {
+    if (!status) return "bg-gray-200 dark:bg-gray-700";
+    
+    switch(status.toLowerCase()) {
+      case 'active':
+        return "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700";
+      case 'inactive':
+        return "bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700";
+      case 'suspended':
+        return "bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700";
+      default:
+        return "bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700";
+    }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Page header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <Button onClick={handleNavigate} variant="outline">
-          <Edit/>
-            <span className="text-sm font-medium  ">Edit Sections</span>
-        </Button>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+          My Profile Settings
+        </h1>
       </div>
 
       {/* Settings tabs */}
       <Tabs defaultValue="account" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="appearance">Appearance</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-1 h-auto p-1">
+          <TabsTrigger value="account" className="text-base py-3">
+            <UserCircle className="mr-2 h-5 w-5" />
+            Account Information
+          </TabsTrigger>
         </TabsList>
         
         {/* Account tab content */}
         <TabsContent value="account" className="space-y-6">
           {loading ? (
-            <ContentLoader />
+            <div className="flex justify-center p-12">
+              <ContentLoader />
+            </div>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Information</CardTitle>
-                <CardDescription>Update your account details and preferences.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="first-name">First name</Label>
-                    <Input id="first-name" defaultValue="John" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Profile summary sidebar */}
+              <Card className="md:col-span-1 h-fit bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border-none shadow-md">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center">
+                    <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 flex items-center justify-center text-white text-2xl font-bold mb-2 mx-auto">
+                      {formData.firstName?.charAt(0) || ""}{formData.lastName?.charAt(0) || ""}
+                    </div>
+                  </CardTitle>
+                  <div className="text-center">
+                    <h3 className="text-xl font-semibold mt-2">
+                      {formData.firstName} {formData.lastName}
+                    </h3>
+                    <div className="flex items-center justify-center mt-1">
+                      <Mail className="h-4 w-4 mr-1 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">{formData.email}</p>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last-name">Last name</Label>
-                    <Input id="last-name" defaultValue="Doe" />
+                </CardHeader>
+                <CardContent className="pb-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <Shield className="h-4 w-4 mr-2 text-blue-500 dark:text-blue-400" />
+                        <span className="text-sm font-medium">Role</span>
+                      </div>
+                      <Badge variant="outline" className="font-medium bg-blue-50 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800">
+                        {formData.role}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <Activity className="h-4 w-4 mr-2 text-emerald-500 dark:text-emerald-400" />
+                        <span className="text-sm font-medium">Status</span>
+                      </div>
+                      <Badge className={`${getStatusColor(formData.status as string)} text-white`}>
+                        {formData.status}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="john.doe@example.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Input id="bio" defaultValue="I'm a product manager with over 10 years of experience." />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save changes</Button>
-              </CardFooter>
-            </Card>
-          )}
-        </TabsContent>
+                </CardContent>
+              </Card>
 
-        {/* Notifications tab content */}
-        <TabsContent value="notifications" className="space-y-6">
-          {loading ? (
-            <ContentLoader />
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>Configure how you receive notifications.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between space-x-2">
-                  <Label htmlFor="email-notifications" className="flex flex-col space-y-1">
-                    <span>Email Notifications</span>
-                    <span className="text-sm font-normal text-muted-foreground">Receive notifications via email</span>
-                  </Label>
-                  <Switch id="email-notifications" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between space-x-2">
-                  <Label htmlFor="push-notifications" className="flex flex-col space-y-1">
-                    <span>Push Notifications</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      Receive notifications on your device
-                    </span>
-                  </Label>
-                  <Switch id="push-notifications" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between space-x-2">
-                  <Label htmlFor="marketing-emails" className="flex flex-col space-y-1">
-                    <span>Marketing Emails</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      Receive emails about new products and features
-                    </span>
-                  </Label>
-                  <Switch id="marketing-emails" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save preferences</Button>
-              </CardFooter>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* Appearance tab content */}
-        <TabsContent value="appearance" className="space-y-6">
-          {loading ? (
-            <ContentLoader />
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance Settings</CardTitle>
-                <CardDescription>Customize the look and feel of your dashboard.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between space-x-2">
-                  <Label htmlFor="dark-mode" className="flex flex-col space-y-1">
-                    <span>Dark Mode</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      Toggle between light and dark mode
-                    </span>
-                  </Label>
-                  <Switch
-                    id="dark-mode"
-                    checked={theme === "dark"}
-                    onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-                  />
-                </div>
-                <div className="flex items-center justify-between space-x-2">
-                  <Label htmlFor="compact-view" className="flex flex-col space-y-1">
-                    <span>Compact View</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      Display more content with less spacing
-                    </span>
-                  </Label>
-                  <Switch id="compact-view" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save settings</Button>
-              </CardFooter>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* Security tab content */}
-        <TabsContent value="security" className="space-y-6">
-          {loading ? (
-            <ContentLoader />
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Manage your account security and authentication.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="current-password">Current Password</Label>
-                  <Input id="current-password" type="password" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">New Password</Label>
-                  <Input id="new-password" type="password" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
-                  <Input id="confirm-password" type="password" />
-                </div>
-                <div className="flex items-center justify-between space-x-2 pt-4">
-                  <Label htmlFor="two-factor" className="flex flex-col space-y-1">
-                    <span>Two-Factor Authentication</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      Add an extra layer of security to your account
-                    </span>
-                  </Label>
-                  <Switch id="two-factor" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Update password</Button>
-              </CardFooter>
-            </Card>
+              {/* Editable information */}
+              <Card className="md:col-span-2 shadow-md border-none dark:bg-slate-900">
+                <CardHeader>
+                  <CardTitle>Edit Profile</CardTitle>
+                  <CardDescription>Update your personal information</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="first-name" className="text-sm font-medium">First name</Label>
+                      <div className="relative">
+                        <Input 
+                          id="first-name" 
+                          value={formData.firstName} 
+                          onChange={handleInputChange}
+                          className="pl-9 h-11 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 dark:bg-slate-800 dark:border-slate-700"
+                        />
+                        <UserCircle className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="last-name" className="text-sm font-medium">Last name</Label>
+                      <div className="relative">
+                        <Input 
+                          id="last-name" 
+                          value={formData.lastName} 
+                          onChange={handleInputChange}
+                          className="pl-9 h-11 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 dark:bg-slate-800 dark:border-slate-700"
+                        />
+                        <UserCircle className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Read-only fields */}
+                  <div className="mt-8 pt-6 border-t border-dashed dark:border-slate-700">
+                    <h3 className="text-lg font-medium mb-4 flex items-center">
+                      <Lock className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <span className="text-muted-foreground">Account Information</span>
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-medium text-muted-foreground">Email Address</Label>
+                        <div className="relative">
+                          <Input 
+                            id="email" 
+                            value={formData.email} 
+                            readOnly
+                            className="bg-slate-50 dark:bg-slate-800/50 pl-9 h-11 cursor-not-allowed border-dashed dark:border-slate-700"
+                          />
+                          <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="role" className="text-sm font-medium text-muted-foreground">Role</Label>
+                          <div className="relative">
+                            <Input 
+                              id="role" 
+                              value={formData.role} 
+                              readOnly
+                              className="bg-slate-50 dark:bg-slate-800/50 pl-9 h-11 cursor-not-allowed border-dashed dark:border-slate-700"
+                            />
+                            <Shield className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="status" className="text-sm font-medium text-muted-foreground">Account Status</Label>
+                          <div className="relative">
+                            <Input 
+                              id="status" 
+                              value={formData.status} 
+                              readOnly
+                              className="bg-slate-50 dark:bg-slate-800/50 pl-9 h-11 cursor-not-allowed border-dashed dark:border-slate-700"
+                            />
+                            <Activity className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between border-t py-6 dark:border-slate-700">
+                  <Button 
+                    onClick={handleUpdateProfile}
+                    disabled={updateProfile.isPending}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600 text-white px-6 h-11"
+                  >
+                    {updateProfile.isPending ? "Saving..." : "Save changes"}
+                  </Button>
+                  {showSuccess && (
+                    <div className="flex items-center text-green-500 dark:text-green-400">
+                      <CheckCircle className="mr-2 h-5 w-5" />
+                      <span>Saved successfully</span>
+                    </div>
+                  )}
+                </CardFooter>
+              </Card>
+            </div>
           )}
         </TabsContent>
       </Tabs>

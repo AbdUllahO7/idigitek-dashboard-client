@@ -119,6 +119,27 @@ export const useUsers = () => {
     });
   };
 
+  // Update user profile (current user only)
+  const useUpdateProfile = () => {
+    return useMutation({
+      mutationFn: async (profileData: Partial<User>) => {
+        // Only allow these fields to be updated in profile
+        const allowedFields = ['firstName', 'lastName', 'email', 'password'];
+        const filteredData = Object.fromEntries(
+          Object.entries(profileData).filter(([key]) => allowedFields.includes(key))
+        );
+        
+        const { data: responseData } = await apiClient.put(`${endpoint}/me`, filteredData);
+        return responseData;
+      },
+      onSuccess: (data) => {
+        // Invalidate current user query and general users query
+        queryClient.invalidateQueries({ queryKey: [...usersKey, 'me'] });
+        queryClient.invalidateQueries({ queryKey: usersKey });
+      }
+    });
+  };
+
   // Delete a user
     const useDelete = () => {
         return useMutation({
@@ -159,7 +180,8 @@ export const useUsers = () => {
         useCreate,
         useUpdate,
         useDelete,
-        useGetCurrentUser
+        useGetCurrentUser,
+        useUpdateProfile
     };
 };
 
