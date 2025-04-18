@@ -902,7 +902,7 @@ export default function AdminManagementPage() {
               animate="visible"
               className="space-y-6"
             >
-              <Card>
+              {/* <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
@@ -977,7 +977,7 @@ export default function AdminManagementPage() {
                     Add Section
                   </Button>
                 </CardFooter>
-              </Card>
+              </Card> */}
 
               <Card>
                 <CardHeader>
@@ -1031,7 +1031,7 @@ export default function AdminManagementPage() {
                                       }
                                     </Button>
                                     
-                                    <Dialog>
+                                    {/* <Dialog>
                                       <DialogTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(section, "section")}>
                                           <Edit className="h-4 w-4" />
@@ -1107,9 +1107,9 @@ export default function AdminManagementPage() {
                                           </DialogClose>
                                         </DialogFooter>
                                       </DialogContent>
-                                    </Dialog>
+                                    </Dialog> */}
 
-                                    <AlertDialog>
+                                    {/* <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <Button 
                                           variant="ghost" 
@@ -1141,7 +1141,7 @@ export default function AdminManagementPage() {
                                           </AlertDialogAction>
                                         </AlertDialogFooter>
                                       </AlertDialogContent>
-                                    </AlertDialog>
+                                    </AlertDialog> */}
                                   </div>
                                 </div>
                                 

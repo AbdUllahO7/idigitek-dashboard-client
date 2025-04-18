@@ -25,6 +25,7 @@ import {
   FolderKanban,
   Server,
   UserCircle,
+  Loader2
 } from "lucide-react"
 import { Button } from "../ui/button"
 import { cn } from "@/src/lib/utils"
@@ -186,7 +187,8 @@ export default function DashboardSidebar() {
   const router = useRouter()
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const {  user, isLoading: userIsLoading } = useAuth();
+  const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
+  const { user, isLoading: userIsLoading } = useAuth();
 
   const { 
     useGetAll: useGetAllSections
@@ -271,7 +273,24 @@ export default function DashboardSidebar() {
    * Handle navigation with loading indicator
    */
   const handleNavigation = (href: string) => {
+    // Don't navigate if already navigating or if clicking the current page
+    if (navigatingTo || pathname === href) {
+      return;
+    }
+    
+    // Set the navigating state to show loading indicator
+    setNavigatingTo(href);
+    
+    // Prefetch the page before navigating
+    router.prefetch(href);
+    
+    // Navigate to the new page
     router.push(href);
+    
+    // Clear the navigating state after navigation completes
+    setTimeout(() => {
+      setNavigatingTo(null);
+    }, 500);
   }
 
   // Show loading state while fetching sections or user
@@ -299,8 +318,16 @@ export default function DashboardSidebar() {
     <div className="flex h-full flex-col border-r dark:border-slate-700 bg-background dark:bg-slate-900">
       {/* Sidebar header */}
       <div className="flex h-16 items-center border-b dark:border-slate-700 px-6">
-        <button onClick={() => handleNavigation("/dashboard")} className="flex items-center gap-2 font-semibold">
-          <Home className="h-6 w-6" />
+        <button 
+          onClick={() => handleNavigation("/dashboard")} 
+          className="flex items-center gap-2 font-semibold"
+          disabled={navigatingTo === "/dashboard"}
+        >
+          {navigatingTo === "/dashboard" ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : (
+            <Home className="h-6 w-6" />
+          )}
           <span>Admin Dashboard</span>
         </button>
       </div>
@@ -308,28 +335,38 @@ export default function DashboardSidebar() {
       {/* Navigation items */}
       <div className="flex-1 overflow-auto py-6">
         <nav className="grid gap-2 px-4">
-          {navItems.map((item, index) => (
-            <motion.div
-              key={item.href}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Button
-                variant={pathname === item.href ? "default" : "ghost"}
-                className={cn(
-                  "w-full justify-start",
-                  pathname === item.href
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                    : "hover:bg-accent hover:text-accent-foreground",
-                )}
-                onClick={() => handleNavigation(item.href)}
+          {navItems.map((item, index) => {
+            const isActive = pathname === item.href;
+            const isNavigating = navigatingTo === item.href;
+            
+            return (
+              <motion.div
+                key={item.href}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <item.icon className="mr-2 h-5 w-5" />
-                {item.title}
-              </Button>
-            </motion.div>
-          ))}
+                <Button
+                  variant={isActive ? "default" : "ghost"}
+                  className={cn(
+                    "w-full justify-start",
+                    isActive
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                      : "hover:bg-accent hover:text-accent-foreground",
+                  )}
+                  onClick={() => handleNavigation(item.href)}
+                  disabled={isNavigating}
+                >
+                  {isNavigating ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : (
+                    <item.icon className="mr-2 h-5 w-5" />
+                  )}
+                  {item.title}
+                </Button>
+              </motion.div>
+            );
+          })}
         </nav>
       </div>
 
