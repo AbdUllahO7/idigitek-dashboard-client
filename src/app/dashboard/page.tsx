@@ -87,6 +87,7 @@ export default function DashboardPage() {
   // Colors for charts
   const COLORS = ['#10b981', '#6366f1', '#8b5cf6', '#3b82f6', '#ef4444'];
   const ROLE_COLORS = {
+    'owner' : '#ef444444',
     'superAdmin': '#ef4444',
     'admin': '#8b5cf6',
     'user': '#3b82f6'
@@ -281,10 +282,10 @@ export default function DashboardPage() {
                       key={role}
                       className={`text-white px-2 py-1 rounded-md text-xs font-medium shadow-sm flex items-center gap-1 ${
                         role === 'superAdmin' 
-                          ? 'bg-red-500' 
+                          ? 'bg-red-500' : role === 'owner' ? 'bg-red-950' 
                           : role === 'admin'
                             ? 'bg-purple-500'
-                            : 'bg-blue-500'
+                            : 'bg-blue-500' 
                       }`}
                     >
                       <UserCircle className="h-3 w-3" />

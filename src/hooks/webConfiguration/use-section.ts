@@ -16,8 +16,13 @@ export function useSections() {
     return useQuery({
       queryKey: sectionsKey,
       queryFn: async () => {
-        const { data } = await apiClient.get(endpoint);
-        return data;
+        try {
+          const { data } = await apiClient.get(endpoint);
+          return data;
+        } catch (error: any) {
+          console.error("Error fetching sections:", error);
+          throw error;
+        }
       },
     });
   };
@@ -27,8 +32,13 @@ export function useSections() {
     return useQuery({
       queryKey: sectionKey(id),
       queryFn: async () => {
-        const { data } = await apiClient.get(`${endpoint}/${id}`);
-        return data;
+        try {
+          const { data } = await apiClient.get(`${endpoint}/${id}`);
+          return data;
+        } catch (error: any) {
+          console.error(`Error fetching section ${id}:`, error);
+          throw error;
+        }
       },
       enabled: !!id,
     });
@@ -38,8 +48,21 @@ export function useSections() {
   const useCreate = () => {
     return useMutation({
       mutationFn: async (createDto: Omit<Section, '_id'>) => {
-        const { data } = await apiClient.post(endpoint, createDto);
-        return data;
+        try {
+          const { data } = await apiClient.post(endpoint, createDto);
+          return data;
+        } catch (error: any) {
+          // Enhance error handling for duplicate entries
+          if (error.message?.includes('duplicate') || 
+              error.message?.includes('E11000') || 
+              error.message?.includes('already exists')) {
+            const enhancedError = new Error(`A section with the name "${createDto.name}" already exists.`);
+            throw enhancedError;
+          }
+          
+          // Forward the original error
+          throw error;
+        }
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: sectionsKey });
@@ -54,8 +77,21 @@ export function useSections() {
   const useUpdate = () => {
     return useMutation({
       mutationFn: async ({ id, data }: { id: string; data: Partial<Section> }) => {
-        const { data: responseData } = await apiClient.put(`${endpoint}/${id}`, data);
-        return responseData;
+        try {
+          const { data: responseData } = await apiClient.put(`${endpoint}/${id}`, data);
+          return responseData;
+        } catch (error: any) {
+          // Enhance error handling for duplicate entries
+          if (error.message?.includes('duplicate') || 
+              error.message?.includes('E11000') || 
+              error.message?.includes('already exists')) {
+            const enhancedError = new Error(`A section with the name "${data.name}" already exists.`);
+            throw enhancedError;
+          }
+          
+          // Forward the original error
+          throw error;
+        }
       },
       onSuccess: (data, { id }) => {
         queryClient.setQueryData(sectionKey(id), data);
@@ -68,8 +104,13 @@ export function useSections() {
   const useToggleActive = () => {
     return useMutation({
       mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-        const { data: responseData } = await apiClient.patch(`${endpoint}/${id}/status`, { isActive });
-        return responseData;
+        try {
+          const { data: responseData } = await apiClient.patch(`${endpoint}/${id}/status`, { isActive });
+          return responseData;
+        } catch (error: any) {
+          console.error(`Error toggling section ${id} active status:`, error);
+          throw error;
+        }
       },
       onSuccess: (data, { id }) => {
         queryClient.setQueryData(sectionKey(id), data);
@@ -82,7 +123,12 @@ export function useSections() {
   const useDelete = () => {
     return useMutation({
       mutationFn: async (id: string) => {
-        await apiClient.delete(`${endpoint}/${id}`);
+        try {
+          await apiClient.delete(`${endpoint}/${id}`);
+        } catch (error: any) {
+          console.error(`Error deleting section ${id}:`, error);
+          throw error;
+        }
       },
       onSuccess: (_, id) => {
         queryClient.removeQueries({ queryKey: sectionKey(id) });

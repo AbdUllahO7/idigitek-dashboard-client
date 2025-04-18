@@ -51,14 +51,14 @@ const allNavItems: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard",
-    roles: ['superAdmin'], // Only superAdmin can see this
+    roles: ['superAdmin' , 'owner'], // Only superAdmin can see this
     icon: LayoutDashboard, // const 
     // Dashboard is always shown
   },
   {
     title: "Users",
     href: "/dashboard/users",
-    roles: ['superAdmin'], // Only superAdmin can see this
+    roles: ['superAdmin' , 'owner'], // Only superAdmin can see this
     icon: Users, // const 
     // Users is always shown
   },
@@ -174,7 +174,7 @@ const allNavItems: NavItem[] = [
     title: "Web Configurations",
     href: "/dashboard/addWebSiteConfiguration", // const 
     icon: Settings,
-    roles: ['superAdmin'], // Only superAdmin can see this
+    roles: ['superAdmin' , 'owner'], // Only superAdmin can see this
   },
 ]
 
@@ -210,8 +210,8 @@ export default function DashboardSidebar() {
     // Map section IDs to their names from the active sections
     if (activeSections.length > 0) {
       activeSections.forEach((section: Section) => {
-        const sectionId = section.section_name.toLowerCase().replace(/\s/g, "");
-        sectionNameMap.set(sectionId, section.section_name);
+        const sectionId = section.name.toLowerCase().replace(/\s/g, "");
+        sectionNameMap.set(sectionId, section.name);
       });
     }
     
@@ -219,7 +219,7 @@ export default function DashboardSidebar() {
       try {
         // Get active section IDs from the API data
         const activeSectionIds = activeSections.map((section: Section) => 
-          section.section_name.toLowerCase().replace(/\s/g, "")
+          section.name.toLowerCase().replace(/\s/g, "")
         );
         
         // Store active section IDs in localStorage for persistence

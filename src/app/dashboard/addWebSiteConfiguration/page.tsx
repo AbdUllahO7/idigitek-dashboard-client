@@ -132,7 +132,7 @@ export default function AdminManagementPage() {
   });
   
   const [newSection, setNewSection] = useState<Section>({ 
-    section_name: "", 
+    name: "", 
     description: "", 
     image: "",
     order: 0,
@@ -222,7 +222,7 @@ export default function AdminManagementPage() {
   };
 
   const handleAddSection = () => {
-    if (!newSection.section_name) {
+    if (!newSection.name) {
       toast({
         title: "Invalid input",
         description: "Please enter a name for the section.",
@@ -230,7 +230,7 @@ export default function AdminManagementPage() {
       });
       return;
     }
-    if (sectionArray?.some((section: Section) => section.section_name === newSection.section_name)) {
+    if (sectionArray?.some((section: Section) => section.name === newSection.name)) {
       toast({
         title: "Duplicate name",
         description: "A section with this name already exists.",
@@ -242,7 +242,7 @@ export default function AdminManagementPage() {
     createSectionMutation.mutate(newSection, {
       onSuccess: () => {
         setNewSection({ 
-          section_name: "", 
+          name: "", 
           description: "", 
           image: "",
           order: 0,
@@ -252,7 +252,7 @@ export default function AdminManagementPage() {
         
         toast({
           title: "Section added",
-          description: `${newSection.section_name} has been added successfully.`,
+          description: `${newSection.name} has been added successfully.`,
         });
         
         showSuccessMessage();
@@ -281,7 +281,7 @@ export default function AdminManagementPage() {
       const section = item as Section;
       setEditItem({ 
         _id: section._id,
-        section_name: section.section_name,
+        section_name: section.name,
         image: section.image,
         description: section.description,
         isActive: section.isActive,
@@ -406,7 +406,7 @@ export default function AdminManagementPage() {
       // Check for duplicate name only if name was changed
       const originalItem = sectionArray.find((item: Section) => item._id === editItem._id);
       if (originalItem && editItem.section_name !== originalItem.section_name && 
-          sectionArray.some((item: Section) => item.section_name === editItem.section_name)) {
+          sectionArray.some((item: Section) => item.name === editItem.section_name)) {
         toast({
           title: "Duplicate name",
           description: "A section with this name already exists.",
@@ -993,13 +993,13 @@ export default function AdminManagementPage() {
                   {sectionArray.length > 0 ? (
                     <motion.div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3" variants={containerVariants}>
                       {sectionArray.map((section: Section) => (
-                        <motion.div key={section._id || `section-${section.section_name}`} variants={itemVariants}>
+                        <motion.div key={section._id || `section-${section.name}`} variants={itemVariants}>
                           <Card className="border border-slate-200 dark:border-slate-700">
                             <CardContent className="p-4">
                               <div className="flex flex-col gap-2">
                                 <div className="flex justify-between items-start">
                                   <div>
-                                    <p className="font-medium">{section.section_name}</p>
+                                    <p className="font-medium">{section.name}</p>
                                     {section.description && (
                                       <p className="text-sm text-slate-500">{section.description}</p>
                                     )}
@@ -1150,7 +1150,7 @@ export default function AdminManagementPage() {
                                   <div className="mt-2 rounded-md overflow-hidden border border-slate-200 dark:border-slate-700">
                                     <Image 
                                       src={section.image} 
-                                      alt={section.section_name}
+                                      alt={section.name}
                                       width={300}
                                       height={100}
                                       className="w-full h-20 object-cover"
@@ -1182,7 +1182,7 @@ export default function AdminManagementPage() {
           className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8"
         >
           <p>Manage the languages and sections available for website configuration.</p>
-          <p className="mt-1">These settings will be used across your website building process.</p>
+          <p className="mt-1">These settings will be used across your website building process.</p>s
         </motion.div>
       </div>
     </main>

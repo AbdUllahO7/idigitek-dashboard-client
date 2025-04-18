@@ -1,6 +1,6 @@
 export interface Section {
     _id?: string;
-    section_name: string;
+    name: string;
     description?: string;
     isActive?: boolean;
     order?: number;
@@ -12,7 +12,7 @@ export interface Section {
   
   // Create DTO type for creating a new section
   export interface CreateSectionDto {
-    section_name: string;
+    name: string;
     description?: string;
     isActive?: boolean;
     order?: number;
@@ -23,7 +23,7 @@ export interface Section {
   
   // Create DTO type for updating a section
   export interface UpdateSectionDto {
-    section_name?: string;
+    name?: string;
     description?: string;
     isActive?: boolean;
     order?: number;

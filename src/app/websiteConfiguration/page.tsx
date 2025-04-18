@@ -64,17 +64,17 @@ export default function ConfigurationPage() {
 
   useEffect(() => {
     if (sectionsQuery.data) {
-      console.log('Sections data:', sectionsQuery.data);
+      console.log('Sections data:', sectionsQuery.data.data.data);
       
       // Try to extract the sections data
       let sections: Section[] = [];
       
-      if (Array.isArray(sectionsQuery.data)) {
-        sections = sectionsQuery.data;
-      } else if (sectionsQuery.data && typeof sectionsQuery.data === 'object') {
+      if (Array.isArray(sectionsQuery.data.data.data)) {
+        sections = sectionsQuery.data.data.data;
+      } else if (sectionsQuery.data.data .data&& typeof sectionsQuery.data.data.data === 'object') {
         // Check if there's a data property that's an array
-        if (sectionsQuery.data.data && Array.isArray(sectionsQuery.data.data)) {
-          sections = sectionsQuery.data.data;
+        if (sectionsQuery.data.data && Array.isArray(sectionsQuery.data.data.data)) {
+          sections = sectionsQuery.data.data.data;
         }
       }
       
@@ -396,7 +396,7 @@ export default function ConfigurationPage() {
                             disabled={toggleSectionActiveMutation.isPending}
                           />
                           <Label htmlFor={`section-${section._id}`} className="flex-1 cursor-pointer">
-                            {section.section_name}
+                            {section.name}
                           </Label>
                           {section.isActive && (
                             <motion.div
@@ -470,7 +470,7 @@ export default function ConfigurationPage() {
                       animate={{ scale: 1, opacity: 1 }}
                       className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-700 px-3 py-1 text-sm font-medium text-slate-800 dark:text-slate-200"
                     >
-                      {section.section_name}
+                      {section.name}
                     </motion.span>
                   ))}
                 </div>

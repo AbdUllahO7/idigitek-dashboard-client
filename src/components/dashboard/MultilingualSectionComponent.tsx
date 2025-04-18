@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/src/components/ui/badge"
 import { Button } from "@/src/components/ui/button"
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { Textarea } from "@/src/components/ui/textarea"
-import { Edit, Plus, Languages, AlertCircle, Info, ArrowRight, CheckCircle2, Globe, X } from "lucide-react"
+import { Edit, Plus, Languages, AlertCircle, CheckCircle2, Globe, X } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import {
   Dialog,
@@ -20,6 +20,17 @@ import {
   DialogTitle,
 } from "@/src/components/ui/dialog"
 import type { FieldConfig, MultilingualSectionProps } from "@/src/app/types/MultilingualSectionTypes"
+import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
+import { Language } from "@/src/api/types/languagesTypes"
+
+// Define proper type for form data
+type FormDataType = {
+  id: string;
+} & {
+  [key: string]: {
+    [languageID: string]: string;
+  };
+};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -44,7 +55,6 @@ export default function MultilingualSectionComponent({
   sectionTitle,
   sectionDescription = "Manage this section in multiple languages.",
   fields,
-  languages,
   sectionData,
   onSectionChange,
   addButtonLabel = "Add Section",
@@ -55,123 +65,165 @@ export default function MultilingualSectionComponent({
   noDataMessage = "No content added yet. Click the 'Add Section' button to create one.",
 }: MultilingualSectionProps) {
   const [showForm, setShowForm] = useState(false)
-  const [activeTab, setActiveTab] = useState(languages[0]?.id || "")
   const [validationDialogOpen, setValidationDialogOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("")
 
+  // Get languages from API
+  const { 
+    useGetAll: useGetAllLanguages
+  } = useLanguages();
+
+  const { 
+    data: languagesData, 
+    isLoading: isLoadingLanguages,
+  } = useGetAllLanguages();
+
+  // Ensure activeLanguages is properly typed
+  const activeLanguages: Language[] = languagesData?.data?.filter((lang: Language) => lang.isActive) || [];
+  
   // Create initial form data structure based on fields and languages
-  const createInitialFormData = () => {
-    const initialData: any = { id: "" }
+  const createInitialFormData = (): FormDataType => {
+    const initialData: FormDataType = { id: "" } as FormDataType;
 
     fields.forEach((field) => {
-      initialData[field.id] = {}
-      languages.forEach((lang) => {
-        initialData[field.id][lang.id] = ""
-      })
-    })
+      initialData[field.id] = {};
+      activeLanguages.forEach((lang) => {
+        if (lang.languageID) {
+          initialData[field.id][lang.languageID] = "";
+        }
+      });
+    });
 
-    return initialData
-  }
+    return initialData;
+  };
 
-  const [formData, setFormData] = useState<any>(createInitialFormData())
+  // Initialize form data with proper typing
+  const [formData, setFormData] = useState<FormDataType>(createInitialFormData());
+  
+  // Update active tab when languages change
+  useEffect(() => {
+    if (activeLanguages.length > 0 && !activeTab && activeLanguages[0]?.languageID) {
+      setActiveTab(activeLanguages[0].languageID);
+    }
+  }, [activeLanguages, activeTab]);
+
+  // Update form data when languages change
+  useEffect(() => {
+    if (activeLanguages.length > 0) {
+      // Only update form data if we're not currently editing
+      if (!showForm) {
+        setFormData(createInitialFormData());
+      }
+    }
+  }, [activeLanguages.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Function to validate if a language tab has all required fields completed
   const validateTabCompletion = (langId: string): boolean => {
     return fields
       .filter((field) => field.required !== false)
-      .every((field) => formData[field.id][langId]?.trim() !== "")
-  }
+      .every((field) => {
+        const value = formData[field.id]?.[langId];
+        return value !== undefined && value.trim() !== "";
+      });
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    const [fieldId, langId] = name.split(".")
+    const { name, value } = e.target;
+    const [fieldId, langId] = name.split(".");
 
-    setFormData((prev: any) => ({
+    setFormData((prev) => ({
       ...prev,
       [fieldId]: {
         ...prev[fieldId],
         [langId]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const validateAllLanguages = (): boolean => {
     // Check if all required fields for all languages have values
     for (const field of fields) {
-      if (field.required === false) continue
+      if (field.required === false) continue;
 
-      for (const lang of languages) {
-        const value = formData[field.id][lang.id]
+      for (const lang of activeLanguages) {
+        if (!lang.languageID) continue;
+        
+        const value = formData[field.id]?.[lang.languageID];
         if (!value || value.trim() === "") {
-          return false
+          return false;
         }
       }
     }
 
-    return true
-  }
+    return true;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validate all languages have data
     if (!validateAllLanguages()) {
-      setValidationDialogOpen(true)
-      return
+      setValidationDialogOpen(true);
+      return;
     }
 
     // Update or create section
     onSectionChange({
-      id: sectionData?.id || Date.now().toString(),
       ...formData,
-    })
+      id: sectionData?.id || Date.now().toString(),
+    });
 
-    // Reset form
-    setFormData(createInitialFormData())
-    setShowForm(false)
-  }
+    // Reset form and close
+    setShowForm(false);
+  };
 
   const handleEdit = () => {
     if (sectionData) {
       // Populate form with current section data
-      setFormData(sectionData)
-      setShowForm(true)
+      setFormData(sectionData as FormDataType);
+      setShowForm(true);
     }
-  }
+  };
 
   // Find incomplete languages
-  const getIncompleteLanguages = () => {
-    return languages.filter((lang) => !validateTabCompletion(lang.id)).map((lang) => lang.label)
-  }
+  const getIncompleteLanguages = (): string[] => {
+    return activeLanguages
+      .filter((lang) => lang.languageID && !validateTabCompletion(lang.languageID))
+      .map((lang) => lang.language || "")
+      .filter(Boolean);
+  };
 
   // Render the field based on its type
   const renderField = (field: FieldConfig, langId: string) => {
-    const value = formData[field.id]?.[langId] || ""
+    const value = formData[field.id]?.[langId] || "";
+    const lang = activeLanguages.find((l) => l.languageID === langId);
+    
     const commonProps = {
       id: `${field.id}.${langId}`,
       name: `${field.id}.${langId}`,
       value: value,
       onChange: handleInputChange,
       placeholder: field.placeholder
-        ? `${field.placeholder} (${languages.find((l) => l.id === langId)?.label})`
+        ? `${field.placeholder} (${lang?.language || ""})`
         : undefined,
       required: field.required !== false,
       className: "transition-all duration-200 focus-visible:ring-teal-500 focus-visible:border-teal-500",
-    }
+    };
 
     switch (field.type) {
       case "textarea":
-        return <Textarea {...commonProps} className={`${commonProps.className} min-h-[120px] resize-y`} />
+        return <Textarea {...commonProps} className={`${commonProps.className} min-h-[120px] resize-y`} />;
       case "text":
       default:
-        return <Input {...commonProps} />
+        return <Input {...commonProps} />;
     }
-  }
+  };
 
   // Render the value in view mode based on field type
   const renderFieldValue = (field: FieldConfig, langId: string) => {
-    const value = sectionData?.[field.id]?.[langId]
+    const value = sectionData?.[field.id]?.[langId];
 
-    if (!value) return null
+    if (!value) return null;
 
     switch (field.type) {
       case "badge":
@@ -182,18 +234,46 @@ export default function MultilingualSectionComponent({
           >
             {value}
           </Badge>
-        )
+        );
       case "textarea":
-        return <p className="text-sm text-muted-foreground mb-2 leading-relaxed">{value}</p>
+        return <p className="text-sm text-muted-foreground mb-2 leading-relaxed">{value}</p>;
       case "text":
       default:
-        return <p className="text-sm">{value}</p>
+        return <p className="text-sm">{value}</p>;
     }
+  };
+
+  // Show loading state while fetching languages
+  if (isLoadingLanguages) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
+
+  // If no languages available, show message
+  if (activeLanguages.length === 0) {
+    return (
+      <Card className="shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            {sectionTitle}
+          </CardTitle>
+          <CardDescription>{sectionDescription}</CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+            No active languages found. Please activate at least one language in settings.
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
     <motion.div initial="hidden" animate="visible" variants={containerVariants} className="rounded-xl overflow-hidden">
-     
       <motion.div variants={itemVariants}>
         <Card className="shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
@@ -239,43 +319,49 @@ export default function MultilingualSectionComponent({
                     <div className="flex items-center gap-2 mb-6">
                       <Languages className="h-5 w-5 text-teal-500" />
                       <TabsList className="bg-slate-100 dark:bg-slate-800 p-1">
-                        {languages.map((lang) => (
-                          <TabsTrigger
-                            key={lang.id}
-                            value={lang.id}
-                            className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-sm"
-                          >
-                            {lang.label}
-                            {!validateTabCompletion(lang.id) && <span className="ml-1 text-rose-500">*</span>}
-                          </TabsTrigger>
+                        {activeLanguages.map((lang) => (
+                          lang.languageID && (
+                            <TabsTrigger
+                              key={lang.languageID}
+                              value={lang.languageID}
+                              className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-sm"
+                            >
+                              {lang.language}
+                              {lang.languageID && !validateTabCompletion(lang.languageID) && 
+                                <span className="ml-1 text-rose-500">*</span>
+                              }
+                            </TabsTrigger>
+                          )
                         ))}
                       </TabsList>
                     </div>
 
-                    {languages.map((lang) => (
-                      <TabsContent key={lang.id} value={lang.id} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {fields.slice(0, 2).map((field) => (
+                    {activeLanguages.map((lang) => (
+                      lang.languageID && (
+                        <TabsContent key={lang.languageID} value={lang.languageID} className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {fields.slice(0, 2).map((field) => (
+                              <div key={field.id} className="space-y-2">
+                                <Label htmlFor={`${field.id}.${lang.languageID}`} className="text-sm font-medium">
+                                  {field.label}
+                                  {field.required !== false && <span className="text-rose-500 ml-1">*</span>}
+                                </Label>
+                                {renderField(field, lang.languageID)}
+                              </div>
+                            ))}
+                          </div>
+
+                          {fields.slice(2).map((field) => (
                             <div key={field.id} className="space-y-2">
-                              <Label htmlFor={`${field.id}.${lang.id}`} className="text-sm font-medium">
+                              <Label htmlFor={`${field.id}.${lang.languageID}`} className="text-sm font-medium">
                                 {field.label}
                                 {field.required !== false && <span className="text-rose-500 ml-1">*</span>}
                               </Label>
-                              {renderField(field, lang.id)}
+                              {renderField(field, lang.languageID)}
                             </div>
                           ))}
-                        </div>
-
-                        {fields.slice(2).map((field) => (
-                          <div key={field.id} className="space-y-2">
-                            <Label htmlFor={`${field.id}.${lang.id}`} className="text-sm font-medium">
-                              {field.label}
-                              {field.required !== false && <span className="text-rose-500 ml-1">*</span>}
-                            </Label>
-                            {renderField(field, lang.id)}
-                          </div>
-                        ))}
-                      </TabsContent>
+                        </TabsContent>
+                      )
                     ))}
                   </Tabs>
 
@@ -284,8 +370,8 @@ export default function MultilingualSectionComponent({
                       type="button"
                       variant="outline"
                       onClick={() => {
-                        setShowForm(false)
-                        setFormData(createInitialFormData())
+                        setShowForm(false);
+                        setFormData(createInitialFormData());
                       }}
                       className="border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-600"
                     >
@@ -309,65 +395,68 @@ export default function MultilingualSectionComponent({
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Tabs defaultValue={languages[0]?.id || ""}>
+                  <Tabs defaultValue={activeLanguages[0]?.languageID || ""}>
                     <div className="flex items-center gap-2 mb-6">
                       <Languages className="h-5 w-5 text-teal-500" />
                       <TabsList className="bg-slate-100 dark:bg-slate-800 p-1">
-                        {languages.map((lang) => (
-                          <TabsTrigger
-                            key={lang.id}
-                            value={lang.id}
-                            className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-sm"
-                          >
-                            {lang.label}
-                            {!validateTabCompletion(lang.id) && <span className="ml-1 text-rose-500">*</span>}
-                          </TabsTrigger>
+                        {activeLanguages.map((lang) => (
+                          lang.languageID && (
+                            <TabsTrigger
+                              key={lang.languageID}
+                              value={lang.languageID}
+                              className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-sm"
+                            >
+                              {lang.language}
+                            </TabsTrigger>
+                          )
                         ))}
                       </TabsList>
                     </div>
 
-                    {languages.map((lang) => (
-                      <TabsContent key={lang.id} value={lang.id}>
-                        {sectionData[fields[0]?.id]?.[lang.id] ? (
-                          <Card className="overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 pb-4 border-b border-slate-200 dark:border-slate-700">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  {fields[0] && sectionData[fields[0].id]?.[lang.id] && (
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                                      {sectionData[fields[0].id][lang.id]}
-                                    </p>
-                                  )}
-                                  {fields[1] && sectionData[fields[1].id]?.[lang.id] && (
-                                    <CardTitle className="text-xl mt-1 text-slate-800 dark:text-slate-200">
-                                      {sectionData[fields[1].id][lang.id]}
-                                    </CardTitle>
-                                  )}
+                    {activeLanguages.map((lang) => (
+                      lang.languageID && (
+                        <TabsContent key={lang.languageID} value={lang.languageID}>
+                          {fields[0] && sectionData[fields[0].id]?.[lang.languageID] ? (
+                            <Card className="overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
+                              <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 pb-4 border-b border-slate-200 dark:border-slate-700">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    {fields[0] && sectionData[fields[0].id]?.[lang.languageID] && (
+                                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                                        {sectionData[fields[0].id][lang.languageID]}
+                                      </p>
+                                    )}
+                                    {fields[1] && sectionData[fields[1].id]?.[lang.languageID] && (
+                                      <CardTitle className="text-xl mt-1 text-slate-800 dark:text-slate-200">
+                                        {sectionData[fields[1].id][lang.languageID]}
+                                      </CardTitle>
+                                    )}
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={handleEdit}
+                                    className="h-8 w-8 rounded-full hover:bg-teal-100 hover:text-teal-700 dark:hover:bg-teal-900/50 dark:hover:text-teal-400"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={handleEdit}
-                                  className="h-8 w-8 rounded-full hover:bg-teal-100 hover:text-teal-700 dark:hover:bg-teal-900/50 dark:hover:text-teal-400"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                              {fields.slice(2).map((field) => (
-                                <div key={field.id} className="mb-4">
-                                  {renderFieldValue(field, lang.id)}
-                                </div>
-                              ))}
-                            </CardContent>
-                          </Card>
-                        ) : (
-                          <div className="text-center py-12 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
-                            No content for {lang.label} yet.
-                          </div>
-                        )}
-                      </TabsContent>
+                              </CardHeader>
+                              <CardContent className="pt-6">
+                                {fields.slice(2).map((field) => (
+                                  <div key={field.id} className="mb-4">
+                                    {renderFieldValue(field, lang.languageID)}
+                                  </div>
+                                ))}
+                              </CardContent>
+                            </Card>
+                          ) : (
+                            <div className="text-center py-12 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
+                              No content for {lang.language} yet.
+                            </div>
+                          )}
+                        </TabsContent>
+                      )
                     ))}
                   </Tabs>
                 </motion.div>
@@ -416,11 +505,13 @@ export default function MultilingualSectionComponent({
           <DialogFooter>
             <Button
               onClick={() => {
-                setValidationDialogOpen(false)
+                setValidationDialogOpen(false);
                 // Optionally switch to the first incomplete tab
-                const incompleteLanguages = languages.filter((lang) => !validateTabCompletion(lang.id))
-                if (incompleteLanguages.length > 0) {
-                  setActiveTab(incompleteLanguages[0].id)
+                const incompleteLanguages = activeLanguages.filter((lang) => 
+                  lang.languageID && !validateTabCompletion(lang.languageID)
+                );
+                if (incompleteLanguages.length > 0 && incompleteLanguages[0].languageID) {
+                  setActiveTab(incompleteLanguages[0].languageID);
                 }
               }}
               className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600"
@@ -431,5 +522,5 @@ export default function MultilingualSectionComponent({
         </DialogContent>
       </Dialog>
     </motion.div>
-  )
+  );
 }

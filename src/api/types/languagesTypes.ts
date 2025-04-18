@@ -1,4 +1,3 @@
-import { Resource } from "@/src/hooks/use-CrudHook";
 
 // Define the Language type based on your mongoose model
 export interface Language {
@@ -26,7 +25,7 @@ export interface Language {
   }
 
   export interface Section extends Resource {
-    section_name: string;
+    name: string;
     description?: string;
     order?: number;
     image?: string;

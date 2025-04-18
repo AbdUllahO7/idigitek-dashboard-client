@@ -78,7 +78,7 @@ export default function ProtectedRoute({
     return (
       <div className="flex items-center justify-center h-screen">
         <Spinner />
-      </div>
+      </div>  
     );
   }
   

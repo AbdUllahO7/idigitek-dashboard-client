@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { Button } from "@/src/components/ui/button"
@@ -12,6 +12,8 @@ import ProcessStepsForm from "./Components/forms/process-steps-form"
 import FaqForm from "./Components/forms/faq-form"
 import HeroForm from "./Components/forms/hero-form"
 import { Card, CardContent } from "@/src/components/ui/card"
+import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
+import { Language } from "@/src/api/types/languagesTypes"
 
 // Define the type for our form data
 export type FormData = {
@@ -42,7 +44,6 @@ const itemVariants = {
 }
 
 export default function AddService() {
-  const languages = ["en", "ar", "fr"] as const
   const [activeTab, setActiveTab] = useState("hero")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -75,6 +76,22 @@ export default function AddService() {
 
   // Add this state to track if any form has unsaved changes
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  
+  // Get languages from API
+  const { 
+    useGetAll: useGetAllLanguages
+  } = useLanguages();
+
+  const { 
+    data: languagesData, 
+    isLoading: isLoadingLanguages,
+  } = useGetAllLanguages();
+
+  // Filter active languages from API data
+  const activeLanguages = languagesData?.data?.filter((lang: Language) => lang.isActive) || [];
+  
+  // Convert activeLanguages to an array of language codes for form components
+  const languageCodes = activeLanguages.map((lang: { languageID: any }) => lang.languageID);
 
   // Function to update form data
   const updateFormData = (section: keyof FormData, data: any) => {
@@ -199,6 +216,30 @@ export default function AddService() {
   // Check if current tab is the last one
   const isLastTab = activeTab === tabOrder[tabOrder.length - 1]
   const isFirstTab = activeTab === tabOrder[0]
+  
+  // Show loading state while fetching languages
+  if (isLoadingLanguages) {
+    return (
+      <div className="flex items-center justify-center p-10">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
+  
+  // If no languages available, show message
+  if (activeLanguages.length === 0) {
+    return (
+      <div className="container py-10">
+        <Card className="shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+              No active languages found. Please activate at least one language in settings.
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <motion.div className="container py-10" initial="hidden" animate="visible" variants={containerVariants}>
@@ -231,13 +272,13 @@ export default function AddService() {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {languages.map((lang) => (
+                  {activeLanguages.map((lang: { languageID: Key | null | undefined; language: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined }) => (
                     <div
-                      key={lang}
+                      key={lang.languageID}
                       className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm flex items-center gap-2"
                     >
                       <Globe className="h-4 w-4" />
-                      {lang.toUpperCase()}
+                      {lang.language}
                     </div>
                   ))}
                 </div>
@@ -277,7 +318,7 @@ export default function AddService() {
                 >
                   <TabsContent value="hero" className="mt-0">
                     <HeroForm
-                      languages={languages}
+                      languages={languageCodes}
                       ref={heroFormRef}
                       onDataChange={(data) => updateFormData("hero", data)}
                     />
@@ -285,7 +326,7 @@ export default function AddService() {
 
                   <TabsContent value="benefits" className="mt-0">
                     <BenefitsForm
-                      languages={languages}
+                      languages={languageCodes}
                       ref={benefitsFormRef}
                       onDataChange={(data) => updateFormData("benefits", data)}
                     />
@@ -293,7 +334,7 @@ export default function AddService() {
 
                   <TabsContent value="features" className="mt-0">
                     <FeaturesForm
-                      languages={languages}
+                      languages={languageCodes}
                       ref={featuresFormRef}
                       onDataChange={(data) => updateFormData("features", data)}
                     />
@@ -301,7 +342,7 @@ export default function AddService() {
 
                   <TabsContent value="process" className="mt-0">
                     <ProcessStepsForm
-                      languages={languages}
+                      languages={languageCodes}
                       ref={processStepsFormRef}
                       onDataChange={(data) => updateFormData("processSteps", data)}
                     />
@@ -309,7 +350,7 @@ export default function AddService() {
 
                   <TabsContent value="faq" className="mt-0">
                     <FaqForm
-                      languages={languages}
+                      languages={languageCodes}
                       ref={faqFormRef}
                       onDataChange={(data) => updateFormData("faq", data)}
                     />

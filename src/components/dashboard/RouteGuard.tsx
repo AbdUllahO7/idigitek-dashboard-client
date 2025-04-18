@@ -14,11 +14,11 @@ interface RoutePermission {
 
 // Map routes to their required permissions
 const routePermissions: Record<string, RoutePermission> = {
-  "/dashboard": { roles: ["superAdmin"] },
-  "/dashboard/users": { roles: ["superAdmin"] },
+  "/dashboard": { roles: ["superAdmin" , 'owner'] },
+  "/dashboard/users": { roles: ["superAdmin" , 'owner'] },
   "/dashboard/features": { sectionId: "features" },
   "/dashboard/hero": { sectionId: "hero" },
-  "/dashboard/services": {roles: ["superAdmin"] , sectionId: "services" },
+  "/dashboard/services": {roles: ["superAdmin" , 'owner'] , sectionId: "services" },
   "/dashboard/blog": { sectionId: "blog" },
   "/dashboard/case-studies": { sectionId: "caseStudiesSection" },
   "/dashboard/clients": { sectionId: "clientsSection" },
@@ -33,7 +33,7 @@ const routePermissions: Record<string, RoutePermission> = {
   "/dashboard/team": { sectionId: "teamSection" },
   "/dashboard/technology-stack": { sectionId: "technologyStackSection" },
   "/dashboard/testimonials": { sectionId: "testimonialsSection" },
-  "/dashboard/addWebSiteConfiguration": { roles: ["superAdmin"] },
+  "/dashboard/addWebSiteConfiguration": { roles: ["superAdmin" , 'owner'] },
 }
 
 export function RouteGuard({ children }: { children: React.ReactNode }) {
@@ -68,9 +68,9 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
     }
 
     // Get active sections
-    const activeSections = sections?.data?.filter((section: Section) => section.isActive) || []
+    const activeSections = sections?.data?.data?.filter((section: Section) => section.isActive) || []
     const activeSectionIds = activeSections.map((section: Section) => 
-      section.section_name.toLowerCase().replace(/\s/g, "")
+      section.name.toLowerCase().replace(/\s/g, "")
     )
 
     const permission = routePermissions[pathname]

@@ -26,20 +26,20 @@ export default function DashboardLayout({
   const { isAuthenticated, isLoading } = useAuth()
 
   // Check for valid selections on client side as a fallback
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      try {
-        const selectedLanguages = JSON.parse(localStorage.getItem('selectedLanguages') || '[]')
-        const selectedSections = JSON.parse(localStorage.getItem('selectedSections') || '[]')
+  // useEffect(() => {
+  //   if (!isLoading && isAuthenticated) {
+  //     try {
+  //       const selectedLanguages = JSON.parse(localStorage.getItem('selectedLanguages') || '[]')
+  //       const selectedSections = JSON.parse(localStorage.getItem('selectedSections') || '[]')
         
-        if (!selectedLanguages.length || !selectedSections.length) {
-          router.replace('/websiteConfiguration')
-        }
-      } catch (error) {
-        router.replace('/websiteConfiguration')
-      }
-    }
-  }, [router, isLoading, isAuthenticated])
+  //       if (!selectedLanguages.length || !selectedSections.length) {
+  //         router.replace('/websiteConfiguration')
+  //       }
+  //     } catch (error) {
+  //       router.replace('/websiteConfiguration')
+  //     }
+  //   }
+  // }, [router, isLoading, isAuthenticated])
 
   // Handle responsive sidebar
   useEffect(() => {
