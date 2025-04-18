@@ -39,6 +39,36 @@ interface AuthResponse {
   requestId: string;
 }
 
+// Error processing function to get clear error messages
+export const extractErrorMessage = (error: any): string => {
+  // Check for axios error response format
+  if (error.response) {
+    // Check for error message in response data
+    if (error.response.data) {
+      // Common API error patterns
+      if (error.response.data.message) {
+        return error.response.data.message;
+      }
+      if (error.response.data.error) {
+        return typeof error.response.data.error === 'string' 
+          ? error.response.data.error 
+          : error.response.data.error.message || JSON.stringify(error.response.data.error);
+      }
+      if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
+        return error.response.data.errors[0]?.message || error.response.data.errors[0] || "Multiple errors occurred";
+      }
+    }
+    
+    // If no structured message, use status text
+    if (error.response.statusText) {
+      return `${error.response.status}: ${error.response.statusText}`;
+    }
+  }
+  
+  // Fallback to error message or default
+  return error.message || "An unknown error occurred";
+}
+
 // Helper to safely store tokens
 const storeTokens = (tokens: AuthTokens | undefined | null) => {
   if (!tokens) {
@@ -59,17 +89,33 @@ const storeTokens = (tokens: AuthTokens | undefined | null) => {
   }
 };
 
-// Login hook
+// Resend activation email
+export const useResendActivation = () => {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      try {
+        const response = await apiClient.post('/auth/resend-activation', { email });
+        return response.data;
+      } catch (error) {
+        console.error(`[AuthAPI ${API_ID}] Resend activation failed:`, error);
+        const errorMessage = extractErrorMessage(error);
+        // Create a structured error with the message
+        const structuredError = new Error(errorMessage);
+        // Add the original error properties
+        Object.assign(structuredError, error);
+        throw structuredError;
+      }
+    }
+  });
+};
+
+// Login hook with improved error handling
 export const useLogin = () => {
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      console.log(`[AuthAPI ${API_ID}] Login attempt:`, credentials.email);
-      
       try {
         const response = await apiClient.post('/auth/login', credentials);
         const responseData = response.data;
-        
-        console.log(`[AuthAPI ${API_ID}] Login response:`, responseData);
         
         // Store tokens in localStorage
         if (responseData?.data?.tokens) {
@@ -80,14 +126,22 @@ export const useLogin = () => {
         
         return responseData;
       } catch (error) {
-        console.error(`[AuthAPI ${API_ID}] Login request failed:`, error);
-        throw error;
+        console.error(`[AuthAPI ${API_ID}] Login request failed:`, extractErrorMessage(error));
+        
+        // Create a structured error with the extracted message
+        const errorMessage = extractErrorMessage(error);
+        const structuredError = new Error(errorMessage);
+        
+        // Add the original error properties
+        Object.assign(structuredError, error);
+        
+        throw structuredError;
       }
     }
   });
 };
 
-// Register hook
+// Register hook with improved error handling
 export const useRegister = () => {
   return useMutation({
     mutationFn: async (userData: RegisterData): Promise<AuthResponse> => {
@@ -108,8 +162,16 @@ export const useRegister = () => {
         
         return responseData;
       } catch (error) {
-        console.error(`[AuthAPI ${API_ID}] Registration request failed:`, error);
-        throw error;
+        console.error(`[AuthAPI ${API_ID}] Registration request failed:`, extractErrorMessage(error));
+        
+        // Create a structured error with the extracted message
+        const errorMessage = extractErrorMessage(error);
+        const structuredError = new Error(errorMessage);
+        
+        // Add the original error properties
+        Object.assign(structuredError, error);
+        
+        throw structuredError;
       }
     }
   });
@@ -119,7 +181,6 @@ export const useRegister = () => {
 export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
-      
       try {
         // Check if we have a token before attempting to call the logout endpoint
         const token = localStorage.getItem('token');
@@ -127,9 +188,11 @@ export const useLogout = () => {
           // Send logout request to API but don't wait for it to complete
           // This way we always clear local storage regardless of API response
           apiClient.post('/auth/logout').catch(err => {
+            // Silent catch - we'll clear storage anyway
           });
         }
       } catch (error) {
+        // Silent catch
       } finally {
         // Always clear local storage, even if API call fails
         localStorage.removeItem('token');
@@ -145,7 +208,6 @@ export const useLogout = () => {
 export const useCurrentUser = () => {
   return useMutation({
     mutationFn: async () => {
-      
       try {
         const response = await apiClient.get('/users/me');
         
@@ -175,6 +237,7 @@ export const useCurrentUser = () => {
           return null;
         }
       } catch (error: any) {
+        console.error(`[AuthAPI ${API_ID}] Current user request failed:`, extractErrorMessage(error));
         
         // For 401/403 errors, clear tokens
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -189,4 +252,3 @@ export const useCurrentUser = () => {
     }
   });
 };
-

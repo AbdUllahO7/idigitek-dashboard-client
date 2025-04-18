@@ -4,24 +4,144 @@ import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAuth } from "@/src/context/AuthContext"
-import { ArrowRight, Loader2, CheckCircle2, Mail, KeyRound } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { Alert, AlertDescription } from "@/src/components/ui/alert"
+import { ArrowRight, Loader2, CheckCircle2, Mail, KeyRound, AlertTriangle, MailCheck, ShieldAlert, RefreshCw, Info } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert"
 import { Label } from "@/src/components/ui/label"
 import { Input } from "@/src/components/ui/input"
 import { Button } from "@/src/components/ui/button"
+import Link from "next/link"
+import { useResendActivation, extractErrorMessage } from "@/src/api/auth" // Import the new resend activation hook
+
+// Define possible auth error types for better handling
+type AuthErrorType = 
+  | "inactive-account" 
+  | "invalid-credentials" 
+  | "account-locked" 
+  | "forbidden"
+  | "server-error" 
+  | "network-error" 
+  | "unknown"
+
+interface AuthError {
+  type: AuthErrorType
+  message: string
+  resolution?: string
+  action?: {
+    label: string
+    href?: string
+    onClick?: () => void
+  }
+}
+
+// Function to parse error messages and determine error type
+const parseAuthError = (error: any): AuthError => {
+  // Extract the error message from the API response
+  const errorMessage = extractErrorMessage(error);
+  
+  // Check for specific error patterns in the message
+  if (errorMessage.toLowerCase().includes("inactive") || 
+      errorMessage.toLowerCase().includes("activate your account")) {
+    return {
+      type: "inactive-account",
+      message: errorMessage, // Use the actual error message
+      resolution: "Please activate your account by clicking the link in your email",
+      action: {
+        label: "Resend activation email",
+        onClick: () => {} // This will be defined in the component
+      }
+    }
+  }
+  
+  if (errorMessage.toLowerCase().includes("locked") || 
+      errorMessage.toLowerCase().includes("suspended")) {
+    return {
+      type: "account-locked",
+      message: errorMessage, // Use the actual error message
+      resolution: "Please contact support for assistance",
+      action: {
+        label: "Contact Support",
+        href: "/support"
+      }
+    }
+  }
+  
+  if (error.response?.status === 401 || 
+      errorMessage.toLowerCase().includes("invalid") || 
+      errorMessage.toLowerCase().includes("incorrect") ||
+      errorMessage.toLowerCase().includes("wrong password")) {
+    return {
+      type: "invalid-credentials",
+      message: errorMessage, // Use the actual error message
+      resolution: "Please check your credentials and try again"
+    }
+  }
+  
+  if (error.response?.status === 403) {
+    return {
+      type: "forbidden",
+      message: errorMessage, // Use the actual error message
+      resolution: "You don't have permission to access this resource"
+    }
+  }
+  
+  if (error.response?.status >= 500) {
+    return {
+      type: "server-error",
+      message: errorMessage, // Use the actual error message
+      resolution: "Please try again later or contact support if the problem persists"
+    }
+  }
+  
+  if (error.name === "NetworkError" || 
+      errorMessage.includes("Network Error") || 
+      !error.response) {
+    return {
+      type: "network-error",
+      message: "Network connection error",
+      resolution: "Please check your internet connection and try again"
+    }
+  }
+  
+  // Default error - display the actual error message from the backend
+  return {
+    type: "unknown",
+    message: errorMessage,
+    resolution: "Please try again or contact support if the problem persists"
+  }
+}
+
+// Error icon mapping
+const getErrorIcon = (errorType: AuthErrorType) => {
+  switch (errorType) {
+    case "inactive-account":
+      return <MailCheck className="h-5 w-5" />
+    case "account-locked":
+      return <ShieldAlert className="h-5 w-5" />
+    case "forbidden":
+      return <ShieldAlert className="h-5 w-5" />
+    case "server-error":
+      return <RefreshCw className="h-5 w-5" />
+    case "network-error":
+      return <AlertTriangle className="h-5 w-5" />
+    default:
+      return <Info className="h-5 w-5" />
+  }
+}
 
 export default function SignIn() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || "/dashboard"
   const { login } = useAuth()
+  const resendActivation = useResendActivation() // Use the resend activation hook
   
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
+  const [authError, setAuthError] = useState<AuthError | null>(null)
   const [success, setSuccess] = useState(false)
+  const [savedEmail, setSavedEmail] = useState("") // Store email for resend activation
 
   // Background elements
   const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, size: number, speed: number, opacity: number}>>([])
@@ -52,11 +172,40 @@ export default function SignIn() {
     setParticles(newParticles)
   }, [])
 
+  // Function to handle resending activation email
+  const handleResendActivation = async () => {
+    if (!savedEmail) return
+    
+    try {
+      setIsLoading(true)
+      await resendActivation.mutateAsync(savedEmail)
+      
+      // Show success message
+      setAuthError({
+        type: "inactive-account",
+        message: "Activation email sent!",
+        resolution: "Please check your inbox and click the activation link."
+      })
+    } catch (err) {
+      // Extract the actual error message
+      const errorMessage = extractErrorMessage(err);
+      
+      setAuthError({
+        type: "unknown",
+        message: errorMessage,
+        resolution: "Please try again later or contact support."
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
+    setAuthError(null)
     setSuccess(false)
+    setSavedEmail(email) // Save email for potential resend activation
 
     try {
       // Simulate a brief delay for better UX
@@ -68,13 +217,14 @@ export default function SignIn() {
       
       await login(email, password)
     } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError("Invalid email or password. Please try again.")
-      } else if (err.response?.data?.message) {
-        setError(err.response.data.message)
-      } else {
-        setError("An error occurred during sign in. Please try again.")
+      const parsedError = parseAuthError(err)
+      
+      // Update the onClick handler for inactive account action
+      if (parsedError.type === "inactive-account" && parsedError.action) {
+        parsedError.action.onClick = handleResendActivation;
       }
+      
+      setAuthError(parsedError)
       setSuccess(false)
     } finally {
       setIsLoading(false)
@@ -327,15 +477,82 @@ export default function SignIn() {
                 
                 <CardContent className="p-0">
                   <AnimatePresence>
-                    {error && (
+                    {authError && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         className="mb-6"
                       >
-                        <Alert variant="destructive" className="border border-red-800/50 bg-red-950/50 text-red-400">
-                          <AlertDescription>{error}</AlertDescription>
+                        <Alert 
+                          variant={authError.type === "invalid-credentials" ? "destructive" : "default"}
+                          className={`border ${
+                            authError.type === "inactive-account" 
+                              ? "border-amber-800/50 bg-amber-950/50 text-amber-400" 
+                              : authError.type === "invalid-credentials"
+                                ? "border-red-800/50 bg-red-950/50 text-red-400"
+                                : authError.type === "forbidden"
+                                  ? "border-red-800/50 bg-red-950/50 text-red-400"
+                                  : "border-blue-800/50 bg-blue-950/50 text-blue-400"
+                          }`}
+                        >
+                          <div className="flex items-start">
+                            <div className="mr-3 mt-0.5">
+                              {getErrorIcon(authError.type)}
+                            </div>
+                            <div>
+                              <AlertTitle className="mb-1 text-base font-medium">
+                                {authError.message}
+                              </AlertTitle>
+                              {authError.resolution && (
+                                <AlertDescription className="text-sm">
+                                  {authError.resolution}
+                                </AlertDescription>
+                              )}
+                              
+                              {/* Action button for specific error types */}
+                              {authError.action && (
+                                <div className="mt-3">
+                                  {authError.action.href ? (
+                                    <Link href={authError.action.href}>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        className={`${
+                                          authError.type === "inactive-account"
+                                            ? "border-amber-800 bg-amber-900/30 text-amber-400 hover:bg-amber-900/50"
+                                            : "border-blue-800 bg-blue-900/30 text-blue-400 hover:bg-blue-900/50"
+                                        }`}
+                                      >
+                                        {authError.action.label}
+                                      </Button>
+                                    </Link>
+                                  ) : (
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      onClick={authError.action.onClick}
+                                      className={`${
+                                        authError.type === "inactive-account"
+                                          ? "border-amber-800 bg-amber-900/30 text-amber-400 hover:bg-amber-900/50"
+                                          : "border-blue-800 bg-blue-900/30 text-blue-400 hover:bg-blue-900/50"
+                                      }`}
+                                      disabled={isLoading}
+                                    >
+                                      {isLoading ? (
+                                        <>
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          Sending...
+                                        </>
+                                      ) : (
+                                        authError.action.label
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </Alert>
                       </motion.div>
                     )}
@@ -459,7 +676,20 @@ export default function SignIn() {
                   </form>
                 </CardContent>
                 
-              
+                <CardFooter className="mt-6 flex justify-center p-0">
+                  <motion.div 
+                    variants={itemVariants}
+                    className="text-sm text-slate-400"
+                  >
+                    Don't have an account?{" "}
+                    <Link 
+                      href="/sign-up" 
+                      className="font-medium text-purple-400 transition-colors hover:text-purple-300"
+                    >
+                      Sign up
+                    </Link>
+                  </motion.div>
+                </CardFooter>
               </motion.div>
             </div>
           </Card>
