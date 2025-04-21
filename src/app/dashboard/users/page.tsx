@@ -70,6 +70,7 @@ import {
 } from "lucide-react"
 import { useToast } from "@/src/components/ui/use-toast"
 import useUsers from "@/src/hooks/users/use-users"
+import { useAuth } from "@/src/context/AuthContext"
 
 // User status enum
 export enum UserStatus {
@@ -116,7 +117,7 @@ export default function UsersPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordError, setPasswordError] = useState("")
-  const [superAdminExists, setSuperAdminExists] = useState(false)
+  const [superOwnerExists, setSuperOwnerExists] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   
   const [formData, setFormData] = useState<UserFormData>({
@@ -150,14 +151,15 @@ export default function UsersPage() {
   const createUserMutation = useCreate()
 
   const users = usersResponse?.data || []
+  const user = useAuth()
 
-  // Check if a SuperAdmin already exists
+  // Check if a owner already exists
   useEffect(() => {
     if (users && users.length > 0) {
-      const hasSuperAdmin = users.some((user: User) => 
-        user.role?.toLowerCase() === 'superadmin'
+      const hasOwnerAdmin = users.some((user: User) => 
+        user.role?.toLowerCase() === 'owner'
       );
-      setSuperAdminExists(hasSuperAdmin);
+      setSuperOwnerExists(hasOwnerAdmin);
     }
   }, [users]);
 
@@ -214,6 +216,8 @@ export default function UsersPage() {
   // Get avatar background color based on role
   const getAvatarColor = (role?: string) => {
     switch (role?.toLowerCase()) {
+      case 'owner' : 
+      return  "bg-gradient-to-br from-yellow-500 to-rose-900 text-white" ;
       case 'superAdmin':
         return "bg-gradient-to-br from-red-500 to-rose-600 text-white";
       case 'admin':
@@ -223,8 +227,8 @@ export default function UsersPage() {
     }
   };
 
-  const isSuperAdmin = (user: User) => {
-    return user.role?.toLowerCase() === 'superAdmin';
+  const isOwner = (user: User) => {
+    return user.role?.toLowerCase() === 'owner';
   };
 
   // Handle form input changes
@@ -248,9 +252,9 @@ export default function UsersPage() {
     // Clear form error
     setFormError(null)
     
-    // Show warning if selecting SuperAdmin and one already exists
-    if (value.toLowerCase() === 'superadmin' && superAdminExists && isAddDialogOpen) {
-      setFormError("A SuperAdmin user already exists in the system. Only one SuperAdmin is allowed.");
+    // Show warning if selecting owner and one already exists
+    if (value.toLowerCase() === 'owner' && superOwnerExists && isAddDialogOpen) {
+      setFormError("A owner user already exists in the system. Only one owner is allowed.");
     }
   }
 
@@ -260,15 +264,40 @@ export default function UsersPage() {
     setFormError(null)
   }
 
+  const getCurrentUserRole = () => {
+    return user?.user?.role.toString();
+  };
+ 
   // View user details
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
     setIsViewDialogOpen(true);
   };
-
+  
+  const canModifyOwnerUser = (targetUser: User) => {
+    const currentUserRole = getCurrentUserRole();
+    
+    // If the target user is an owner, only another owner can modify them
+    if (targetUser.role?.toLowerCase() === 'owner') {
+      return currentUserRole?.toLowerCase() === 'owner';
+    }
+    
+    // Non-owner users can be modified by anyone
+    return true;
+  };
   // Handle edit user
   const handleEditUser = (user: User) => {
-    setSelectedUser(user)
+    // Check if trying to edit an owner user when current user is not an owner
+    if (user.role?.toLowerCase() === 'owner' && !canModifyOwnerUser(user)) {
+      toast({
+        title: "Permission denied",
+        description: "Only owner users can edit owner accounts",
+        variant: "destructive"
+      });
+      return;
+    }
+  
+    setSelectedUser(user);
     setFormData({
       firstName: user.firstName || "",
       lastName: user.lastName || "",
@@ -277,13 +306,13 @@ export default function UsersPage() {
       status: user.status || UserStatus.ACTIVE,
       password: "",
       confirmPassword: ""
-    })
-    setPasswordError("")
-    setShowPassword(false)
-    setShowConfirmPassword(false)
-    setFormError(null)
-    setIsEditDialogOpen(true)
-  }
+    });
+    setPasswordError("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setFormError(null);
+    setIsEditDialogOpen(true);
+  };
 
   // Handle delete user
   const handleDeleteUser = (user: User) => {
@@ -329,11 +358,11 @@ export default function UsersPage() {
     
     if (!userId) return;
     
-    // Extra safety check to prevent deletion of SuperAdmin users
-    if (selectedUser && isSuperAdmin(selectedUser)) {
+    // Extra safety check to prevent deletion of owner users
+    if (selectedUser && isOwner(selectedUser)) {
       toast({
         title: "Operation not allowed",
-        description: "SuperAdmin users cannot be deleted",
+        description: "Owner users cannot be deleted",
         variant: "destructive"
       });
       setIsDeleteDialogOpen(false);
@@ -364,13 +393,13 @@ export default function UsersPage() {
     
     if (!userId) return;
     
-    // Check if trying to change role to SuperAdmin when one already exists
+    // Check if trying to change role to owner when one already exists
     if (
-      formData.role?.toLowerCase() === 'superadmin' && 
-      superAdminExists && 
-      selectedUser?.role?.toLowerCase() !== 'superadmin'
+      formData.role?.toLowerCase() === 'owner' && 
+      superOwnerExists && 
+      selectedUser?.role?.toLowerCase() !== 'owner'
     ) {
-      setFormError("A SuperAdmin user already exists in the system. Only one SuperAdmin is allowed.");
+      setFormError("A Owner user already exists in the system. Only one Owner is allowed.");
       return;
     }
 
@@ -398,10 +427,10 @@ export default function UsersPage() {
       });
       setIsEditDialogOpen(false);
     } catch (error: any) {
-      // Check for the specific SuperAdmin error
-      if (error?.response?.data?.message?.includes("SuperAdmin user already exists") || 
-          error?.message?.includes("SuperAdmin user already exists")) {
-        setFormError("A SuperAdmin user already exists in the system. Only one SuperAdmin is allowed.");
+      // Check for the specific owner error
+      if (error?.response?.data?.message?.includes("owner user already exists") || 
+          error?.message?.includes("owner user already exists")) {
+        setFormError("A owner user already exists in the system. Only one owner is allowed.");
       } else {
         toast({
           title: "Error",
@@ -417,9 +446,9 @@ export default function UsersPage() {
     // Validate password match
     if (!validatePasswords()) return;
     
-    // Check if trying to create a SuperAdmin when one already exists
-    if (formData.role?.toLowerCase() === 'superadmin' && superAdminExists) {
-      setFormError("A SuperAdmin user already exists in the system. Only one SuperAdmin is allowed.");
+    // Check if trying to create a owner when one already exists
+    if (formData.role?.toLowerCase() === 'owner' && superOwnerExists) {
+      setFormError("A owner user already exists in the system. Only one owner is allowed.");
       return;
     }
     
@@ -436,10 +465,10 @@ export default function UsersPage() {
       })
       setIsAddDialogOpen(false)
     } catch (error: any) {
-      // Check for the specific SuperAdmin error
-      if (error?.response?.data?.message?.includes("SuperAdmin user already exists") || 
-          error?.message?.includes("SuperAdmin user already exists")) {
-        setFormError("A SuperAdmin user already exists in the system. Only one SuperAdmin is allowed.");
+      // Check for the specific owner error
+      if (error?.response?.data?.message?.includes("owner user already exists") || 
+          error?.message?.includes("owner user already exists")) {
+        setFormError("A owner user already exists in the system. Only one owner is allowed.");
       } else {
         toast({
           title: "Error",
@@ -463,6 +492,8 @@ export default function UsersPage() {
   // Get role icon
   const getRoleIcon = (role: string) => {
     switch (role?.toLowerCase()) {
+      case 'owner':
+        return <Shield className="h-4 w-4 text-red-900 mr-2" />
       case 'superadmin':
         return <Shield className="h-4 w-4 text-red-500 mr-2" />
       case 'admin':
@@ -741,16 +772,19 @@ export default function UsersPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem 
-                                onClick={() => handleEditUser(user)}
-                                className="cursor-pointer"
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
+                              {(user.role?.toLowerCase() !== 'owner' || getCurrentUserRole()?.toLowerCase() === 'owner') && (
+                                  <DropdownMenuItem 
+                                    onClick={() => handleEditUser(user)}
+                                    className="cursor-pointer"
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                )}
+
                               
-                              {/* Only show delete option if user is not a superAdmin */}
-                              {user.role?.toLowerCase() !== 'superadmin' && (
+                              {/* Only show delete option if user is not a owner */}
+                              {user.role?.toLowerCase() !== 'owner' && (
                                 <>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem 
@@ -857,7 +891,8 @@ export default function UsersPage() {
             <DialogFooter className="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-t">
               <div className="flex items-center justify-between w-full">
                 <div>
-                  {selectedUser?.role?.toLowerCase() !== 'superadmin' && (
+                  {/* Only show Delete button if user is not owner */}
+                  {selectedUser?.role?.toLowerCase() !== 'owner' && (
                     <Button 
                       variant="destructive"
                       size="sm"
@@ -878,15 +913,19 @@ export default function UsersPage() {
                   >
                     Close
                   </Button>
-                  <Button 
-                    onClick={() => {
-                      setIsViewDialogOpen(false);
-                      handleEditUser(selectedUser!);
-                    }}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit User
-                  </Button>
+                  
+                  {/* Only show Edit button if current user is owner or target user is not owner */}
+                  {(selectedUser?.role?.toLowerCase() !== 'owner' || getCurrentUserRole()?.toLowerCase() === 'owner') ? (
+                    <Button 
+                      onClick={() => {
+                        setIsViewDialogOpen(false);
+                        handleEditUser(selectedUser!);
+                      }}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit User
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             </DialogFooter>
@@ -1018,15 +1057,11 @@ export default function UsersPage() {
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
+             
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role" className="text-sm">Role</Label>
-                  {formData.role?.toLowerCase() === 'superadmin' && (
-                    <div className="text-xs text-amber-600 dark:text-amber-400 mb-1 flex items-center">
-                      <Info className="h-3 w-3 mr-1" />
-                      This user is currently a SuperAdmin
-                    </div>
-                  )}
+                
                   <Select
                     value={formData.role}
                     onValueChange={handleRoleChange}
@@ -1062,6 +1097,12 @@ export default function UsersPage() {
                   </Select>
                 </div>
               </div>
+              {formData.role?.toLowerCase() === 'owner' && (
+                    <div className="text-xs text-amber-600 dark:text-amber-400 mb-1 flex items-center">
+                      <Info className="h-3 w-3 mr-1" />
+                      This user is currently a owner
+                    </div>
+                  )}
 
               {/* Password reset section */}
               <div className="mt-4 pt-4 border-t border-dashed dark:border-slate-700">
@@ -1280,12 +1321,7 @@ export default function UsersPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="new-role" className="text-sm">Role</Label>
-                  {superAdminExists && (
-                    <div className="text-xs text-amber-600 dark:text-amber-400 mb-1 flex items-center">
-                      <Info className="h-3 w-3 mr-1" />
-                      A SuperAdmin already exists in the system
-                    </div>
-                  )}
+                  
                   <Select
                     value={formData.role}
                     onValueChange={handleRoleChange}
@@ -1321,6 +1357,12 @@ export default function UsersPage() {
                   </Select>
                 </div>
               </div>
+              {superOwnerExists && (
+                    <div className="text-xs text-amber-600 dark:text-amber-400 mb-1 flex items-center">
+                      <Info className="h-3 w-3 mr-1" />
+                      A owner already exists in the system
+                    </div>
+                  )}
             </div>
           </ScrollArea>
           <DialogFooter className="p-6 bg-slate-50 dark:bg-slate-900 border-t">
