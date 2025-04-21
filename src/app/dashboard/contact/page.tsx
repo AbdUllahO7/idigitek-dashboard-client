@@ -2,24 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Badge } from "@/src/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { Button } from "@/src/components/ui/button"
-import { Input } from "@/src/components/ui/input"
-import { Textarea } from "@/src/components/ui/textarea"
-import { Label } from "@/src/components/ui/label"
-import {
-    Info,
-    Phone,
-    Mail,
-    MapPin,
-    Send,
-    Loader2,
-    CheckCircle2,
-    ArrowRight,
-    Edit,
-} from "lucide-react"
-import Link from "next/link"
+
 import type { FieldConfig, LanguageConfig, MultilingualSectionData } from "../../types/MultilingualSectionTypes"
 import MultilingualSectionComponent from "@/src/components/dashboard/MultilingualSectionComponent"
 
@@ -199,13 +183,12 @@ export default function ContactPage() {
           </h1>
           <p className="text-muted-foreground mt-1">Manage your contact page content and multilingual information</p>
         </div>
-       
+    
       </motion.div>
       
       {/* Contact Section Component */}
       <motion.div variants={itemVariants}>
         <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
-         
           <CardContent className="p-6">
             <MultilingualSectionComponent
                 sectionTitle="Multilingual Contact Section"

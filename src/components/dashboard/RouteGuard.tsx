@@ -12,27 +12,31 @@ interface RoutePermission {
   sectionId?: string
 }
 
+
+
+
+
 // Map routes to their required permissions
 const routePermissions: Record<string, RoutePermission> = {
   "/dashboard": { roles: ["superAdmin" , 'owner'] },
-  "/dashboard/users": { roles: ["superAdmin" , 'owner'] },
-  "/dashboard/features": { sectionId: "features" },
+  "/dashboard/{section.name.toLowerCase() }": { roles: ["superAdmin" , 'owner'] },
+  "/dashboard/features": {},
   "/dashboard/hero": { sectionId: "hero" },
-  "/dashboard/services": {roles: ["superAdmin" , 'owner'] , sectionId: "services" },
-  "/dashboard/blog": { sectionId: "blog" },
-  "/dashboard/case-studies": { sectionId: "caseStudiesSection" },
-  "/dashboard/clients": { sectionId: "clientsSection" },
-  "/dashboard/contact": { sectionId: "contact" },
-  "/dashboard/cta": { sectionId: "ctaSection" },
-  "/dashboard/faq": { sectionId: "faqSection" },
-  "/dashboard/industry-solutions": { sectionId: "idustrySolutionsSection" },
-  "/dashboard/news": { sectionId: "newsSection" },
-  "/dashboard/partners": { sectionId: "partnerSection" },
-  "/dashboard/process": { sectionId: "ProcessSection" },
-  "/dashboard/projects": { sectionId: "projectsSection" },
-  "/dashboard/team": { sectionId: "teamSection" },
-  "/dashboard/technology-stack": { sectionId: "technologyStackSection" },
-  "/dashboard/testimonials": { sectionId: "testimonialsSection" },
+  "/dashboard/services": {},
+  "/dashboard/blog": {},
+  "/dashboard/case-studies": {},
+  "/dashboard/clients": {},
+  "/dashboard/contact": {},
+  "/dashboard/cta": {},
+  "/dashboard/faq": {},
+  "/dashboard/industry-solutions": {},
+  "/dashboard/news": {},
+  "/dashboard/partners": {},
+  "/dashboard/process": {},
+  "/dashboard/projects": {},
+  "/dashboard/team": {},
+  "/dashboard/technology-stack": {},
+  "/dashboard/testimonials": {},
   "/dashboard/addWebSiteConfiguration": { roles: ["superAdmin" , 'owner'] },
 }
 
@@ -78,7 +82,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
     // Check role-based access
     if (permission.roles && user?.role) {
       if (!permission.roles.includes(user.role)) {
-        router.push("/dashboard/unauthorized")
+          router.push("/dashboard/unauthorized")
         return
       }
     }

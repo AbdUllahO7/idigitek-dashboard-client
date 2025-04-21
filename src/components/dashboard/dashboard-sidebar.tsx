@@ -103,6 +103,7 @@ const allNavItems: NavItem[] = [
     href: "/dashboard/contact",
     icon: Contact,
     sectionId: "contact", // Show when "contactSection" section is selected
+
   },
   {
     title: "CTA",
@@ -168,6 +169,7 @@ const allNavItems: NavItem[] = [
     title: "Settings",
     href: "/dashboard/settings", // const  
     icon: Settings,
+    roles: ['superAdmin' , 'owner' , 'admin' , 'user'],
     // Settings is always shown
   },
   {
