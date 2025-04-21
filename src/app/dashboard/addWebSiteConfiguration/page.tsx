@@ -112,6 +112,7 @@ export default function AdminManagementPage() {
     refetch: refetchSections
   } = useGetAllSections();
 
+
   // Mutations for languages
   const createLanguageMutation = useCreateLanguage();
   const updateLanguageMutation = useUpdateLanguage();

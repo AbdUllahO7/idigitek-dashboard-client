@@ -12,6 +12,7 @@ interface User {
   name: string;
   email: string;
   role: string;
+  firstName : string
 }
 
 // Define auth context type

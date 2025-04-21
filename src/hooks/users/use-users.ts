@@ -6,8 +6,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Define User interface that matches both frontend and backend
 export interface User {
-  id: string; // Backend uses id
-  _id?: string; // Frontend uses _id
+  id: string; // Backend user id
+  _id?: string; // Frontend user _id
   email: string;
   firstName?: string;
   lastName?: string;
