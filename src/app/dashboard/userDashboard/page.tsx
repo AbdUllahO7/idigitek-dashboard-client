@@ -2,19 +2,53 @@
 
 import { useState, useEffect } from "react"
 import { 
-  Activity, FileText, CircleUser, Settings, 
-  Calendar, Bell, Layers, MessageSquare, 
-  Clock, CheckCircle, AlertTriangle
+  Globe, Layout, Book, 
+  Bell, FileText, MessageSquare,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { 
-  AreaChart, Area, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
+  ResponsiveContainer,
+  BarChart, Bar
 } from 'recharts'
 import { useAuth } from "@/src/context/AuthContext"
 import { Badge } from "@/src/components/ui/badge"
 import { Skeleton } from "@/src/components/ui/skeleton"
+import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
+import { useSections } from "@/src/hooks/webConfiguration/use-section"
+import Link from "next/link"
+
+// Define interfaces for the data structures
+interface User {
+  firstName?: string;
+  role?: string;
+}
+
+interface Language {
+  _id: string;
+  language: string;
+  languageID: string;
+  isActive: boolean;
+  updatedAt: string;
+}
+
+interface Section {
+  _id: string;
+  name?: string;
+  section_name?: string;
+  description?: string;
+  isActive: boolean;
+  updatedAt: string;
+}
+
+interface ChartDataItem {
+  name: string;
+  value: number;
+}
+
+interface ApiResponse<T> {
+  data: T[];
+}
 
 /**
  * User Dashboard page
@@ -22,26 +56,82 @@ import { Skeleton } from "@/src/components/ui/skeleton"
  */
 export default function UserDashboard() {
   const [loading, setLoading] = useState(true)
-  const { user } = useAuth()
+  const { user } = useAuth() as { user: User | null }
   
-  // Sample data for charts - replace with real data in production
-  const activityData = [
-    { name: 'Mon', value: 5 },
-    { name: 'Tue', value: 8 },
-    { name: 'Wed', value: 12 },
-    { name: 'Thu', value: 7 },
-    { name: 'Fri', value: 10 },
-    { name: 'Sat', value: 4 },
-    { name: 'Sun', value: 3 },
-  ]
+  const { 
+    useGetAll: useGetAllLanguages
+  } = useLanguages();
 
-  const taskStatusData = [
-    { name: 'Completed', value: 12 },
-    { name: 'In Progress', value: 5 },
-    { name: 'Pending', value: 3 },
-  ]
+  const { 
+    data: languages, 
+    isLoading: isLoadingLanguages,
+  } = useGetAllLanguages() as { 
+    data?: ApiResponse<Language>, 
+    isLoading: boolean 
+  };
+
+  const { 
+    useGetAll: useGetAllSections
+  } = useSections();
+
+  const { 
+    data: sections, 
+    isLoading: isLoadingSections,
+  } = useGetAllSections() as { 
+    data?: ApiResponse<Section>, 
+    isLoading: boolean 
+  };
+
+  // Extract sections and languages from the API response
+  const sectionsData: Section[] = sections?.data || [];
+  const languagesData: Language[] = languages?.data || [];
   
-  const COLORS = ['#10b981', '#f59e0b', '#ef4444']
+  // Count active/inactive languages and sections
+  const activeLanguages = languagesData.filter(lang => lang.isActive).length;
+  const inactiveLanguages = languagesData.length - activeLanguages;
+  
+  const activeSections = sectionsData.filter(section => section.isActive).length;
+  const inactiveSections = sectionsData.length - activeSections;
+  
+  // Create chart data for languages and sections
+  const languageChartData: ChartDataItem[] = [
+    { name: 'Active', value: activeLanguages },
+    { name: 'Inactive', value: inactiveLanguages }
+  ];
+  
+  const sectionChartData: ChartDataItem[] = [
+    { name: 'Active', value: activeSections },
+    { name: 'Inactive', value: inactiveSections }
+  ];
+  
+  // Track last updated times
+  const getLastUpdatedDate = (dataArray: Array<{updatedAt: string}>) => {
+    if (!dataArray || dataArray.length === 0) return null;
+    
+    return dataArray.reduce((latest, item) => {
+      const itemDate = new Date(item.updatedAt);
+      return itemDate > latest ? itemDate : latest;
+    }, new Date(0));
+  };
+  
+  const lastUpdatedLanguage = getLastUpdatedDate(languagesData);
+  const lastUpdatedSection = getLastUpdatedDate(sectionsData);
+  
+  // Format dates nicely
+  const formatDate = (date: Date | null) => {
+    if (!date) return 'Never';
+    
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor(diff / (1000 * 60));
+    
+    if (days > 0) return `${days} days ago`;
+    if (hours > 0) return `${hours} hours ago`;
+    if (minutes > 0) return `${minutes} minutes ago`;
+    return 'Just now';
+  };
   
   // Simulate loading
   useEffect(() => {
@@ -57,7 +147,7 @@ export default function UserDashboard() {
       {/* Page header */}
       <div className="flex flex-col justify-between space-y-2 md:flex-row md:items-center md:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">User Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Content Dashboard</h1>
           <p className="text-muted-foreground">
             Welcome back, {user?.firstName || 'User'} | Role: {user?.role || 'User'}
           </p>
@@ -67,16 +157,12 @@ export default function UserDashboard() {
             <Bell className="mr-2 h-4 w-4" />
             Notifications
           </Button>
-          <Button size="sm">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
         </div>
       </div>
 
-      {/* Quick stats */}
+      {/* Stats overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {loading ? (
+        {(loading || isLoadingLanguages || isLoadingSections) ? (
           Array(4).fill(0).map((_, index) => (
             <Card key={index} className="overflow-hidden">
               <CardHeader className="pb-2">
@@ -93,144 +179,118 @@ export default function UserDashboard() {
           ))
         ) : (
           <>
-            <Card className="overflow-hidden">
+            {/* Languages Stats */}
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Today's Tasks</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Languages</CardTitle>
                 <div className="rounded-full bg-blue-100 p-1.5 text-blue-600 dark:bg-blue-900/40">
-                  <Calendar className="h-4 w-4" />
+                  <Globe className="h-4 w-4" />
                 </div>
               </CardHeader>
-              <CardContent className="pb-2">
-                <div className="text-2xl font-bold">5</div>
-                <p className="text-xs text-muted-foreground">2 upcoming deadlines</p>
+              <CardContent>
+                <div className="text-2xl font-bold">{languagesData.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  {activeLanguages} active / {inactiveLanguages} inactive
+                </p>
               </CardContent>
-              <div className="h-10">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={activityData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorTasks" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#3b82f6" 
-                      strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorTasks)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              <CardFooter className="p-2 border-t text-xs text-muted-foreground">
+                Last updated: {formatDate(lastUpdatedLanguage)}
+              </CardFooter>
             </Card>
 
-            <Card className="overflow-hidden">
+            {/* Sections Stats */}
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Messages</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Sections</CardTitle>
                 <div className="rounded-full bg-purple-100 p-1.5 text-purple-600 dark:bg-purple-900/40">
-                  <MessageSquare className="h-4 w-4" />
+                  <Layout className="h-4 w-4" />
                 </div>
               </CardHeader>
-              <CardContent className="pb-2">
-                <div className="text-2xl font-bold">3</div>
-                <p className="text-xs text-muted-foreground">1 unread message</p>
+              <CardContent>
+                <div className="text-2xl font-bold">{sectionsData.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  {activeSections} active / {inactiveSections} inactive
+                </p>
               </CardContent>
-              <div className="h-10">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={activityData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorMessages" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#8b5cf6" 
-                      strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorMessages)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              <CardFooter className="p-2 border-t text-xs text-muted-foreground">
+                Last updated: {formatDate(lastUpdatedSection)}
+              </CardFooter>
             </Card>
 
-            <Card className="overflow-hidden">
+            {/* Language Distribution */}
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Projects</CardTitle>
+                <CardTitle className="text-sm font-medium">Language Status</CardTitle>
                 <div className="rounded-full bg-green-100 p-1.5 text-green-600 dark:bg-green-900/40">
-                  <Layers className="h-4 w-4" />
+                  <Book className="h-4 w-4" />
                 </div>
               </CardHeader>
-              <CardContent className="pb-2">
-                <div className="text-2xl font-bold">7</div>
-                <p className="text-xs text-muted-foreground">2 active projects</p>
+              <CardContent className="pb-0">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-2xl font-bold">{((activeLanguages / Math.max(languagesData.length, 1)) * 100).toFixed(0)}%</div>
+                    <p className="text-xs text-muted-foreground">Languages active</p>
+                  </div>
+                  <div className="h-14 w-24">
+                    {languagesData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={languageChartData}>
+                          <Bar dataKey="value" fill="#10b981" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-muted-foreground text-xs">
+                        No data
+                      </div>
+                    )}
+                  </div>
+                </div>
               </CardContent>
-              <div className="h-10">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={activityData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorProjects" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#10b981" 
-                      strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorProjects)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              <CardFooter className="p-2 border-t text-xs text-muted-foreground">
+                Total languages: {languagesData.length}
+              </CardFooter>
             </Card>
 
-            <Card className="overflow-hidden">
+            {/* Section Distribution */}
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Activity</CardTitle>
+                <CardTitle className="text-sm font-medium">Section Status</CardTitle>
                 <div className="rounded-full bg-amber-100 p-1.5 text-amber-600 dark:bg-amber-900/40">
-                  <Activity className="h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                 </div>
               </CardHeader>
-              <CardContent className="pb-2">
-                <div className="text-2xl font-bold">23</div>
-                <p className="text-xs text-muted-foreground">+5 from yesterday</p>
+              <CardContent className="pb-0">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-2xl font-bold">{((activeSections / Math.max(sectionsData.length, 1)) * 100).toFixed(0)}%</div>
+                    <p className="text-xs text-muted-foreground">Sections active</p>
+                  </div>
+                  <div className="h-14 w-24">
+                    {sectionsData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={sectionChartData}>
+                          <Bar dataKey="value" fill="#f59e0b" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-muted-foreground text-xs">
+                        No data
+                      </div>
+                    )}
+                  </div>
+                </div>
               </CardContent>
-              <div className="h-10">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={activityData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorActivity" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#f59e0b" 
-                      strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorActivity)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              <CardFooter className="p-2 border-t text-xs text-muted-foreground">
+                Total sections: {sectionsData.length}
+              </CardFooter>
             </Card>
           </>
         )}
       </div>
       
-      {/* Main content sections */}
+      {/* Content cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {loading ? (
+        {(loading || isLoadingLanguages || isLoadingSections) ? (
           <>
             <Card>
               <CardHeader>
@@ -277,214 +337,144 @@ export default function UserDashboard() {
           </>
         ) : (
           <>
-            {/* Recent Tasks */}
+            {/* Available Languages */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Tasks</CardTitle>
-                <CardDescription>Your latest assigned tasks</CardDescription>
+                <CardTitle>Available Languages</CardTitle>
+                <CardDescription>Currently configured languages</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <div className="rounded-full bg-blue-100 p-2 text-blue-600 dark:bg-blue-900/40">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Website Content Update</p>
-                    <p className="text-xs text-muted-foreground">Due in 2 days</p>
-                  </div>
-                  <Badge variant="outline" className="ml-auto bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
-                    In Progress
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="rounded-full bg-green-100 p-2 text-green-600 dark:bg-green-900/40">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Client Communication</p>
-                    <p className="text-xs text-muted-foreground">Completed yesterday</p>
-                  </div>
-                  <Badge variant="outline" className="ml-auto bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                    Completed
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="rounded-full bg-purple-100 p-2 text-purple-600 dark:bg-purple-900/40">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">SEO Optimization</p>
-                    <p className="text-xs text-muted-foreground">Due next week</p>
-                  </div>
-                  <Badge variant="outline" className="ml-auto bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800">
-                    Pending
-                  </Badge>
-                </div>
+              <CardContent className="space-y-4 max-h-80 overflow-y-auto">
+                {languagesData.length === 0 ? (
+                  <p className="text-center text-muted-foreground">No languages configured yet</p>
+                ) : (
+                  languagesData.map((lang) => (
+                    <div key={lang._id} className="flex items-center space-x-4">
+                      <div className={`rounded-full p-2 ${lang.isActive 
+                        ? 'bg-green-100 text-green-600 dark:bg-green-900/40' 
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800/40'}`}>
+                        <Globe className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{lang.language}</p>
+                        <p className="text-xs text-muted-foreground">{lang.languageID}</p>
+                      </div>
+                      <Badge variant="outline" className={`ml-auto ${lang.isActive 
+                        ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800'}`}>
+                        {lang.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
+                  ))
+                )}
               </CardContent>
-              <CardFooter>
-                <Button variant="ghost" className="w-full">
-                  View All Tasks
-                </Button>
-              </CardFooter>
+           
             </Card>
             
-            {/* Task Status Chart */}
+            {/* Website Sections */}
             <Card>
               <CardHeader>
-                <CardTitle>Task Status</CardTitle>
-                <CardDescription>Your current task distribution</CardDescription>
+                <CardTitle>Website Sections</CardTitle>
+                <CardDescription>Navigate to different sections</CardDescription>
               </CardHeader>
-              <CardContent className="pt-6">
-                <div className="h-60 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={taskStatusData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {taskStatusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+              <CardContent className="space-y-4 max-h-80 overflow-y-auto">
+                {sectionsData.length === 0 ? (
+                  <p className="text-center text-muted-foreground">No sections configured yet</p>
+                ) : (
+                  sectionsData.map((section) => (
+                    <Link 
+                      key={section._id} 
+                      href={`/admin/sections/${section._id}`}
+                      className="flex items-center space-x-4 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <div className={`rounded-full p-2 ${section.isActive 
+                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40' 
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800/40'}`}>
+                        <Layout className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{section.name || section.section_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {section.description ? section.description : 'No description'}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className={`ml-auto ${section.isActive 
+                        ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800'}`}>
+                        {section.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </Link>
+                  ))
+                )}
               </CardContent>
-              <CardFooter className="flex justify-between text-xs text-muted-foreground">
-                <div className="flex items-center">
-                  <span className="mr-1 h-3 w-3 rounded-full bg-green-500"></span>
-                  Completed
-                </div>
-                <div className="flex items-center">
-                  <span className="mr-1 h-3 w-3 rounded-full bg-amber-500"></span>
-                  In Progress
-                </div>
-                <div className="flex items-center">
-                  <span className="mr-1 h-3 w-3 rounded-full bg-red-500"></span>
-                  Pending
-                </div>
-              </CardFooter>
+
             </Card>
             
-            {/* Upcoming Deadlines */}
+            {/* Activity Summary */}
             <Card>
               <CardHeader>
-                <CardTitle>Upcoming Deadlines</CardTitle>
-                <CardDescription>Tasks due soon</CardDescription>
+                <CardTitle>Recent Updates</CardTitle>
+                <CardDescription>Latest content changes</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-amber-500" />
-                    <span className="text-sm">Content Update</span>
+                {lastUpdatedSection ? (
+                  <div className="flex items-start">
+                    <div className="mr-4 mt-0.5">
+                      <Layout className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Section Updated</p>
+                      <p className="text-xs text-muted-foreground">
+                        A section was updated {formatDate(lastUpdatedSection)}
+                      </p>
+                    </div>
                   </div>
-                  <Badge variant="outline">Tomorrow</Badge>
+                ) : null}
+                
+                {lastUpdatedLanguage ? (
+                  <div className="flex items-start">
+                    <div className="mr-4 mt-0.5">
+                      <Globe className="h-5 w-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Language Updated</p>
+                      <p className="text-xs text-muted-foreground">
+                        A language was updated {formatDate(lastUpdatedLanguage)}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+                
+                <div className="flex items-start">
+                  <div className="mr-4 mt-0.5">
+                    <MessageSquare className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Languages Status</p>
+                    <p className="text-xs text-muted-foreground">
+                      {activeLanguages} of {languagesData.length} languages are active
+                    </p>
+                  </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-red-500" />
-                    <span className="text-sm">Client Presentation</span>
+                <div className="flex items-start">
+                  <div className="mr-4 mt-0.5">
+                    <FileText className="h-5 w-5 text-amber-500" />
                   </div>
-                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
-                    Today
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm">Analytics Report</span>
+                  <div>
+                    <p className="text-sm font-medium">Sections Status</p>
+                    <p className="text-xs text-muted-foreground">
+                      {activeSections} of {sectionsData.length} sections are active
+                    </p>
                   </div>
-                  <Badge variant="outline">3 days</Badge>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-purple-500" />
-                    <span className="text-sm">Marketing Campaign</span>
-                  </div>
-                  <Badge variant="outline">Next week</Badge>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button variant="ghost" className="w-full">
-                  View Calendar
-                </Button>
-              </CardFooter>
+          
             </Card>
           </>
         )}
       </div>
       
-      {/* Recent Activity */}
-      {!loading && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest actions and updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <div className="mr-4 mt-0.5">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Task Completed</p>
-                  <p className="text-xs text-muted-foreground">You completed the "Client Meeting Notes" task</p>
-                  <p className="text-xs text-muted-foreground mt-1">Today at 10:30 AM</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="mr-4 mt-0.5">
-                  <CircleUser className="h-5 w-5 text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">New Assignment</p>
-                  <p className="text-xs text-muted-foreground">John assigned you to the "Website Redesign" project</p>
-                  <p className="text-xs text-muted-foreground mt-1">Yesterday at 2:15 PM</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="mr-4 mt-0.5">
-                  <MessageSquare className="h-5 w-5 text-purple-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Comment Added</p>
-                  <p className="text-xs text-muted-foreground">Sarah commented on your task "Content Strategy"</p>
-                  <p className="text-xs text-muted-foreground mt-1">Yesterday at 11:30 AM</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="mr-4 mt-0.5">
-                  <AlertTriangle className="h-5 w-5 text-amber-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Deadline Approaching</p>
-                  <p className="text-xs text-muted-foreground">Your task "SEO Analysis" is due tomorrow</p>
-                  <p className="text-xs text-muted-foreground mt-1">2 days ago</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="w-full">View All Activity</Button>
-          </CardFooter>
-        </Card>
-      )}
+      
     </div>
   )
 }

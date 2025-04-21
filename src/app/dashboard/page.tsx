@@ -60,6 +60,8 @@ export default function DashboardPage() {
 
   // Get user role counts
   const usersData = users?.data || [];
+
+  
   const userRoleCounts = usersData.reduce((acc: Record<string, number>, user: any) => {
     const role = user.role || 'user';
     acc[role] = (acc[role] || 0) + 1;

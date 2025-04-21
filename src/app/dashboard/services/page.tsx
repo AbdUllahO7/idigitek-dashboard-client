@@ -182,15 +182,7 @@ export default function ServicesPage() {
       {/* Service Section Component */}
       <motion.div variants={itemVariants}>
         <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
-            <CardTitle className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-900 dark:text-teal-400">
-                <Info className="h-4 w-4" />
-              </span>
-              Multilingual Service Section
-            </CardTitle>
-            <CardDescription>Manage your service section content in multiple languages</CardDescription>
-          </CardHeader>
+
           <CardContent className="p-6">
             <MultilingualSectionComponent
               sectionTitle="Multilingual Service Section"
@@ -209,36 +201,7 @@ export default function ServicesPage() {
         </Card>
       </motion.div>
 
-      {/* Products table */}
-      <motion.div variants={itemVariants}>
-        <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border-b border-slate-200 dark:border-slate-700">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-900 dark:text-teal-400">
-                    <ShoppingCart className="h-4 w-4" />
-                  </span>
-                  Service Inventory
-                </CardTitle>
-                <CardDescription>Manage your service inventory and stock levels</CardDescription>
-              </div>
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
-                <Input
-                  placeholder="Search services..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 h-10"
-                />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-        
-          </CardContent>
-        </Card>
-      </motion.div>
+   
     </motion.div>
   )
 }
