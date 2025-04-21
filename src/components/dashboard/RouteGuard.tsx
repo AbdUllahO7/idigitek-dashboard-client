@@ -12,14 +12,11 @@ interface RoutePermission {
   sectionId?: string
 }
 
-
-
-
-
 // Map routes to their required permissions
 const routePermissions: Record<string, RoutePermission> = {
-  "/dashboard": { roles: ["superAdmin" , 'owner'] },
-  "/dashboard/{section.name.toLowerCase() }": { roles: ["superAdmin" , 'owner'] },
+  "/dashboard": { roles: ["superAdmin", "owner"] },
+  "/dashboard/users": { roles: ["superAdmin", "owner"] }, 
+  "/dashboard/userDashboard": { roles: ["user", "admin", "superAdmin", "owner"] }, 
   "/dashboard/features": {},
   "/dashboard/hero": { sectionId: "hero" },
   "/dashboard/services": {},
@@ -37,7 +34,7 @@ const routePermissions: Record<string, RoutePermission> = {
   "/dashboard/team": {},
   "/dashboard/technology-stack": {},
   "/dashboard/testimonials": {},
-  "/dashboard/addWebSiteConfiguration": { roles: ["superAdmin" , 'owner'] },
+  "/dashboard/addWebSiteConfiguration": { roles: ["superAdmin", "owner"] },
 }
 
 export function RouteGuard({ children }: { children: React.ReactNode }) {
@@ -66,7 +63,18 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // Skip permission checks for routes not in the map (like settings, which is available to all)
+    // Handle initial dashboard access based on role
+    if (pathname === "/dashboard" && user?.role) {
+      const userRole = user.role.toLowerCase()
+      
+      // Redirect non-owner/non-superAdmin roles to user dashboard
+      if (userRole === "admin" || userRole === "user") {
+        router.push("/dashboard/userDashboard")
+        return
+      }
+    }
+
+    // Skip permission checks for routes not in the map
     if (!routePermissions[pathname]) {
       return
     }
@@ -82,7 +90,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
     // Check role-based access
     if (permission.roles && user?.role) {
       if (!permission.roles.includes(user.role)) {
-          router.push("/dashboard/unauthorized")
+        router.push("/dashboard/unauthorized")
         return
       }
     }
