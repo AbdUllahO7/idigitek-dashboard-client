@@ -8,48 +8,48 @@ export function useSubSections() {
   const endpoint = '/subsections';
 
   // Query keys
-  const subsectionsKey = ['subsections'];
+  const subsectionsKey = ['subsections']; 
   const subsectionKey = (id: string) => [...subsectionsKey, id];
-  const subsectionBySlugKey = (slug: string) => [...subsectionsKey, 'slug', slug];
+  const subsectionSlugKey = (slug: string) => [...subsectionsKey, 'slug', slug];
 
   // Get all subsections
-  const useGetAll = (includeContentCount: boolean = false) => {
+  const useGetAll = (activeOnly = true, limit = 100, skip = 0, includeContentCount = false) => {
     return useQuery({
-      queryKey: subsectionsKey,
+      queryKey: [...subsectionsKey, { activeOnly, limit, skip, includeContentCount }],
       queryFn: async () => {
         const { data } = await apiClient.get(endpoint, {
-          params: { includeContentCount }
+          params: { activeOnly, limit, skip, includeContentCount }
         });
         return data;
-      },
+      }
     });
   };
 
   // Get a single subsection by ID
-  const useGetById = (id: string, includeContent: boolean = false) => {
+   const useGetById = (id: string, populateParents = true, includeContent = false) => {
     return useQuery({
-      queryKey: subsectionKey(id),
+      queryKey: [...subsectionKey(id), { populateParents, includeContent }],
       queryFn: async () => {
         const { data } = await apiClient.get(`${endpoint}/${id}`, {
-          params: { includeContent }
+          params: { populate: populateParents, includeContent }
         });
         return data;
       },
-      enabled: !!id,
+      enabled: !!id
     });
   };
 
-  // Get a single subsection by slug
-  const useGetBySlug = (slug: string, includeContent: boolean = false) => {
+  // Get subsection by slug
+  const useGetBySlug = (slug: string, populateParents = true, includeContent = false) => {
     return useQuery({
-      queryKey: subsectionBySlugKey(slug),
+      queryKey: [...subsectionSlugKey(slug), { populateParents, includeContent }],
       queryFn: async () => {
         const { data } = await apiClient.get(`${endpoint}/slug/${slug}`, {
-          params: { includeContent }
+          params: { populate: populateParents, includeContent }
         });
         return data;
       },
-      enabled: !!slug,
+      enabled: !!slug
     });
   };
 
@@ -66,7 +66,7 @@ export function useSubSections() {
           queryClient.setQueryData(subsectionKey(data._id), data);
         }
         if (data.slug) {
-          queryClient.setQueryData(subsectionBySlugKey(data.slug), data);
+          queryClient.setQueryData(subsectionSlugKey(data.slug), data);
         }
       },
     });
@@ -82,7 +82,7 @@ export function useSubSections() {
       onSuccess: (data, { id }) => {
         queryClient.setQueryData(subsectionKey(id), data);
         if (data.slug) {
-          queryClient.setQueryData(subsectionBySlugKey(data.slug), data);
+          queryClient.setQueryData(subsectionSlugKey(data.slug), data);
         }
         queryClient.invalidateQueries({ queryKey: subsectionsKey });
       },
@@ -102,7 +102,7 @@ export function useSubSections() {
         
         queryClient.removeQueries({ queryKey: subsectionKey(id) });
         if (cachedData?.slug) {
-          queryClient.removeQueries({ queryKey: subsectionBySlugKey(cachedData.slug) });
+          queryClient.removeQueries({ queryKey: subsectionSlugKey(cachedData.slug) });
         }
         queryClient.invalidateQueries({ queryKey: subsectionsKey });
       },
@@ -122,6 +122,35 @@ export function useSubSections() {
     });
   };
 
+  // Get complete subsection by ID (with all elements and translations)
+  const useGetCompleteById = (id: string, populateParents = true) => {
+    return useQuery({
+      queryKey: [...subsectionKey(id), 'complete', { populateParents }],
+      queryFn: async () => {
+        const { data } = await apiClient.get(`${endpoint}/${id}/complete`, {
+          params: { populate: populateParents }
+        });
+        return data;
+      },
+      enabled: !!id
+    });
+  };
+
+  // Get complete subsection by slug (with all elements and translations)
+  const useGetCompleteBySlug = (slug: string, populateParents = true) => {
+    return useQuery({
+      queryKey: [...subsectionSlugKey(slug), 'complete', { populateParents }],
+      queryFn: async () => {
+        const { data } = await apiClient.get(`${endpoint}/slug/${slug}/complete`, {
+          params: { populate: populateParents }
+        });
+        console.log("useGetCompleteBySlug" , data)
+        return data;
+      },
+      enabled: !!slug && slug !== ""
+    });
+  };
+
   // Return all hooks
   return {
     useGetAll,
@@ -131,5 +160,7 @@ export function useSubSections() {
     useUpdate,
     useDelete,
     useUpdateOrder,
+    useGetCompleteById,
+    useGetCompleteBySlug
   };
 }

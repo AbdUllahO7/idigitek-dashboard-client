@@ -139,7 +139,6 @@ export default function AddService() {
   // Function to save all data
   const saveAllData = async () => {
     setIsSubmitting(true)
-
     try {
       // Validate all forms
       try {
