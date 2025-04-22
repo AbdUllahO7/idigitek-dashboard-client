@@ -1,3 +1,5 @@
+import { SubSection } from "@/src/api/types"
+
 // Define the field configuration types
 export type FieldType = "text" | "textarea" | "badge"
 
@@ -41,3 +43,6 @@ export interface MultilingualSectionProps {
   cancelButtonLabel?: string
   noDataMessage?: string
 }
+
+
+

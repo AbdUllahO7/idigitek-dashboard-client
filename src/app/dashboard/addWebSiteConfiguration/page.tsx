@@ -903,7 +903,7 @@ export default function AdminManagementPage() {
               animate="visible"
               className="space-y-6"
             >
-              {/* <Card>
+              <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
@@ -921,8 +921,8 @@ export default function AdminManagementPage() {
                         <Input
                           id="new-section-name"
                           placeholder="e.g. Hero, Features"
-                          value={newSection.section_name}
-                          onChange={(e) => setNewSection({ ...newSection, section_name: e.target.value })}
+                          value={newSection.name}
+                          onChange={(e) => setNewSection({ ...newSection, name: e.target.value })}
                           className="w-full"
                         />
                       </div>
@@ -978,7 +978,7 @@ export default function AdminManagementPage() {
                     Add Section
                   </Button>
                 </CardFooter>
-              </Card> */}
+              </Card>
 
               <Card>
                 <CardHeader>

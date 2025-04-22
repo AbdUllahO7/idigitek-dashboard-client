@@ -1,73 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { Badge } from "@/src/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
+import { Card, CardContent } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
-import {
-  Plus,
-  Info,
-  ArrowRight,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  ShoppingCart,
-  Search,
-  Edit,
-  Trash,
-} from "lucide-react"
+import { Plus, ArrowRight } from "lucide-react"
 import Link from "next/link"
-import { Input } from "@/src/components/ui/input"
-import type { FieldConfig, LanguageConfig, MultilingualSectionData } from "../../types/MultilingualSectionTypes"
-import MultilingualSectionComponent from "@/src/components/dashboard/MultilingualSectionComponent"
+import GenericSectionIntegration from "@/src/components/dashboard/GenericSectionIntegration"
+import { serviceSectionConfig } from "./serviceSectionConfig"
 
-/**
- * Sample Service data
- */
-const service = [
-  {
-    id: "1",
-    name: "SERA",
-    category: "Electronics",
-    price: "$299.99",
-    stock: 45,
-    status: "In Stock",
-  },
-  {
-    id: "2",
-    name: "SERB",
-    category: "Clothing",
-    price: "$59.99",
-    stock: 12,
-    status: "Low Stock",
-  },
-  {
-    id: "3",
-    name: "Service",
-    category: "Home",
-    price: "$129.99",
-    stock: 0,
-    status: "Out of Stock",
-  },
-  {
-    id: "4",
-    name: "Service",
-    category: "Electronics",
-    price: "$499.99",
-    stock: 28,
-    status: "In Stock",
-  },
-  {
-    id: "5",
-    name: "Service",
-    category: "Books",
-    price: "$19.99",
-    stock: 3,
-    status: "Low Stock",
-  },
-]
+// Import the generic component and the service configuration
 
 // Animation variants
 const containerVariants = {
@@ -90,118 +32,71 @@ const itemVariants = {
   },
 }
 
-const tableRowVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    x: 0,
-    transition: {
-      delay: i * 0.05,
-      duration: 0.5,
-      ease: "easeOut",
-    },
-  }),
-}
-
 /**
  * Service page component
  * Displays a list of services with their details and service sections
  */
 export default function ServicesPage() {
-  const [loading, setLoading] = useState(true)
-  const [productData, setProductData] = useState<typeof service>([])
-  const [serviceSection, setServiceSection] = useState<MultilingualSectionData | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [serviceSection, setServiceSection] = useState(null)
 
-  // Define languages for the multilingual section
-  const languages: LanguageConfig[] = [
-    { id: "lang1", label: "English" },
-    { id: "lang2", label: "French" },
-    { id: "lang3", label: "Spanish" },
-  ]
-
-  // Define fields for the service section
-  const serviceFields: FieldConfig[] = [
-    { id: "sectionLabel", label: "Section Label", type: "text", required: true },
-    { id: "sectionTitle", label: "Section Title", type: "text", required: true },
-    { id: "sectionDescription", label: "Section Description", type: "textarea", required: true },
-    { id: "serviceDetails", label: "Service Details", type: "badge", required: true },
-  ]
-
-
-
-  // Filter products based on search term
-  const filteredProducts = productData.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  // Simulate API fetch
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setProductData(service)
-      setLoading(false)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [])
+  // Handle service section change from ServiceSectionIntegration
+  const handleServiceSectionChange = (sectionData) => {
+    setServiceSection(sectionData)
+  }
 
   return (
-    <motion.div className="space-y-8 p-6" initial="hidden" animate="visible" variants={containerVariants}>
-      {/* Page header */}
-      <motion.div className="flex flex-col md:flex-row md:items-center justify-between gap-4" variants={itemVariants}>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
-            Services Management
-          </h1>
-          <p className="text-muted-foreground mt-1">Manage your service inventory and multilingual content</p>
-        </div>
-        <Button
-          className={`group transition-all duration-300 ${
-            !serviceSection ? "opacity-70 cursor-not-allowed" : "hover:scale-105"
-          }`}
-          disabled={!serviceSection}
-          asChild
-        >
-          <Link href={serviceSection ? "services/addService" : "#"}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Service
-            <motion.span
-              className="ml-1 opacity-0 group-hover:opacity-100 group-hover:ml-2"
-              initial={{ width: 0 }}
-              animate={{ width: "auto" }}
-              transition={{ duration: 0.3 }}
-            >
-              <ArrowRight className="h-4 w-4" />
-            </motion.span>
-          </Link>
-        </Button>
+    <>
+      <motion.div className="space-y-8 p-6" initial="hidden" animate="visible" variants={containerVariants}>
+        {/* Page header */}
+        <motion.div className="flex flex-col md:flex-row md:items-center justify-between gap-4" variants={itemVariants}>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
+              Services Management
+            </h1>
+            <p className="text-muted-foreground mt-1">Manage your service inventory and multilingual content</p>
+          </div>
+          <Button
+            className={`group transition-all duration-300 ${
+              !serviceSection ? "opacity-70 cursor-not-allowed" : "hover:scale-105"
+            }`}
+            disabled={!serviceSection}
+            asChild
+          >
+            <Link href={serviceSection ? "services/addService" : "#"}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Service
+              <motion.span
+                className="ml-1 opacity-0 group-hover:opacity-100 group-hover:ml-2"
+                initial={{ width: 0 }}
+                animate={{ width: "auto" }}
+                transition={{ duration: 0.3 }}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </motion.span>
+            </Link>
+          </Button>
+        </motion.div>
+        
+        {/* Service Section Integration Component - directly using the generic component */}
+        <motion.div variants={itemVariants}>
+          <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
+            <CardContent className="p-6">
+              <GenericSectionIntegration 
+                config={serviceSectionConfig}
+                onSectionChange={handleServiceSectionChange}
+                sectionTitle="Service Section Content"
+                sectionDescription="Manage your service section content in multiple languages."
+                addButtonLabel="Add Service Section"
+                editButtonLabel="Edit Service Section"
+                saveButtonLabel="Save Service Section"
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
       </motion.div>
       
-      {/* Service Section Component */}
-      <motion.div variants={itemVariants}>
-        <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
-
-          <CardContent className="p-6">
-            <MultilingualSectionComponent
-              sectionTitle="Multilingual Service Section"
-              sectionDescription="Manage your service section in multiple languages."
-              fields={serviceFields}
-              languages={languages}
-              sectionData={serviceSection}
-              onSectionChange={setServiceSection}
-              addButtonLabel="Add Section"
-              editButtonLabel="Edit Section"
-              saveButtonLabel="Save Section"
-              sectionName="Services"
-              noDataMessage="No service section added yet. Click the 'Add Section' button to create one."
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
-
-   
-    </motion.div>
+      {/* Toast notifications */}
+      {/* <Toaster /> */}
+    </>
   )
 }

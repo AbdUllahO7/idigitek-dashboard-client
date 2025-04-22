@@ -32,9 +32,10 @@ export function useContentTranslations() {
     return useQuery({
       queryKey: translationsByElementKey(elementId),
       queryFn: async () => {
-        const { data } = await apiClient.get(`${endpoint}/element/${elementId}`, {
+        const { data } = await apiClient.get(`${endpoint}/content-elements/${elementId}`, {
           params: { activeOnly }
         });
+        console.log("useGetByElement" , data)
         return data;
       },
       enabled: !!elementId,
