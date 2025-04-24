@@ -1,14 +1,16 @@
 import { SubSection } from "@/src/api/types"
 
 // Define the field configuration types
-export type FieldType = "text" | "textarea" | "badge"
+export type FieldType = "text" | "textarea" | "badge" | "image" | "video" | "audio" | "link" | "select" | "checkbox" | "radio" | "date" | "number" | "email" | "password"
 
 export interface FieldConfig {
-  id: string
-  label: string
-  type: FieldType
-  placeholder?: string
-  required?: boolean
+  id: string;
+  label: string;
+  type: FieldType;
+  placeholder?: string;
+  required?: boolean;
+  description?: string;
+  options?: string[];
 }
 
 // Define the language configuration

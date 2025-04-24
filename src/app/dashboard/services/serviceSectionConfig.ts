@@ -15,7 +15,7 @@ export const serviceSectionConfig = {
         { id: "sectionDescription", label: "Section Description", type: "textarea", required: true },
         { id: "serviceDetails", label: "Service Details", type: "badge", required: true },
     ] as FieldConfig[],
-  
+
   // Define element mapping
     elementsMapping: {
         "sectionBadge": "Badge",
