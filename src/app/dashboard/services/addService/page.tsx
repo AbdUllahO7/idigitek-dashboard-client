@@ -1,27 +1,35 @@
 "use client"
 
-import { useState, useRef, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react"
+import { useState, useRef, useEffect, JSX } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { Button } from "@/src/components/ui/button"
 import { toast } from "@/src/components/ui/use-toast"
 import { Loader2, ArrowLeft, ArrowRight, Save, Globe, Layout, Sparkles, ListChecks, HelpCircle } from "lucide-react"
+import HeroForm from "./Components/forms/hero-form"
 import BenefitsForm from "./Components/forms/benefits-form"
 import FeaturesForm from "./Components/forms/features-form"
 import ProcessStepsForm from "./Components/forms/process-steps-form"
 import FaqForm from "./Components/forms/faq-form"
-import HeroForm from "./Components/forms/hero-form"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { Language } from "@/src/api/types/languagesTypes"
+import { MultilingualSectionData } from "@/src/app/types/MultilingualSectionTypes"
 
 // Define the type for our form data
 export type FormData = {
-  hero: any
+  hero: MultilingualSectionData | {}
   benefits: any
   features: any
   processSteps: any
   faq: any
+}
+
+// Define the type for form refs
+interface FormRef {
+  getFormData: () => Promise<any>;
+  hasUnsavedChanges: boolean;
+  resetUnsavedChanges?: () => void;
 }
 
 const containerVariants = {
@@ -50,7 +58,7 @@ export default function AddService() {
 
   // Define tab order for navigation
   const tabOrder = ["hero", "benefits", "features", "process", "faq"]
-  const tabIcons = {
+  const tabIcons: Record<string, JSX.Element> = {
     hero: <Layout className="h-4 w-4" />,
     benefits: <Sparkles className="h-4 w-4" />,
     features: <ListChecks className="h-4 w-4" />,
@@ -59,11 +67,11 @@ export default function AddService() {
   }
 
   // Create refs for each form
-  const heroFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
-  const benefitsFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
-  const featuresFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
-  const processStepsFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
-  const faqFormRef = useRef<{ getFormData: () => Promise<void>; hasUnsavedChanges: boolean } | null>(null)
+  const heroFormRef = useRef<FormRef | null>(null)
+  const benefitsFormRef = useRef<FormRef | null>(null)
+  const featuresFormRef = useRef<FormRef | null>(null)
+  const processStepsFormRef = useRef<FormRef | null>(null)
+  const faqFormRef = useRef<FormRef | null>(null)
 
   // State to store all form data
   const [formData, setFormData] = useState<FormData>({
@@ -92,6 +100,11 @@ export default function AddService() {
   
   // Convert activeLanguages to an array of language codes for form components
   const languageCodes = activeLanguages.map((lang: { languageID: any }) => lang.languageID);
+
+  // Function to update hero section data
+  const handleHeroSectionChange = (data: MultilingualSectionData) => {
+    updateFormData("hero", data)
+  }
 
   // Function to update form data
   const updateFormData = (section: keyof FormData, data: any) => {
@@ -140,7 +153,7 @@ export default function AddService() {
   const saveAllData = async () => {
     setIsSubmitting(true)
     try {
-      // Validate all forms
+      // Validate all forms (except hero which is handled by GenericSectionIntegration)
       try {
         if (heroFormRef.current) {
           await heroFormRef.current.getFormData()
@@ -271,7 +284,7 @@ export default function AddService() {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {activeLanguages.map((lang: { languageID: Key | null | undefined; language: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined }) => (
+                  {activeLanguages.map((lang: Language) => (
                     <div
                       key={lang.languageID}
                       className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm flex items-center gap-2"
@@ -299,7 +312,7 @@ export default function AddService() {
                   className="flex-1 py-3 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none"
                 >
                   <div className="flex items-center gap-2">
-                    {tabIcons[tab as keyof typeof tabIcons]}
+                    {tabIcons[tab]}
                     <span className="capitalize">{tab}</span>
                   </div>
                 </TabsTrigger>
@@ -316,6 +329,7 @@ export default function AddService() {
                   transition={{ duration: 0.3 }}
                 >
                   <TabsContent value="hero" className="mt-0">
+                    {/* Use our updated HeroForm with StyledGenericSectionIntegration */}
                     <HeroForm
                       languages={languageCodes}
                       ref={heroFormRef}

@@ -64,7 +64,7 @@ export default function ServicesPage() {
           >
             <Link href={serviceSection ? "services/addService" : "#"}>
               <Plus className="mr-2 h-4 w-4" />
-              Add New Service
+                Add New Service
               <motion.span
                 className="ml-1 opacity-0 group-hover:opacity-100 group-hover:ml-2"
                 initial={{ width: 0 }}
