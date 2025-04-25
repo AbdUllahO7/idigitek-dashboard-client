@@ -1,24 +1,19 @@
 "use client"
 
 import { forwardRef, useImperativeHandle, useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/src/components/ui/form"
-import { Input } from "@/src/components/ui/input"
-import { Textarea } from "@/src/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Button } from "@/src/components/ui/button"
 import { Save } from "lucide-react"
 import { toast } from "@/src/hooks/use-toast"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { ImageUploader } from "@/src/components/image-uploader"
+import { Input } from "@/src/components/ui/input"
+import { Textarea } from "@/src/components/ui/textarea"
+import { Button } from "@/src/components/ui/button"
+
+
 
 interface HeroFormProps {
   languages: readonly string[]
@@ -66,6 +61,7 @@ const createDefaultValues = (languages: readonly string[]) => {
 const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, ref) => {
   const formSchema = createHeroSchema(languages)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
   // Use explicit typing for the form
   const form = useForm<z.infer<SchemaType>>({
@@ -82,6 +78,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
       }
       return form.getValues()
     },
+    getImageFile: () => imageFile,
     form: form,
     hasUnsavedChanges,
     resetUnsavedChanges: () => setHasUnsavedChanges(false),
@@ -102,34 +99,48 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
   const handleSave = async () => {
     const isValid = await form.trigger()
     if (isValid) {
-      // Here you would typically save to an API
-      toast({
-        title: "Benefits content saved",
-        description: "Your benefits content has been saved successfully.",
-      })
+      try {
+        // Prepare form data for submission
+        const formData = new FormData()
 
-      // Get the form values
-      const formData = form.getValues()
-
-      // Convert the form data to an array format
-      const dataArray = Object.entries(formData).map(([key, value]) => {
-        if (key === "backgroundImage") {
-          return { type: "backgroundImage", value }
-        } else {
-          // This is a language entry
-          return {
-            language: key,
-            ...value,
-          }
+        // Add the image file if it exists
+        if (imageFile) {
+          formData.append("backgroundImage", imageFile)
         }
-      })
 
-      // Log the array to console
-      console.log("Form data as array:", dataArray)
+        // Add the form values as JSON
+        const formValues = form.getValues()
+        formData.append("data", JSON.stringify(formValues))
 
-      setHasUnsavedChanges(false)
+        // Log the FormData (for demonstration)
+        console.log("Form data ready for submission:", {
+          imageFile: imageFile,
+          formValues: formValues,
+        })
+
+        // Here you would typically send the formData to your backend
+        // const response = await fetch('/api/hero', {
+        //   method: 'POST',
+        //   body: formData,
+        // })
+
+        toast({
+          title: "Hero content ready",
+          description: "Your hero content is ready to be sent to the backend.",
+        })
+
+        setHasUnsavedChanges(false)
+      } catch (error) {
+        console.error("Error preparing form data:", error)
+        toast({
+          title: "Error",
+          description: "There was an error preparing your data.",
+          variant: "destructive",
+        })
+      }
     }
   }
+
   return (
     <div className="space-y-6">
       <Form {...form}>
@@ -142,7 +153,18 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
               </CardDescription>
             </CardHeader>
             <CardContent>
-           
+              <FormField
+                control={form.control}
+                name="backgroundImage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <ImageUploader value={field.value} onChange={field.onChange} onFileChange={setImageFile} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
         </div>
@@ -210,7 +232,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languages, onDataChange }, re
       <div className="flex justify-end mt-6">
         <Button type="button" onClick={handleSave} disabled={!hasUnsavedChanges} className="flex items-center">
           <Save className="mr-2 h-4 w-4" />
-          Save Benefits Content
+          Save Hero Content
         </Button>
       </div>
     </div>
