@@ -44,7 +44,6 @@ import {
   AlertDialogTrigger,
 } from "@/src/components/ui/alert-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
-import { ImageUpload } from "@/src/lib/ImageUploader"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSections } from "@/src/hooks/webConfiguration/use-section"
 import { Language } from "@/src/api/types/languagesTypes"
@@ -955,10 +954,10 @@ export default function AdminManagementPage() {
                     
                     <div className="space-y-2">
                       <Label>Section Image</Label>
-                      <ImageUpload
+                      {/* <ImageUpload
                         value={newSection.image} 
                         onChange={(url) => setNewSection({ ...newSection, image: url })} 
-                      />
+                      /> */}
                       <p className="text-xs text-slate-500 mt-2">
                         Add an image for this section (optional)
                       </p>

@@ -22,7 +22,6 @@ import { Plus, Trash2, X, Save, AlertTriangle } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
 import { Label } from "@/src/components/ui/label"
-import { ImageUpload } from "@/src/lib/ImageUploader"
 import {
   Dialog,
   DialogContent,
@@ -441,7 +440,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languages, onDataChan
                                   <FormItem>
                                     <FormLabel>Feature Image</FormLabel>
                                     <FormControl>
-                                      <ImageUpload value={field.value} onChange={field.onChange} />
+                                      {/* <ImageUpload value={field.value} onChange={field.onChange} /> */}
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
