@@ -100,6 +100,7 @@ export default function AddService() {
   
   // Convert activeLanguages to an array of language codes for form components
   const languageCodes = activeLanguages.map((lang: { languageID: any }) => lang.languageID);
+  const languageIds = activeLanguages.map((lang: Language) => lang._id);
 
   // Function to update hero section data
   const handleHeroSectionChange = (data: MultilingualSectionData) => {
@@ -329,12 +330,13 @@ export default function AddService() {
                   transition={{ duration: 0.3 }}
                 >
                   <TabsContent value="hero" className="mt-0">
-                    {/* Use our updated HeroForm with StyledGenericSectionIntegration */}
-                    <HeroForm
-                      languages={languageCodes}
-                      ref={heroFormRef}
-                      onDataChange={(data) => updateFormData("hero", data)}
-                    />
+                      <HeroForm
+                        languageIds={languageIds}
+                        activeLanguages={activeLanguages}
+                        ref={heroFormRef}
+                        onDataChange={(data) => updateFormData("hero", data)}
+                        slug="hero-section"
+                      />
                   </TabsContent>
 
                   <TabsContent value="benefits" className="mt-0">
