@@ -62,9 +62,9 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
   languageIds.forEach((langId) => {
     const langCode = languageCodeMap[langId] || langId
     defaultValues[langCode] = {
-      title: "Title",  // Default placeholder text
-      description: "Description text",  // Default placeholder text
-      backLinkText: "Get Started",  // Default placeholder text
+      title: "",  // Empty instead of default placeholder text
+      description: "",  // Empty instead of default placeholder text
+      backLinkText: "",  // Empty instead of default placeholder text
     }
   })
 
@@ -79,8 +79,6 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
   const [contentElements, setContentElements] = useState<any[]>([])
-
-  console.log(isLoadingData)
   
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
@@ -157,13 +155,13 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
         // Initialize form values for each language
         const languageValues: Record<string, Record<string, string>> = {}
   
-        // Initialize all languages with default values
+        // Initialize all languages with empty values
         languageIds.forEach(langId => {
           const langCode = langIdToCodeMap[langId] || langId
           languageValues[langCode] = {
-            title: 'Title',
-            description: 'Description text',
-            backLinkText: 'Get Started'
+            title: '',
+            description: '',
+            backLinkText: ''
           }
         })
   
@@ -255,7 +253,11 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
 
     setIsLoadingData(true);
     try {
-      let sectionId = existingSubSectionId
+      // Get current form values before any processing
+      const allFormValues = form.getValues();
+      console.log("Form values at save:", allFormValues);
+      
+      let sectionId = existingSubSectionId;
       
       // Create or update logic here
       if (!existingSubSectionId) {
@@ -268,129 +270,171 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
           order: 0,
           parentSections: [],
           languages: languageIds as string[],
-        }
+        };
 
-        const newSubSection = await createSubSection.mutateAsync(subsectionData)
-        sectionId = newSubSection.data._id
+        const newSubSection = await createSubSection.mutateAsync(subsectionData);
+        sectionId = newSubSection.data._id;
       }
 
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID")
+        throw new Error("Failed to create or retrieve subsection ID");
       }
 
-      // Create or update content elements
+      // Get language ID to code mapping
+      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        acc[lang._id] = lang.languageID;
+        return acc;
+      }, {});
+      
+      // Get language code to ID mapping 
+      const langCodeToIdMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        acc[lang.languageID] = lang._id;
+        return acc;
+      }, {});
+      
+      // Element key to name mapping
+      const elementKeyToNameMap = {
+        'title': 'Title',
+        'description': 'Description',
+        'backLinkText': 'Back Link Text'
+      };
+
       if (existingSubSectionId && contentElements.length > 0) {
         // Update existing elements
         // For image element, handle the upload if there's a new file
-        const bgImageElement = contentElements.find(e => e.type === 'image')
+        const bgImageElement = contentElements.find(e => e.type === 'image');
         if (bgImageElement && imageFile) {
-          const formData = new FormData()
-          formData.append('image', imageFile)
+          const formData = new FormData();
+          formData.append('image', imageFile);
           await apiClient.post(`/content-elements/${bgImageElement._id}/image`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
-          })
+          });
         }
 
         // For text elements, update the translations
-        const textElements = contentElements.filter(e => e.type === 'text')
-        const translations: Omit<ContentTranslation, "_id">[] = []
+        const textElements = contentElements.filter(e => e.type === 'text');
+        const translations: Omit<ContentTranslation, "_id">[] = [];
         
         // Map element names to keys for form values
-        const elementKeyMap: Record<string, string> = {
+        const elementNameToKeyMap: Record<string, string> = {
           'Title': 'title',
           'Description': 'description',
           'Back Link Text': 'backLinkText'
-        }
-        
-        // Get language codes map
-        const langCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-          acc[lang.languageID] = lang._id
-          return acc
-        }, {})
+        };
 
-        Object.entries(form.getValues()).forEach(([langCode, values]) => {
-          if (langCode === 'backgroundImage') return
+        // Process form values and create translations
+        Object.entries(allFormValues).forEach(([langCode, values]) => {
+          if (langCode === 'backgroundImage') return;
           
-          const langId = langCodeMap[langCode]
-          if (!langId) return
+          const langId = langCodeToIdMap[langCode];
+          if (!langId) return;
           
           textElements.forEach(element => {
-            const key = elementKeyMap[element.name]
-            if (key && values[key] !== undefined) {
+            const key = elementNameToKeyMap[element.name];
+            if (key && values && typeof values === 'object' && key in values) {
               translations.push({
                 content: values[key],
                 language: langId,
                 contentElement: element._id,
                 isActive: true,
-              })
+              });
             }
-          })
-        })
+          });
+        });
 
         if (translations.length > 0) {
-          await bulkUpsertTranslations.mutateAsync(translations)
+          await bulkUpsertTranslations.mutateAsync(translations);
         }
       } else {
         // Create new elements
-        const elements = [
+        const elementTypes = [
           { type: 'image', key: 'backgroundImage', name: 'Background Image' },
           { type: 'text', key: 'title', name: 'Title' },
           { type: 'text', key: 'description', name: 'Description' },
           { type: 'text', key: 'backLinkText', name: 'Back Link Text' },
-        ]
+        ];
 
-        const createdElements = []
-        for (const [index, el] of elements.entries()) {
+        const createdElements = [];
+        
+        // Step 1: Create all elements first
+        for (const [index, el] of elementTypes.entries()) {
+          let defaultContent = "";
+          
+          if (el.type === 'image') {
+            defaultContent = 'image-placeholder';
+          } else if (el.type === 'text' && allFormValues[defaultLangCode]) {
+            // For text elements, use the value from the default language
+            const langValues = allFormValues[defaultLangCode];
+            defaultContent = langValues && typeof langValues === 'object' && el.key in langValues
+              ? langValues[el.key]
+              : '';
+              
+            console.log(`Creating element ${el.name} with default content: ${defaultContent}`);
+          }
+          
           const elementData = {
             name: el.name,
             type: el.type,
             parent: sectionId,
             isActive: true,
             order: index,
-            defaultContent: el.type === 'image' 
-              ? 'image-placeholder'
-              : form.getValues()[defaultLangCode]?.[el.key] || '',
-          }
-          const newElement = await createContentElement.mutateAsync(elementData)
-          createdElements.push({ ...newElement.data, key: el.key })
-        }
-
-        // Upload Background Image separately using FormData 
-        const bgImageElement = createdElements.find(e => e.key === 'backgroundImage')
-        if (bgImageElement && imageFile) {
-          const formData = new FormData()
-          formData.append('image', imageFile)
-          await apiClient.post(`/content-elements/${bgImageElement._id}/image`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          })
-        }
-
-        // Create Translations
-        const translations: Omit<ContentTranslation, "_id">[] = []
-        const textElements = createdElements.filter(e => e.type === 'text')
-        const langCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-          acc[lang.languageID] = lang._id
-          return acc
-        }, {})
-
-        Object.entries(form.getValues()).forEach(([langCode, values]) => {
-          if (langCode === 'backgroundImage') return
+            defaultContent: defaultContent,
+          };
           
-          const langId = langCodeMap[langCode]
-          if (!langId) return
+          const newElement = await createContentElement.mutateAsync(elementData);
+          createdElements.push({ ...newElement.data, key: el.key });
+        }
 
-          for (const element of textElements) {
-            translations.push({
-              content: values[element.key],
-              language: langId,
-              contentElement: element._id,
-              isActive: true,
-            })
+        // Step 2: Upload background image if needed
+        const bgImageElement = createdElements.find(e => e.key === 'backgroundImage');
+        if (bgImageElement && imageFile) {
+          const formData = new FormData();
+          formData.append('image', imageFile);
+          try {
+            await apiClient.post(`/content-elements/${bgImageElement._id}/image`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+          } catch (error) {
+            console.error("Failed to upload image:", error);
           }
-        })
+        }
+
+        // Step 3: Create translations for all text elements
+        const textElements = createdElements.filter(e => e.key !== 'backgroundImage');
+        const translations: Omit<ContentTranslation, "_id">[] = [];
+        
+        // Process each language in the form values
+        for (const [langCode, langValues] of Object.entries(allFormValues)) {
+          if (langCode === 'backgroundImage') continue;
+          
+          const langId = langCodeToIdMap[langCode];
+          if (!langId) continue;
+          
+          console.log(`Processing translations for language: ${langCode}`);
+          
+          // For each text element, create a translation
+          for (const element of textElements) {
+            if (langValues && typeof langValues === 'object' && element.key in langValues) {
+              const content = langValues[element.key];
+              console.log(`Creating translation for ${element.key}: ${content}`);
+              
+              translations.push({
+                content: content,
+                language: langId,
+                contentElement: element._id,
+                isActive: true,
+              });
+            }
+          }
+        }
 
         if (translations.length > 0) {
-          await bulkUpsertTranslations.mutateAsync(translations)
+          try {
+            const result = await bulkUpsertTranslations.mutateAsync(translations);
+            console.log("Translation result:", result);
+          } catch (error) {
+            console.error("Failed to create translations:", error);
+          }
         }
       }
 
@@ -398,7 +442,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
         title: existingSubSectionId 
           ? "Hero section updated successfully!" 
           : "Hero section created successfully!" 
-      })
+      });
 
       // Refresh data immediately after save
       if (slug) {
@@ -413,16 +457,16 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       setHasUnsavedChanges(false);
       setImageFile(null); // Clear the file state after saving
     } catch (error) {
-      console.error("Operation failed:", error)
+      console.error("Operation failed:", error);
       toast({
         title: existingSubSectionId ? "Error updating hero section" : "Error creating hero section",
         variant: "destructive",
         description: error instanceof Error ? error.message : "Unknown error occurred",
-      })
+      });
     } finally {
       setIsLoadingData(false);
     }
-  }
+  };
 
   // Get language codes for display
   const languageCodes = activeLanguages.reduce((acc: Record<string, string>, lang) => {
@@ -527,7 +571,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       <Button 
         type="button" 
         onClick={handleSave} 
-        disabled={isLoadingData || isLoadingSubsection || !hasUnsavedChanges || createSubSection.isPending}
+        disabled={isLoadingData}
         className="flex items-center"
       >
         <Save className="mr-2 h-4 w-4" />
