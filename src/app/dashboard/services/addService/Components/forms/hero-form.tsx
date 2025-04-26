@@ -73,12 +73,14 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
 
 const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages, onDataChange, slug }, ref) => {
   const formSchema = createHeroSchema(languageIds as string[], activeLanguages)
+  const [isLoadingData, setIsLoadingData] = useState(!slug)
+  const [dataLoaded, setDataLoaded] = useState(!slug)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [isLoading, setIsLoading] = useState(!!slug) // Start loading only if slug is provided
   const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
   const [contentElements, setContentElements] = useState<any[]>([])
-  const [dataLoaded, setDataLoaded] = useState(!slug) // If no slug, mark as loaded immediately
+
+  console.log(isLoadingData)
   
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
@@ -120,21 +122,11 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
   const { data: completeSubsectionData, isLoading: isLoadingSubsection, refetch } = 
     useGetCompleteBySlug(slug || '', false, true, { enabled: !!slug })
   
-  // Effect to populate form with existing data from complete subsection - only run once when data is available
-  useEffect(() => {
-    // Skip this effect entirely if no slug is provided
-    if (!slug) {
-      return
-    }
-    
-    if (dataLoaded || isLoadingSubsection || !completeSubsectionData?.data) {
-      return
-    }
-  
-    setIsLoading(true)
-  
+  // Function to process and load data into the form
+  const processAndLoadData = (subsectionData: any) => {
+    if (!subsectionData) return;
+
     try {
-      const subsectionData = completeSubsectionData.data
       setExistingSubSectionId(subsectionData._id)
   
       if (subsectionData.contentElements && subsectionData.contentElements.length > 0) {
@@ -225,13 +217,29 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
         variant: 'destructive',
       })
     } finally {
-      setIsLoading(false)
+      setIsLoadingData(false)
     }
+  }
+  
+  // Effect to populate form with existing data from complete subsection - only run once when data is available
+  useEffect(() => {
+    // Skip this effect entirely if no slug is provided
+    if (!slug) {
+      return
+    }
+    
+    if (dataLoaded || isLoadingSubsection || !completeSubsectionData?.data) {
+      return
+    }
+  
+    setIsLoadingData(true)
+    processAndLoadData(completeSubsectionData.data)
+    
   }, [completeSubsectionData, isLoadingSubsection, dataLoaded, form, activeLanguages, languageIds, slug])
 
   // Track form changes, but only after initial data is loaded
   useEffect(() => {
-    if (isLoading || !dataLoaded) return
+    if (isLoadingData || !dataLoaded) return
 
     const subscription = form.watch((value) => {
       setHasUnsavedChanges(true)
@@ -240,11 +248,12 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       }
     })
     return () => subscription.unsubscribe()
-  }, [form, isLoading, dataLoaded])
+  }, [form, isLoadingData, dataLoaded])
 
   const handleSave = async () => {
     if (!(await form.trigger())) return
 
+    setIsLoadingData(true);
     try {
       let sectionId = existingSubSectionId
       
@@ -391,13 +400,18 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
           : "Hero section created successfully!" 
       })
 
-      // Refresh data after save if needed
+      // Refresh data immediately after save
       if (slug) {
-        setDataLoaded(false) // Reset the loaded flag so we process data again
-        refetch() // Refetch the data
+        const result = await refetch();
+        if (result.data?.data) {
+          // Reset form with the new data
+          setDataLoaded(false);
+          processAndLoadData(result.data.data);
+        }
       }
       
-      setHasUnsavedChanges(false)
+      setHasUnsavedChanges(false);
+      setImageFile(null); // Clear the file state after saving
     } catch (error) {
       console.error("Operation failed:", error)
       toast({
@@ -405,6 +419,8 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
         variant: "destructive",
         description: error instanceof Error ? error.message : "Unknown error occurred",
       })
+    } finally {
+      setIsLoadingData(false);
     }
   }
 
@@ -416,7 +432,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
 
   return (
     <div className="space-y-6">
-      {isLoading || isLoadingSubsection ? (
+      {(slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) ? (
         <div className="flex items-center justify-center p-8">
           <p className="text-muted-foreground">Loading hero section data...</p>
         </div>
@@ -511,7 +527,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       <Button 
         type="button" 
         onClick={handleSave} 
-        disabled={isLoading || isLoadingSubsection || !hasUnsavedChanges || createSubSection.isPending}
+        disabled={isLoadingData || isLoadingSubsection || !hasUnsavedChanges || createSubSection.isPending}
         className="flex items-center"
       >
         <Save className="mr-2 h-4 w-4" />
