@@ -1,18 +1,18 @@
 // Type definitions for frontend API integration
 
 export interface ContentElement {
-    _id: string;
-    name: string;
-    type: 'text' | 'heading' | 'paragraph' | 'list' | 'image' | 'video' | 'link' | 'custom';
-    defaultContent?: string;
-    isActive: boolean;
-    metadata?: any;
-    order: number;
-    parent: string;
-    createdAt: string;
-    updatedAt: string;
-    translations?: ContentTranslation[]; // Optional field when translations are included
-  }
+  _id: string;
+  name: string;
+  type: 'text' | 'heading' | 'paragraph' | 'list' | 'image' | 'video' | 'link' | 'custom';
+  defaultContent?: string;
+  isActive: boolean;
+  metadata?: any;
+  order: number;
+  parent: string;
+  createdAt?: string;  // Make optional
+  updatedAt?: string;  // Make optional
+  translations?: ContentTranslation[];
+}
   
   export interface ContentTranslation {
     _id: string;
@@ -21,8 +21,8 @@ export interface ContentElement {
     contentElement: string | ContentElement;
     isActive: boolean;
     metadata?: any;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;  // Make optional
+    updatedAt?: string;  // Make optional
   }
   
   export interface SubSection {
@@ -35,10 +35,10 @@ export interface ContentElement {
     parentSections: string[] | any[];
     languages: string[] | Language[];
     metadata?: any;
-    createdAt: string;
-    updatedAt: string;
-    contentElements?: ContentElement[]; // Optional field when content is included
-    contentCount?: number; // Optional field when content count is requested
+    createdAt?: string;  // Make optional
+    updatedAt?: string;  // Make optional
+    contentElements?: ContentElement[];
+    contentCount?: number;
   }
   
   export interface Language {

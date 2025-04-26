@@ -137,7 +137,7 @@ export function useSubSections() {
   };
 
   // Get complete subsection by slug (with all elements and translations)
-  const useGetCompleteBySlug = (slug: string, populateParents = true) => {
+  const useGetCompleteBySlug = (slug: string, populateParents = true, p0: boolean, p1: { enabled: boolean; }) => {
     return useQuery({
       queryKey: [...subsectionSlugKey(slug), 'complete', { populateParents }],
       queryFn: async () => {
