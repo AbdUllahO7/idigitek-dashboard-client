@@ -341,7 +341,9 @@ export default function AddService() {
 
                   <TabsContent value="benefits" className="mt-0">
                     <BenefitsForm
-                      languages={languageCodes}
+                      languageIds={languageIds}
+                      activeLanguages={activeLanguages}
+                      slug="benefits"
                       ref={benefitsFormRef}
                       onDataChange={(data) => updateFormData("benefits", data)}
                     />
@@ -349,24 +351,31 @@ export default function AddService() {
 
                   <TabsContent value="features" className="mt-0">
                     <FeaturesForm
-                      languages={languageCodes}
+                       languageIds={languageIds}
+                       activeLanguages={activeLanguages}
                       ref={featuresFormRef}
+                      slug="features"
                       onDataChange={(data) => updateFormData("features", data)}
                     />
                   </TabsContent>
 
                   <TabsContent value="process" className="mt-0">
                     <ProcessStepsForm
-                      languages={languageCodes}
+                      languageIds={languageIds}
+                      activeLanguages={activeLanguages}
                       ref={processStepsFormRef}
+                      slug="process-Steps"
                       onDataChange={(data) => updateFormData("processSteps", data)}
                     />
                   </TabsContent>
 
                   <TabsContent value="faq" className="mt-0">
                     <FaqForm
-                      languages={languageCodes}
+                      languageIds={languageIds}
+                      activeLanguages={activeLanguages}
                       ref={faqFormRef}
+                      slug="faq-section"
+                      
                       onDataChange={(data) => updateFormData("faq", data)}
                     />
                   </TabsContent>

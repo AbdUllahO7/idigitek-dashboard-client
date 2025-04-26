@@ -90,7 +90,7 @@ export function useSubSections() {
   };
 
   // Delete a subsection
-  const useDelete = (hardDelete: boolean = false) => {
+  const useDelete = (hardDelete: boolean = true) => {
     return useMutation({
       mutationFn: async (id: string) => {
         await apiClient.delete(`${endpoint}/${id}`, {
