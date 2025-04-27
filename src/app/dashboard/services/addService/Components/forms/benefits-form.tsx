@@ -23,6 +23,7 @@ interface BenefitsFormProps {
   activeLanguages: Language[]
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
+  ParentSectionId: string // Parent section ID for creating new content elements
 }
 
 // Available icons
@@ -86,7 +87,7 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
   return defaultValues
 }
 
-const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLanguages, onDataChange, slug }, ref) => {
+const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId }, ref) => {
   const formSchema = createBenefitsSchema(languageIds as string[], activeLanguages)
   const [isLoadingData, setIsLoadingData] = useState(!slug)
   const [dataLoaded, setDataLoaded] = useState(!slug)
@@ -431,7 +432,7 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLa
           description: "Benefits section for the website",
           isActive: true,
           order: 0,
-          parentSections: [],
+          parentSections: [ParentSectionId] as  string[],
           languages: languageIds as string[],
         }
 

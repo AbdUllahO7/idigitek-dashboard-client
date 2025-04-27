@@ -36,6 +36,7 @@ interface FeaturesFormProps {
   activeLanguages: Language[]
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
+  ParentSectionId: string // Optional parent section ID for creating new sections
 }
 
 // Define interfaces to improve type safety
@@ -44,7 +45,6 @@ interface FeatureContent {
   description: string
   features: string[]
   image: string
-  imageAlt: string
   imagePosition: "left" | "right"
 }
 
@@ -77,7 +77,6 @@ const createFeaturesSchema = (languageIds: string[], activeLanguages: Language[]
               .array(z.string().min(1, { message: "Feature cannot be empty" }))
               .min(1, { message: "At least one feature is required" }),
             image: z.string().min(1, { message: "Image is required" }),
-            imageAlt: z.string().min(1, { message: "Image alt text is required" }),
             imagePosition: z.enum(["left", "right"]),
           }),
         }),
@@ -111,7 +110,6 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
           description: "",
           features: [""],
           image: "",
-          imageAlt: "",
           imagePosition: "right",
         },
       },
@@ -121,7 +119,7 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
   return defaultValues
 }
 
-const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLanguages, onDataChange, slug }, ref) => {
+const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId }, ref) => {
   const featuresSchema = createFeaturesSchema(languageIds as string[], activeLanguages)
   const [isLoadingData, setIsLoadingData] = useState(!slug)
   const [dataLoaded, setDataLoaded] = useState(!slug)
@@ -242,7 +240,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
           const headingElement = elements.find((el) => el.name.includes("Heading"))
           const descriptionElement = elements.find((el) => el.name.includes("Description"))
           const imageElement = elements.find((el) => el.name.includes("Image") && el.type === "image")
-          const imageAltElement = elements.find((el) => el.name.includes("Image Alt"))
           const imagePositionElement = elements.find((el) => el.name.includes("Image Position"))
           const featureListElements = elements.filter((el) => el.name.includes("Feature Item"))
 
@@ -278,7 +275,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
                 description: getTranslationContent(descriptionElement, ""),
                 features: featureItems.length > 0 ? featureItems : [""],
                 image: imageElement?.imageUrl || "",
-                imageAlt: getTranslationContent(imageAltElement, ""),
                 imagePosition: getTranslationContent(imagePositionElement, "right") as "left" | "right",
               },
             }
@@ -439,7 +435,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
           description: "Features section for the website",
           isActive: true,
           order: 0,
-          parentSections: [],
+          parentSections: [ParentSectionId] as string[],
           languages: languageIds as string[],
         }
 
@@ -497,7 +493,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
             // Find elements for this feature
             const headingElement = contentElements.find((e) => e.name === `Feature ${featureNum} - Heading`)
             const descriptionElement = contentElements.find((e) => e.name === `Feature ${featureNum} - Description`)
-            const imageAltElement = contentElements.find((e) => e.name === `Feature ${featureNum} - Image Alt`)
             const imagePositionElement = contentElements.find(
               (e) => e.name === `Feature ${featureNum} - Image Position`,
             )
@@ -526,14 +521,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
               })
             }
 
-            if (imageAltElement) {
-              translations.push({
-                content: feature.content.imageAlt,
-                language: langId,
-                contentElement: imageAltElement._id,
-                isActive: true,
-              })
-            }
+        
 
             if (imagePositionElement) {
               translations.push({
@@ -605,7 +593,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
             { type: "image", key: "image", name: `Feature ${featureNum} - Image` },
             { type: "text", key: "heading", name: `Feature ${featureNum} - Heading` },
             { type: "text", key: "description", name: `Feature ${featureNum} - Description` },
-            { type: "text", key: "imageAlt", name: `Feature ${featureNum} - Image Alt` },
             { type: "text", key: "imagePosition", name: `Feature ${featureNum} - Image Position` },
           ]
 
@@ -918,7 +905,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
         description: "",
         features: [""],
         image: "",
-        imageAlt: "",
         imagePosition: "right",
       },
     }
@@ -1039,8 +1025,9 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
                                   <FormField
                                     control={form.control}
                                     name={`${langCode}.${index}.id` as any}
+                                    
                                     render={({ field }) => (
-                                      <FormItem>
+                                      <FormItem className="hidden">
                                         <FormLabel>ID</FormLabel>
                                         <FormControl>
                                           <Input placeholder="feature-id" {...field} />
@@ -1064,9 +1051,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
                                       </FormItem>
                                     )}
                                   />
-                                </div>
-
-                                <FormField
+                                   <FormField
                                   control={form.control}
                                   name={`${langCode}.${index}.content.heading` as any}
                                   render={({ field }) => (
@@ -1080,6 +1065,9 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
                                   )}
                                 />
 
+                                </div>
+
+                               
                                 <FormField
                                   control={form.control}
                                   name={`${langCode}.${index}.content.description` as any}
@@ -1155,19 +1143,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
                                   </div>
                                 )}
 
-                                <FormField
-                                  control={form.control}
-                                  name={`${langCode}.${index}.content.imageAlt` as any}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Image Alt Text</FormLabel>
-                                      <FormControl>
-                                        <Input placeholder="Image description" {...field} />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
+                           
 
                                 <FormField
                                   control={form.control}

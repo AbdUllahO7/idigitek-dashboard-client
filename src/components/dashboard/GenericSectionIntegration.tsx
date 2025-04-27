@@ -45,6 +45,7 @@ interface GenericSectionIntegrationProps {
   editButtonLabel?: string; // Optional override for edit button label
   saveButtonLabel?: string; // Optional override for save button label
   noDataMessage?: string;   // Optional override for no data message
+  ParentSectionId: string; // Optional parent section ID for nested sections
 }
 
 // Helper function to get the first non-empty value from any language
@@ -103,7 +104,8 @@ function GenericSectionIntegration({
   addButtonLabel,
   editButtonLabel,
   saveButtonLabel,
-  noDataMessage
+  noDataMessage,
+  ParentSectionId
 }: GenericSectionIntegrationProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [sectionData, setSectionData] = useState<MultilingualSectionData | null>(null);
@@ -320,7 +322,7 @@ function GenericSectionIntegration({
         slug: config.slug,
         isActive: true,
         order: subSectionsData?.data?.length || 0,
-        parentSections: [] as string[],
+        parentSections: [ParentSectionId] as string[],
         languages: [] as string[],
         metadata: {} // Optional metadata
       };

@@ -192,9 +192,13 @@ export default function DashboardSidebar() {
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null)
   const { user, isLoading: userIsLoading } = useAuth();
 
+  // Store the mapping of section names to actual section IDs from API
+  const [sectionIdMapping, setSectionIdMapping] = useState<Map<string, string>>(new Map());
+
   const { 
     useGetAll: useGetAllSections
   } = useSections();
+
 
   const { 
     data: sections, 
@@ -205,16 +209,21 @@ export default function DashboardSidebar() {
   // Extract active sections from the API response
   const activeSections = sections?.data?.filter((section: Section) => section.isActive) || [];
   
-  // Create a mapping of section_name to sectionId for easy lookup
-  const sectionNameMap = new Map<string, string>();
-  
   useEffect(() => {
     // Map section IDs to their names from the active sections
+    const sectionNameMap = new Map<string, string>();
+    const idMapping = new Map<string, string>();
+    
     if (activeSections.length > 0) {
       activeSections.forEach((section: Section) => {
         const sectionId = section.name.toLowerCase().replace(/\s/g, "");
         sectionNameMap.set(sectionId, section.name);
+        // Store the actual database ID for each section
+        idMapping.set(sectionId, section._id);
       });
+      
+      // Save the ID mapping for use in navigation
+      setSectionIdMapping(idMapping);
     }
     
     if (!userIsLoading && !isLoadingSections) {
@@ -272,9 +281,9 @@ export default function DashboardSidebar() {
   }, [user, userIsLoading, sections, isLoadingSections]);
 
   /**
-   * Handle navigation with loading indicator
+   * Handle navigation with loading indicator and section ID parameter
    */
-  const handleNavigation = (href: string) => {
+  const handleNavigation = (href: string, sectionId?: string) => {
     // Don't navigate if already navigating or if clicking the current page
     if (navigatingTo || pathname === href) {
       return;
@@ -283,11 +292,18 @@ export default function DashboardSidebar() {
     // Set the navigating state to show loading indicator
     setNavigatingTo(href);
     
-    // Prefetch the page before navigating
-    router.prefetch(href);
+    // If this navigation item is for a section that has an ID in our mapping, append it as a query param
+    let targetUrl = href;
+    if (sectionId && sectionIdMapping.has(sectionId)) {
+      const actualSectionId = sectionIdMapping.get(sectionId);
+      targetUrl = `${href}?sectionId=${actualSectionId}`;
+    }
     
-    // Navigate to the new page
-    router.push(href);
+    // Prefetch the page before navigating
+    router.prefetch(targetUrl);
+    
+    // Navigate to the new page with section ID if available
+    router.push(targetUrl);
     
     // Clear the navigating state after navigation completes
     setTimeout(() => {
@@ -356,7 +372,7 @@ export default function DashboardSidebar() {
                       ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
                       : "hover:bg-accent hover:text-accent-foreground",
                   )}
-                  onClick={() => handleNavigation(item.href)}
+                  onClick={() => handleNavigation(item.href, item.sectionId)}
                   disabled={isNavigating}
                 >
                   {isNavigating ? (

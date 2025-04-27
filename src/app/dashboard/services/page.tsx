@@ -8,6 +8,7 @@ import { Plus, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import GenericSectionIntegration from "@/src/components/dashboard/GenericSectionIntegration"
 import { serviceSectionConfig } from "./serviceSectionConfig"
+import { useSearchParams } from "next/navigation"
 
 // Import the generic component and the service configuration
 
@@ -43,6 +44,8 @@ export default function ServicesPage() {
   const handleServiceSectionChange = (sectionData) => {
     setServiceSection(sectionData)
   }
+  const searchParams = useSearchParams();
+  const ParentSectionId = searchParams.get('sectionId');
 
   return (
     <>
@@ -62,7 +65,7 @@ export default function ServicesPage() {
             disabled={!serviceSection}
             asChild
           >
-            <Link href={serviceSection ? "services/addService" : "#"}>
+            <Link href={serviceSection ? `services/addService?sectionId=${ParentSectionId}` : "#"}>
               <Plus className="mr-2 h-4 w-4" />
                 Add New Service
               <motion.span
@@ -83,6 +86,7 @@ export default function ServicesPage() {
             <CardContent className="p-6">
               <GenericSectionIntegration 
                 config={serviceSectionConfig}
+                ParentSectionId = {ParentSectionId || "null"}
                 onSectionChange={handleServiceSectionChange}
                 sectionTitle="Service Section Content"
                 sectionDescription="Manage your service section content in multiple languages."

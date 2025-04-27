@@ -23,6 +23,7 @@ interface HeroFormProps {
   activeLanguages: Language[]
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
+  ParentSectionId: string // Optional parent section ID
 }
 
 const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
@@ -71,7 +72,7 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
   return defaultValues
 }
 
-const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages, onDataChange, slug }, ref) => {
+const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId }, ref) => {
   const formSchema = createHeroSchema(languageIds as string[], activeLanguages)
   const [isLoadingData, setIsLoadingData] = useState(!slug)
   const [dataLoaded, setDataLoaded] = useState(!slug)
@@ -268,7 +269,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
           description: "Hero section for the website",
           isActive: true,
           order: 0,
-          parentSections: [],
+          parentSections: [ParentSectionId] as string[], 
           languages: languageIds as string[],
         };
 

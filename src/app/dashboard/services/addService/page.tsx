@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/src/components/ui/card"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { Language } from "@/src/api/types/languagesTypes"
 import { MultilingualSectionData } from "@/src/app/types/MultilingualSectionTypes"
+import { useSearchParams } from "next/navigation"
 
 // Define the type for our form data
 export type FormData = {
@@ -55,6 +56,9 @@ export default function AddService() {
   const [activeTab, setActiveTab] = useState("hero")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [progress, setProgress] = useState(0)
+  const searchParams = useSearchParams();
+  const ParentSectionId = searchParams.get('sectionId');
+  
 
   // Define tab order for navigation
   const tabOrder = ["hero", "benefits", "features", "process", "faq"]
@@ -336,6 +340,7 @@ export default function AddService() {
                         ref={heroFormRef}
                         onDataChange={(data) => updateFormData("hero", data)}
                         slug="hero-section"
+                        ParentSectionId={ParentSectionId || "null"}
                       />
                   </TabsContent>
 
@@ -346,16 +351,18 @@ export default function AddService() {
                       slug="benefits"
                       ref={benefitsFormRef}
                       onDataChange={(data) => updateFormData("benefits", data)}
+                      ParentSectionId={ParentSectionId || "null"}
                     />
                   </TabsContent>
 
                   <TabsContent value="features" className="mt-0">
                     <FeaturesForm
-                       languageIds={languageIds}
-                       activeLanguages={activeLanguages}
+                      languageIds={languageIds}
+                      activeLanguages={activeLanguages}
                       ref={featuresFormRef}
                       slug="features"
                       onDataChange={(data) => updateFormData("features", data)}
+                      ParentSectionId={ParentSectionId || "null"}
                     />
                   </TabsContent>
 
@@ -366,6 +373,8 @@ export default function AddService() {
                       ref={processStepsFormRef}
                       slug="process-Steps"
                       onDataChange={(data) => updateFormData("processSteps", data)}
+                      ParentSectionId={ParentSectionId || "null"}
+
                     />
                   </TabsContent>
 
@@ -375,7 +384,7 @@ export default function AddService() {
                       activeLanguages={activeLanguages}
                       ref={faqFormRef}
                       slug="faq-section"
-                      
+                      ParentSectionId={ParentSectionId || "null"}
                       onDataChange={(data) => updateFormData("faq", data)}
                     />
                   </TabsContent>

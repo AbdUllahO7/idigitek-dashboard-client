@@ -23,6 +23,7 @@ interface ProcessStepsFormProps {
   activeLanguages: Language[]
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
+  ParentSectionId: string // Optional parent section ID for creating new sections
 }
 
 // Available icons
@@ -87,7 +88,7 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
 }
 
 const ProcessStepsForm = forwardRef<any, ProcessStepsFormProps>(
-  ({ languageIds, activeLanguages, onDataChange, slug }, ref) => {
+  ({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId}, ref) => {
     const formSchema = createProcessStepsSchema(languageIds as string[], activeLanguages)
     const [isLoadingData, setIsLoadingData] = useState(!slug)
     const [dataLoaded, setDataLoaded] = useState(!slug)
@@ -432,7 +433,7 @@ const ProcessStepsForm = forwardRef<any, ProcessStepsFormProps>(
             description: "Process steps section for the website",
             isActive: true,
             order: 0,
-            parentSections: [],
+            parentSections: [ParentSectionId] as string[],
             languages: languageIds as string[],
           }
 

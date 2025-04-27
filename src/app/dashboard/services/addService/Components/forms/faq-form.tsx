@@ -23,6 +23,7 @@ interface FaqFormProps {
   activeLanguages: Language[]
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
+  ParentSectionId: string 
 }
 
 // Create a dynamic schema based on available languages
@@ -72,7 +73,7 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
   return defaultValues
 }
 
-const FaqForm = forwardRef<any, FaqFormProps>(({ languageIds, activeLanguages, onDataChange, slug }, ref) => {
+const FaqForm = forwardRef<any, FaqFormProps>(({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId }, ref) => {
   const formSchema = createFaqSchema(languageIds as string[], activeLanguages)
   const [isLoadingData, setIsLoadingData] = useState(!slug)
   const [dataLoaded, setDataLoaded] = useState(!slug)
@@ -412,7 +413,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(({ languageIds, activeLanguages, o
           description: "FAQ section for the website",
           isActive: true,
           order: 0,
-          parentSections: [],
+          parentSections: [ParentSectionId] as string[],
           languages: languageIds as string[],
         }
 
