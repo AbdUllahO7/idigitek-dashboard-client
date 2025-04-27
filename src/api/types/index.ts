@@ -32,7 +32,7 @@ export interface ContentElement {
     slug: string;
     isActive: boolean;
     order: number;
-    parentSections: string[] | any[];
+    sectionItem: string;
     languages: string[] | Language[];
     metadata?: any;
     createdAt?: string;  // Make optional

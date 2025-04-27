@@ -15,15 +15,30 @@ import { Card, CardContent } from "@/src/components/ui/card"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { Language } from "@/src/api/types/languagesTypes"
 import { MultilingualSectionData } from "@/src/app/types/MultilingualSectionTypes"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
+import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
 
 // Define the type for our form data
 export type FormData = {
-  hero: MultilingualSectionData | {}
-  benefits: any
-  features: any
-  processSteps: any
-  faq: any
+  hero: MultilingualSectionData | Record<string, any>
+  benefits: Record<string, any>
+  features: Record<string, any>
+  processSteps: Record<string, any>
+  faq: Record<string, any>
+}
+
+// Define the type for service data
+interface ServiceData {
+  _id: string;
+  name: string;
+  description?: string;
+  image?: string | null;
+  isActive: boolean;
+  section: string;
+  order?: number;
+  [key: string]: any; // For any additional properties
 }
 
 // Define the type for form refs
@@ -31,6 +46,18 @@ interface FormRef {
   getFormData: () => Promise<any>;
   hasUnsavedChanges: boolean;
   resetUnsavedChanges?: () => void;
+  saveData?: () => Promise<boolean>; // Add optional save method
+}
+
+// Define the type for subsection data
+interface SubsectionData {
+  _id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  order?: number;
+  [key: string]: any; // For any additional properties
 }
 
 const containerVariants = {
@@ -53,12 +80,18 @@ const itemVariants = {
 }
 
 export default function AddService() {
-  const [activeTab, setActiveTab] = useState("hero")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const searchParams = useSearchParams();
-  const ParentSectionId = searchParams.get('sectionId');
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState<string>("hero")
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [progress, setProgress] = useState<number>(0)
+  const [serviceData, setServiceData] = useState<ServiceData | null>(null)
+  const [showLeaveConfirmation, setShowLeaveConfirmation] = useState<boolean>(false)
   
+  const searchParams = useSearchParams()
+  const sectionId = searchParams.get('sectionId')
+  const sectionItemId = searchParams.get('sectionItemId')
+  const mode = searchParams.get('mode') || 'edit'
+  const isCreateMode = mode === 'create'
 
   // Define tab order for navigation
   const tabOrder = ["hero", "benefits", "features", "process", "faq"]
@@ -87,24 +120,73 @@ export default function AddService() {
   })
 
   // Add this state to track if any form has unsaved changes
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false)
   
   // Get languages from API
   const { 
     useGetAll: useGetAllLanguages
-  } = useLanguages();
+  } = useLanguages()
 
   const { 
     data: languagesData, 
     isLoading: isLoadingLanguages,
-  } = useGetAllLanguages();
+  } = useGetAllLanguages()
+
+  // Section Item hooks for fetching and saving the service
+  const {
+    useGetById: useGetSectionItemById,
+    useCreate: useCreateSectionItem,
+    useUpdate: useUpdateSectionItem
+  } = useSectionItems()
+
+  // Get section item data if in edit mode
+  const {
+    data: sectionItemData,
+    isLoading: isLoadingSectionItem
+  } = useGetSectionItemById(
+    sectionItemId || '', 
+    true, 
+    false,
+    { enabled: !!sectionItemId && mode === 'edit' } // Only fetch in edit mode with a valid ID
+  )
+
+  // Create and update mutations
+  const createSectionItem = useCreateSectionItem()
+  const updateSectionItem = useUpdateSectionItem()
+
+  // Subsection hooks for managing service-related content
+  const {
+    useGetBySectionItemId: useGetSubSectionsBySectionItemId,
+    useCreate: useCreateSubSection
+  } = useSubSections()
+
+  // Fetch subsections attached to this section item (service) if in edit mode
+  const {
+    data: subsectionsData,
+    isLoading: isLoadingSubsections
+  } = useGetSubSectionsBySectionItemId(
+    sectionItemId || '',
+    true,
+    100,
+    0,
+    false,
+    { enabled: !!sectionItemId && mode === 'edit' } // Only fetch in edit mode
+  )
+
+  // Set service data when section item data is loaded
+  useEffect(() => {
+    if (sectionItemData?.data && mode === 'edit') {
+      console.log("Setting service data:", sectionItemData.data)
+      setServiceData(sectionItemData.data)
+    }
+  }, [sectionItemData, mode])
 
   // Filter active languages from API data
-  const activeLanguages = languagesData?.data?.filter((lang: Language) => lang.isActive) || [];
+  const activeLanguages = languagesData?.data?.filter((lang: Language) => lang.isActive) || []
   
   // Convert activeLanguages to an array of language codes for form components
-  const languageCodes = activeLanguages.map((lang: { languageID: any }) => lang.languageID);
-  const languageIds = activeLanguages.map((lang: Language) => lang._id);
+  const languageCodes = activeLanguages.map((lang: { languageID: string }) => lang.languageID)
+  const languageIds = activeLanguages.map((lang: Language) => lang._id)
 
   // Function to update hero section data
   const handleHeroSectionChange = (data: MultilingualSectionData) => {
@@ -154,40 +236,157 @@ export default function AddService() {
     setProgress(calculateProgress())
   }, [formData])
 
+  // Function to go back to services page
+  const handleGoBack = () => {
+    if (hasUnsavedChanges) {
+      setShowLeaveConfirmation(true)
+    } else {
+      navigateToServices()
+    }
+  }
+
+  const navigateToServices = () => {
+    router.push(`/dashboard/services?sectionId=${sectionId}`)
+  }
+
   // Function to save all data
   const saveAllData = async () => {
+    if (!sectionId) {
+      toast({
+        title: "Error",
+        description: "Section ID is missing. Cannot save service.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsSubmitting(true)
     try {
-      // Validate all forms (except hero which is handled by GenericSectionIntegration)
+      // Get form data from all forms
+      let allData: FormData = {
+        hero: {},
+        benefits: {},
+        features: {},
+        processSteps: {},
+        faq: {}
+      }
+
       try {
+        // First collect all form data
         if (heroFormRef.current) {
-          await heroFormRef.current.getFormData()
+          allData.hero = await heroFormRef.current.getFormData()
         }
         if (benefitsFormRef.current) {
-          await benefitsFormRef.current.getFormData()
+          allData.benefits = await benefitsFormRef.current.getFormData()
         }
         if (featuresFormRef.current) {
-          await featuresFormRef.current.getFormData()
+          allData.features = await featuresFormRef.current.getFormData()
         }
         if (processStepsFormRef.current) {
-          await processStepsFormRef.current.getFormData()
+          allData.processSteps = await processStepsFormRef.current.getFormData()
         }
         if (faqFormRef.current) {
-          await faqFormRef.current.getFormData()
+          allData.faq = await faqFormRef.current.getFormData()
         }
 
-        // If all validations pass, use the collected form data
-        console.log("All data saved:", formData)
+        console.log("All data collected:", allData)
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        // Extract hero form data for the service
+        const heroData = allData.hero || {}
+        
+        // Get English title and description values
+        let serviceName = "New Service"
+        let serviceDescription = ""
+        
+        // Loop through all languages in hero form data to find title and description
+        for (const langCode in heroData) {
+          if (langCode !== 'backgroundImage' && typeof heroData[langCode] === 'object') {
+            const langValues = heroData[langCode] as Record<string, any>
+            if (langValues?.title) {
+              serviceName = langValues.title
+            }
+            if (langValues?.description) {
+              serviceDescription = langValues.description
+            }
+            // Prefer English if available
+            if (langCode === 'en') {
+              break
+            }
+          }
+        }
+        
+        // Create the section item payload
+        const sectionItemPayload = {
+          name: serviceName,
+          description: serviceDescription,
+          image: heroData.backgroundImage || null,
+          isActive: true,
+          section: sectionId
+        }
 
+        console.log("Creating/updating service with payload:", sectionItemPayload)
+
+        let serviceId: string
+        let result
+        
+        if (isCreateMode) {
+          // Create a new section item (service)
+          result = await createSectionItem.mutateAsync(sectionItemPayload)
+          console.log("Created new section item:", result)
+          serviceId = result.data?._id
+          if (!serviceId) {
+            throw new Error("Failed to get new service ID after creation")
+          }
+        } else {
+          // Update existing section item
+          if (!sectionItemId) {
+            throw new Error("Section Item ID is required for update")
+          }
+          result = await updateSectionItem.mutateAsync({
+            id: sectionItemId,
+            data: sectionItemPayload
+          })
+          console.log("Updated section item:", result)
+          serviceId = sectionItemId
+        }
+
+        // Now save each form's content using their saveData methods if available
+        const savePromises: Promise<boolean>[] = []
+        
+        // Save hero form data
+        if (heroFormRef.current?.saveData) {
+          savePromises.push(heroFormRef.current.saveData())
+        }
+        
+        // Add save methods for other forms if implemented
+        if (benefitsFormRef.current?.saveData) {
+          savePromises.push(benefitsFormRef.current.saveData())
+        }
+        
+        if (featuresFormRef.current?.saveData) {
+          savePromises.push(featuresFormRef.current.saveData())
+        }
+        
+        if (processStepsFormRef.current?.saveData) {
+          savePromises.push(processStepsFormRef.current.saveData())
+        }
+        
+        if (faqFormRef.current?.saveData) {
+          savePromises.push(faqFormRef.current.saveData())
+        }
+        
+        // Wait for all saves to complete
+        await Promise.all(savePromises)
+        
         toast({
-          title: "All data saved successfully",
-          description: "Your Smart Drive content has been updated across all sections and languages.",
+          title: isCreateMode ? "Service created successfully" : "Service updated successfully",
+          description: "Your service content has been saved.",
         })
+
+        // Navigate back to services page after successful save
+        router.push(`/dashboard/services?sectionId=${sectionId}`)
       } catch (error) {
-        console.error("Form validation error:", error)
+        console.error("Form validation or save error:", error)
         toast({
           title: "Validation Error",
           description: "Please make sure all required fields are filled correctly.",
@@ -234,13 +433,13 @@ export default function AddService() {
   const isLastTab = activeTab === tabOrder[tabOrder.length - 1]
   const isFirstTab = activeTab === tabOrder[0]
   
-  // Show loading state while fetching languages
-  if (isLoadingLanguages) {
+  // Show loading state while fetching languages or section item
+  if (isLoadingLanguages || (mode === 'edit' && isLoadingSectionItem)) {
     return (
       <div className="flex items-center justify-center p-10">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-teal-500"></div>
       </div>
-    );
+    )
   }
   
   // If no languages available, show message
@@ -255,188 +454,247 @@ export default function AddService() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
+  // Generate appropriate slugs based on mode and sectionItemId
+  const heroSlug = !isCreateMode && sectionItemId ? `hero-section-${sectionItemId}` : ""
+  const benefitsSlug = !isCreateMode && sectionItemId ? `benefits-${sectionItemId}` : ""
+  const featuresSlug = !isCreateMode && sectionItemId ? `features-${sectionItemId}` : ""
+  const processSlug = !isCreateMode && sectionItemId ? `process-Steps-${sectionItemId}` : ""
+  const faqSlug = !isCreateMode && sectionItemId ? `faq-section-${sectionItemId}` : ""
+
+  // Find subsection for tabs
+  const findSubsection = (slug: string): SubsectionData | undefined => {
+    if (!subsectionsData?.data) return undefined;
+    return subsectionsData.data.find((s: SubsectionData) => s.slug === slug);
+  };
+
   return (
-    <motion.div className="container py-10" initial="hidden" animate="visible" variants={containerVariants}>
-      <div className="flex flex-col space-y-8">
-        <motion.div className="flex flex-col space-y-2" variants={itemVariants}>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
-            Smart Drive Admin Dashboard
-          </h1>
-          <p className="text-muted-foreground">Manage your Smart Drive content across multiple languages</p>
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <Card className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border border-slate-200 dark:border-slate-700">
-            <CardContent className="p-6">
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                    <h2 className="text-lg font-medium">Languages</h2>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-500">Completion:</span>
-                    <div className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500 ease-out"
-                        style={{ width: `${progress}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-medium">{Math.round(progress)}%</span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {activeLanguages.map((lang: Language) => (
-                    <div
-                      key={lang.languageID}
-                      className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm flex items-center gap-2"
-                    >
-                      <Globe className="h-4 w-4" />
-                      {lang.language}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden"
-        >
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="w-full p-0 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 rounded-none">
-              {tabOrder.map((tab) => (
-                <TabsTrigger
-                  key={tab}
-                  value={tab}
-                  className="flex-1 py-3 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none"
-                >
-                  <div className="flex items-center gap-2">
-                    {tabIcons[tab]}
-                    <span className="capitalize">{tab}</span>
-                  </div>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            <div className="p-6">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <TabsContent value="hero" className="mt-0">
-                      <HeroForm
-                        languageIds={languageIds}
-                        activeLanguages={activeLanguages}
-                        ref={heroFormRef}
-                        onDataChange={(data) => updateFormData("hero", data)}
-                        slug="hero-section"
-                        ParentSectionId={ParentSectionId || "null"}
-                      />
-                  </TabsContent>
-
-                  <TabsContent value="benefits" className="mt-0">
-                    <BenefitsForm
-                      languageIds={languageIds}
-                      activeLanguages={activeLanguages}
-                      slug="benefits"
-                      ref={benefitsFormRef}
-                      onDataChange={(data) => updateFormData("benefits", data)}
-                      ParentSectionId={ParentSectionId || "null"}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="features" className="mt-0">
-                    <FeaturesForm
-                      languageIds={languageIds}
-                      activeLanguages={activeLanguages}
-                      ref={featuresFormRef}
-                      slug="features"
-                      onDataChange={(data) => updateFormData("features", data)}
-                      ParentSectionId={ParentSectionId || "null"}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="process" className="mt-0">
-                    <ProcessStepsForm
-                      languageIds={languageIds}
-                      activeLanguages={activeLanguages}
-                      ref={processStepsFormRef}
-                      slug="process-Steps"
-                      onDataChange={(data) => updateFormData("processSteps", data)}
-                      ParentSectionId={ParentSectionId || "null"}
-
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="faq" className="mt-0">
-                    <FaqForm
-                      languageIds={languageIds}
-                      activeLanguages={activeLanguages}
-                      ref={faqFormRef}
-                      slug="faq-section"
-                      ParentSectionId={ParentSectionId || "null"}
-                      onDataChange={(data) => updateFormData("faq", data)}
-                    />
-                  </TabsContent>
-                </motion.div>
-              </AnimatePresence>
+    <>
+      <motion.div className="container py-10" initial="hidden" animate="visible" variants={containerVariants}>
+        <div className="flex flex-col space-y-8">
+          <motion.div className="flex flex-col md:flex-row md:items-center justify-between gap-4" variants={itemVariants}>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
+                {isCreateMode ? "Create New Service" : "Edit Service"}
+              </h1>
+              <p className="text-muted-foreground">
+                {isCreateMode 
+                  ? "Create a new service with multilingual content" 
+                  : `Editing "${serviceData?.name || 'Service'}" content across multiple languages`}
+              </p>
             </div>
-          </Tabs>
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="pt-6 border-t flex justify-between">
-          {!isFirstTab && (
             <Button
-              onClick={goToPreviousTab}
               variant="outline"
-              className="flex items-center border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800/50"
+              onClick={handleGoBack}
+              className="border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Previous
+              Back to Services
             </Button>
-          )}
+          </motion.div>
 
-          <div className="flex-1" />
+          <motion.div variants={itemVariants}>
+            <Card className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border border-slate-200 dark:border-slate-700">
+              <CardContent className="p-6">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                      <h2 className="text-lg font-medium">Languages</h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-500">Completion:</span>
+                      <div className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500 ease-out"
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium">{Math.round(progress)}%</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {activeLanguages.map((lang: Language) => (
+                      <div
+                        key={lang.languageID}
+                        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm flex items-center gap-2"
+                      >
+                        <Globe className="h-4 w-4" />
+                        {lang.language}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          {!isLastTab ? (
-            <Button
-              onClick={goToNextTab}
-              className="flex items-center bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20"
-            >
-              Next
-              <ArrowRight className="ml-2 h-4 w-4" />
+          <motion.div
+            variants={itemVariants}
+            className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden"
+          >
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+              <TabsList className="w-full p-0 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 rounded-none">
+                {tabOrder.map((tab) => (
+                  <TabsTrigger
+                    key={tab}
+                    value={tab}
+                    className="flex-1 py-3 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-teal-500 rounded-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      {tabIcons[tab]}
+                      <span className="capitalize">{tab}</span>
+                    </div>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              <div className="p-6">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <TabsContent value="hero" className="mt-0">
+                        <HeroForm
+                          languageIds={languageIds}
+                          activeLanguages={activeLanguages}
+                          ref={heroFormRef}
+                          onDataChange={(data) => updateFormData("hero", data)}
+                          slug={heroSlug}
+                          ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
+                          initialData={serviceData}
+                        />
+                    </TabsContent>
+
+                    <TabsContent value="benefits" className="mt-0">
+                      <BenefitsForm
+                        languageIds={languageIds}
+                        activeLanguages={activeLanguages}
+                        slug={benefitsSlug}
+                        ref={benefitsFormRef}
+                        onDataChange={(data) => updateFormData("benefits", data)}
+                        ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
+                        initialData={findSubsection('benefits')}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="features" className="mt-0">
+                      <FeaturesForm
+                        languageIds={languageIds}
+                        activeLanguages={activeLanguages}
+                        ref={featuresFormRef}
+                        slug={featuresSlug}
+                        onDataChange={(data) => updateFormData("features", data)}
+                        ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
+                        initialData={findSubsection('features')  }
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="process" className="mt-0">
+                      <ProcessStepsForm
+                        languageIds={languageIds}
+                        activeLanguages={activeLanguages}
+                        ref={processStepsFormRef}
+                        slug={processSlug}
+                        onDataChange={(data) => updateFormData("processSteps", data)}
+                        ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
+                        initialData={findSubsection('process-Steps')}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="faq" className="mt-0">
+                      <FaqForm
+                        languageIds={languageIds}
+                        activeLanguages={activeLanguages}
+                        ref={faqFormRef}
+                        slug={faqSlug}
+                        ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
+                        onDataChange={(data) => updateFormData("faq", data)}
+                        initialData={findSubsection('faq-section')}
+                      />
+                    </TabsContent>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </Tabs>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="pt-6 border-t flex justify-between">
+            {!isFirstTab && (
+              <Button
+                onClick={goToPreviousTab}
+                variant="outline"
+                className="flex items-center border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800/50"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Previous
+              </Button>
+            )}
+
+            <div className="flex-1" />
+
+            {!isLastTab ? (
+              <Button
+                onClick={goToNextTab}
+                className="flex items-center bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20"
+              >
+                Next
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={saveAllData}
+                disabled={isSubmitting}
+                className="h-12 text-lg bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-5 w-5" />
+                    {isCreateMode ? "Create Service" : "Update Service"}
+                  </>
+                )}
+              </Button>
+            )}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Leave confirmation dialog */}
+      <Dialog open={showLeaveConfirmation} onOpenChange={setShowLeaveConfirmation}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Unsaved Changes</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes. Are you sure you want to leave this page? All unsaved changes will be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex justify-end gap-2 sm:justify-end">
+            <Button variant="outline" onClick={() => setShowLeaveConfirmation(false)}>
+              Cancel
             </Button>
-          ) : (
-            <Button
-              onClick={saveAllData}
-              disabled={isSubmitting}
-              className="h-12 text-lg bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                setShowLeaveConfirmation(false);
+                navigateToServices();
+              }}
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-5 w-5" />
-                  Save All Content
-                </>
-              )}
+              Leave Page
             </Button>
-          )}
-        </motion.div>
-      </div>
-    </motion.div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

@@ -24,6 +24,7 @@ interface FaqFormProps {
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
   ParentSectionId: string 
+  initialData?: any; // Added missing initialData prop
 }
 
 // Create a dynamic schema based on available languages
@@ -132,7 +133,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(({ languageIds, activeLanguages, o
     data: completeSubsectionData,
     isLoading: isLoadingSubsection,
     refetch,
-  } = useGetCompleteBySlug(slug || "", false, true, { enabled: !!slug })
+  } = useGetCompleteBySlug(slug || "", false)
 
   // Check if all languages have the same number of FAQs
   const validateFaqCounts = () => {
@@ -413,7 +414,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(({ languageIds, activeLanguages, o
           description: "FAQ section for the website",
           isActive: true,
           order: 0,
-          parentSections: [ParentSectionId] as string[],
+          sectionItem: ParentSectionId ,
           languages: languageIds as string[],
         }
 

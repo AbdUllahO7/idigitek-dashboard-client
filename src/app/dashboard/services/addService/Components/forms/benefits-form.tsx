@@ -24,6 +24,8 @@ interface BenefitsFormProps {
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
   ParentSectionId: string // Parent section ID for creating new content elements
+  initialData?: any // Initial data for prefilling form
+
 }
 
 // Available icons
@@ -146,7 +148,7 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLa
     data: completeSubsectionData,
     isLoading: isLoadingSubsection,
     refetch,
-  } = useGetCompleteBySlug(slug || "", false, true, { enabled: !!slug })
+  } = useGetCompleteBySlug(slug || "", false)
 
   // Check if all languages have the same number of benefits
   const validateBenefitCounts = () => {
@@ -432,7 +434,7 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLa
           description: "Benefits section for the website",
           isActive: true,
           order: 0,
-          parentSections: [ParentSectionId] as  string[],
+          sectionItem: ParentSectionId,
           languages: languageIds as string[],
         }
 

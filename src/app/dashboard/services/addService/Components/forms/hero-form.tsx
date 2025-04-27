@@ -4,8 +4,8 @@ import { forwardRef, useImperativeHandle, useEffect, useState, useRef } from "re
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Save } from "lucide-react"
-import { toast } from "@/src/hooks/use-toast"
+import { Save, Loader2 } from "lucide-react"
+import { toast } from "@/src/components/ui/use-toast"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { ImageUploader } from "@/src/components/image-uploader"
@@ -23,12 +23,13 @@ interface HeroFormProps {
   activeLanguages: Language[]
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
-  ParentSectionId: string // Optional parent section ID
+  ParentSectionId: string // Parent section ID
+  initialData?: any // Initial data for prefilling form
 }
 
 const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
   const schemaShape: Record<string, any> = {
-    backgroundImage: z.string().min(1, { message: "Background image is required" }),
+    backgroundImage: z.string().optional(), // Made optional for better UX
   }
 
   const languageCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
@@ -63,23 +64,26 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
   languageIds.forEach((langId) => {
     const langCode = languageCodeMap[langId] || langId
     defaultValues[langCode] = {
-      title: "",  // Empty instead of default placeholder text
-      description: "",  // Empty instead of default placeholder text
-      backLinkText: "",  // Empty instead of default placeholder text
+      title: "",
+      description: "",
+      backLinkText: "", // Default value for better UX
     }
   })
 
   return defaultValues
 }
 
-const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId }, ref) => {
+const HeroForm = forwardRef<any, HeroFormProps>(
+  ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData }, ref) => {
   const formSchema = createHeroSchema(languageIds as string[], activeLanguages)
-  const [isLoadingData, setIsLoadingData] = useState(!slug)
-  const [dataLoaded, setDataLoaded] = useState(!slug)
+  const [isLoadingData, setIsLoadingData] = useState(false)
+  const [dataLoaded, setDataLoaded] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
   const [contentElements, setContentElements] = useState<any[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
@@ -89,11 +93,19 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
     defaultValues: createDefaultValues(languageIds as string[], activeLanguages),
   })
 
+  // Make form methods and data available to parent component
   useImperativeHandle(ref, () => ({
     getFormData: async () => {
       const isValid = await form.trigger()
       if (!isValid) throw new Error("Hero form has validation errors")
-      return form.getValues()
+      
+      // Return combined data with image file for the parent to use
+      const formValues = form.getValues()
+      return {
+        ...formValues,
+        imageFile: imageFile, // Include the image file
+        existingSubSectionId // Include existing ID for updates
+      }
     },
     getImageFile: () => imageFile,
     form: form,
@@ -101,6 +113,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
     resetUnsavedChanges: () => setHasUnsavedChanges(false),
     existingSubSectionId,
     contentElements,
+    saveData: handleSave // Expose save method to parent
   }))
 
   const onDataChangeRef = useRef(onDataChange)
@@ -109,23 +122,57 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
   }, [onDataChange])
 
   // API hooks
-  const { useCreate: useCreateSubSection, useGetCompleteBySlug } = useSubSections()
-  const { useCreate: useCreateContentElement } = useContentElements()
+  const { useCreate: useCreateSubSection, useGetCompleteBySlug, useUpdate: useUpdateSubSection } = useSubSections()
+  const { useCreate: useCreateContentElement, useUpdate: useUpdateContentElement } = useContentElements()
   const { useBulkUpsert: useBulkUpsertTranslations } = useContentTranslations()
 
   const createSubSection = useCreateSubSection()
+  const updateSubSection = useUpdateSubSection()
   const createContentElement = useCreateContentElement()
+  const updateContentElement = useUpdateContentElement()
   const bulkUpsertTranslations = useBulkUpsertTranslations()
   
   // Query for complete subsection data by slug if provided
-  const { data: completeSubsectionData, isLoading: isLoadingSubsection, refetch } = 
-    useGetCompleteBySlug(slug || '', false, true, { enabled: !!slug })
+  const { 
+    data: completeSubsectionData, 
+    isLoading: isLoadingSubsection, 
+    refetch 
+  } = useGetCompleteBySlug(
+    slug || '', 
+    false,    
+  )
   
-  // Function to process and load data into the form
+  // Function to process and load initial data from parent component into the form
+  const processInitialData = () => {
+    // If initialData is provided directly (from parent service/section item), use that
+    if (initialData && !dataLoaded) {
+      console.log("Processing initial data from parent:", initialData)
+      
+
+      
+      if (initialData.description) {
+        // Set description for default language
+        const formValues = form.getValues()
+        if (formValues[defaultLangCode]) {
+          form.setValue(`${defaultLangCode}.description`, initialData.description)
+        }
+      }
+      
+      if (initialData.image) {
+        form.setValue('backgroundImage', initialData.image)
+      }
+      
+      setDataLoaded(true)
+      setHasUnsavedChanges(false)
+    }
+  }
+  
+  // Function to process and load data from subsection API into the form
   const processAndLoadData = (subsectionData: any) => {
     if (!subsectionData) return;
 
     try {
+      console.log("Processing subsection data:", subsectionData)
       setExistingSubSectionId(subsectionData._id)
   
       if (subsectionData.contentElements && subsectionData.contentElements.length > 0) {
@@ -162,7 +209,7 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
           languageValues[langCode] = {
             title: '',
             description: '',
-            backLinkText: ''
+            backLinkText: '' // Default value
           }
         })
   
@@ -208,6 +255,11 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       
       setDataLoaded(true)
       setHasUnsavedChanges(false)
+      
+      // If onDataChange handler exists, update parent with loaded data
+      if (onDataChangeRef.current) {
+        onDataChangeRef.current(form.getValues())
+      }
     } catch (error) {
       console.error('Error processing hero section data:', error)
       toast({
@@ -217,24 +269,32 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       })
     } finally {
       setIsLoadingData(false)
+      setIsInitialLoad(false)
     }
   }
   
-  // Effect to populate form with existing data from complete subsection - only run once when data is available
+  // Effect to process initial data from parent component
   useEffect(() => {
-    // Skip this effect entirely if no slug is provided
-    if (!slug) {
-      return
+    if (isInitialLoad && !dataLoaded && initialData) {
+      processInitialData()
+      setIsInitialLoad(false)
     }
-    
-    if (dataLoaded || isLoadingSubsection || !completeSubsectionData?.data) {
-      return
-    }
+  }, [initialData, dataLoaded, isInitialLoad])
   
-    setIsLoadingData(true)
-    processAndLoadData(completeSubsectionData.data)
+  // Effect to populate form with existing data from complete subsection
+  useEffect(() => {
+    // Skip if no slug or data already loaded
+    if (!slug || dataLoaded || isLoadingSubsection) {
+      return
+    }
     
-  }, [completeSubsectionData, isLoadingSubsection, dataLoaded, form, activeLanguages, languageIds, slug])
+    // If we have subsection data, process it
+    if (completeSubsectionData?.data) {
+      setIsLoadingData(true)
+      processAndLoadData(completeSubsectionData.data)
+    }
+    
+  }, [completeSubsectionData, isLoadingSubsection, dataLoaded, slug])
 
   // Track form changes, but only after initial data is loaded
   useEffect(() => {
@@ -249,128 +309,160 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
     return () => subscription.unsubscribe()
   }, [form, isLoadingData, dataLoaded])
 
+  // Handler for saving the form
   const handleSave = async () => {
-    if (!(await form.trigger())) return
+    const isValid = await form.trigger()
+    if (!isValid) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill all required fields correctly",
+        variant: "destructive"
+      })
+      return
+    }
 
-    setIsLoadingData(true);
+    setIsSaving(true)
     try {
       // Get current form values before any processing
-      const allFormValues = form.getValues();
-      console.log("Form values at save:", allFormValues);
+      const allFormValues = form.getValues()
+      console.log("Form values at save:", allFormValues)
       
-      let sectionId = existingSubSectionId;
+      let sectionId = existingSubSectionId
       
-      // Create or update logic here
+      // Create or update the subsection
       if (!existingSubSectionId) {
-        // Create new subsection
+        // Create new subsection only if we don't already have one
+        if (!ParentSectionId) {
+          throw new Error("Parent section ID is required to create a subsection")
+        }
+
         const subsectionData: Omit<SubSection, "_id"> = {
           name: "Hero Section",
           slug: slug || `hero-section-${Date.now()}`, // Use provided slug or generate one
           description: "Hero section for the website",
           isActive: true,
           order: 0,
-          parentSections: [ParentSectionId] as string[], 
+          sectionItem: ParentSectionId,
           languages: languageIds as string[],
-        };
+        }
 
-        const newSubSection = await createSubSection.mutateAsync(subsectionData);
-        sectionId = newSubSection.data._id;
+        console.log("Creating new subsection with data:", subsectionData)
+        const newSubSection = await createSubSection.mutateAsync(subsectionData)
+        sectionId = newSubSection.data._id
+        setExistingSubSectionId(sectionId)
+        console.log("Created new subsection with ID:", sectionId)
+      } 
+      else {
+        // Update existing subsection if needed
+        const updateData = {
+          isActive: true,
+          languages: languageIds as string[]
+        }
+        await updateSubSection.mutateAsync({
+          id: existingSubSectionId,
+          data: updateData
+        })
       }
 
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID");
+        throw new Error("Failed to create or retrieve subsection ID")
       }
 
       // Get language ID to code mapping
       const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-        acc[lang._id] = lang.languageID;
-        return acc;
-      }, {});
+        acc[lang._id] = lang.languageID
+        return acc
+      }, {})
       
       // Get language code to ID mapping 
       const langCodeToIdMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-        acc[lang.languageID] = lang._id;
-        return acc;
-      }, {});
+        acc[lang.languageID] = lang._id
+        return acc
+      }, {})
       
       // Element key to name mapping
       const elementKeyToNameMap = {
         'title': 'Title',
         'description': 'Description',
         'backLinkText': 'Back Link Text'
-      };
+      }
 
-      if (existingSubSectionId && contentElements.length > 0) {
+      if (contentElements.length > 0) {
         // Update existing elements
+        console.log("Updating existing elements:", contentElements)
+        
         // For image element, handle the upload if there's a new file
-        const bgImageElement = contentElements.find(e => e.type === 'image');
+        const bgImageElement = contentElements.find(e => e.type === 'image')
         if (bgImageElement && imageFile) {
-          const formData = new FormData();
-          formData.append('image', imageFile);
+          console.log("Updating image for element:", bgImageElement._id)
+          const formData = new FormData()
+          formData.append('image', imageFile)
           await apiClient.post(`/content-elements/${bgImageElement._id}/image`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
-          });
+          })
         }
 
         // For text elements, update the translations
-        const textElements = contentElements.filter(e => e.type === 'text');
-        const translations: Omit<ContentTranslation, "_id">[] = [];
+        const textElements = contentElements.filter(e => e.type === 'text')
+        const translations: Omit<ContentTranslation, "_id">[] = []
         
         // Map element names to keys for form values
         const elementNameToKeyMap: Record<string, string> = {
           'Title': 'title',
           'Description': 'description',
           'Back Link Text': 'backLinkText'
-        };
+        }
 
         // Process form values and create translations
         Object.entries(allFormValues).forEach(([langCode, values]) => {
-          if (langCode === 'backgroundImage') return;
+          if (langCode === 'backgroundImage') return
           
-          const langId = langCodeToIdMap[langCode];
-          if (!langId) return;
+          const langId = langCodeToIdMap[langCode]
+          if (!langId) return
           
           textElements.forEach(element => {
-            const key = elementNameToKeyMap[element.name];
+            const key = elementNameToKeyMap[element.name]
             if (key && values && typeof values === 'object' && key in values) {
               translations.push({
                 content: values[key],
                 language: langId,
                 contentElement: element._id,
                 isActive: true,
-              });
+              })
             }
-          });
-        });
+          })
+        })
 
         if (translations.length > 0) {
-          await bulkUpsertTranslations.mutateAsync(translations);
+          console.log("Bulk upserting translations:", translations.length)
+          await bulkUpsertTranslations.mutateAsync(translations)
         }
       } else {
         // Create new elements
+        console.log("Creating new content elements for subsection:", sectionId)
         const elementTypes = [
           { type: 'image', key: 'backgroundImage', name: 'Background Image' },
           { type: 'text', key: 'title', name: 'Title' },
           { type: 'text', key: 'description', name: 'Description' },
           { type: 'text', key: 'backLinkText', name: 'Back Link Text' },
-        ];
+        ]
 
-        const createdElements = [];
+        const createdElements = []
         
         // Step 1: Create all elements first
         for (const [index, el] of elementTypes.entries()) {
-          let defaultContent = "";
+          let defaultContent = ""
           
           if (el.type === 'image') {
-            defaultContent = 'image-placeholder';
+            defaultContent = allFormValues.backgroundImage || 'image-placeholder'
           } else if (el.type === 'text' && allFormValues[defaultLangCode]) {
             // For text elements, use the value from the default language
-            const langValues = allFormValues[defaultLangCode];
+            const langValues = allFormValues[defaultLangCode]
             defaultContent = langValues && typeof langValues === 'object' && el.key in langValues
               ? langValues[el.key]
-              : '';
+              : ''
               
-            console.log(`Creating element ${el.name} with default content: ${defaultContent}`);
+            console.log(`Creating element ${el.name} with default content: ${defaultContent}`)
           }
           
           const elementData = {
@@ -380,61 +472,66 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
             isActive: true,
             order: index,
             defaultContent: defaultContent,
-          };
+          }
           
-          const newElement = await createContentElement.mutateAsync(elementData);
-          createdElements.push({ ...newElement.data, key: el.key });
+          const newElement = await createContentElement.mutateAsync(elementData)
+          createdElements.push({ ...newElement.data, key: el.key })
         }
 
+        // Set the newly created content elements
+        setContentElements(createdElements.map(e => ({ ...e, translations: [] })))
+
         // Step 2: Upload background image if needed
-        const bgImageElement = createdElements.find(e => e.key === 'backgroundImage');
+        const bgImageElement = createdElements.find(e => e.key === 'backgroundImage')
         if (bgImageElement && imageFile) {
-          const formData = new FormData();
-          formData.append('image', imageFile);
+          console.log("Uploading image for new element:", bgImageElement._id)
+          const formData = new FormData()
+          formData.append('image', imageFile)
           try {
             await apiClient.post(`/content-elements/${bgImageElement._id}/image`, formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            })
           } catch (error) {
-            console.error("Failed to upload image:", error);
+            console.error("Failed to upload image:", error)
           }
         }
 
         // Step 3: Create translations for all text elements
-        const textElements = createdElements.filter(e => e.key !== 'backgroundImage');
-        const translations: Omit<ContentTranslation, "_id">[] = [];
+        const textElements = createdElements.filter(e => e.key !== 'backgroundImage')
+        const translations: Omit<ContentTranslation, "_id">[] = []
         
         // Process each language in the form values
         for (const [langCode, langValues] of Object.entries(allFormValues)) {
-          if (langCode === 'backgroundImage') continue;
+          if (langCode === 'backgroundImage') continue
           
-          const langId = langCodeToIdMap[langCode];
-          if (!langId) continue;
+          const langId = langCodeToIdMap[langCode]
+          if (!langId) continue
           
-          console.log(`Processing translations for language: ${langCode}`);
+          console.log(`Processing translations for language: ${langCode}`)
           
           // For each text element, create a translation
           for (const element of textElements) {
             if (langValues && typeof langValues === 'object' && element.key in langValues) {
-              const content = langValues[element.key];
-              console.log(`Creating translation for ${element.key}: ${content}`);
+              const content = langValues[element.key]
+              console.log(`Creating translation for ${element.key}: ${content}`)
               
               translations.push({
                 content: content,
                 language: langId,
                 contentElement: element._id,
                 isActive: true,
-              });
+              })
             }
           }
         }
 
         if (translations.length > 0) {
+          console.log("Creating translations:", translations.length)
           try {
-            const result = await bulkUpsertTranslations.mutateAsync(translations);
-            console.log("Translation result:", result);
+            const result = await bulkUpsertTranslations.mutateAsync(translations)
+            console.log("Translation result:", result)
           } catch (error) {
-            console.error("Failed to create translations:", error);
+            console.error("Failed to create translations:", error)
           }
         }
       }
@@ -442,21 +539,22 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       toast({ 
         title: existingSubSectionId 
           ? "Hero section updated successfully!" 
-          : "Hero section created successfully!" 
+          : "Hero section created successfully!",
+        description: "All content has been saved."
       });
 
-      // Refresh data immediately after save
+      // Reset unsaved changes flag
+      setHasUnsavedChanges(false);
+      
+      // Refresh data to ensure we have latest state
       if (slug) {
-        const result = await refetch();
-        if (result.data?.data) {
-          // Reset form with the new data
-          setDataLoaded(false);
-          processAndLoadData(result.data.data);
-        }
+        await refetch();
       }
       
-      setHasUnsavedChanges(false);
       setImageFile(null); // Clear the file state after saving
+      
+      // Return true to indicate successful save
+      return true;
     } catch (error) {
       console.error("Operation failed:", error);
       toast({
@@ -464,7 +562,9 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
         variant: "destructive",
         description: error instanceof Error ? error.message : "Unknown error occurred",
       });
+      return false;
     } finally {
+      setIsSaving(false);
       setIsLoadingData(false);
     }
   };
@@ -477,9 +577,10 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
 
   return (
     <div className="space-y-6">
-      {(slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) ? (
+      {(isLoadingData || isLoadingSubsection) ? (
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading hero section data...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="ml-2 text-muted-foreground">Loading hero section data...</p>
         </div>
       ) : (
         <Form {...form}>
@@ -572,11 +673,20 @@ const HeroForm = forwardRef<any, HeroFormProps>(({ languageIds, activeLanguages,
       <Button 
         type="button" 
         onClick={handleSave} 
-        disabled={isLoadingData}
+        disabled={isLoadingData || isSaving}
         className="flex items-center"
       >
-        <Save className="mr-2 h-4 w-4" />
-        {createSubSection.isPending ? "Saving..." : existingSubSectionId ? "Update Hero Content" : "Save Hero Content"}
+        {isSaving ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Saving...
+          </>
+        ) : (
+          <>
+            <Save className="mr-2 h-4 w-4" />
+            {existingSubSectionId ? "Update Hero Content" : "Save Hero Content"}
+          </>
+        )}
       </Button>
     </div>
   )

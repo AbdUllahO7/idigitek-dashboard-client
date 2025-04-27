@@ -11,13 +11,15 @@ export function useSections() {
   const sectionsKey = ['sections'];
   const sectionKey = (id: string) => [...sectionsKey, id];
 
-  // Get all sections
-  const useGetAll = () => {
+  // Get all sections (optionally with section items count)
+  const useGetAll = (includeItemsCount = false, activeOnly = true) => {
     return useQuery({
-      queryKey: sectionsKey,
+      queryKey: [...sectionsKey, { includeItemsCount, activeOnly }],
       queryFn: async () => {
         try {
-          const { data } = await apiClient.get(endpoint);
+          const { data } = await apiClient.get(endpoint, {
+            params: { includeItemsCount, activeOnly }
+          });
           return data;
         } catch (error: any) {
           console.error("Error fetching sections:", error);
@@ -27,13 +29,15 @@ export function useSections() {
     });
   };
 
-  // Get a single section by ID
-  const useGetById = (id: string) => {
+  // Get a single section by ID (optionally with section items)
+  const useGetById = (id: string, includeItems = false) => {
     return useQuery({
-      queryKey: sectionKey(id),
+      queryKey: [...sectionKey(id), { includeItems }],
       queryFn: async () => {
         try {
-          const { data } = await apiClient.get(`${endpoint}/${id}`);
+          const { data } = await apiClient.get(`${endpoint}/${id}`, {
+            params: { includeItems }
+          });
           return data;
         } catch (error: any) {
           console.error(`Error fetching section ${id}:`, error);
@@ -120,11 +124,13 @@ export function useSections() {
   };
 
   // Delete a section
-  const useDelete = () => {
+  const useDelete = (hardDelete: boolean = false) => {
     return useMutation({
       mutationFn: async (id: string) => {
         try {
-          await apiClient.delete(`${endpoint}/${id}`);
+          await apiClient.delete(`${endpoint}/${id}`, {
+            params: { hardDelete }
+          });
         } catch (error: any) {
           console.error(`Error deleting section ${id}:`, error);
           throw error;
@@ -132,6 +138,19 @@ export function useSections() {
       },
       onSuccess: (_, id) => {
         queryClient.removeQueries({ queryKey: sectionKey(id) });
+        queryClient.invalidateQueries({ queryKey: sectionsKey });
+      },
+    });
+  };
+
+  // Update order of multiple sections
+  const useUpdateOrder = () => {
+    return useMutation({
+      mutationFn: async (sections: { id: string; order: number }[]) => {
+        const { data } = await apiClient.put(`${endpoint}/order`, { sections });
+        return data;
+      },
+      onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: sectionsKey });
       },
     });
@@ -145,5 +164,6 @@ export function useSections() {
     useUpdate,
     useToggleActive,
     useDelete,
+    useUpdateOrder
   };
 }

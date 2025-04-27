@@ -32,11 +32,12 @@ import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
 import { toast } from "@/src/components/ui/use-toast"
 
 interface FeaturesFormProps {
-  languageIds: readonly string[]
-  activeLanguages: Language[]
-  onDataChange?: (data: any) => void
-  slug?: string // Optional slug to load existing data
-  ParentSectionId: string // Optional parent section ID for creating new sections
+  languageIds: readonly string[];
+  activeLanguages: Language[];
+  onDataChange?: (data: any) => void;
+  slug?: string; // Optional slug to load existing data
+  ParentSectionId: string; // Optional parent section ID for creating new sections
+  initialData?: any; // Added missing initialData prop
 }
 
 // Define interfaces to improve type safety
@@ -180,7 +181,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
     data: completeSubsectionData,
     isLoading: isLoadingSubsection,
     refetch,
-  } = useGetCompleteBySlug(slug || "", false, true, { enabled: !!slug })
+  } = useGetCompleteBySlug(slug || "", false)
 
   // Check if all languages have the same number of features
   const validateFeatureCounts = () => {
@@ -435,7 +436,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
           description: "Features section for the website",
           isActive: true,
           order: 0,
-          parentSections: [ParentSectionId] as string[],
+          sectionItem: ParentSectionId,
           languages: languageIds as string[],
         }
 
