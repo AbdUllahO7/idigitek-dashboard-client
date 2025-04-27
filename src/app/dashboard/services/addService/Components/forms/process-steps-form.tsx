@@ -24,6 +24,8 @@ interface ProcessStepsFormProps {
   onDataChange?: (data: any) => void
   slug?: string // Optional slug to load existing data
   ParentSectionId: string // Optional parent section ID for creating new sections
+  initialData?: any; // Added missing initialData prop
+
 }
 
 // Available icons
@@ -147,7 +149,7 @@ const ProcessStepsForm = forwardRef<any, ProcessStepsFormProps>(
       data: completeSubsectionData,
       isLoading: isLoadingSubsection,
       refetch,
-    } = useGetCompleteBySlug(slug || "", false, true, { enabled: !!slug })
+    } = useGetCompleteBySlug(slug || "", false)
 
     // Check if all languages have the same number of steps
     const validateStepCounts = () => {
@@ -433,7 +435,7 @@ const ProcessStepsForm = forwardRef<any, ProcessStepsFormProps>(
             description: "Process steps section for the website",
             isActive: true,
             order: 0,
-            parentSections: [ParentSectionId] as string[],
+            sectionItem: ParentSectionId,
             languages: languageIds as string[],
           }
 

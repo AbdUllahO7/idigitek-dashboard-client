@@ -3,10 +3,11 @@ import { FieldConfig } from "@/src/app/types/MultilingualSectionTypes";
 
 // Define service section configuration
 export const serviceSectionConfig = {
-    name: "Service",
-    slug: "services",
-    subSectionName: "ServiceSubSection",
+    name: "Service Section Basic",
+    slug: "services-main",
+    subSectionName: "Service Section Basic",
     description: "Service section for managing service information",
+    isMain: true,
     
     // Define fields with proper typing
     fields: [
