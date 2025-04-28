@@ -19,9 +19,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog"
-import type { FieldConfig, MultilingualSectionProps } from "@/src/app/types/MultilingualSectionTypes"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
-import { Language } from "@/src/api/types/languagesTypes"
+import { FieldConfig, Language, MultilingualSectionProps } from "@/src/api/types"
 
 // Define proper type for form data
 type FormDataType = {

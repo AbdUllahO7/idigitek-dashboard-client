@@ -56,7 +56,7 @@ export function useCreateContentSection() {
         slug: sectionSlug,
         description: sectionDescription,
         isActive: true,
-        order: 0, // Will be updated by the backend
+        order: 0, 
         parentSections: parentSections,
         languages: languages.map(lang => lang._id),
         metadata: {}

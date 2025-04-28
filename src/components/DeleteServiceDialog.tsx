@@ -37,7 +37,7 @@ export default function DeleteServiceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete Service</DialogTitle>
+          <DialogTitle>Delete</DialogTitle>
           <DialogDescription>
             Are you sure you want to delete <span className="font-semibold">{serviceName}</span>? This action cannot be undone.
           </DialogDescription>

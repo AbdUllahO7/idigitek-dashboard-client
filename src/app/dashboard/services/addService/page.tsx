@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, JSX } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { Button } from "@/src/components/ui/button"
-import { toast } from "@/src/components/ui/use-toast"
 import { Loader2, ArrowLeft, ArrowRight, Save, Globe, Layout, Sparkles, ListChecks, HelpCircle } from "lucide-react"
 import HeroForm from "./Components/forms/hero-form"
 import BenefitsForm from "./Components/forms/benefits-form"
@@ -14,20 +13,15 @@ import FaqForm from "./Components/forms/faq-form"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { Language } from "@/src/api/types/languagesTypes"
-import { MultilingualSectionData } from "@/src/app/types/MultilingualSectionTypes"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
+import { MultilingualSectionData } from "@/src/api/types/MultilingualSectionTypes"
+import { useToast } from "@/src/hooks/use-toast"
+import { FormData } from "@/src/api/types/sectionsTypes"
 
-// Define the type for our form data
-export type FormData = {
-  hero: MultilingualSectionData | Record<string, any>
-  benefits: Record<string, any>
-  features: Record<string, any>
-  processSteps: Record<string, any>
-  faq: Record<string, any>
-}
+
 
 // Define the type for service data
 interface ServiceData {
@@ -86,7 +80,8 @@ export default function AddService() {
   const [progress, setProgress] = useState<number>(0)
   const [serviceData, setServiceData] = useState<ServiceData | null>(null)
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState<boolean>(false)
-  
+  const { toast } = useToast()
+
   const searchParams = useSearchParams()
   const sectionId = searchParams.get('sectionId')
   const sectionItemId = searchParams.get('sectionItemId')
@@ -147,7 +142,6 @@ export default function AddService() {
     sectionItemId || '', 
     true, 
     false,
-    { enabled: !!sectionItemId && mode === 'edit' } // Only fetch in edit mode with a valid ID
   )
 
   // Create and update mutations
@@ -170,7 +164,6 @@ export default function AddService() {
     100,
     0,
     false,
-    { enabled: !!sectionItemId && mode === 'edit' } // Only fetch in edit mode
   )
 
   // Set service data when section item data is loaded
@@ -387,19 +380,19 @@ export default function AddService() {
         router.push(`/dashboard/services?sectionId=${sectionId}`)
       } catch (error) {
         console.error("Form validation or save error:", error)
-        toast({
-          title: "Validation Error",
-          description: "Please make sure all required fields are filled correctly.",
-          variant: "destructive",
-        })
+        // toast({
+        //   title: "Validation Error",
+        //   description: "Please make sure all required fields are filled correctly.",
+        //   variant: "destructive",
+        // })
       }
     } catch (error) {
       console.error("Error saving data:", error)
-      toast({
-        title: "Error saving data",
-        description: "There was an error saving your data. Please try again.",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Error saving data",
+      //   description: "There was an error saving your data. Please try again.",
+      //   variant: "destructive",
+      // })
     } finally {
       setIsSubmitting(false)
     }

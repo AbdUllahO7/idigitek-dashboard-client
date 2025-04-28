@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/src/context/AuthContext"
 import { useSections } from "@/src/hooks/webConfiguration/use-section"
-import { Section } from "@/src/api/types/sectionsTypes"
+import { Section } from "@/src/api/types"
 
 // Define route permissions map
 interface RoutePermission {

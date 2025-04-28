@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/src/lib/api-client';
-import { SubSection } from '@/src/api/types/sectionsTypes';
+import { SubSection } from '@/src/api/types';
 
 // Base subsection hook
 export function useSubSections() {

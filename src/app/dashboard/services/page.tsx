@@ -12,11 +12,10 @@ import { serviceSectionConfig } from "./serviceSectionConfig"
 import { useSearchParams } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
-import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
-import { toast } from "@/src/components/ui/use-toast"
-import DialogCreateSectionItem from "./addService/Components/DialogCreateSectionItem"
-import { SectionItem } from "@/src/api/types/sectionsTypes"
-import DeleteServiceDialog from "./addService/Components/DeleteServiceDialog"
+import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
+import DeleteServiceDialog from "@/src/components/DeleteServiceDialog"
+import { useToast } from "@/src/hooks/use-toast"
+import { Service } from "@/src/api/types"
 
 // Animation variants
 const containerVariants = {
@@ -39,16 +38,6 @@ const itemVariants = {
   },
 }
 
-// Service type definition
-interface Service extends SectionItem {
-  _id: string;
-  name: string;
-  description: string;
-  isActive: boolean;
-  isMain: boolean;
-  order: number;
-  subsections?: any[];
-}
 
 /**
  * Service page component
@@ -59,24 +48,19 @@ export default function ServicesPage() {
   const [serviceSection, setServiceSection] = useState<any>(null)
   const [services, setServices] = useState<Service[]>([])
   const [isLoadingServices, setIsLoadingServices] = useState<boolean>(true)
-  const [expandedServiceId, setExpandedServiceId] = useState<string | null>(null)
-  const [subsections, setSubsections] = useState<any[]>([])
-  const [isLoadingSubsections, setIsLoadingSubsections] = useState<boolean>(false)
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState<boolean>(false)
   
   // Delete dialog state
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
   const [serviceToDelete, setServiceToDelete] = useState<{id: string; name: string} | null>(null)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const { toast } = useToast()
 
   const searchParams = useSearchParams()
   const sectionId = searchParams.get("sectionId")
 
   // API hooks for fetching section items
   const { useGetBySectionId, useDelete: useDeleteSectionItem } = useSectionItems()
-
-  // API hooks for fetching subsections
-  const { useGetBySectionItemId, useDelete: useDeleteSubSection } = useSubSections()
 
   // Query for section items with the parent section ID
   const {
@@ -93,7 +77,6 @@ export default function ServicesPage() {
 
   // Delete mutations
   const deleteSectionItem = useDeleteSectionItem()
-  const deleteSubSection = useDeleteSubSection()
 
   // Handle service section change from ServiceSectionIntegration
   const handleServiceSectionChange = (sectionData: any) => {

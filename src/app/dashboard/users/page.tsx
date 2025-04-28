@@ -62,15 +62,13 @@ import {
   Info,
   Mail,
   Calendar,
-  BarChart3,
-  Filter,
-  Users as UsersIcon,
   RefreshCw,
-  Lock
+  Lock,
+  UsersIcon
 } from "lucide-react"
-import { useToast } from "@/src/components/ui/use-toast"
-import useUsers from "@/src/hooks/users/use-users"
 import { useAuth } from "@/src/context/AuthContext"
+import useUsers from "@/src/hooks/users/use-users"
+import { useToast } from "@/src/hooks/use-toast"
 
 // User status enum
 export enum UserStatus {
@@ -130,9 +128,6 @@ export default function UsersPage() {
     confirmPassword: ""
   })
   
-  const { toast } = useToast()
-
-  // Get users from hook
   const { 
     useGetAll,
     useDelete,
@@ -149,6 +144,7 @@ export default function UsersPage() {
   const deleteUserMutation = useDelete()
   const updateUserMutation = useUpdate()
   const createUserMutation = useCreate()
+  const { toast } = useToast()
 
   const users = usersResponse?.data || []
   const user = useAuth()

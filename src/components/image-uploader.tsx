@@ -5,9 +5,9 @@ import type React from "react"
 import { useState } from "react"
 
 import { Upload, X } from "lucide-react"
-import { toast } from "./ui/use-toast"
 import { Card } from "./ui/card"
 import { Button } from "./ui/button"
+import { useToast } from "../hooks/use-toast"
 
 interface ImageUploaderProps {
   value: string
@@ -17,6 +17,7 @@ interface ImageUploaderProps {
 
 export function ImageUploader({ value, onChange, onFileChange }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
+  const { toast } = useToast()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

@@ -7,8 +7,8 @@ import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { Label } from "@/src/components/ui/label"
 import { Loader2 } from "lucide-react"
-import { toast } from "@/src/components/ui/use-toast"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
+import { useToast } from "../hooks/use-toast"
 
 interface DialogCreateSectionItemProps {
   open: boolean;
@@ -26,6 +26,7 @@ export default function DialogCreateSectionItem({
   const [name, setName] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const { toast } = useToast()
 
   // Get create hook from useSectionItems
   const { useCreate: useCreateSectionItem } = useSectionItems()
