@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/src/lib/api-client';
-import { Language } from '@/src/api/types/languagesTypes';
+import { Language } from '@/src/api/types';
 
 // Base language hook
 export function useLanguages() {

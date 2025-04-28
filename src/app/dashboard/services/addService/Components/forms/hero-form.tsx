@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Save, Loader2 } from "lucide-react"
-import { toast } from "@/src/components/ui/use-toast"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { ImageUploader } from "@/src/components/image-uploader"
@@ -17,15 +16,10 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import apiClient from "@/src/lib/api-client"
 import { ContentTranslation, SubSection, Language } from "@/src/api/types"
+import { useToast } from "@/src/hooks/use-toast"
+import { HeroFormProps } from "@/src/api/types/sectionsTypes"
 
-interface HeroFormProps {
-  languageIds: readonly string[]
-  activeLanguages: Language[]
-  onDataChange?: (data: any) => void
-  slug?: string // Optional slug to load existing data
-  ParentSectionId: string // Parent section ID
-  initialData?: any // Initial data for prefilling form
-}
+
 
 const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
   const schemaShape: Record<string, any> = {
@@ -84,7 +78,8 @@ const HeroForm = forwardRef<any, HeroFormProps>(
   const [contentElements, setContentElements] = useState<any[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  
+  const { toast } = useToast()
+
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
 

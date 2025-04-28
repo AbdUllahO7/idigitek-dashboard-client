@@ -1,4 +1,4 @@
-import { MultilingualSectionData } from "@/src/app/types/MultilingualSectionTypes";
+import { MultilingualSectionData } from "@/src/api/types";
 import { useSectionItems } from "./use-section-items";
 
 /**

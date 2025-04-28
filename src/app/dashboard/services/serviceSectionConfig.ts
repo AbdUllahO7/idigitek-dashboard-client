@@ -1,5 +1,7 @@
 // src/hooks/service/service-section-config.ts
-import { FieldConfig } from "@/src/app/types/MultilingualSectionTypes";
+
+import { FieldConfig } from "@/src/api/types";
+
 
 // Define service section configuration
 export const serviceSectionConfig = {

@@ -7,6 +7,7 @@ import { NavigationEvents } from "../components/navigation-events"
 import { NavigationProgress } from "../components/navigation-progress"
 import { AuthProvider } from "../context/AuthContext"
 import QueryProvider from "../providers/QueryProvider"
+import { Toaster } from "../components/ui/toaster"
 
 // Load Inter font
 const inter = Inter({ subsets: ["latin"] })
@@ -38,6 +39,8 @@ export default function RootLayout({
               <NavigationEvents />
               <NavigationProgress />
               {children}
+                    <Toaster/>
+              
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>

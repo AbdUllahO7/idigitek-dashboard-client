@@ -5,11 +5,11 @@ import { useLanguages } from "@/src/hooks/webConfiguration/use-language";
 import { Loader2 } from "lucide-react";
 import MultilingualSectionComponent from "@/src/components/dashboard/MultilingualSectionComponent";
 import apiClient from '@/src/lib/api-client';
-import { FieldConfig, LanguageConfig, MultilingualSectionData } from "@/src/app/types/MultilingualSectionTypes";
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements";
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions";
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items";
+import { FieldConfig, LanguageConfig, MultilingualSectionData } from "@/src/api/types";
 
 // Define types for better TypeScript support
 interface LanguageData {
@@ -156,8 +156,7 @@ function GenericSectionIntegration({
     true,
     100,
     0,
-    false,
-    { enabled: createMainService }
+    false
   );
   
   // Section Item creation mutation
@@ -282,7 +281,6 @@ function GenericSectionIntegration({
   const getCompleteSectionQuery = useGetCompleteBySlug(
     config.slug, 
     false,
-    Boolean(sectionSubsection)
   );
   const { 
     data: completeSectionData, 

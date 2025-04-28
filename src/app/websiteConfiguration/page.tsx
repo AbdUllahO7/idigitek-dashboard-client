@@ -8,19 +8,18 @@ import { Button } from "@/src/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Checkbox } from "@/src/components/ui/checkbox"
 import { Label } from "@/src/components/ui/label"
-import { useToast } from "@/src/components/ui/use-toast"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
-import { Section } from "@/src/api/types/sectionsTypes"
 import { useSections } from "@/src/hooks/webConfiguration/use-section"
-import { Language } from "@/src/api/types/languagesTypes"
+import { useToast } from "@/src/hooks/use-toast"
+import { Language, Section } from "@/src/api/types"
 
 export default function ConfigurationPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [showSavedMessage, setShowSavedMessage] = useState(false)
   const [languagesList, setLanguagesList] = useState<Language[]>([])
   const [sectionsList, setSectionsList] = useState<Section[]>([])
-  const { toast } = useToast()
   const router = useRouter()
+  const { toast } = useToast()
 
   // Use custom hooks to fetch languages and sections
   const { 

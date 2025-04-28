@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Save, Trash2, Plus, AlertTriangle } from "lucide-react"
-import { toast } from "@/src/hooks/use-toast"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Input } from "@/src/components/ui/input"
@@ -17,15 +16,7 @@ import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
-
-interface FaqFormProps {
-  languageIds: readonly string[]
-  activeLanguages: Language[]
-  onDataChange?: (data: any) => void
-  slug?: string // Optional slug to load existing data
-  ParentSectionId: string 
-  initialData?: any; // Added missing initialData prop
-}
+import { useToast } from "@/src/hooks/use-toast"
 
 // Create a dynamic schema based on available languages
 const createFaqSchema = (languageIds: string[], activeLanguages: Language[]) => {
@@ -83,6 +74,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(({ languageIds, activeLanguages, o
   const [faqCountMismatch, setFaqCountMismatch] = useState(false)
   const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
   const [contentElements, setContentElements] = useState<any[]>([])
+  const { toast } = useToast()
 
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : "en"

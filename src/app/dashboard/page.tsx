@@ -11,10 +11,9 @@ import {
   Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts'
 import { useSections } from "@/src/hooks/webConfiguration/use-section"
-import { Section } from "@/src/api/types/sectionsTypes"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
-import { Language } from "@/src/api/types/languagesTypes"
 import { useUsers } from "@/src/hooks/users/use-users"
+import { Language, Section } from "@/src/api/types"
 
 /**
  * Dashboard overview page

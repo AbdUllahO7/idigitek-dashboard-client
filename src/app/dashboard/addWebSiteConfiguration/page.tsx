@@ -20,7 +20,6 @@ import { Button } from "@/src/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
-import { useToast } from "@/src/components/ui/use-toast"
 import { Checkbox } from "@/src/components/ui/checkbox"
 import {
   Dialog,
@@ -46,37 +45,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSections } from "@/src/hooks/webConfiguration/use-section"
-import { Language } from "@/src/api/types/languagesTypes"
-import { Section } from "@/src/api/types/sectionsTypes"
+
+import { useToast } from "@/src/hooks/use-toast"
+import { DeleteItemData, EditItemData, Language, Section } from "@/src/api/types"
 
 // Define TypeScript interfaces for our edit and delete operations
-interface EditItemData {
-  _id?: string;
-  id?: string;
-  name?: string;
-  languageID?: string;
-  language?: string;
-  section_name?: string;
-  image?: string;
-  imageUrl?: string;
-  description?: string;
-  type: "language" | "section";
-  originalId?: string;
-  subSections?: string[] | any[];
-  isActive?: boolean;
-}
 
-interface DeleteItemData {
-  _id?: string;
-  id?: string;
-  name?: string;
-  language?: string;
-  languageID?: string;
-  section_name?: string;
-  image?: string;
-  type: "language" | "section";
-  subSections?: string[] | any[];
-}
 
 export default function AdminManagementPage() {
   // Get our custom hooks
@@ -246,7 +220,7 @@ export default function AdminManagementPage() {
           description: "", 
           image: "",
           order: 0,
-          subSections: [],
+          subSections : [],
           isActive: false
         });
         
@@ -282,7 +256,7 @@ export default function AdminManagementPage() {
       setEditItem({ 
         _id: section._id,
         section_name: section.name,
-        image: section.image,
+        image: section.image  || "",
         description: section.description,
         isActive: section.isActive,
         type: "section"

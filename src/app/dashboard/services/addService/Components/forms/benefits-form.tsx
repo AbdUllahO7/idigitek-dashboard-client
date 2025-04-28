@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Save, Trash2, Plus, AlertTriangle } from "lucide-react"
-import { toast } from "@/src/hooks/use-toast"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Input } from "@/src/components/ui/input"
@@ -17,16 +16,10 @@ import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
+import { useToast } from "@/src/hooks/use-toast"
+import { BenefitsFormProps } from "@/src/api/types/sectionsTypes"
 
-interface BenefitsFormProps {
-  languageIds: readonly string[]
-  activeLanguages: Language[]
-  onDataChange?: (data: any) => void
-  slug?: string // Optional slug to load existing data
-  ParentSectionId: string // Parent section ID for creating new content elements
-  initialData?: any // Initial data for prefilling form
 
-}
 
 // Available icons
 const availableIcons = [
@@ -98,6 +91,7 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLa
   const [benefitCountMismatch, setBenefitCountMismatch] = useState(false)
   const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
   const [contentElements, setContentElements] = useState<any[]>([])
+  const { toast } = useToast()
 
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : "en"

@@ -7,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion"
 import DashboardSidebar from "@/src/components/dashboard/dashboard-sidebar"
 import DashboardHeader from "@/src/components/dashboard/dashboard-header"
 import { useAuth } from "@/src/context/AuthContext"
-import ProtectedRoute from "@/src/components/auth/ProtectedRoute"
 import { RouteGuard } from "@/src/components/dashboard/RouteGuard"
+import { Toaster } from "@/src/components/ui/toaster"
 
 /**
  * Dashboard layout component
@@ -101,6 +101,8 @@ export default function DashboardLayout({
               className="container mx-auto"
             >
               {children}
+                                  <Toaster/>
+              
             </motion.div>
           </main>
         </div>

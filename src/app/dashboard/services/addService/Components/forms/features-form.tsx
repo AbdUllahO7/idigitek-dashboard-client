@@ -29,7 +29,8 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import apiClient from "@/src/lib/api-client"
 import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
-import { toast } from "@/src/components/ui/use-toast"
+import { useToast } from "@/src/hooks/use-toast"
+import { Feature } from "@/src/api/types/sectionsTypes"
 
 interface FeaturesFormProps {
   languageIds: readonly string[];
@@ -41,19 +42,6 @@ interface FeaturesFormProps {
 }
 
 // Define interfaces to improve type safety
-interface FeatureContent {
-  heading: string
-  description: string
-  features: string[]
-  image: string
-  imagePosition: "left" | "right"
-}
-
-interface Feature {
-  id: string
-  title: string
-  content: FeatureContent
-}
 
 // Create a dynamic schema based on available languages
 const createFeaturesSchema = (languageIds: string[], activeLanguages: Language[]) => {
@@ -130,6 +118,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
   const [featureImages, setFeatureImages] = useState<Record<number, File | null>>({})
   const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
   const [contentElements, setContentElements] = useState<any[]>([])
+  const { toast } = useToast()
 
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : "en"

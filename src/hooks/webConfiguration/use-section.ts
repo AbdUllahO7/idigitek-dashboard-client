@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/src/lib/api-client';
-import { Section } from '@/src/api/types/sectionsTypes';
+import { Section } from '@/src/api/types';
 
 // Base section hook
 export function useSections() {

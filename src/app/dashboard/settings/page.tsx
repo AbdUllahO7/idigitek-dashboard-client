@@ -9,9 +9,9 @@ import { Input } from "@/src/components/ui/input"
 import { Button } from "@/src/components/ui/button"
 import { Edit, CheckCircle, Lock, Mail, UserCircle, Shield, Activity } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { toast } from "@/src/components/ui/use-toast"
 import { Badge } from "@/src/components/ui/badge"
 import useUsers, { User } from "@/src/hooks/users/use-users"
+import { useToast } from "@/src/hooks/use-toast"
 
 /**
  * Settings page component
@@ -24,6 +24,7 @@ export default function SettingsPage() {
   const { data: currentUserData, isLoading: isUserLoading } = useGetCurrentUser()
   const updateProfile = useUpdateProfile()
   const [showSuccess, setShowSuccess] = useState(false)
+  const { toast } = useToast()
 
   // Form state for account information
   const [formData, setFormData] = useState<Partial<User>>({
