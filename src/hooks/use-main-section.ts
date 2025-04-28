@@ -1,5 +1,5 @@
 import { MultilingualSectionData } from "@/src/api/types";
-import { useSectionItems } from "./use-section-items";
+import { useSectionItems } from "./webConfiguration/use-section-items";
 
 /**
  * Creates a main-service section item if it doesn't exist
@@ -8,7 +8,7 @@ import { useSectionItems } from "./use-section-items";
  * @returns Promise with the section item ID
  */
 export async function createMainServiceItem(
-  ParentSectionId: string,
+  ParentSectionId: string | any,
   sectionData: MultilingualSectionData
 ): Promise<string> {
   // Get the section items hook
@@ -17,8 +17,18 @@ export async function createMainServiceItem(
     useCreate: useCreateSectionItem 
   } = useSectionItems();
   
+  // Ensure ParentSectionId is a string (extract _id if it's an object)
+  const sectionId = typeof ParentSectionId === 'object' 
+    ? ParentSectionId._id || ParentSectionId.id || ''
+    : ParentSectionId;
+  
+  // If we couldn't get a valid section ID, throw an error
+  if (!sectionId) {
+    throw new Error("Invalid section ID provided");
+  }
+  
   // Get section items for this section
-  const sectionItemsQuery = useGetBySectionId(ParentSectionId);
+  const sectionItemsQuery = useGetBySectionId(sectionId);
   
   // Create mutation
   const createSectionItem = useCreateSectionItem();
@@ -43,7 +53,7 @@ export async function createMainServiceItem(
   
   // Try to get title from first language in the data
   if (sectionData && sectionData.title && typeof sectionData.title === 'object') {
-    const firstLangTitle = Object.values(sectionData.title)[0];
+    const firstLangTitle = Object.values(sectionData.title)[0] as string;
     if (firstLangTitle) {
       title = firstLangTitle;
     }
@@ -51,7 +61,7 @@ export async function createMainServiceItem(
   
   // Try to get description from first language in the data
   if (sectionData && sectionData.description && typeof sectionData.description === 'object') {
-    const firstLangDesc = Object.values(sectionData.description)[0];
+    const firstLangDesc = Object.values(sectionData.description)[0] as string;
     if (firstLangDesc) {
       description = firstLangDesc;
     }
@@ -59,13 +69,14 @@ export async function createMainServiceItem(
   
   // Create the main-service section item
   try {
-    console.log("Creating main-service for section:", ParentSectionId);
+    console.log("Creating main-service for section:", sectionId);
     
     const sectionItemData = {
       name: "main-service",
       description: description,
-      section: ParentSectionId,
+      section: sectionId, // Ensure we're using the string ID
       isActive: true,
+      isMain: true,
       order: 0,
       // Optional image from section data if available
       image: sectionData.imageUrl || null

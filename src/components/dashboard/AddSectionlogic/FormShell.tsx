@@ -87,26 +87,6 @@ function FormShellInner({ tabs, title, subtitle, isLoading = false }: Pick<FormS
 
   return (
     <>
-      <TabLayout
-        tabs={formattedTabs}
-        title={title}
-        subtitle={subtitle}
-        onSave={saveAllData}
-        onBack={navigateBack}
-        isSubmitting={isSubmitting}
-        saveButtonLabel={isSubmitting ? (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          <>
-            <Save className="mr-2 h-5 w-5" />
-            {title.toLowerCase().includes("create") ? "Create" : "Update"}
-          </>
-        )}
-      />
-
       {/* Language status card */}
       <div className="container py-6">
         <Card className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 border border-slate-200 dark:border-slate-700">
@@ -143,6 +123,27 @@ function FormShellInner({ tabs, title, subtitle, isLoading = false }: Pick<FormS
           </CardContent>
         </Card>
       </div>
+      <TabLayout
+        tabs={formattedTabs}
+        title={title}
+        subtitle={subtitle}
+        onSave={saveAllData}
+        onBack={navigateBack}
+        isSubmitting={isSubmitting}
+        saveButtonLabel={isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Saving...
+          </>
+        ) : (
+          <>
+            <Save className="mr-2 h-5 w-5" />
+            {title.toLowerCase().includes("create") ? "Create" : "Update"}
+          </>
+        )}
+      />
+
+    
 
       {/* Leave confirmation dialog */}
       <Dialog open={showLeaveConfirmation} onOpenChange={setShowLeaveConfirmation}>

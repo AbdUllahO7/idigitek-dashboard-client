@@ -22,7 +22,7 @@ interface TabLayoutProps {
   title: string
   subtitle: string
   isSubmitting?: boolean
-  saveButtonLabel?: string
+  saveButtonLabel?: ReactNode
   showBackButton?: boolean
   backButtonLabel?: string
 }

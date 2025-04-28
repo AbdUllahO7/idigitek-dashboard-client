@@ -135,7 +135,9 @@ export function useSectionItems() {
         
         // Invalidate parent section queries
         if (cachedData?.section) {
-          queryClient.invalidateQueries({ queryKey: sectionItemsBySectionKey(cachedData.section) });
+          if (typeof cachedData.section === 'string') {
+            queryClient.invalidateQueries({ queryKey: sectionItemsBySectionKey(cachedData.section) });
+          }
         }
       },
     });

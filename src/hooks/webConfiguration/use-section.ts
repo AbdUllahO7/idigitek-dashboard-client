@@ -243,8 +243,8 @@ export function useSections() {
   return {
     useGetAll,
     useGetById,
-    useGetWithCompleteData,         
-    useGetAllWithCompleteData,     
+    useGetWithCompleteData,        
+    useGetAllWithCompleteData,      
     useCreate,
     useUpdate,
     useToggleActive,
