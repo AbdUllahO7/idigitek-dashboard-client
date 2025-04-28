@@ -17,7 +17,7 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-
 import apiClient from "@/src/lib/api-client"
 import { ContentTranslation, SubSection, Language } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
-import { HeroFormProps } from "@/src/api/types/sectionsTypes"
+import { HeroFormProps } from "@/src/api/types/service/serviceSections.types"
 
 
 

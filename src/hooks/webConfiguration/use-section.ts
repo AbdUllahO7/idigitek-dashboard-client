@@ -10,6 +10,8 @@ export function useSections() {
   // Query keys
   const sectionsKey = ['sections'];
   const sectionKey = (id: string) => [...sectionsKey, id];
+  const completeDataKey = (id: string) => [...sectionKey(id), 'complete'];
+  const allCompleteDataKey = [...sectionsKey, 'allComplete'];
 
   // Get all sections (optionally with section items count)
   const useGetAll = (includeItemsCount = false, activeOnly = true) => {
@@ -48,6 +50,73 @@ export function useSections() {
     });
   };
 
+  /**
+   * NEW: Get section with complete data (section items and subsections)
+   * @param id Section ID
+   * @param includeInactive Whether to include inactive items
+   * @param languageId Optional language ID for translations
+   */
+  const useGetWithCompleteData = (
+    id: string,
+    includeInactive = false,
+    languageId?: string,
+    enabled = true
+  ) => {
+    return useQuery({
+      queryKey: [...completeDataKey(id), { includeInactive, languageId }],
+      queryFn: async () => {
+        try {
+          const params = new URLSearchParams();
+          params.append('includeInactive', String(includeInactive));
+          if (languageId) {
+            params.append('languageId', languageId);
+          }
+          
+          const { data } = await apiClient.get(`${endpoint}/${id}/complete?${params.toString()}`);
+          return data;
+        } catch (error: any) {
+          console.error(`Error fetching complete section data for ${id}:`, error);
+          throw error;
+        }
+      },
+      enabled: !!id && enabled,
+    });
+  };
+
+  /**
+   * NEW: Get all sections with complete data
+   * @param isActive Filter by active status
+   * @param includeInactive Whether to include inactive items
+   * @param languageId Optional language ID for translations
+   */
+  const useGetAllWithCompleteData = (
+    isActive?: boolean,
+    includeInactive = false,
+    languageId?: string
+  ) => {
+    return useQuery({
+      queryKey: [...allCompleteDataKey, { isActive, includeInactive, languageId }],
+      queryFn: async () => {
+        try {
+          const params = new URLSearchParams();
+          if (isActive !== undefined) {
+            params.append('isActive', String(isActive));
+          }
+          params.append('includeInactive', String(includeInactive));
+          if (languageId) {
+            params.append('languageId', languageId);
+          }
+          
+          const { data } = await apiClient.get(`${endpoint}/all/complete?${params.toString()}`);
+          return data;
+        } catch (error: any) {
+          console.error("Error fetching all sections with complete data:", error);
+          throw error;
+        }
+      },
+    });
+  };
+
   // Create a new section
   const useCreate = () => {
     return useMutation({
@@ -69,6 +138,7 @@ export function useSections() {
         }
       },
       onSuccess: (data) => {
+        // Invalidate all section queries to ensure fresh data
         queryClient.invalidateQueries({ queryKey: sectionsKey });
         if (data._id) {
           queryClient.setQueryData(sectionKey(data._id), data);
@@ -98,8 +168,12 @@ export function useSections() {
         }
       },
       onSuccess: (data, { id }) => {
+        // Update cached data and invalidate queries
         queryClient.setQueryData(sectionKey(id), data);
         queryClient.invalidateQueries({ queryKey: sectionsKey });
+        // Also invalidate complete data queries that include this section
+        queryClient.invalidateQueries({ queryKey: completeDataKey(id) });
+        queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
       },
     });
   };
@@ -117,8 +191,12 @@ export function useSections() {
         }
       },
       onSuccess: (data, { id }) => {
+        // Update cached data and invalidate queries
         queryClient.setQueryData(sectionKey(id), data);
         queryClient.invalidateQueries({ queryKey: sectionsKey });
+        // Also invalidate complete data queries that include this section
+        queryClient.invalidateQueries({ queryKey: completeDataKey(id) });
+        queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
       },
     });
   };
@@ -137,8 +215,11 @@ export function useSections() {
         }
       },
       onSuccess: (_, id) => {
+        // Remove and invalidate all related queries
         queryClient.removeQueries({ queryKey: sectionKey(id) });
+        queryClient.removeQueries({ queryKey: completeDataKey(id) });
         queryClient.invalidateQueries({ queryKey: sectionsKey });
+        queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
       },
     });
   };
@@ -151,15 +232,19 @@ export function useSections() {
         return data;
       },
       onSuccess: () => {
+        // Invalidate all section queries to ensure order changes are reflected
         queryClient.invalidateQueries({ queryKey: sectionsKey });
+        queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
       },
     });
   };
 
-  // Return all hooks
+  // Return all hooks, including the new ones
   return {
     useGetAll,
     useGetById,
+    useGetWithCompleteData,         
+    useGetAllWithCompleteData,     
     useCreate,
     useUpdate,
     useToggleActive,

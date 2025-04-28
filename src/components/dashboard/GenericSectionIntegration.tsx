@@ -1,105 +1,105 @@
 "use client"
 
-import { useState, useEffect } from "react";
-import { useLanguages } from "@/src/hooks/webConfiguration/use-language";
-import { Loader2 } from "lucide-react";
-import MultilingualSectionComponent from "@/src/components/dashboard/MultilingualSectionComponent";
-import apiClient from '@/src/lib/api-client';
-import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
-import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements";
-import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions";
-import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items";
-import { FieldConfig, LanguageConfig, MultilingualSectionData } from "@/src/api/types";
+import { useState, useEffect } from "react"
+import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
+import { Loader2 } from "lucide-react"
+import MultilingualSectionComponent from "@/src/components/dashboard/MultilingualSectionComponent"
+import apiClient from "@/src/lib/api-client"
+import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
+import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
+import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
+import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
+import type { ContentElementType, FieldConfig, LanguageConfig, MultilingualSectionData } from "@/src/api/types"
 
 // Define types for better TypeScript support
 interface LanguageData {
-  _id: string;
-  languageID: string;
-  language: string;
-  isActive: boolean;
+  _id: string
+  languageID: string
+  language: string
+  isActive: boolean
 }
 
 interface TranslationData {
-  _id: string;
-  content: string;
-  language: string | LanguageData | { _id: string; languageID: string };
-  contentElement: string | { _id: string };
+  _id: string
+  content: string
+  language: string | LanguageData | { _id: string; languageID: string }
+  contentElement: string | { _id: string }
 }
 
 // Interface for section configuration
 interface SectionConfig {
-  name: string;             // Section name used for display
-  slug: string;             // Section slug used in API calls
-  subSectionName: string;   // Name of the subsection entity
-  description: string;      // Description of the subsection
-  fields: FieldConfig[];    // Fields configuration
-  elementsMapping: Record<string, string>; // Mapping of field IDs to element names
-  isMain: boolean;       // Flag to indicate if this is a main section
+  name: string // Section name used for display
+  slug: string // Section slug used in API calls
+  subSectionName: string // Name of the subsection entity
+  description: string // Description of the subsection
+  fields: FieldConfig[] // Fields configuration
+  elementsMapping: Record<string, string> // Mapping of field IDs to element names
+  isMain: boolean // Flag to indicate if this is a main section
 }
 
 // Define props interface
 interface GenericSectionIntegrationProps {
-  onSectionChange?: (data: MultilingualSectionData) => void;
-  config: SectionConfig;    // Configuration for this specific section
-  sectionTitle?: string;    // Optional override for section title
-  sectionDescription?: string; // Optional override for section description
-  addButtonLabel?: string;  // Optional override for add button label
-  editButtonLabel?: string; // Optional override for edit button label
-  saveButtonLabel?: string; // Optional override for save button label
-  noDataMessage?: string;   // Optional override for no data message
-  ParentSectionId: string; // The ID of the parent entity (section or sectionItem)
-  createMainService?: boolean; // Whether to create a main-service section item
+  onSectionChange?: (data: MultilingualSectionData) => void
+  config: SectionConfig // Configuration for this specific section
+  sectionTitle?: string // Optional override for section title
+  sectionDescription?: string // Optional override for section description
+  addButtonLabel?: string // Optional override for add button label
+  editButtonLabel?: string // Optional override for edit button label
+  saveButtonLabel?: string // Optional override for save button label
+  noDataMessage?: string // Optional override for no data message
+  ParentSectionId: string // The ID of the parent entity (section or sectionItem)
+  createMainService?: boolean // Whether to create a main-service section item
 }
 
 // Helper function to get the first non-empty value from any language
 function getFirstNonEmptyValue(sectionData: MultilingualSectionData | null, fieldId: string): string | null {
-  if (!sectionData || !sectionData[fieldId]) return null;
-  
-  const fieldData = sectionData[fieldId];
-  if (typeof fieldData === 'string') return null;
-  
+  if (!sectionData || !sectionData[fieldId]) return null
+
+  const fieldData = sectionData[fieldId]
+  if (typeof fieldData === "string") return fieldData
+
   // Convert to Record to fix TypeScript error
-  const fieldRecord = fieldData as Record<string, string>;
-  const values = Object.values(fieldRecord);
-  
+  const fieldRecord = fieldData as Record<string, string>
+  const values = Object.values(fieldRecord)
+
   for (const value of values) {
     if (value && value.trim() !== "") {
-      return value;
+      return value
     }
   }
-  
-  return null;
+
+  return null
 }
 
 // Helper function to check if a string is a valid MongoDB ObjectId
 function isValidObjectId(id: unknown): boolean {
-  return Boolean(id) && typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id);
+  return Boolean(id) && typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id)
 }
 
 // Helper function to extract ID from various response formats
 function extractId(response: any): string | null {
-  if (!response) return null;
-  
-  if (response._id) return response._id;
-  if (response.data?._id) return response.data._id;
-  if (response.id) return response.id;
-  if (response.data?.id) return response.data.id;
-  
+  if (!response) return null
+
+  if (response._id) return response._id
+  if (response.data?._id) return response.data._id
+  if (response.id) return response.id
+  if (response.data?.id) return response.data.id
+
   // Try to extract from JSON stringification if response is complex
   try {
-    const stringified = JSON.stringify(response);
-    const idMatch = stringified.match(/"_id":"([^"]+)"/i) || stringified.match(/"id":"([^"]+)"/i);
+    const stringified = JSON.stringify(response)
+    const idMatch = stringified.match(/"_id":"([^"]+)"/i) || stringified.match(/"id":"([^"]+)"/i)
     if (idMatch && idMatch[1]) {
-      return idMatch[1];
+      return idMatch[1]
     }
   } catch (e) {
-    console.error("Error parsing response:", e);
+    console.error("Error parsing response:", e)
   }
-  
-  return null;
+
+  return null
 }
 
-function GenericSectionIntegration({ 
+function GenericSectionIntegration({
   onSectionChange,
   config,
   sectionTitle,
@@ -109,103 +109,87 @@ function GenericSectionIntegration({
   saveButtonLabel,
   noDataMessage,
   ParentSectionId,
-  createMainService = false
+  createMainService = false,
 }: GenericSectionIntegrationProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [sectionData, setSectionData] = useState<MultilingualSectionData | null>(null);
-  const [isDataProcessed, setIsDataProcessed] = useState(false);
-  const [forceRefresh, setForceRefresh] = useState(0);
-  const [mainServiceId, setMainServiceId] = useState<string | null>(null);
-  
+  const [isLoading, setIsLoading] = useState(false)
+  const [sectionData, setSectionData] = useState<MultilingualSectionData | null>(null)
+  const [isDataProcessed, setIsDataProcessed] = useState(false)
+  const [forceRefresh, setForceRefresh] = useState(0)
+  const [mainServiceId, setMainServiceId] = useState<string | null>(null)
+
   // Get hooks for API calls
-  const { 
+  const {
     useGetAll: useGetAllSubSections,
     useCreate: useCreateSubSection,
     useGetCompleteBySlug,
-    useGetBySectionItemId
-  } = useSubSections();
-  
-  const {
-    useGetBySubsection: useGetContentElementsBySubsection,
-    useCreate: useCreateContentElement
-  } = useContentElements();
-  
+    useGetBySectionItemId,
+  } = useSubSections()
+
+  const { useGetBySubsection: useGetContentElementsBySubsection, useCreate: useCreateContentElement } =
+    useContentElements()
+
   const {
     useGetByElement: useGetTranslationsByElement,
     useCreate: useCreateTranslation,
-    useBulkUpsert: useBulkUpsertTranslations
-  } = useContentTranslations();
+    useBulkUpsert: useBulkUpsertTranslations,
+  } = useContentTranslations()
 
-  const { 
-    useGetAll: useGetAllLanguages 
-  } = useLanguages();
-  
+  const { useGetAll: useGetAllLanguages } = useLanguages()
+
   // Section Items hooks for main-service creation
-  const {
-    useGetBySectionId: useGetSectionItemsBySectionId,
-    useCreate: useCreateSectionItem
-  } = useSectionItems();
-  
+  const { useGetBySectionId: useGetSectionItemsBySectionId, useCreate: useCreateSectionItem } = useSectionItems()
+
   // Get section items for this section if createMainService is true
-  const { 
-    data: sectionItemsData, 
+  const {
+    data: sectionItemsData,
     isLoading: isLoadingSectionItems,
-    refetch: refetchSectionItems
-  } = useGetSectionItemsBySectionId(
-    ParentSectionId,
-    true,
-    100,
-    0,
-    false
-  );
-  
+    refetch: refetchSectionItems,
+  } = useGetSectionItemsBySectionId(ParentSectionId, true, 100, 0, false)
+
   // Section Item creation mutation
-  const createSectionItem = useCreateSectionItem();
-  
+  const createSectionItem = useCreateSectionItem()
+
   // Effect to create or find main-service section item if needed
   useEffect(() => {
     const createMainServiceItem = async () => {
       if (!createMainService || mainServiceId || isLoadingSectionItems || !sectionItemsData?.data) {
-        return;
+        return
       }
-      
+
       try {
-        setIsLoading(true);
-        
+        setIsLoading(true)
+
         // Check if main-service already exists
-        const existingMainService = sectionItemsData.data.find(
-          (item: any) => item.name === "main-service"
-        );
-        
+        const existingMainService = sectionItemsData.data.find((item: any) => item.name === "main-service")
+
         // If main-service exists, use its ID
         if (existingMainService?._id) {
-          console.log("Found existing main-service:", existingMainService._id);
-          setMainServiceId(existingMainService._id);
-          return;
+          console.log("Found existing main-service:", existingMainService._id)
+          setMainServiceId(existingMainService._id)
+          return
         }
-        
+
         // Extract title and description if we have sectionData
-        let title = "Main Service";
-        let description = "Primary service offering";
-        
+        let description = "Primary service offering"
+        let title = config.subSectionName // Default name
         // Try to get title from section data
-        if (sectionData && sectionData.title && typeof sectionData.title === 'object') {
-          const firstLangTitle = Object.values(sectionData.title)[0];
+        if (sectionData && sectionData.title && typeof sectionData.title === "object") {
+          const firstLangTitle = Object.values(sectionData.title)[0] as string
           if (firstLangTitle) {
-            title = firstLangTitle;
+            title = firstLangTitle
           }
         }
-        
+
         // Try to get description from section data
-        if (sectionData && sectionData.description && typeof sectionData.description === 'object') {
-          const firstLangDesc = Object.values(sectionData.description)[0];
+        if (sectionData && sectionData.description && typeof sectionData.description === "object") {
+          const firstLangDesc = Object.values(sectionData.description)[0] as string
           if (firstLangDesc) {
-            description = firstLangDesc;
+            description = firstLangDesc
           }
         }
-        
-        console.log("Creating main-service for section:", ParentSectionId);
-        
+
+        console.log("Creating main-service for section:", ParentSectionId)
+
         // Create the main-service section item
         const sectionItemData = {
           name: "main-service",
@@ -215,33 +199,33 @@ function GenericSectionIntegration({
           order: 0,
           isMain: true,
           // Optional image from section data if available
-          image: sectionData?.imageUrl || null
-        };
+          image: sectionData?.imageUrl || null,
+        }
 
-        console.log("Creating section item with data:", sectionItemData);
-        
-        const response = await createSectionItem.mutateAsync(sectionItemData);
-        
+        console.log("Creating section item with data:", sectionItemData)
+
+        const response = await createSectionItem.mutateAsync(sectionItemData)
+
         // Get ID from response
-        const newServiceId = extractId(response);
-        
+        const newServiceId = extractId(response)
+
         if (newServiceId) {
-          console.log("Created main-service with ID:", newServiceId);
-          setMainServiceId(newServiceId);
-          
+          console.log("Created main-service with ID:", newServiceId)
+          setMainServiceId(newServiceId)
+
           // Refetch section items to include the new one
           if (refetchSectionItems) {
-            await refetchSectionItems();
+            await refetchSectionItems()
           }
         }
       } catch (error) {
-        console.error("Error creating main-service:", error);
+        console.error("Error creating main-service:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
-    
-    createMainServiceItem();
+    }
+
+    createMainServiceItem()
   }, [
     createMainService,
     mainServiceId,
@@ -250,234 +234,234 @@ function GenericSectionIntegration({
     isLoadingSectionItems,
     sectionData,
     createSectionItem,
-    refetchSectionItems
-  ]);
-  
+    refetchSectionItems,
+  ])
+
   // Determine the actual parent ID to use (section ID or main-service ID)
-  const effectiveParentId = createMainService && mainServiceId ? mainServiceId : ParentSectionId;
-  
+  const effectiveParentId = createMainService && mainServiceId ? mainServiceId : ParentSectionId
+
   // Check if ParentSectionId looks like a section ID or a section item ID
   // For now, just fetch subsections by both methods to ensure we find them
-  const { data: sectionItemSubSections, isLoading: isLoadingSectionItemSubSections } = 
-    useGetBySectionItemId(effectiveParentId, true, 100, 0, false);
+  const { data: sectionItemSubSections, isLoading: isLoadingSectionItemSubSections } = useGetBySectionItemId(
+    effectiveParentId,
+    true,
+    100,
+    0,
+    false,
+  )
 
   // Query data with refetch capabilities
-  const getAllSubSectionsQuery = useGetAllSubSections();
-  const { data: subSectionsData, isLoading: isLoadingSubSections, refetch: refetchSubSections } = getAllSubSectionsQuery;
-  
+  const getAllSubSectionsQuery = useGetAllSubSections()
+  const { data: subSectionsData, isLoading: isLoadingSubSections, refetch: refetchSubSections } = getAllSubSectionsQuery
+
   // Find the section in all subsections - check first in section item subsections, then in all subsections
-  let sectionSubsection = sectionItemSubSections?.data?.find(
-    (subsection: any) => subsection.slug === config.slug
-  );
-  
+  let sectionSubsection = sectionItemSubSections?.data?.find((subsection: any) => subsection.slug === config.slug)
+
   // If not found in section item subsections, try all subsections
   if (!sectionSubsection) {
-    sectionSubsection = subSectionsData?.data?.find(
-      (subsection: any) => subsection.slug === config.slug
-    );
+    sectionSubsection = subSectionsData?.data?.find((subsection: any) => subsection.slug === config.slug)
   }
-  
+
   // Get complete section data with elements and translations
-  const getCompleteSectionQuery = useGetCompleteBySlug(
-    config.slug, 
-    false,
-  );
-  const { 
-    data: completeSectionData, 
+  const getCompleteSectionQuery = useGetCompleteBySlug(config.slug, false)
+  const {
+    data: completeSectionData,
     isLoading: isLoadingSectionData,
-    refetch: refetchSectionData
-  } = getCompleteSectionQuery;
-  
-  const { data: languagesData, isLoading: isLoadingLanguages } = useGetAllLanguages();
-  
+    refetch: refetchSectionData,
+  } = getCompleteSectionQuery
+
+  const { data: languagesData, isLoading: isLoadingLanguages } = useGetAllLanguages()
+
   // Get mutations
-  const createSubSection = useCreateSubSection();
-  const createContentElement = useCreateContentElement();
+  const createSubSection = useCreateSubSection()
+  const createContentElement = useCreateContentElement()
 
   // Log the content elements for debugging
   useEffect(() => {
     if (completeSectionData?.data?.contentElements) {
-      console.log(`${config.name} Content Elements:`, completeSectionData.data.contentElements);
+      console.log(`${config.name} Content Elements:`, completeSectionData.data.contentElements)
     }
-  }, [completeSectionData, config.name]);
+  }, [completeSectionData, config.name])
 
   // Build section data when complete service data loads
   useEffect(() => {
     // Skip if we've already processed this data or dependencies are loading
-    if (isDataProcessed || isLoading || 
-        !completeSectionData?.data || 
-        !languagesData?.data || 
-        isLoadingLanguages || 
-        isLoadingSectionData) {
-      return;
+    if (
+      isDataProcessed ||
+      isLoading ||
+      !completeSectionData?.data ||
+      !languagesData?.data ||
+      isLoadingLanguages ||
+      isLoadingSectionData
+    ) {
+      return
     }
-    
+
     try {
-      setIsLoading(true);
-      
+      setIsLoading(true)
+
       // Get active languages
-      const activeLanguages = languagesData?.data?.filter((lang: any) => lang.isActive) || [];
+      const activeLanguages = languagesData?.data?.filter((lang: any) => lang.isActive) || []
       if (activeLanguages.length === 0) {
-        setIsLoading(false);
-        setIsDataProcessed(true);
-        return;
+        setIsLoading(false)
+        setIsDataProcessed(true)
+        return
       }
-      
+
       // Get content elements from complete data
-      const contentElements = completeSectionData.data.contentElements || [];
-      
+      const contentElements = completeSectionData.data.contentElements || []
+
       // Initialize section data
       const initialSectionData: MultilingualSectionData = {
-        id: completeSectionData.data._id
-      };
-      
+        id: completeSectionData.data._id,
+      }
+
       // Initialize fields
-      config.fields.forEach(field => {
-        initialSectionData[field.id] = {};
-      });
-      
+      config.fields.forEach((field) => {
+        initialSectionData[field.id] = {}
+      })
+
       // Map content elements to section data
       for (const element of contentElements) {
         // Find which field this element maps to
-        let fieldId: string | null = null;
-        
+        let fieldId: string | null = null
+
         // Check for exact name match first
         for (const [key, value] of Object.entries(config.elementsMapping)) {
           if (value === element.name) {
-            fieldId = key;
-            break;
+            fieldId = key
+            break
           }
         }
-        
+
         // If no match found, check for case-insensitive match
         if (!fieldId) {
           for (const [key, value] of Object.entries(config.elementsMapping)) {
             if (value.toLowerCase() === element.name.toLowerCase()) {
-              fieldId = key;
-              break;
+              fieldId = key
+              break
             }
           }
         }
-        
+
         if (!fieldId) {
-          console.log(`Could not find field mapping for element: ${element.name}`);
-          continue;
+          console.log(`Could not find field mapping for element: ${element.name}`)
+          continue
         }
-        
+
         // Get translations for this element
-        const translations = element.translations || [];
-        
+        const translations = element.translations || []
+
         // Add translations to section data
         for (const lang of activeLanguages) {
-          if (!lang.languageID) continue;
-          
+          if (!lang.languageID) continue
+
           const translation = translations.find((t: any) => {
-            if (typeof t.language === 'string') {
-              return t.language === lang.languageID || t.language === lang._id;
-            } else if (t.language && typeof t.language === 'object') {
-              return (
-                t.language.languageID === lang.languageID || 
-                t.language._id === lang._id
-              );
+            if (typeof t.language === "string") {
+              return t.language === lang.languageID || t.language === lang._id
+            } else if (t.language && typeof t.language === "object") {
+              return t.language.languageID === lang.languageID || t.language._id === lang._id
             }
-            return false;
-          });
-          
-          if (!initialSectionData[fieldId] || typeof initialSectionData[fieldId] === 'string') {
-            initialSectionData[fieldId] = {};
+            return false
+          })
+
+          if (!initialSectionData[fieldId]) {
+            initialSectionData[fieldId] = {}
+          } else if (typeof initialSectionData[fieldId] === "string") {
+            initialSectionData[fieldId] = {}
           }
-          
-          const fieldObj = initialSectionData[fieldId] as Record<string, string>;
-          fieldObj[lang.languageID] = translation?.content || element.defaultContent || "";
+
+          const fieldObj = initialSectionData[fieldId] as Record<string, string>
+          fieldObj[lang.languageID] = translation?.content || element.defaultContent || ""
         }
       }
-      
-      setSectionData(initialSectionData);
-      setIsDataProcessed(true);
-      
+
+      setSectionData(initialSectionData)
+      setIsDataProcessed(true)
+
       // Notify parent component
       if (onSectionChange) {
-        onSectionChange(initialSectionData);
+        onSectionChange(initialSectionData)
       }
     } catch (error) {
-      console.error(`Error building ${config.name} section data:`, error);
+      console.error(`Error building ${config.name} section data:`, error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }, [
-    completeSectionData, 
-    languagesData, 
-    isLoading, 
-    isLoadingLanguages, 
+    completeSectionData,
+    languagesData,
+    isLoading,
+    isLoadingLanguages,
     isLoadingSectionData,
     isDataProcessed,
     onSectionChange,
     config.fields,
     config.elementsMapping,
     config.name,
-    forceRefresh // Add forceRefresh to trigger rebuild when needed
-  ]);
-  
+    forceRefresh, // Add forceRefresh to trigger rebuild when needed
+  ])
+
   // Reset processed flag when dependencies change
   useEffect(() => {
     if (completeSectionData || languagesData) {
-      setIsDataProcessed(false);
+      setIsDataProcessed(false)
     }
-  }, [completeSectionData, languagesData]);
-  
+  }, [completeSectionData, languagesData])
+
   // Debug function to directly test translation creation
   const testCreateTranslation = async (elementId: string, languageId: string, content: string): Promise<boolean> => {
-    console.log("languageId", languageId);
+    console.log("languageId", languageId)
     try {
-      console.log(`TEST: Creating direct translation for element ${elementId}, language ${languageId}`);
-      const result = await apiClient.post('/translations', {
+      console.log(`TEST: Creating direct translation for element ${elementId}, language ${languageId}`)
+      const result = await apiClient.post("/translations", {
         contentElement: elementId,
         language: languageId,
         content: content || "Test content",
-        isActive: true
-      });
-      console.log("TEST: Direct translation create result:", result);
-      return true;
+        isActive: true,
+      })
+      console.log("TEST: Direct translation create result:", result)
+      return true
     } catch (error) {
-      console.error("TEST: Error in direct translation creation:", error);
-      return false;
+      console.error("TEST: Error in direct translation creation:", error)
+      return false
     }
-  };
-  
+  }
+
   // Handle creating new section when there's no existing one
-  const handleCreateNewSection = async (newSectionData) => {
+  const handleCreateNewSection = async (newSectionData: MultilingualSectionData) => {
     try {
-      setIsLoading(true);
-      
+      setIsLoading(true)
+
       // Create the section item first (using content from the form if available)
-      let sectionItemId;
-      
+      let sectionItemId
+
       try {
-        console.log("Creating a section item first");
-        
+        console.log("Creating a section item first")
+
         // Extract title and description from form data if available
-        let name = config.subSectionName; // Default name
-        let description = config.description; // Default description
-        
+        let name = config.subSectionName // Default name
+        let description = config.description // Default description
+
         // Try to get title from form data
-        if (newSectionData && newSectionData.title && typeof newSectionData.title === 'object') {
-          const firstLangTitle = Object.values(newSectionData.title)[0];
+        if (newSectionData && newSectionData.title && typeof newSectionData.title === "object") {
+          const firstLangTitle = Object.values(newSectionData.title)[0] as string
           if (firstLangTitle) {
-            name = firstLangTitle;
+            name = firstLangTitle
           }
         }
-        
+
         // Try to get description from form data
-        if (newSectionData && newSectionData.description && typeof newSectionData.description === 'object') {
-          const firstLangDesc = Object.values(newSectionData.description)[0];
+        if (newSectionData && newSectionData.description && typeof newSectionData.description === "object") {
+          const firstLangDesc = Object.values(newSectionData.description)[0] as string
           if (firstLangDesc) {
-            description = firstLangDesc;
+            description = firstLangDesc
           }
         }
-        
+
         // Get image from form data if available
-        const image = newSectionData.imageUrl || null;
-        
+        const image = newSectionData.imageUrl || null
+
         // Create section item
         const sectionItemData = {
           name: name,
@@ -486,27 +470,27 @@ function GenericSectionIntegration({
           isActive: true,
           isMain: true,
           order: 0,
-          section: ParentSectionId
-        };
-        
-        console.log("Creating section item with data:", sectionItemData);
-        
-        const sectionItemResponse = await createSectionItem.mutateAsync(sectionItemData);
-        console.log("Section item created:", sectionItemResponse);
-        
+          section: ParentSectionId,
+        }
+
+        console.log("Creating section item with data:", sectionItemData)
+
+        const sectionItemResponse = await createSectionItem.mutateAsync(sectionItemData)
+        console.log("Section item created:", sectionItemResponse)
+
         // Extract section item ID
-        sectionItemId = extractId(sectionItemResponse);
-        
-        console.log("Created section item with ID:", sectionItemId);
-        
+        sectionItemId = extractId(sectionItemResponse)
+
+        console.log("Created section item with ID:", sectionItemId)
+
         if (!sectionItemId) {
-          throw new Error("Failed to create section item - no valid ID returned");
+          throw new Error("Failed to create section item - no valid ID returned")
         }
       } catch (sectionItemError) {
-        console.error("Error creating section item:", sectionItemError);
-        throw sectionItemError;
+        console.error("Error creating section item:", sectionItemError)
+        throw sectionItemError
       }
-      
+
       // Now create the subsection with the new section item as parent
       // 1. Create SubSection with sectionItem field
       const createSubSectionData = {
@@ -518,62 +502,58 @@ function GenericSectionIntegration({
         isMain: true,
         sectionItem: sectionItemId, // Use the newly created section item
         languages: [],
-        metadata: {}
-      };
-      
-      console.log(`Creating ${config.name} SubSection with data:`, createSubSectionData);
-      
+        metadata: {},
+      }
+
+      console.log(`Creating ${config.name} SubSection with data:`, createSubSectionData)
+
       // Pass this object directly to the mutation
-      const response = await createSubSection.mutateAsync(createSubSectionData);
-      
-      console.log(`${config.name} SubSection creation response:`, response);
-      
+      const response = await createSubSection.mutateAsync(createSubSectionData)
+
+      console.log(`${config.name} SubSection creation response:`, response)
+
       // Extract ID from response
-      const subSectionId = extractId(response);
-      
+      const subSectionId = extractId(response)
+
       // Make sure we have a valid ID
       if (!subSectionId || !isValidObjectId(subSectionId)) {
-        console.error("No valid ID found in response:", response);
-        throw new Error(`Failed to create ${config.name} SubSection - no valid ID returned`);
+        console.error("No valid ID found in response:", response)
+        throw new Error(`Failed to create ${config.name} SubSection - no valid ID returned`)
       }
-      
-      console.log(`Created ${config.name} SubSection with ID:`, subSectionId);
-      
+
+      console.log(`Created ${config.name} SubSection with ID:`, subSectionId)
+
       // Wait a bit to ensure the subsection is properly created in the database
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       // 2. Create content elements for this subsection
-      const createdElements = [];
-      
+      const createdElements = []
+
       // Get element types from the elements mapping
-      const elementTypes = Object.values(config.elementsMapping);
-      
+      const elementTypes = Object.values(config.elementsMapping)
+
       // Create a map for default content
-      const defaultContents = {};
-      
+      const defaultContents: Record<string, string> = {}
+
       // Get user-entered data for default content for each field
       for (const [fieldId, elementName] of Object.entries(config.elementsMapping)) {
-        const defaultValue = getFirstNonEmptyValue(newSectionData, fieldId) || 
-                            `Default ${elementName} content`;
-        defaultContents[elementName] = defaultValue;
+        const defaultValue = getFirstNonEmptyValue(newSectionData, fieldId) || `Default ${elementName} content`
+        defaultContents[elementName] = defaultValue
       }
-      
-      console.log(`Creating content elements for ${config.name} with user data:`, defaultContents);
-      console.log(`Creating content elements for subSectionId:`, subSectionId);
-      
+
+      console.log(`Creating content elements for ${config.name} with user data:`, defaultContents)
+      console.log(`Creating content elements for subSectionId:`, subSectionId)
+
       for (let i = 0; i < elementTypes.length; i++) {
-        const elementName = elementTypes[i];
-        
-        // Determine element type based on name or custom logic
-        let elementType = "text"; // Default
-        if (elementName.toLowerCase().includes("description") || 
-            elementName.toLowerCase().includes("content")) {
-          elementType = "paragraph";
-        } else if (elementName.toLowerCase().includes("title") || 
-                  elementName.toLowerCase().includes("heading")) {
-          elementType = "heading";
+        const elementName = elementTypes[i]
+
+        let elementType: ContentElementType = "text" // Default type
+        if (elementName.toLowerCase().includes("description")) {
+          elementType = "paragraph"
+        } else if (elementName.toLowerCase().includes("title")) {
+          elementType = "heading"
         }
-        
+
         // Create content element with parent ID
         const contentElementData = {
           name: elementName,
@@ -582,317 +562,315 @@ function GenericSectionIntegration({
           parent: subSectionId,
           isActive: true,
           order: i,
-          metadata: {} // Optional metadata
-        };
-        
-        console.log(`Creating ${elementName} element:`, contentElementData);
-        
+          metadata: {}, // Optional metadata
+        }
+
+        console.log(`Creating ${elementName} element:`, contentElementData)
+
         try {
-          const contentElementResponse = await createContentElement.mutateAsync(contentElementData);
-          console.log(`Created ${elementName} element:`, contentElementResponse);
-          
+          const contentElementResponse = await createContentElement.mutateAsync(contentElementData)
+          console.log(`Created ${elementName} element:`, contentElementResponse)
+
           // Extract ID from response
-          const elementId = extractId(contentElementResponse);
-          
+          const elementId = extractId(contentElementResponse)
+
           if (!elementId) {
-            console.error(`No ID found in ${elementName} element response:`, contentElementResponse);
-            continue;
+            console.error(`No ID found in ${elementName} element response:`, contentElementResponse)
+            continue
           }
-          
+
           // Create a structured element object with the ID
           const elementWithId = {
             ...contentElementData,
             _id: elementId,
-            name: elementName
-          };
-          
-          console.log(`Added element with ID ${elementId} to createdElements array`);
-          createdElements.push(elementWithId);
+            name: elementName,
+          }
+
+          console.log(`Added element with ID ${elementId} to createdElements array`)
+          createdElements.push(elementWithId)
         } catch (elementError) {
-          console.error(`Error creating ${elementName} element:`, elementError);
+          console.error(`Error creating ${elementName} element:`, elementError)
           // Continue with other elements
         }
       }
-      
+
       if (createdElements.length === 0) {
-        throw new Error(`Failed to create any content elements for ${config.name}`);
+        throw new Error(`Failed to create any content elements for ${config.name}`)
       }
-      
+
       // 3. Create translations for all elements
-      const activeLanguages = languagesData?.data?.filter((lang) => lang.isActive) || [];
-      
+      const activeLanguages = languagesData?.data?.filter((lang : any) => lang.isActive) || []
+
       if (activeLanguages.length > 0 && createdElements.length > 0) {
-        console.log(`Creating translations for ${config.name} elements...`);
-        
+        console.log(`Creating translations for ${config.name} elements...`)
+
         // Try direct API calls for translations
         for (const element of createdElements) {
           // Get the element ID
-          const elementId = element._id;
-          
+          const elementId = element._id
+
           for (const lang of activeLanguages) {
             // Get the raw language ID (MongoDB ObjectId)
-            const languageId = lang._id;
-            
-            console.log(`Element ID: ${elementId}, Language ID: ${languageId}`);
-            
+            const languageId = lang._id
+
+            console.log(`Element ID: ${elementId}, Language ID: ${languageId}`)
+
             // Skip if IDs are not valid
             if (!isValidObjectId(elementId)) {
-              console.error(`Invalid element ID: ${elementId}`);
-              continue;
+              console.error(`Invalid element ID: ${elementId}`)
+              continue
             }
-            
+
             if (!isValidObjectId(languageId)) {
-              console.error(`Invalid language ID: ${languageId}`);
-              continue;
+              console.error(`Invalid language ID: ${languageId}`)
+              continue
             }
-            
+
             // Find field for this element
-            let fieldId = null;
+            let fieldId = null
             for (const [key, value] of Object.entries(config.elementsMapping)) {
               if (value === element.name) {
-                fieldId = key;
-                break;
+                fieldId = key
+                break
               }
             }
-            
-            if (!fieldId) continue;
-            
+
+            if (!fieldId) continue
+
             // Get content from form data or use default
-            let content = "";
-            
+            let content = ""
+
             // Try to get the language-specific content first
-            const fieldData = newSectionData[fieldId];
-            if (typeof fieldData !== 'string' && fieldData && lang.languageID) {
-              const fieldRecord = fieldData;
-              content = fieldRecord[lang.languageID] || "";
+            const fieldData = newSectionData[fieldId]
+            if (typeof fieldData !== "string" && fieldData && lang.languageID) {
+              const fieldRecord = fieldData
+              content = fieldRecord[lang.languageID] || ""
             }
-            
+
             // If no content found, use defaults
             if (!content) {
-              content = defaultContents[element.name] || "";
+              content = defaultContents[element.name] || ""
             }
-            
+
             // Create translation through direct API call
             try {
               const translationData = {
                 contentElement: elementId,
                 language: languageId, // Use the raw MongoDB ID
                 content: content || `Default ${element.name} content`,
-                isActive: true
-              };
-              
-              console.log("Creating translation with data:", translationData);
-              
+                isActive: true,
+              }
+
+              console.log("Creating translation with data:", translationData)
+
               // Use direct API call to avoid any issues with mutation
-              const result = await apiClient.post('/translations', translationData);
-              console.log("Translation created:", result);
+              const result = await apiClient.post("/translations", translationData)
+              console.log("Translation created:", result)
             } catch (error) {
-              console.error("Error creating translation:", error);
+              console.error("Error creating translation:", error)
               // Try using the creation test function
-              await testCreateTranslation(elementId, languageId, content);
+              await testCreateTranslation(elementId, languageId, content)
             }
           }
         }
       }
-      
+
       // After creation is complete, manually refetch the data
-      console.log(`Refetching data after ${config.name} creation...`);
-      
+      console.log(`Refetching data after ${config.name} creation...`)
+
       // Trigger refetch of subsections to get the new subsection
       if (refetchSubSections) {
-        await refetchSubSections();
+        await refetchSubSections()
       }
-      
+
       // Wait a bit for the server to stabilize
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       // Trigger refetch of section data to get the complete section
       if (refetchSectionData) {
-        await refetchSectionData();
+        await refetchSectionData()
       }
-      
+
       // Force a re-processing of the data by incrementing the forceRefresh counter
-      setForceRefresh(prev => prev + 1);
-      
+      setForceRefresh((prev) => prev + 1)
+
       // Set the new section data
       const createdSectionData = {
         ...newSectionData,
-        id: subSectionId
-      };
-      
-      setSectionData(createdSectionData);
-      setIsDataProcessed(false); // Set to false to force rebuild
-      
+        id: subSectionId,
+      }
+
+      setSectionData(createdSectionData)
+      setIsDataProcessed(false) // Set to false to force rebuild
+
       // Notify parent component
       if (onSectionChange) {
-        onSectionChange(createdSectionData);
+        onSectionChange(createdSectionData)
       }
     } catch (error) {
-      console.error(`Error creating ${config.name} section:`, error);
-      throw error;
+      console.error(`Error creating ${config.name} section:`, error)
+      throw error
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-  
+  }
+
   // Handle multilingual section change
   const handleSectionChangeWrapper = (newSectionData: MultilingualSectionData | null) => {
     if (newSectionData) {
       // This is an async function, but the MultilingualSectionComponent expects a sync function
       // So we just fire and forget
-      handleSectionChange(newSectionData).catch(error => {
-        console.error(`Error in ${config.name} section change:`, error);
-      });
+      handleSectionChange(newSectionData).catch((error) => {
+        console.error(`Error in ${config.name} section change:`, error)
+      })
     }
-  };
-  
+  }
+
   // The actual implementation that does the work
   const handleSectionChange = async (newSectionData: MultilingualSectionData) => {
-    console.log(`handleSectionChange for ${config.name}`, newSectionData);
-    
+    console.log(`handleSectionChange for ${config.name}`, newSectionData)
+
     // If there's no existing section subsection, create one
     if (!completeSectionData?.data) {
-      return handleCreateNewSection(newSectionData);
+      return handleCreateNewSection(newSectionData)
     }
-    
+
     try {
-      setIsLoading(true);
-      
+      setIsLoading(true)
+
       // Get active languages
-      const activeLanguages = languagesData?.data?.filter((lang: any) => lang.isActive) || [];
-      
+      const activeLanguages = languagesData?.data?.filter((lang: any) => lang.isActive) || []
+
       // Get content elements from complete data
-      const contentElements = completeSectionData.data.contentElements || [];
-      
+      const contentElements = completeSectionData.data.contentElements || []
+
       // Update individual translations directly
-      console.log(`Updating ${config.name} translations individually`);
-      
+      console.log(`Updating ${config.name} translations individually`)
+
       for (const element of contentElements) {
         // Find which field this element maps to
-        let fieldId: string | null = null;
-        
+        let fieldId: string | null = null
+
         // Check for exact name match first
         for (const [key, value] of Object.entries(config.elementsMapping)) {
           if (value === element.name) {
-            fieldId = key;
-            break;
+            fieldId = key
+            break
           }
         }
-        
+
         // If no match found, check for case-insensitive match
         if (!fieldId) {
           for (const [key, value] of Object.entries(config.elementsMapping)) {
             if (value.toLowerCase() === element.name.toLowerCase()) {
-              fieldId = key;
-              break;
+              fieldId = key
+              break
             }
           }
         }
-        
+
         if (!fieldId) {
-          console.log(`Could not find field mapping for element: ${element.name}`);
-          continue;
+          console.log(`Could not find field mapping for element: ${element.name}`)
+          continue
         }
-        
+
         // Get existing translations for this element
-        const existingTranslations = element.translations || [];
-        
+        const existingTranslations = element.translations || []
+
         for (const lang of activeLanguages) {
           // Get the raw MongoDB ID for the language
-          const languageId = lang._id;
-          
+          const languageId = lang._id
+
           // Validate language ID
           if (!languageId || !isValidObjectId(languageId)) {
-            console.error(`Invalid language ID: ${languageId} for language: ${lang.language}`);
-            continue;
+            console.error(`Invalid language ID: ${languageId} for language: ${lang.language}`)
+            continue
           }
-          
+
           // Get new content for this language
-          const fieldData = newSectionData[fieldId];
-          let newContent = "";
-          if (typeof fieldData !== 'string' && fieldData && lang.languageID) {
-            const fieldRecord = fieldData as Record<string, string>;
-            newContent = fieldRecord[lang.languageID] || "";
+          const fieldData = newSectionData[fieldId]
+          let newContent = ""
+          if (fieldData && typeof fieldData !== "string" && lang.languageID) {
+            const fieldRecord = fieldData as Record<string, string>
+            newContent = fieldRecord[lang.languageID] || ""
           }
-          
+
           // Find existing translation
           const existingTranslation = existingTranslations.find((t: any) => {
-            if (typeof t.language === 'string') {
-              return t.language === lang.languageID || t.language === languageId;
-            } else if (t.language && typeof t.language === 'object') {
-              const langObj = t.language as any;
-              return (
-                langObj.languageID === lang.languageID || 
-                langObj._id === lang._id
-              );
+            if (typeof t.language === "string") {
+              return t.language === lang.languageID || t.language === languageId
+            } else if (t.language && typeof t.language === "object") {
+              const langObj = t.language as any
+              return langObj.languageID === lang.languageID || langObj._id === lang._id
             }
-            return false;
-          });
-          
+            return false
+          })
+
           try {
             if (existingTranslation) {
               // Update existing translation
               await apiClient.put(`/translations/${existingTranslation._id}`, {
                 content: newContent,
-                isActive: true
-              });
-              console.log(`Updated translation ${existingTranslation._id}`);
+                isActive: true,
+              })
+              console.log(`Updated translation ${existingTranslation._id}`)
             } else {
               // Create new translation
               const translationData = {
                 contentElement: element._id,
                 language: languageId, // Use the raw MongoDB ID
                 content: newContent || `Default ${element.name} content`,
-                isActive: true
-              };
-              
-              console.log("Creating translation with data:", translationData);
-              
+                isActive: true,
+              }
+
+              console.log("Creating translation with data:", translationData)
+
               // Use direct API call
-              const result = await apiClient.post('/translations', translationData);
-              console.log("Translation created:", result);
+              const result = await apiClient.post("/translations", translationData)
+              console.log("Translation created:", result)
             }
           } catch (translationError) {
-            console.error(`Error updating/creating translation:`, translationError);
+            console.error(`Error updating/creating translation:`, translationError)
             // Try test function if direct call fails
             if (!existingTranslation) {
-              await testCreateTranslation(element._id, languageId, newContent);
+              await testCreateTranslation(element._id, languageId, newContent)
             }
           }
         }
       }
-      
+
       // After updates are done, refetch section data
-      console.log(`Refetching ${config.name} data after updates...`);
+      console.log(`Refetching ${config.name} data after updates...`)
       if (refetchSectionData) {
-        await refetchSectionData();
+        await refetchSectionData()
       }
-      
+
       // Force a re-processing of the data
-      setForceRefresh(prev => prev + 1);
-      
-      setSectionData(newSectionData);
-      setIsDataProcessed(false); // Force rebuild
-      
+      setForceRefresh((prev) => prev + 1)
+
+      setSectionData(newSectionData)
+      setIsDataProcessed(false) // Force rebuild
+
       // Notify parent component
       if (onSectionChange) {
-        onSectionChange(newSectionData);
+        onSectionChange(newSectionData)
       }
     } catch (error) {
-      console.error(`Error updating ${config.name} section:`, error);
+      console.error(`Error updating ${config.name} section:`, error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-  
+  }
+
   // Convert language data to the format expected by MultilingualSectionComponent
-  const languages: LanguageConfig[] = languagesData?.data
-    ?.filter((lang: any) => lang.isActive)
-    ?.map((lang: any) => ({
-      id: lang.languageID,
-      label: lang.language
-    })) || [];
-  
+  const languages: LanguageConfig[] =
+    languagesData?.data
+      ?.filter((lang: any) => lang.isActive)
+      ?.map((lang: any) => ({
+        id: lang.languageID,
+        label: lang.language,
+      })) || []
+
   // Show loading state if we're still creating/finding the main-service section item
   if (createMainService && !mainServiceId && (isLoading || isLoadingSectionItems)) {
     return (
@@ -900,27 +878,34 @@ function GenericSectionIntegration({
         <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
         <span className="ml-2 text-muted-foreground">Setting up main service...</span>
       </div>
-    );
+    )
   }
-  
-  if (isLoadingSubSections || isLoadingLanguages || isLoadingSectionData || 
-      isLoading || isLoadingSectionItemSubSections) {
+
+  if (
+    isLoadingSubSections ||
+    isLoadingLanguages ||
+    isLoadingSectionData ||
+    isLoading ||
+    isLoadingSectionItemSubSections
+  ) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
         <span className="ml-2 text-muted-foreground">Loading {config.name.toLowerCase()} section data...</span>
       </div>
-    );
+    )
   }
-  
+
   // Use provided values or generate defaults from config
-  const displayTitle = sectionTitle || `${config.name} Section Content`;
-  const displayDescription = sectionDescription || `Manage your ${config.name.toLowerCase()} section content in multiple languages.`;
-  const displayAddButton = addButtonLabel || `Add ${config.name} Section`;
-  const displayEditButton = editButtonLabel || `Edit ${config.name} Section`;
-  const displaySaveButton = saveButtonLabel || `Save ${config.name} Section`;
-  const displayNoDataMessage = noDataMessage || `No ${config.name.toLowerCase()} section found. Click '${displayAddButton}' to create one.`;
-  
+  const displayTitle = sectionTitle || `${config.name} Section Content`
+  const displayDescription =
+    sectionDescription || `Manage your ${config.name.toLowerCase()} section content in multiple languages.`
+  const displayAddButton = addButtonLabel || `Add ${config.name} Section`
+  const displayEditButton = editButtonLabel || `Edit ${config.name} Section`
+  const displaySaveButton = saveButtonLabel || `Save ${config.name} Section`
+  const displayNoDataMessage =
+    noDataMessage || `No ${config.name.toLowerCase()} section found. Click '${displayAddButton}' to create one.`
+
   return (
     <MultilingualSectionComponent
       sectionTitle={displayTitle}
@@ -935,7 +920,7 @@ function GenericSectionIntegration({
       sectionName={config.name}
       noDataMessage={displayNoDataMessage}
     />
-  );
+  )
 }
 
-export default GenericSectionIntegration;
+export default GenericSectionIntegration

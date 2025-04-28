@@ -26,4 +26,38 @@ export interface UseSectionFormProps<T> {
   elementDefinitions: ElementDefinition[];
   onDataChange?: (data: any) => void;
 }
+export interface FormRef {
+  getFormData: () => Promise<any>
+  hasUnsavedChanges: boolean
+  resetUnsavedChanges?: () => void
+  saveData?: () => Promise<boolean>
+}
 
+
+// Define context type
+export interface FormContextType {
+  formData: FormData
+  updateFormData: (section: string, data: any) => void
+  hasUnsavedChanges: boolean
+  checkUnsavedChanges: () => void
+  saveAllData: () => Promise<void>
+  activeLanguages: Language[]
+  languageCodes: string[]
+  languageIds: string[] 
+  isSubmitting: boolean
+  progress: number
+  serviceData: any
+  formRefs: {
+    [key: string]: React.MutableRefObject<FormRef | null>
+  }
+  showLeaveConfirmation: boolean
+  setShowLeaveConfirmation: (show: boolean) => void
+  navigateBack: () => void
+}
+
+
+
+// Define form data type (adjust as needed)
+export interface FormData {
+  [key: string]: any
+}
