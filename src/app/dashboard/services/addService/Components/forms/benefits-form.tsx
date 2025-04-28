@@ -17,7 +17,7 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
-import { BenefitsFormProps } from "@/src/api/types/sectionsTypes"
+import { BenefitsFormProps } from "@/src/api/types/service/serviceSections.types"
 
 
 

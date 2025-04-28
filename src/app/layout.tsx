@@ -39,7 +39,6 @@ export default function RootLayout({
               <NavigationEvents />
               <NavigationProgress />
               {children}
-                    <Toaster/>
               
             </AuthProvider>
           </QueryProvider>
