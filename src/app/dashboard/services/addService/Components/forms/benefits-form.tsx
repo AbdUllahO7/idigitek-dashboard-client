@@ -144,6 +144,8 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLa
     refetch,
   } = useGetCompleteBySlug(slug || "", false)
 
+  console.log("completeSubsectionData" , completeSubsectionData)
+
   // Check if all languages have the same number of benefits
   const validateBenefitCounts = () => {
     const values = form.getValues()
@@ -157,103 +159,135 @@ const BenefitsForm = forwardRef<any, BenefitsFormProps>(({ languageIds, activeLa
   }
 
   // Function to process and load data into the form
-  const processAndLoadData = (subsectionData: any) => {
-    if (!subsectionData) return
+// Fix for the processAndLoadData function in BenefitsForm.tsx
+// This function properly handles the API response structure
 
-    try {
-      setExistingSubSectionId(subsectionData._id)
+const processAndLoadData = (subsectionData: any) => {
+  if (!subsectionData) return;
 
-      if (subsectionData.contentElements && subsectionData.contentElements.length > 0) {
-        setContentElements(subsectionData.contentElements)
+  try {
+    console.log("Processing subsection data:", subsectionData);
+    setExistingSubSectionId(subsectionData._id);
 
-        // Create a mapping of languages for easier access
-        const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-          acc[lang._id] = lang.languageID
-          return acc
-        }, {})
+    // Check if we have elements directly in the subsection data (API response structure)
+    const elements = subsectionData.elements || subsectionData.contentElements || [];
+    
+    if (elements.length > 0) {
+      // Store the content elements for later use
+      setContentElements(elements);
 
-        // Group content elements by benefit number
-        const benefitGroups: Record<number, any[]> = {}
+      // Create a mapping of languages for easier access
+      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        acc[lang._id] = lang.languageID;
+        return acc;
+      }, {});
 
-        subsectionData.contentElements.forEach((element: any) => {
-          // Extract benefit number from element name (e.g., "Benefit 1 - Title")
-          const match = element.name.match(/Benefit (\d+)/i)
-          if (match) {
-            const benefitNumber = Number.parseInt(match[1])
-            if (!benefitGroups[benefitNumber]) {
-              benefitGroups[benefitNumber] = []
+      // Group content elements by benefit number
+      const benefitGroups: Record<number, any[]> = {};
+
+      elements.forEach((element: any) => {
+        // Extract benefit number from element name (e.g., "Benefit 1 - Title")
+        const match = element.name.match(/Benefit (\d+)/i);
+        if (match) {
+          const benefitNumber = parseInt(match[1], 10);
+          if (!benefitGroups[benefitNumber]) {
+            benefitGroups[benefitNumber] = [];
+          }
+          benefitGroups[benefitNumber].push(element);
+        }
+      });
+
+      console.log("Benefit groups:", benefitGroups);
+
+      // Initialize form values for each language
+      const languageValues: Record<string, any[]> = {};
+
+      // Initialize all languages with empty arrays
+      languageIds.forEach(langId => {
+        const langCode = langIdToCodeMap[langId] || langId;
+        languageValues[langCode] = [];
+      });
+
+      // Process each benefit group
+      Object.entries(benefitGroups).forEach(([benefitNumber, elements]) => {
+        const iconElement = elements.find(el => el.name.includes("Icon"));
+        const titleElement = elements.find(el => el.name.includes("Title"));
+        const descriptionElement = elements.find(el => el.name.includes("Description"));
+
+        if (titleElement && descriptionElement) {
+          // For each language, create a benefit entry
+          languageIds.forEach(langId => {
+            const langCode = langIdToCodeMap[langId] || langId;
+
+            // Find translations for this language
+            let titleTranslation;
+            let descriptionTranslation;
+
+            // Check for translations with different data structures
+            if (titleElement.translations) {
+              titleTranslation = titleElement.translations.find((t: any) => {
+                // Handle both nested and direct language references
+                if (t.language && typeof t.language === 'object' && t.language._id) {
+                  return t.language._id === langId;
+                } else {
+                  return t.language === langId;
+                }
+              });
             }
-            benefitGroups[benefitNumber].push(element)
-          }
-        })
 
-        // Initialize form values for each language
-        const languageValues: Record<string, any[]> = {}
+            if (descriptionElement.translations) {
+              descriptionTranslation = descriptionElement.translations.find((t: any) => {
+                // Handle both nested and direct language references
+                if (t.language && typeof t.language === 'object' && t.language._id) {
+                  return t.language._id === langId;
+                } else {
+                  return t.language === langId;
+                }
+              });
+            }
 
-        // Initialize all languages with empty arrays
-        languageIds.forEach((langId) => {
-          const langCode = langIdToCodeMap[langId] || langId
-          languageValues[langCode] = []
-        })
+            // Use translation content or default content
+            const title = titleTranslation?.content || titleElement.defaultContent || "";
+            const description = descriptionTranslation?.content || descriptionElement.defaultContent || "";
 
-        // Process each benefit group
-        Object.entries(benefitGroups).forEach(([benefitNumber, elements]) => {
-          const iconElement = elements.find((el) => el.name.includes("Icon"))
-          const titleElement = elements.find((el) => el.name.includes("Title"))
-          const descriptionElement = elements.find((el) => el.name.includes("Description"))
+            // Get icon value
+            const icon = iconElement?.defaultContent || "Clock";
 
-          if (titleElement && descriptionElement) {
-            // For each language, create a benefit entry
-            languageIds.forEach((langId) => {
-              const langCode = langIdToCodeMap[langId] || langId
+            // Add to language values
+            languageValues[langCode].push({ icon, title, description });
+          });
+        }
+      });
 
-              // Find translations for this language
-              const titleTranslation = titleElement.translations?.find(
-                (t: any) => t.language === langId || t.language?._id === langId,
-              )
+      console.log("Form values after processing:", languageValues);
 
-              const descriptionTranslation = descriptionElement.translations?.find(
-                (t: any) => t.language === langId || t.language?._id === langId,
-              )
-
-              // Use translation content or default content
-              const title = titleTranslation?.content || titleElement.defaultContent || ""
-              const description = descriptionTranslation?.content || descriptionElement.defaultContent || ""
-
-              // Get icon value
-              const icon = iconElement?.defaultContent || "Clock"
-
-              // Add to language values
-              if (!languageValues[langCode]) {
-                languageValues[langCode] = []
-              }
-
-              languageValues[langCode].push({ icon, title, description })
-            })
-          }
-        })
-
-        // Set all values in form
-        Object.entries(languageValues).forEach(([langCode, benefits]) => {
-          if (benefits.length > 0) {
-            form.setValue(langCode as any, benefits as any)
-          }
-        })
-      }
-
-      setDataLoaded(true)
-      setHasUnsavedChanges(false)
-    } catch (error) {
-      console.error("Error processing benefits data:", error)
-      toast({
-        title: "Error loading benefits data",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoadingData(false)
+      // Set all values in form
+      Object.entries(languageValues).forEach(([langCode, benefits]) => {
+        if (benefits.length > 0) {
+          form.setValue(langCode as any, benefits as any);
+        } else {
+          // Ensure at least one empty benefit if none were found
+          form.setValue(langCode as any, [{ icon: "Clock", title: "", description: "" }] as any);
+        }
+      });
     }
+
+    setDataLoaded(true);
+    setHasUnsavedChanges(false);
+
+    // Validate benefit counts after loading data
+    validateBenefitCounts();
+  } catch (error) {
+    console.error("Error processing benefits data:", error);
+    toast({
+      title: "Error loading benefits data",
+      description: error instanceof Error ? error.message : "Unknown error occurred",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoadingData(false);
   }
+};
 
   // Effect to populate form with existing data from complete subsection
   useEffect(() => {

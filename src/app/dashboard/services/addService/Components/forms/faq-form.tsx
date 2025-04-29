@@ -17,6 +17,7 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
+import { FaqFormProps } from "@/src/api/types/service/serviceSections.types"
 
 // Create a dynamic schema based on available languages
 const createFaqSchema = (languageIds: string[], activeLanguages: Language[]) => {
@@ -140,99 +141,130 @@ const FaqForm = forwardRef<any, FaqFormProps>(({ languageIds, activeLanguages, o
   }
 
   // Function to process and load data into the form
-  const processAndLoadData = (subsectionData: any) => {
-    if (!subsectionData) return
+// Fixed processAndLoadData function for FaqForm.tsx
 
-    try {
-      setExistingSubSectionId(subsectionData._id)
+const processAndLoadData = (subsectionData: any) => {
+  if (!subsectionData) return;
 
-      if (subsectionData.contentElements && subsectionData.contentElements.length > 0) {
-        setContentElements(subsectionData.contentElements)
+  try {
+    console.log("Processing FAQ subsection data:", subsectionData);
+    setExistingSubSectionId(subsectionData._id);
 
-        // Create a mapping of languages for easier access
-        const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-          acc[lang._id] = lang.languageID
-          return acc
-        }, {})
+    // Check if we have elements directly in the subsection data (API response structure)
+    const elements = subsectionData.elements || subsectionData.contentElements || [];
+    
+    if (elements.length > 0) {
+      // Store the content elements for later use
+      setContentElements(elements);
 
-        // Group content elements by FAQ number
-        const faqGroups: Record<number, any[]> = {}
+      // Create a mapping of languages for easier access
+      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        acc[lang._id] = lang.languageID;
+        return acc;
+      }, {});
 
-        subsectionData.contentElements.forEach((element: any) => {
-          // Extract FAQ number from element name (e.g., "FAQ 1 - Question")
-          const match = element.name.match(/FAQ (\d+)/i)
-          if (match) {
-            const faqNumber = Number.parseInt(match[1])
-            if (!faqGroups[faqNumber]) {
-              faqGroups[faqNumber] = []
+      // Group content elements by FAQ number
+      const faqGroups: Record<number, any[]> = {};
+
+      elements.forEach((element: any) => {
+        // Extract FAQ number from element name (e.g., "FAQ 1 - Question")
+        const match = element.name.match(/FAQ (\d+)/i);
+        if (match) {
+          const faqNumber = Number.parseInt(match[1]);
+          if (!faqGroups[faqNumber]) {
+            faqGroups[faqNumber] = [];
+          }
+          faqGroups[faqNumber].push(element);
+        }
+      });
+
+      console.log("FAQ groups:", faqGroups);
+
+      // Initialize form values for each language
+      const languageValues: Record<string, any[]> = {};
+
+      // Initialize all languages with empty arrays
+      languageIds.forEach((langId) => {
+        const langCode = langIdToCodeMap[langId] || langId;
+        languageValues[langCode] = [];
+      });
+
+      // Process each FAQ group
+      Object.entries(faqGroups).forEach(([faqNumber, elements]) => {
+        const questionElement = elements.find((el) => el.name.includes("Question"));
+        const answerElement = elements.find((el) => el.name.includes("Answer"));
+
+        if (questionElement && answerElement) {
+          // For each language, create a FAQ entry
+          languageIds.forEach((langId) => {
+            const langCode = langIdToCodeMap[langId] || langId;
+
+            // Helper function to get translation content for an element
+            const getTranslationContent = (element: any, defaultValue = "") => {
+              if (!element) return defaultValue;
+
+              // First check for a translation in this language
+              const translation = element.translations?.find((t: any) => {
+                // Handle both nested and direct language references
+                if (t.language && typeof t.language === 'object' && t.language._id) {
+                  return t.language._id === langId;
+                } else {
+                  return t.language === langId;
+                }
+              });
+
+              if (translation?.content) return translation.content;
+
+              // Fall back to default content
+              return element.defaultContent || defaultValue;
+            };
+
+            // Get content values with proper translation handling
+            const question = getTranslationContent(questionElement, "");
+            const answer = getTranslationContent(answerElement, "");
+
+            // Add to language values
+            if (!languageValues[langCode]) {
+              languageValues[langCode] = [];
             }
-            faqGroups[faqNumber].push(element)
-          }
-        })
 
-        // Initialize form values for each language
-        const languageValues: Record<string, any[]> = {}
+            languageValues[langCode].push({ question, answer });
+          });
+        }
+      });
 
-        // Initialize all languages with empty arrays
-        languageIds.forEach((langId) => {
-          const langCode = langIdToCodeMap[langId] || langId
-          languageValues[langCode] = []
-        })
+      console.log("Form values after processing:", languageValues);
 
-        // Process each FAQ group
-        Object.entries(faqGroups).forEach(([faqNumber, elements]) => {
-          const questionElement = elements.find((el) => el.name.includes("Question"))
-          const answerElement = elements.find((el) => el.name.includes("Answer"))
-
-          if (questionElement && answerElement) {
-            // For each language, create a FAQ entry
-            languageIds.forEach((langId) => {
-              const langCode = langIdToCodeMap[langId] || langId
-
-              // Find translations for this language
-              const questionTranslation = questionElement.translations?.find(
-                (t: any) => t.language === langId || t.language?._id === langId,
-              )
-
-              const answerTranslation = answerElement.translations?.find(
-                (t: any) => t.language === langId || t.language?._id === langId,
-              )
-
-              // Use translation content or default content
-              const question = questionTranslation?.content || questionElement.defaultContent || ""
-              const answer = answerTranslation?.content || answerElement.defaultContent || ""
-
-              // Add to language values
-              if (!languageValues[langCode]) {
-                languageValues[langCode] = []
-              }
-
-              languageValues[langCode].push({ question, answer })
-            })
-          }
-        })
-
-        // Set all values in form
-        Object.entries(languageValues).forEach(([langCode, faqs]) => {
-          if (faqs.length > 0) {
-            form.setValue(langCode as any, faqs as any)
-          }
-        })
-      }
-
-      setDataLoaded(true)
-      setHasUnsavedChanges(false)
-    } catch (error) {
-      console.error("Error processing FAQ section data:", error)
-      toast({
-        title: "Error loading FAQ section data",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoadingData(false)
+      // Set all values in form
+      Object.entries(languageValues).forEach(([langCode, faqs]) => {
+        if (faqs.length > 0) {
+          form.setValue(langCode as any, faqs as any);
+        } else {
+          // Ensure at least one empty FAQ if none were found
+          form.setValue(langCode as any, [
+            {
+              question: "",
+              answer: "",
+            }
+          ] as any);
+        }
+      });
     }
+
+    setDataLoaded(true);
+    setHasUnsavedChanges(false);
+    validateFaqCounts();
+  } catch (error) {
+    console.error("Error processing FAQ section data:", error);
+    toast({
+      title: "Error loading FAQ section data",
+      description: error instanceof Error ? error.message : "Unknown error occurred",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoadingData(false);
   }
+};
 
   // Effect to populate form with existing data from complete subsection
   useEffect(() => {
