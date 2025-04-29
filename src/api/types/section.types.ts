@@ -47,6 +47,7 @@ export interface SubSection {
   contentCount?: number;
   createdAt?: string;
   updatedAt?: string;
+  isMain?: boolean;
   parentSections?: string[];
 }
 

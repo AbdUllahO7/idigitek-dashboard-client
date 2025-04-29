@@ -59,7 +59,6 @@ export function useCreateContentSection() {
         order: 0, 
         parentSections: parentSections,
         languages: languages.map(lang => lang._id),
-        metadata: {}
       });
 
       // Get the first language's content elements as reference

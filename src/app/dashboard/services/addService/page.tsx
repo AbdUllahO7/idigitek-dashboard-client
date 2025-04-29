@@ -1,7 +1,8 @@
-// AddService.tsx
+// Updated AddService.tsx to fix the edit mode data display issue
+
 "use client"
 
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Layout, Sparkles, ListChecks, ArrowRight, HelpCircle } from "lucide-react"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
@@ -45,7 +46,7 @@ export default function AddService() {
     isLoading: isLoadingSectionItem
   } = useGetSectionItemById(
     sectionItemId || '', 
-    Boolean(sectionItemId), 
+    Boolean(sectionItemId) && !isCreateMode, // Only fetch in edit mode
     false,
   )
   
@@ -55,7 +56,7 @@ export default function AddService() {
     isLoading: isLoadingSubsections
   } = useGetSubSectionsBySectionItemId(
     sectionItemId || '',
-    Boolean(sectionItemId),
+    Boolean(sectionItemId) && !isCreateMode, // Only fetch in edit mode
     100,
     0,
     false,
@@ -64,14 +65,79 @@ export default function AddService() {
   // Filter active languages
   const activeLanguages = languagesData?.data?.filter((lang: { isActive: any }) => lang.isActive) || []
   
-  // Helper function to find a subsection by slug
-  const findSubsection = (slug: string) => {
-    if (!subsectionsData?.data) return undefined
-    return subsectionsData.data.find((s: { slug: string }) => s.slug === slug)
-  }
+  // Helper function to find a subsection by slug - FIXED to be case-insensitive
+  const findSubsection = (baseSlug: string) => {
+    if (!subsectionsData?.data) return undefined;
+    
+    // Normalize the baseSlug to lowercase and handle special cases
+    const normalizedBaseSlug = baseSlug.toLowerCase();
+    
+    // Create a mapping for known slug patterns
+    const slugMappings: Record<string, string> = {
+      'process-steps': 'process-steps',
+      'hero-section': 'hero-section',
+      'benefits': 'benefits',
+      'features': 'features',
+      'faq-section': 'faq-section'
+    };
+    
+    // Get the normalized version of the slug
+    const normalizedSlug = slugMappings[normalizedBaseSlug] || normalizedBaseSlug;
+    
+    // Expected pattern is: normalizedSlug-sectionItemId
+    const expectedSlug = `${normalizedSlug}-${sectionItemId}`;
+    
+    // Find subsection that matches in a case-insensitive way
+    const subsection = subsectionsData.data.find((s: { slug: string }) => 
+      s.slug.toLowerCase() === expectedSlug.toLowerCase()
+    );
+    
+    if (subsection) {
+      console.log(`Found subsection for ${baseSlug} using slug: ${subsection.slug}`);
+      return subsection;
+    }
+    
+    // If no exact match, try partial matching (containing both the base slug and section ID)
+    const partialMatch = subsectionsData.data.find((s: { slug: string }) => {
+      const lowerSlug = s.slug.toLowerCase();
+      // Check both with hyphen and without
+      return (lowerSlug.includes(normalizedSlug.replace('-', '')) || 
+              lowerSlug.includes(normalizedSlug)) && 
+              lowerSlug.includes(sectionItemId.toLowerCase());
+    });
+    
+    if (partialMatch) {
+      console.log(`Found partial match for ${baseSlug} with slug: ${partialMatch.slug}`);
+      return partialMatch;
+    }
+    
+    console.log(`No subsection found for ${baseSlug}. Available slugs:`, 
+      subsectionsData.data.map((s: {slug: string}) => s.slug).join(', ')
+    );
+    
+    return undefined;
+  };
   
-  // Generate slugs for subsections
-  const getSlug = (base: string) => !isCreateMode && sectionItemId ? `${base}-${sectionItemId}` : ""
+  // Generate proper slugs for subsections
+  const getSlug = (baseSlug: string) => {
+    if (isCreateMode) return "";
+    
+    // Special case handling for processSteps - correct the capitalization
+    if (baseSlug === "process-Steps") {
+      baseSlug = "process-steps";
+    }
+    
+    // Find the subsection
+    const subsection = findSubsection(baseSlug);
+    
+    // If found, use its actual slug
+    if (subsection) {
+      return subsection.slug;
+    }
+    
+    // Default fallback - construct the expected slug format
+    return `${baseSlug.toLowerCase()}-${sectionItemId}`;
+  };
   
   // Define tabs configuration
   const tabs = [
@@ -81,8 +147,8 @@ export default function AddService() {
       icon: <Layout className="h-4 w-4" />,
       component: (
         <HeroForm
-        languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
-        activeLanguages={activeLanguages}
+          languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
+          activeLanguages={activeLanguages}
           slug={getSlug('hero-section')}
           ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
           initialData={findSubsection('hero-section')}
@@ -95,8 +161,8 @@ export default function AddService() {
       icon: <Sparkles className="h-4 w-4" />,
       component: (
         <BenefitsForm
-        languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
-        activeLanguages={activeLanguages}
+          languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
+          activeLanguages={activeLanguages}
           slug={getSlug('benefits')}
           ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
           initialData={findSubsection('benefits')}
@@ -109,8 +175,8 @@ export default function AddService() {
       icon: <ListChecks className="h-4 w-4" />,
       component: (
         <FeaturesForm
-        languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
-        activeLanguages={activeLanguages}
+          languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
+          activeLanguages={activeLanguages}
           slug={getSlug('features')}
           ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
           initialData={findSubsection('features')}
@@ -125,9 +191,9 @@ export default function AddService() {
         <ProcessStepsForm
           languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
           activeLanguages={activeLanguages}
-          slug={getSlug('process-Steps')}
+          slug={getSlug('process-steps')}  // Fixed: now using lowercase 's'
           ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
-          initialData={findSubsection('process-Steps')}
+          initialData={findSubsection('process-steps')} // Fixed: now using lowercase 's'
         />
       )
     },
@@ -146,6 +212,21 @@ export default function AddService() {
       )
     }
   ]
+  
+  // Debugging effects to see what's happening
+  useEffect(() => {
+    if (subsectionsData?.data && sectionItemId && !isCreateMode) {
+      console.log("Subsections loaded:", subsectionsData.data.length);
+      console.log("All subsection slugs:", subsectionsData.data.map((s: { slug: string }) => s.slug));
+      
+      // Check what we find for each section
+      console.log("hero-section subsection:", findSubsection('hero-section'));
+      console.log("benefits subsection:", findSubsection('benefits'));
+      console.log("features subsection:", findSubsection('features'));
+      console.log("process-steps subsection:", findSubsection('process-steps'));
+      console.log("faq-section subsection:", findSubsection('faq-section'));
+    }
+  }, [subsectionsData, sectionItemId, isCreateMode]);
   
   // Define save handler for the service
   const handleSaveService = async (formData: FormData) => {
@@ -187,7 +268,7 @@ export default function AddService() {
   }
   
   // Loading state
-  const isLoading = isLoadingLanguages || (mode === 'edit' && (isLoadingSectionItem || isLoadingSubsections))
+  const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
   return (
     <FormShell

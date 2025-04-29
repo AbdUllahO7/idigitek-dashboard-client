@@ -12,7 +12,10 @@ export function useSubSections() {
   const subsectionKey = (id: string) => [...subsectionsKey, id];
   const subsectionSlugKey = (slug: string) => [...subsectionsKey, 'slug', slug];
   const subsectionBySectionItemKey = (sectionItemId: string) => [...subsectionsKey, 'sectionItem', sectionItemId];
-
+  const subsectionBySectionKey = (sectionId: string) => [...subsectionsKey, 'section', sectionId];
+  const mainSubsectionBySectionKey = (sectionId: string) => [...subsectionBySectionKey(sectionId), 'main'];
+  const completeSubsectionBySectionKey = (sectionId: string) => [...subsectionBySectionKey(sectionId), 'complete'];
+  
   // Get all subsections
   const useGetAll = (activeOnly = true, limit = 100, skip = 0, includeContentCount = false) => {
     return useQuery({
@@ -74,6 +77,56 @@ export function useSubSections() {
     });
   };
 
+  // Get subsections by section ID
+  const useGetBySectionId = (
+    sectionId: string, 
+    activeOnly = true, 
+    limit = 100, 
+    skip = 0
+  ) => {
+    return useQuery({
+      queryKey: [...subsectionBySectionKey(sectionId), { activeOnly, limit, skip }],
+      queryFn: async () => {
+        const { data } = await apiClient.get(`${endpoint}/section/${sectionId}`, {
+          params: { activeOnly, limit, skip }
+        });
+        return data;
+      },
+      enabled: !!sectionId && sectionId !== "null"
+    });
+  };
+
+  // Get complete subsections by section ID with all content elements and translations
+  const useGetCompleteBySectionId = (
+    sectionId: string, 
+    activeOnly = true, 
+    limit = 100, 
+    skip = 0
+  ) => {
+    return useQuery({
+      queryKey: [...completeSubsectionBySectionKey(sectionId), { activeOnly, limit, skip }],
+      queryFn: async () => {
+        const { data } = await apiClient.get(`${endpoint}/section/${sectionId}/complete`, {
+          params: { activeOnly, limit, skip }
+        });
+        return data;
+      },
+      enabled: !!sectionId && sectionId !== "null"
+    });
+  };
+
+  // Get main subsection for a section
+  const useGetMainBySectionId = (sectionId: string) => {
+    return useQuery({
+      queryKey: mainSubsectionBySectionKey(sectionId),
+      queryFn: async () => {
+        const { data } = await apiClient.get(`${endpoint}/section/${sectionId}/main`);
+        return data;
+      },
+      enabled: !!sectionId && sectionId !== "null"
+    });
+  };
+
   // Create a new subsection
   const useCreate = () => {
     return useMutation({
@@ -102,6 +155,11 @@ export function useSubSections() {
         if (data.sectionItem) {
           queryClient.invalidateQueries({ 
             queryKey: subsectionBySectionItemKey(typeof data.sectionItem === 'string' ? data.sectionItem : data.sectionItem._id) 
+          });
+        }
+        if (data.section) {
+          queryClient.invalidateQueries({
+            queryKey: subsectionBySectionKey(typeof data.section === 'string' ? data.section : data.section._id)
           });
         }
       },
@@ -135,6 +193,15 @@ export function useSubSections() {
             queryKey: subsectionBySectionItemKey(typeof data.sectionItem === 'string' ? data.sectionItem : data.sectionItem._id) 
           });
         }
+        if (data.section) {
+          queryClient.invalidateQueries({
+            queryKey: subsectionBySectionKey(typeof data.section === 'string' ? data.section : data.section._id)
+          });
+          // Also invalidate complete subsections by section queries
+          queryClient.invalidateQueries({
+            queryKey: completeSubsectionBySectionKey(typeof data.section === 'string' ? data.section : data.section._id)
+          });
+        }
         queryClient.invalidateQueries({ queryKey: subsectionsKey });
       },
     });
@@ -161,6 +228,19 @@ export function useSubSections() {
             queryKey: subsectionBySectionItemKey(
               typeof cachedData.sectionItem === 'string' ? cachedData.sectionItem : cachedData.sectionItem._id
             ) 
+          });
+        }
+        if (cachedData?.section) {
+          queryClient.invalidateQueries({
+            queryKey: subsectionBySectionKey(
+              typeof cachedData.section === 'string' ? cachedData.section : cachedData.section._id
+            )
+          });
+          // Also invalidate complete subsections by section queries
+          queryClient.invalidateQueries({
+            queryKey: completeSubsectionBySectionKey(
+              typeof cachedData.section === 'string' ? cachedData.section : cachedData.section._id
+            )
           });
         }
         queryClient.invalidateQueries({ queryKey: subsectionsKey });
@@ -209,12 +289,15 @@ export function useSubSections() {
     });
   };
 
-  // Return all hooks
+  // Return all hooks including section-related ones
   return {
     useGetAll,
     useGetById,
     useGetBySlug,
     useGetBySectionItemId,
+    useGetBySectionId,
+    useGetCompleteBySectionId,  // Added new hook for complete section data
+    useGetMainBySectionId,
     useCreate,
     useUpdate,
     useDelete,

@@ -157,103 +157,133 @@ const ProcessStepsForm = forwardRef<any, ProcessStepsFormProps>(
     }
 
     // Function to process and load data into the form
-    const processAndLoadData = (subsectionData: any) => {
-      if (!subsectionData) return
+// Fixed processAndLoadData function for ProcessStepsForm.tsx
 
-      try {
-        setExistingSubSectionId(subsectionData._id)
+const processAndLoadData = (subsectionData: any) => {
+  if (!subsectionData) return;
 
-        if (subsectionData.contentElements && subsectionData.contentElements.length > 0) {
-          setContentElements(subsectionData.contentElements)
+  try {
+    console.log("Processing process steps subsection data:", subsectionData);
+    setExistingSubSectionId(subsectionData._id);
 
-          // Create a mapping of languages for easier access
-          const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-            acc[lang._id] = lang.languageID
-            return acc
-          }, {})
+    // Check if we have elements directly in the subsection data (API response structure)
+    const elements = subsectionData.elements || subsectionData.contentElements || [];
+    
+    if (elements.length > 0) {
+      // Store the content elements for later use
+      setContentElements(elements);
 
-          // Group content elements by step number
-          const stepGroups: Record<number, any[]> = {}
+      // Create a mapping of languages for easier access
+      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        acc[lang._id] = lang.languageID;
+        return acc;
+      }, {});
 
-          subsectionData.contentElements.forEach((element: any) => {
-            // Extract step number from element name (e.g., "Step 1 - Title")
-            const match = element.name.match(/Step (\d+)/i)
-            if (match) {
-              const stepNumber = Number.parseInt(match[1])
-              if (!stepGroups[stepNumber]) {
-                stepGroups[stepNumber] = []
-              }
-              stepGroups[stepNumber].push(element)
-            }
-          })
+      // Group content elements by step number
+      const stepGroups: Record<number, any[]> = {};
 
-          // Initialize form values for each language
-          const languageValues: Record<string, any[]> = {}
-
-          // Initialize all languages with empty arrays
-          languageIds.forEach((langId) => {
-            const langCode = langIdToCodeMap[langId] || langId
-            languageValues[langCode] = []
-          })
-
-          // Process each step group
-          Object.entries(stepGroups).forEach(([stepNumber, elements]) => {
-            const iconElement = elements.find((el) => el.name.includes("Icon"))
-            const titleElement = elements.find((el) => el.name.includes("Title"))
-            const descriptionElement = elements.find((el) => el.name.includes("Description"))
-
-            if (titleElement && descriptionElement) {
-              // For each language, create a step entry
-              languageIds.forEach((langId) => {
-                const langCode = langIdToCodeMap[langId] || langId
-
-                // Find translations for this language
-                const titleTranslation = titleElement.translations?.find(
-                  (t: any) => t.language === langId || t.language?._id === langId,
-                )
-
-                const descriptionTranslation = descriptionElement.translations?.find(
-                  (t: any) => t.language === langId || t.language?._id === langId,
-                )
-
-                // Use translation content or default content
-                const title = titleTranslation?.content || titleElement.defaultContent || ""
-                const description = descriptionTranslation?.content || descriptionElement.defaultContent || ""
-
-                // Get icon value
-                const icon = iconElement?.defaultContent || "Car"
-
-                // Add to language values
-                if (!languageValues[langCode]) {
-                  languageValues[langCode] = []
-                }
-
-                languageValues[langCode].push({ icon, title, description })
-              })
-            }
-          })
-
-          // Set all values in form
-          Object.entries(languageValues).forEach(([langCode, steps]) => {
-            if (steps.length > 0) {
-              form.setValue(langCode as any, steps as any)
-            }
-          })
+      elements.forEach((element: any) => {
+        // Extract step number from element name (e.g., "Step 1 - Title")
+        const match = element.name.match(/Step (\d+)/i);
+        if (match) {
+          const stepNumber = Number.parseInt(match[1]);
+          if (!stepGroups[stepNumber]) {
+            stepGroups[stepNumber] = [];
+          }
+          stepGroups[stepNumber].push(element);
         }
+      });
 
-        setDataLoaded(true)
-        setHasUnsavedChanges(false)
-      } catch (error) {
-        console.error("Error processing process steps data:", error)
-        toast({
-          title: "Error loading process steps data",
-          description: error instanceof Error ? error.message : "Unknown error occurred",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoadingData(false)
-      }
+      console.log("Step groups:", stepGroups);
+
+      // Initialize form values for each language
+      const languageValues: Record<string, any[]> = {};
+
+      // Initialize all languages with empty arrays
+      languageIds.forEach((langId) => {
+        const langCode = langIdToCodeMap[langId] || langId;
+        languageValues[langCode] = [];
+      });
+
+      // Process each step group
+      Object.entries(stepGroups).forEach(([stepNumber, elements]) => {
+        const iconElement = elements.find((el) => el.name.includes("Icon"));
+        const titleElement = elements.find((el) => el.name.includes("Title"));
+        const descriptionElement = elements.find((el) => el.name.includes("Description"));
+
+        if (titleElement && descriptionElement) {
+          // For each language, create a step entry
+          languageIds.forEach((langId) => {
+            const langCode = langIdToCodeMap[langId] || langId;
+
+            // Helper function to get translation content for an element
+            const getTranslationContent = (element: any, defaultValue = "") => {
+              if (!element) return defaultValue;
+
+              // First check for a translation in this language
+              const translation = element.translations?.find((t: any) => {
+                // Handle both nested and direct language references
+                if (t.language && typeof t.language === 'object' && t.language._id) {
+                  return t.language._id === langId;
+                } else {
+                  return t.language === langId;
+                }
+              });
+
+              if (translation?.content) return translation.content;
+
+              // Fall back to default content
+              return element.defaultContent || defaultValue;
+            };
+
+            // Get content values with proper translation handling
+            const title = getTranslationContent(titleElement, "");
+            const description = getTranslationContent(descriptionElement, "");
+            const icon = iconElement ? (iconElement.defaultContent || "Car") : "Car";
+
+            // Add to language values
+            if (!languageValues[langCode]) {
+              languageValues[langCode] = [];
+            }
+
+            languageValues[langCode].push({ icon, title, description });
+          });
+        }
+      });
+
+      console.log("Form values after processing:", languageValues);
+
+      // Set all values in form
+      Object.entries(languageValues).forEach(([langCode, steps]) => {
+        if (steps.length > 0) {
+          form.setValue(langCode as any, steps as any);
+        } else {
+          // Ensure at least one empty step if none were found
+          form.setValue(langCode as any, [
+            {
+              icon: "Car",
+              title: "",
+              description: "",
+            }
+          ] as any);
+        }
+      });
     }
+
+    setDataLoaded(true);
+    setHasUnsavedChanges(false);
+    validateStepCounts();
+  } catch (error) {
+    console.error("Error processing process steps data:", error);
+    toast({
+      title: "Error loading process steps data",
+      description: error instanceof Error ? error.message : "Unknown error occurred",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoadingData(false);
+  }
+};
 
     // Effect to populate form with existing data from complete subsection
     useEffect(() => {

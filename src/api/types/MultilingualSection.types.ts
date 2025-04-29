@@ -37,23 +37,7 @@ export interface MultilingualSectionData {
 }
 
 export interface MultilingualSectionProps {
-  // Component configuration
-  sectionTitle: string;
-  sectionDescription?: string;
-  sectionName?: string;
-  fields: FieldConfig[];
-  languages: LanguageConfig[];
-  
-  // Data state
-  sectionData: MultilingualSectionData | null;
-  onSectionChange: (section: MultilingualSectionData | null) => void;
-  
-  // Optional UI customization
-  addButtonLabel?: string;
-  editButtonLabel?: string;
-  saveButtonLabel?: string;
-  cancelButtonLabel?: string;
-  noDataMessage?: string;
+
 }
 
 export interface FeatureContent {

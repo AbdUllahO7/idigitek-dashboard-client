@@ -28,6 +28,7 @@ export function useGenericList({
   const [items, setItems] = useState<any[]>([])
   const [isLoadingItems, setIsLoadingItems] = useState<boolean>(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false)
+  const [mainItemId, setMainItemId] = useState<string | null>(null)
   
   // Delete dialog state
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
@@ -55,6 +56,28 @@ export function useGenericList({
   // Delete mutation
   const deleteItem = useDelete()
 
+  // Find and set the main item when items data changes
+  useEffect(() => {
+    if (itemsData?.data && Array.isArray(itemsData.data)) {
+      // Find the item with isMain: true
+      const mainItem = itemsData.data.find((item: any) => item.isMain === true)
+      
+      if (mainItem) {
+        console.log("Found main item with ID:", mainItem._id)
+        setMainItemId(mainItem._id)
+      } else {
+        console.log("No main item found in the data")
+        setMainItemId(null)
+      }
+      
+      // Set all items
+      setItems(itemsData.data)
+      setIsLoadingItems(false)
+    } else if (!isLoadingData) {
+      setIsLoadingItems(false)
+    }
+  }, [itemsData, isLoadingData])
+
   // Handle section change from SectionIntegration
   const handleSectionChange = (sectionData: any) => {
     setSection(sectionData)
@@ -81,6 +104,11 @@ export function useGenericList({
       
       // Refetch the list after deletion
       refetchItems()
+      
+      // If we deleted the main item, clear the main item state
+      if (itemToDelete.id === mainItemId) {
+        setMainItemId(null)
+      }
       
       toast({
         title: "Item deleted",
@@ -159,16 +187,6 @@ export function useGenericList({
     refetchItems()
   }
 
-  // Set items data when data is available
-  useEffect(() => {
-    if (itemsData?.data) {
-      setItems(itemsData.data)
-      setIsLoadingItems(false)
-    } else if (!isLoadingData) {
-      setIsLoadingItems(false)
-    }
-  }, [itemsData, isLoadingData])
-
   // Determine if "Add" button should be disabled
   const isAddButtonDisabled = !sectionId || !section
   
@@ -190,6 +208,7 @@ export function useGenericList({
     isDeleting,
     isAddButtonDisabled,
     addButtonTooltip,
+    mainItemId,
     
     // Actions
     setSection,

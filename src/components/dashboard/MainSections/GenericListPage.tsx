@@ -1,41 +1,42 @@
 "use client"
 
-import React, { useState, useEffect, ReactNode } from "react"
+import React, { ReactNode } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
-import { Plus, ArrowRight, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/src/hooks/use-toast"
+import { Plus, ArrowRight, Loader2, AlertCircle } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
 
 // Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
+const animations = {
+  container: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
     },
   },
+  item: {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 100, damping: 10 },
+    },
+  }
 }
 
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: { type: "spring", stiffness: 100, damping: 10 },
-  },
-}
-
-// Generic configuration interface
+// Types
 export interface ListPageConfig {
   title: string
   description: string
   addButtonLabel: string
   emptyStateMessage: string
   noSectionMessage: string
+  mainSectionRequiredMessage?: string
   sectionIntegrationTitle: string
   sectionIntegrationDescription: string
   addSectionButtonLabel: string
@@ -46,7 +47,6 @@ export interface ListPageConfig {
   createPath?: string
 }
 
-// Generic list page props
 interface GenericListPageProps {
   config: ListPageConfig
   sectionId: string | null
@@ -63,11 +63,11 @@ interface GenericListPageProps {
   isLoadingSection?: boolean
   emptyCondition: boolean
   noSectionCondition: boolean
+  customEmptyMessage?: string
 }
 
 export function GenericListPage({
   config,
-  sectionId,
   isAddButtonDisabled,
   addButtonTooltip,
   tableComponent,
@@ -75,82 +75,127 @@ export function GenericListPage({
   createDialogComponent,
   deleteDialogComponent,
   onAddNew,
-  handleRefresh,
   isLoading = false,
   emptyCondition,
-  noSectionCondition
+  noSectionCondition,
+  customEmptyMessage
 }: GenericListPageProps) {
-  const router = useRouter()
-  const { toast } = useToast()
+  // Determine message to display in empty state
+  const emptyMessage = customEmptyMessage || 
+              (noSectionCondition 
+                ? config.noSectionMessage 
+                : config.emptyStateMessage);
+
+  // Render add button with tooltip
+  const AddButton = (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span>
+            <Button
+              className={`group transition-all duration-300 ${
+                isAddButtonDisabled ? "opacity-70 cursor-not-allowed" : "hover:scale-105"
+              }`}
+              disabled={isAddButtonDisabled}
+              onClick={onAddNew}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {config.addButtonLabel}
+              <motion.span
+                className="ml-1 opacity-0 group-hover:opacity-100 group-hover:ml-2"
+                initial={{ width: 0 }}
+                animate={{ width: "auto" }}
+                transition={{ duration: 0.3 }}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </motion.span>
+            </Button>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{addButtonTooltip}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
+  // Render page header with title, description and add button
+  const PageHeader = (
+    <motion.div 
+      className="flex flex-col md:flex-row md:items-center justify-between gap-4" 
+      variants={animations.item}
+    >
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
+          {config.title}
+        </h1>
+        <p className="text-muted-foreground mt-1">{config.description}</p>
+      </div>
+      {AddButton}
+    </motion.div>
+  );
+
+  // Loading state component
+  const LoadingState = (
+    <div className="flex justify-center items-center py-8">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
+
+  // Empty state component with improved visuals
+  const EmptyState = (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <AlertCircle className="h-12 w-12 text-amber-500 mb-4" />
+      <p className="text-muted-foreground max-w-md mx-auto">
+        {emptyMessage}
+      </p>
+    </div>
+  );
+
+  // Render table card with loading or empty states
+  const TableCard = (
+    <motion.div variants={animations.item}>
+      <Card className="border-none shadow-lg overflow-hidden">
+        <CardContent className="p-0">
+          {isLoading ? (
+            LoadingState
+          ) : emptyCondition ? (
+            EmptyState
+          ) : (
+            tableComponent
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  // Render section integration card
+  const SectionIntegrationCard = (
+    <motion.div variants={animations.item}>
+      <Card className="border-none shadow-lg overflow-hidden mt-6">
+        <CardContent className="">
+          {sectionIntegrationComponent}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
 
   return (
     <>
-      <motion.div className="space-y-8 p-6" initial="hidden" animate="visible" variants={containerVariants}>
-        {/* Page header */}
-        <motion.div className="flex flex-col md:flex-row md:items-center justify-between gap-4" variants={itemVariants}>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
-              {config.title}
-            </h1>
-            <p className="text-muted-foreground mt-1">{config.description}</p>
-          </div>
-          <Button
-            className={`group transition-all duration-300 ${
-              isAddButtonDisabled ? "opacity-70 cursor-not-allowed" : "hover:scale-105"
-            }`}
-            disabled={isAddButtonDisabled}
-            onClick={onAddNew}
-            title={addButtonTooltip}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {config.addButtonLabel}
-            <motion.span
-              className="ml-1 opacity-0 group-hover:opacity-100 group-hover:ml-2"
-              initial={{ width: 0 }}
-              animate={{ width: "auto" }}
-              transition={{ duration: 0.3 }}
-            >
-              <ArrowRight className="h-4 w-4" />
-            </motion.span>
-          </Button>
-        </motion.div>
-
-        {/* Section Integration Component */}
-        <motion.div variants={itemVariants}>
-          <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
-            <CardContent className="p-6">
-              {sectionIntegrationComponent}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Items Table */}
-        <motion.div variants={itemVariants}>
-          <Card className="border border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4">{config.listTitle}</h2>
-
-              {isLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : emptyCondition ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {noSectionCondition 
-                    ? config.noSectionMessage
-                    : config.emptyStateMessage}
-                </div>
-              ) : (
-                tableComponent
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+      <motion.div 
+        className="space-y-6" 
+        initial="hidden" 
+        animate="visible" 
+        variants={animations.container}
+      >
+        {PageHeader}
+        {TableCard}
+        {SectionIntegrationCard}
       </motion.div>
 
       {/* Dialogs */}
       {createDialogComponent}
       {deleteDialogComponent}
     </>
-  )
+  );
 }

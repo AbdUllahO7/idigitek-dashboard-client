@@ -1,22 +1,27 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useGenericList } from "@/src/hooks/useGenericList"
+import { useState, useEffect } from "react"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
-import GenericSectionIntegration from "@/src/components/dashboard/GenericSectionIntegration"
+import { useGenericList } from "@/src/hooks/useGenericList"
+import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { serviceSectionConfig } from "./serviceSectionConfig"
-import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
-import DeleteServiceDialog from "@/src/components/DeleteServiceDialog"
 import { CountBadgeCell, GenericTable, StatusCell, TruncatedCell } from "@/src/components/dashboard/MainSections/GenericTable"
 import { GenericListPage } from "@/src/components/dashboard/MainSections/GenericListPage"
+import CreateMainSubSection from "./addService/Components/forms/CreateMainSubSection"
+import GenericSectionIntegration from "@/src/components/dashboard/GenericSectionIntegration"
+import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
+import DeleteServiceDialog from "@/src/components/DeleteServiceDialog"
 
 // Configuration for the Services page
-const servicesConfig = {
+const SERVICES_CONFIG = {
   title: "Services Management",
   description: "Manage your service inventory and multilingual content",
   addButtonLabel: "Add New Service",
   emptyStateMessage: "No services found. Create your first service by clicking the \"Add New Service\" button.",
   noSectionMessage: "Please create a service section first before adding services.",
+  mainSectionRequiredMessage: "Please enter your main section data before adding services.",
+  emptyFieldsMessage: "Please complete all required fields in the main section before adding services.",
   sectionIntegrationTitle: "Service Section Content",
   sectionIntegrationDescription: "Manage your service section content in multiple languages.",
   addSectionButtonLabel: "Add Service Section",
@@ -26,8 +31,8 @@ const servicesConfig = {
   editPath: "services/addService"
 }
 
-// Column definitions for the services table
-const serviceColumns = [
+// Service table column definitions
+const SERVICE_COLUMNS = [
   {
     header: "Name",
     accessor: "name",
@@ -42,14 +47,16 @@ const serviceColumns = [
     header: "Status",
     accessor: "isActive",
     cell: (item: any, value: boolean) => (
-      <>
-        {StatusCell(item, value)}
-        {item.isMain && (
-          <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-            Main
-          </span>
-        )}
-      </>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center">
+          {StatusCell(item, value)}
+          {item.isMain && (
+            <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+              Main
+            </span>
+          )}
+        </div>
+      </div>
     )
   },
   {
@@ -66,91 +73,171 @@ const serviceColumns = [
 export default function ServicesPage() {
   const searchParams = useSearchParams()
   const sectionId = searchParams.get("sectionId")
+  const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
+  const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
+  const [mainSectionFormValid, setMainSectionFormValid] = useState<boolean>(false)
+  const [mainSectionErrorMessage, setMainSectionErrorMessage] = useState<string | undefined>(
+    SERVICES_CONFIG.mainSectionRequiredMessage
+  )
   
+  // Check if main subsection exists
+  const {
+    useGetCompleteBySectionId
+  } = useSubSections()
+  
+  const {
+    data: completeSubsectionsData,
+    isLoading: isLoadingCompleteSubsections
+  } = useGetCompleteBySectionId(sectionId || "")
+
+  // Determine if main subsection exists when data loads
+  useEffect(() => {
+    if (!isLoadingCompleteSubsections && completeSubsectionsData?.data) {
+      const mainSubsection = completeSubsectionsData.data.find(sub => sub.isMain)
+      setHasMainSubSection(!!mainSubsection)
+      setIsLoadingMainSubSection(false)
+    } else if (!sectionId) {
+      setIsLoadingMainSubSection(false)
+    }
+  }, [completeSubsectionsData, isLoadingCompleteSubsections, sectionId])
+
   // Use the generic list hook for service management
   const {
     section: serviceSection,
     items: services,
     isLoadingItems: isLoadingServices,
-    isCreateDialogOpen: isServiceDialogOpen,
+    isCreateDialogOpen,
     isDeleteDialogOpen,
-    itemToDelete: serviceToDelete,
+    itemToDelete,
     isDeleting,
-    isAddButtonDisabled,
-    addButtonTooltip,
+    isAddButtonDisabled: defaultAddButtonDisabled,
+    addButtonTooltip: defaultAddButtonTooltip,
     handleSectionChange,
-    handleEdit: handleEditService,
-    handleDelete: handleDeleteService,
-    handleAddNew: handleAddNewService,
-    handleItemCreated: handleServiceCreated,
+    handleEdit,
+    handleDelete,
+    handleAddNew,
+    handleItemCreated,
     showDeleteDialog,
-    setIsCreateDialogOpen: setIsServiceDialogOpen,
+    setIsCreateDialogOpen,
     setIsDeleteDialogOpen
   } = useGenericList({
     sectionId,
     apiHooks: useSectionItems(),
-    editPath: servicesConfig.editPath
+    editPath: SERVICES_CONFIG.editPath
   })
 
-  // Create the table component
-  const servicesTable = (
+  // Handle form validity changes
+  const handleFormValidityChange = (isValid: boolean, message?: string) => {
+    setMainSectionFormValid(isValid);
+    if (message) {
+      setMainSectionErrorMessage(message);
+    } else {
+      setMainSectionErrorMessage(undefined);
+    }
+  };
+
+  // Custom add button logic based on main subsection existence and form validity
+  const isAddButtonDisabled = 
+    defaultAddButtonDisabled || 
+    !hasMainSubSection || 
+    isLoadingMainSubSection ||
+    !mainSectionFormValid;
+  
+  // Custom tooltip message based on condition
+  const addButtonTooltip = !serviceSection 
+    ? SERVICES_CONFIG.noSectionMessage 
+    : (!hasMainSubSection && !isLoadingMainSubSection)
+      ? SERVICES_CONFIG.mainSectionRequiredMessage
+      : (!mainSectionFormValid && mainSectionErrorMessage)
+        ? mainSectionErrorMessage
+        : defaultAddButtonTooltip;
+
+  // Custom message for empty state based on conditions
+  const emptyStateMessage = !serviceSection 
+    ? SERVICES_CONFIG.noSectionMessage 
+    : (!hasMainSubSection && !isLoadingMainSubSection)
+      ? SERVICES_CONFIG.mainSectionRequiredMessage
+      : (!mainSectionFormValid && mainSectionErrorMessage)
+        ? mainSectionErrorMessage
+        : SERVICES_CONFIG.emptyStateMessage;
+
+  // Handle main subsection creation
+  const handleMainSubSectionCreated = (subsection: any) => {
+    setHasMainSubSection(true);
+    // Don't automatically set form valid - it depends on field content
+  };
+
+  // Components
+  const ServicesTable = (
     <GenericTable
-      columns={serviceColumns}
+      columns={SERVICE_COLUMNS}
       data={services}
-      onEdit={handleEditService}
+      onEdit={handleEdit}
       onDelete={showDeleteDialog}
     />
-  )
+  );
 
-  // Create the section integration component
-  const sectionIntegrationComponent = (
+  const SectionIntegration = (
     <GenericSectionIntegration
       config={serviceSectionConfig}
       ParentSectionId={sectionId || ""}
       onSectionChange={handleSectionChange}
-      sectionTitle={servicesConfig.sectionIntegrationTitle}
-      sectionDescription={servicesConfig.sectionIntegrationDescription}
-      addButtonLabel={servicesConfig.addSectionButtonLabel}
-      editButtonLabel={servicesConfig.editSectionButtonLabel}
-      saveButtonLabel={servicesConfig.saveSectionButtonLabel}
+      sectionTitle={SERVICES_CONFIG.sectionIntegrationTitle}
+      sectionDescription={SERVICES_CONFIG.sectionIntegrationDescription}
+      addButtonLabel={SERVICES_CONFIG.addSectionButtonLabel}
+      editButtonLabel={SERVICES_CONFIG.editSectionButtonLabel}
+      saveButtonLabel={SERVICES_CONFIG.saveSectionButtonLabel}
     />
-  )
+  );
 
-  // Create dialog components
-  const createDialogComponent = (
+  const CreateDialog = (
     <DialogCreateSectionItem
-      open={isServiceDialogOpen}
-      onOpenChange={setIsServiceDialogOpen}
+      open={isCreateDialogOpen}
+      onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
-      onServiceCreated={handleServiceCreated}
+      onServiceCreated={handleItemCreated}
     />
-  )
+  );
 
-  const deleteDialogComponent = (
+  const DeleteDialog = (
     <DeleteServiceDialog
       open={isDeleteDialogOpen}
       onOpenChange={setIsDeleteDialogOpen}
-      serviceName={serviceToDelete?.name || ""}
-      onConfirm={handleDeleteService}
+      serviceName={itemToDelete?.name || ""}
+      onConfirm={handleDelete}
       isDeleting={isDeleting}
     />
-  )
+  );
 
   return (
-    <GenericListPage
-      config={servicesConfig}
-      sectionId={sectionId}
-      sectionConfig={serviceSectionConfig}
-      isAddButtonDisabled={isAddButtonDisabled}
-      addButtonTooltip={addButtonTooltip}
-      tableComponent={servicesTable}
-      sectionIntegrationComponent={sectionIntegrationComponent}
-      createDialogComponent={createDialogComponent}
-      deleteDialogComponent={deleteDialogComponent}
-      onAddNew={handleAddNewService}
-      isLoading={isLoadingServices}
-      emptyCondition={services.length === 0}
-      noSectionCondition={!serviceSection}
-    />
-  )
+    <div className="space-y-6">
+      {/* Main list page with table and section integration */}
+      <GenericListPage
+        config={SERVICES_CONFIG}
+        sectionId={sectionId}
+        sectionConfig={serviceSectionConfig}
+        isAddButtonDisabled={isAddButtonDisabled}
+        addButtonTooltip={addButtonTooltip}
+        tableComponent={ServicesTable}
+        sectionIntegrationComponent={SectionIntegration}
+        createDialogComponent={CreateDialog}
+        deleteDialogComponent={DeleteDialog}
+        onAddNew={handleAddNew}
+        isLoading={isLoadingServices || isLoadingMainSubSection}
+        emptyCondition={services.length === 0}
+        noSectionCondition={!serviceSection}
+        customEmptyMessage={emptyStateMessage}
+      />
+      
+      {/* Main subsection management (only shown when section exists) */}
+      {serviceSection && sectionId && (
+        <CreateMainSubSection 
+          sectionId={sectionId}
+          sectionConfig={serviceSectionConfig}
+          onSubSectionCreated={handleMainSubSectionCreated}
+          onFormValidityChange={handleFormValidityChange}
+        />
+      )}
+    </div>
+  );
 }

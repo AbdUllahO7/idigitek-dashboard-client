@@ -185,116 +185,152 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
   }
 
   // Function to process and load data into the form
-  const processAndLoadData = (subsectionData: any) => {
-    if (!subsectionData) return
+ // Fix for the processAndLoadData function in FeaturesForm.tsx
 
-    try {
-      setExistingSubSectionId(subsectionData._id)
+const processAndLoadData = (subsectionData: any) => {
+  if (!subsectionData) return;
 
-      if (subsectionData.contentElements && subsectionData.contentElements.length > 0) {
-        setContentElements(subsectionData.contentElements)
+  try {
+    console.log("Processing features subsection data:", subsectionData);
+    setExistingSubSectionId(subsectionData._id);
 
-        // Create a mapping of languages for easier access
-        const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-          acc[lang._id] = lang.languageID
-          return acc
-        }, {})
+    // Check if we have elements directly in the subsection data (API response structure)
+    const elements = subsectionData.elements || subsectionData.contentElements || [];
+    
+    if (elements.length > 0) {
+      // Store the content elements for later use
+      setContentElements(elements);
 
-        // Group content elements by feature
-        const featureGroups: Record<string, any[]> = {}
+      // Create a mapping of languages for easier access
+      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        acc[lang._id] = lang.languageID;
+        return acc;
+      }, {});
 
-        subsectionData.contentElements.forEach((element: any) => {
-          // Extract feature ID from element name (e.g., "Feature 1 - Heading" -> "1")
-          const featureIdMatch = element.name.match(/Feature (\d+)/i)
-          if (featureIdMatch) {
-            const featureId = featureIdMatch[1]
-            if (!featureGroups[featureId]) {
-              featureGroups[featureId] = []
-            }
-            featureGroups[featureId].push(element)
+      // Group content elements by feature
+      const featureGroups: Record<string, any[]> = {};
+
+      elements.forEach((element: any) => {
+        // Extract feature ID from element name (e.g., "Feature 1 - Heading" -> "1")
+        const featureIdMatch = element.name.match(/Feature (\d+)/i);
+        if (featureIdMatch) {
+          const featureId = featureIdMatch[1];
+          if (!featureGroups[featureId]) {
+            featureGroups[featureId] = [];
           }
-        })
+          featureGroups[featureId].push(element);
+        }
+      });
 
-        // Initialize form values for each language
-        const languageValues: Record<string, Feature[]> = {}
+      console.log("Feature groups:", featureGroups);
 
-        // Initialize all languages with empty feature arrays
+      // Initialize form values for each language
+      const languageValues: Record<string, Feature[]> = {};
+
+      // Initialize all languages with empty feature arrays
+      languageIds.forEach((langId) => {
+        const langCode = langIdToCodeMap[langId] || langId;
+        languageValues[langCode] = [];
+      });
+
+      // Process each feature group
+      Object.entries(featureGroups).forEach(([featureId, elements]) => {
+        // Find elements for this feature
+        const headingElement = elements.find((el) => el.name.includes("Heading"));
+        const descriptionElement = elements.find((el) => el.name.includes("Description"));
+        const imageElement = elements.find((el) => el.name.includes("Image") && el.type === "image");
+        const imagePositionElement = elements.find((el) => el.name.includes("Image Position"));
+        const featureListElements = elements.filter((el) => el.name.includes("Feature Item"));
+
+        // For each language, create a feature object
         languageIds.forEach((langId) => {
-          const langCode = langIdToCodeMap[langId] || langId
-          languageValues[langCode] = []
-        })
+          const langCode = langIdToCodeMap[langId] || langId;
 
-        // Process each feature group
-        Object.entries(featureGroups).forEach(([featureId, elements]) => {
-          // Find elements for this feature
-          const headingElement = elements.find((el) => el.name.includes("Heading"))
-          const descriptionElement = elements.find((el) => el.name.includes("Description"))
-          const imageElement = elements.find((el) => el.name.includes("Image") && el.type === "image")
-          const imagePositionElement = elements.find((el) => el.name.includes("Image Position"))
-          const featureListElements = elements.filter((el) => el.name.includes("Feature Item"))
+          // Helper function to get translation content for an element
+          const getTranslationContent = (element: any, defaultValue = "") => {
+            if (!element) return defaultValue;
 
-          // For each language, create a feature object
-          languageIds.forEach((langId) => {
-            const langCode = langIdToCodeMap[langId] || langId
+            // First check for a translation in this language
+            const translation = element.translations?.find((t: any) => {
+              // Handle both nested and direct language references
+              if (t.language && typeof t.language === 'object' && t.language._id) {
+                return t.language._id === langId;
+              } else {
+                return t.language === langId;
+              }
+            });
 
-            // Helper function to get translation content for an element
-            const getTranslationContent = (element: any, defaultValue = "") => {
-              if (!element) return defaultValue
+            if (translation?.content) return translation.content;
 
-              // First check for a translation in this language
-              const translation = element.translations?.find((t: any) => {
-                const translationLangId = t.language?._id || t.language
-                return translationLangId === langId
-              })
+            // Fall back to default content
+            return element.defaultContent || defaultValue;
+          };
 
-              if (translation?.content) return translation.content
+          // Get feature list items
+          const featureItems = featureListElements.map((el) => getTranslationContent(el, "")).filter(Boolean);
+          
+          // If no items were found, add an empty one
+          if (featureItems.length === 0) {
+            featureItems.push("");
+          }
 
-              // Fall back to default content
-              return element.defaultContent || defaultValue
-            }
+          // Create the feature object
+          const feature: Feature = {
+            id: `feature-${featureId}`,
+            title: getTranslationContent(headingElement, ""),
+            content: {
+              heading: getTranslationContent(headingElement, ""),
+              description: getTranslationContent(descriptionElement, ""),
+              features: featureItems,
+              image: imageElement?.imageUrl || "",
+              imagePosition: getTranslationContent(imagePositionElement, "right") as "left" | "right",
+            },
+          };
 
-            // Get feature list items
-            const featureItems = featureListElements.map((el) => getTranslationContent(el, "")).filter(Boolean)
+          // Add to language values
+          languageValues[langCode].push(feature);
+        });
+      });
 
-            // Create the feature object
-            const feature: Feature = {
-              id: `feature-${featureId}`,
-              title: getTranslationContent(headingElement, ""),
+      console.log("Form values after processing:", languageValues);
+
+      // Set all values in form
+      Object.entries(languageValues).forEach(([langCode, features]) => {
+        if (features.length > 0) {
+          form.setValue(langCode as any, features as any);
+        } else {
+          // Ensure at least one empty feature if none were found
+          form.setValue(langCode as any, [
+            {
+              id: `feature-1`,
+              title: "",
               content: {
-                heading: getTranslationContent(headingElement, ""),
-                description: getTranslationContent(descriptionElement, ""),
-                features: featureItems.length > 0 ? featureItems : [""],
-                image: imageElement?.imageUrl || "",
-                imagePosition: getTranslationContent(imagePositionElement, "right") as "left" | "right",
+                heading: "",
+                description: "",
+                features: [""],
+                image: "",
+                imagePosition: "right",
               },
             }
-
-            // Add to language values
-            languageValues[langCode].push(feature)
-          })
-        })
-
-        // Set all values in form
-        Object.entries(languageValues).forEach(([langCode, features]) => {
-          if (features.length > 0) {
-            form.setValue(langCode as any, features as any)
-          }
-        })
-      }
-
-      setDataLoaded(true)
-      setHasUnsavedChanges(false)
-    } catch (error) {
-      console.error("Error processing features section data:", error)
-      toast({
-        title: "Error loading features section data",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoadingData(false)
+          ] as any);
+        }
+      });
     }
+
+    setDataLoaded(true);
+    setHasUnsavedChanges(false);
+    validateFeatureCounts();
+  } catch (error) {
+    console.error("Error processing features section data:", error);
+    toast({
+      title: "Error loading features section data",
+      description: error instanceof Error ? error.message : "Unknown error occurred",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoadingData(false);
   }
+};
 
   // Effect to populate form with existing data from complete subsection - only run once when data is available
   useEffect(() => {
