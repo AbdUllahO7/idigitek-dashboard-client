@@ -101,16 +101,14 @@ export function WarningCard({ title, message }: WarningCardProps) {
 interface SuccessCardProps {
   title: string
   description: string
-  data: Record<string, any>
-  metaFields: Array<{key: string, label: string, condition?: (data: any) => boolean}>
+
   onEdit: () => void
 }
 
 export function SuccessCard({ 
   title, 
   description, 
-  data, 
-  metaFields,
+
   onEdit 
 }: SuccessCardProps) {
   return (
@@ -141,26 +139,8 @@ export function SuccessCard({
           </CardDescription>
         </CardHeader>
         <CardContent className="bg-white/80 dark:bg-gray-900/80 rounded-xl p-5 mx-3 mb-3 border border-emerald-100 dark:border-emerald-900/50 shadow-sm">
-          <div className="space-y-3.5">
-            {metaFields.map((field) => {
-              if (field.condition && !field.condition(data)) return null;
-              
-              const value = field.key.includes('.')
-                ? field.key.split('.').reduce((obj, key) => obj && obj[key], data)
-                : data[field.key];
-                
-              if (!value && value !== 0) return null;
-              
-              return (
-                <div key={field.key} className="flex items-center">
-                  <span className="font-medium text-gray-700 dark:text-gray-300 min-w-[130px] text-sm">{field.label}:</span> 
-                  <span className="text-gray-900 dark:text-gray-100 font-medium">{
-                    Array.isArray(value) ? value.join(', ') : value
-                  }</span>
-                </div>
-              );
-            })}
-          </div>
+        
+          
         </CardContent>
       </div>
     </Card>

@@ -380,10 +380,6 @@ function GenericSectionIntegration({
 
   // Use provided values or generate defaults from config
 
-    sectionDescription || `Manage your ${config.name.toLowerCase()} section content in multiple languages.`
-      const displayAddButton = addButtonLabel || `Add ${config.name} Section`
-
-    noDataMessage || `No ${config.name.toLowerCase()} section found. Click '${displayAddButton}' to create one.`
 
   return (
     <>

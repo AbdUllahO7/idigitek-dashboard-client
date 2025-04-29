@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo, useCallback } from "react"
 import { useToast } from "@/src/hooks/use-toast"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -51,6 +51,21 @@ interface CreateMainSubSectionProps {
   onFormValidityChange?: (isValid: boolean, message?: string) => void
 }
 
+// Debounce utility
+function debounce(func: (...args: any[]) => void, wait: number) {
+  let timeout: NodeJS.Timeout;
+  const executedFunction = (...args: any[]) => {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+  executedFunction.cancel = () => clearTimeout(timeout);
+  return executedFunction;
+}
+
 export default function CreateMainSubSection({
   sectionId,
   sectionConfig,
@@ -74,6 +89,7 @@ export default function CreateMainSubSection({
   const [formsInitialized, setFormsInitialized] = useState(false)
   const [hasEmptyRequiredFields, setHasEmptyRequiredFields] = useState(true)
   const [isExpanded, setIsExpanded] = useState(true)
+  const [languageForms, setLanguageForms] = useState<Record<string, any>>({})
   const languagesInitialized = useRef(false)
   
   // API Hooks
@@ -109,6 +125,9 @@ export default function CreateMainSubSection({
     isLoading: isLoadingCompleteSubsections,
     error: completeSubsectionsError
   } = useGetCompleteBySectionId(sectionId)
+
+
+  console.log("Complete Subsections Data:", completeSubsectionsData)
   
   const { 
     data: languagesData, 
@@ -119,8 +138,9 @@ export default function CreateMainSubSection({
   const languages = languagesData?.data?.filter(lang => lang.isActive) || []
   const defaultLanguage = languages.find(lang => lang.isDefault) || (languages.length > 0 ? languages[0] : null)
   
-  // Form schema builder
-  const buildFormSchema = () => {
+  // Form setup
+  // Build form schema
+  const buildFormSchema = useCallback(() => {
     const schemaObj: Record<string, any> = {}
     
     sectionConfig.fields.forEach(field => {
@@ -136,31 +156,79 @@ export default function CreateMainSubSection({
     })
     
     return z.object(schemaObj)
-  }
+  }, [sectionConfig.fields])
   
-  // Create forms for each language
-  const languageForms: Record<string, any> = {}
-  languages.forEach(lang => {
-    const formSchema = buildFormSchema()
-    languageForms[lang.languageID] = useForm<z.infer<typeof formSchema>>({
-      resolver: zodResolver(formSchema),
-      defaultValues: sectionConfig.fields.reduce((acc, field) => {
-        acc[field.id] = ''
-        return acc
-      }, {} as Record<string, string>),
-      mode: "onChange" // Enable validation on change
-    })
+  const formSchema = useMemo(() => buildFormSchema(), [buildFormSchema])
+  
+  // Get default values
+  const getFormDefaultValues = useCallback(() => {
+    return sectionConfig.fields.reduce((acc, field) => {
+      acc[field.id] = ''
+      return acc
+    }, {} as Record<string, string>)
+  }, [sectionConfig.fields])
+  
+  // Memoize fields
+  const fields = useMemo(() => sectionConfig.fields, [sectionConfig.fields])
+  
+  // Pre-created form instances
+  const form1 = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getFormDefaultValues(),
+    mode: "onChange"
   })
+  
+  const form2 = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getFormDefaultValues(),
+    mode: "onChange"
+  })
+  
+  const form3 = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getFormDefaultValues(),
+    mode: "onChange"
+  })
+  
+  const form4 = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getFormDefaultValues(),
+    mode: "onChange"
+  })
+  
+  const form5 = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getFormDefaultValues(),
+    mode: "onChange"
+  })
+  
+  const formInstances = useMemo(() => [form1, form2, form3, form4, form5], [form1, form2, form3, form4, form5])
+  
+  // Map form instances to languages
+  useEffect(() => {
+    if (languages.length > 0) {
+      const forms: Record<string, any> = {}
+      languages.forEach((lang, index) => {
+        if (index < formInstances.length) {
+          forms[lang.languageID] = formInstances[index]
+        }
+      })
+      setLanguageForms(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(forms)) {
+          return forms
+        }
+        return prev
+      })
+    }
+  }, [languages, formInstances])
   
   // Initialize selected languages and active tab
   useEffect(() => {
     if (languages.length > 0 && !languagesInitialized.current) {
       setSelectedLanguages(languages.map(lang => lang._id))
-      
       if (defaultLanguage) {
         setActiveTab(defaultLanguage.languageID)
       }
-      
       languagesInitialized.current = true
     }
   }, [languages, defaultLanguage])
@@ -169,125 +237,134 @@ export default function CreateMainSubSection({
   useEffect(() => {
     if (completeSubsectionsData?.data && completeSubsectionsData.data.length > 0) {
       const mainSubsection = completeSubsectionsData.data.find(sub => sub.isMain) || completeSubsectionsData.data[0]
-      
-      setSubsection(mainSubsection)
-      setSubsectionExists(true)
-      
-      if (mainSubsection.elements && mainSubsection.elements.length > 0) {
-        setContentElements(mainSubsection.elements)
-        
-        // Create translation map
-        const translationMap: Record<string, any[]> = {}
-        mainSubsection.elements.forEach(element => {
-          if (element.translations && element.translations.length > 0) {
-            translationMap[element._id] = element.translations
-          }
-        })
-        
-        setContentTranslations(translationMap)
-        setFormsInitialized(false)
+      if (JSON.stringify(mainSubsection) !== JSON.stringify(subsection)) {
+        setSubsection(mainSubsection)
+        setSubsectionExists(true)
+        if (mainSubsection.elements && mainSubsection.elements.length > 0) {
+          setContentElements(mainSubsection.elements)
+          const translationMap: Record<string, any[]> = {}
+          mainSubsection.elements.forEach(element => {
+            if (element.translations && element.translations.length > 0) {
+              translationMap[element._id] = element.translations
+            }
+          })
+          setContentTranslations(translationMap)
+          setFormsInitialized(false)
+        }
       }
-      
-      // Notify parent that there's a valid subsection
       if (onFormValidityChange) {
-        onFormValidityChange(true);
+        onFormValidityChange(true)
       }
     } else {
-      // No subsection exists yet, forms will be empty
       if (onFormValidityChange) {
-        onFormValidityChange(false, "Please enter your main section data!");
+        onFormValidityChange(false, "Please enter your main section data!")
       }
     }
-  }, [completeSubsectionsData, onFormValidityChange])
+  }, [completeSubsectionsData, onFormValidityChange, subsection])
   
   // Initialize forms with data
   useEffect(() => {
-    if (contentElements.length > 0 && 
-        Object.keys(contentTranslations).length > 0 && 
-        !formsInitialized && 
-        languages.length > 0) {
-      
+    if (
+      contentElements.length > 0 &&
+      Object.keys(contentTranslations).length > 0 &&
+      !formsInitialized &&
+      languages.length > 0 &&
+      Object.keys(languageForms).length > 0
+    ) {
       languages.forEach(lang => {
         const form = languageForms[lang.languageID]
         if (!form) return
-        
         const fieldValues: Record<string, string> = {}
         
-        // Map content elements and translations to form fields
-        sectionConfig.fields.forEach(field => {
+        fields.forEach(field => {
           const element = contentElements.find(el => el.name === field.label)
           if (!element) return
-          
           const translations = contentTranslations[element._id] || []
-          const translation = translations.find(t => 
-            (typeof t.language === 'string' && t.language === lang._id) || 
+          const translation = translations.find(t =>
+            (typeof t.language === 'string' && t.language === lang._id) ||
             (t.language && t.language._id === lang._id)
           )
-          
-          fieldValues[field.id] = translation 
-            ? translation.content || '' 
+          fieldValues[field.id] = translation
+            ? translation.content || ''
             : element.defaultContent || ''
         })
         
-        form.reset(fieldValues)
+        const currentValues = form.getValues()
+        if (JSON.stringify(currentValues) !== JSON.stringify(fieldValues)) {
+          form.reset(fieldValues)
+        }
       })
       
       setFormsInitialized(true)
-      checkFormsEmpty();
     }
-  }, [contentElements, contentTranslations, languages, sectionConfig.fields, languageForms])
+  }, [contentElements, contentTranslations, languages, fields, languageForms, formsInitialized])
   
   // Check if any required fields are empty in the default language form
-  const checkFormsEmpty = () => {
+  const checkFormsEmpty = useCallback(() => {
     if (!defaultLanguage || !languageForms[defaultLanguage.languageID]) {
-      setHasEmptyRequiredFields(true);
-      return;
+      setHasEmptyRequiredFields(true)
+      return
     }
     
-    const form = languageForms[defaultLanguage.languageID];
-    const values = form.getValues();
+    const form = languageForms[defaultLanguage.languageID]
+    const values = form.getValues()
     
-    // Check if any required field is empty
-    let isEmpty = false;
-    sectionConfig.fields.forEach(field => {
+    let isEmpty = false
+    fields.forEach(field => {
       if (field.required && (!values[field.id] || values[field.id].trim() === '')) {
-        isEmpty = true;
+        isEmpty = true
       }
-    });
+    })
     
-    setHasEmptyRequiredFields(isEmpty);
+    // Only update if there's a change to avoid unnecessary re-renders
+    setHasEmptyRequiredFields(prev => {
+      if (prev !== isEmpty) {
+        return isEmpty
+      }
+      return prev
+    })
     
-    // Set collapsed state based on whether fields are filled
-    setIsExpanded(isEmpty);
+    // Only set expanded if we're in edit mode and fields are empty
+    if (isEmpty && isEditMode) {
+      setIsExpanded(true)
+    }
     
-    // Notify parent component about form validity
     if (onFormValidityChange) {
       onFormValidityChange(
-        !isEmpty && subsectionExists, 
+        !isEmpty && subsectionExists,
         isEmpty ? "Please enter your main section data!" : undefined
-      );
+      )
     }
-  };
+  }, [defaultLanguage, languageForms, fields, subsectionExists, onFormValidityChange, isEditMode])
+  
+  // Debounced checkFormsEmpty
+  const debouncedCheckFormsEmpty = useCallback(
+    debounce(() => {
+      checkFormsEmpty()
+    }, 300),
+    [checkFormsEmpty]
+  )
   
   // Watch for form changes to validate in real-time
   useEffect(() => {
     if (defaultLanguage && languageForms[defaultLanguage.languageID] && formsInitialized) {
-      const form = languageForms[defaultLanguage.languageID];
-      
+      const form = languageForms[defaultLanguage.languageID]
       const subscription = form.watch(() => {
-        checkFormsEmpty();
-      });
-      
-      return () => subscription.unsubscribe();
+        debouncedCheckFormsEmpty()
+      })
+      return () => {
+        subscription.unsubscribe()
+        debouncedCheckFormsEmpty.cancel()
+      }
     }
-  }, [defaultLanguage, languageForms, formsInitialized]);
+  }, [defaultLanguage, languageForms, formsInitialized, debouncedCheckFormsEmpty])
   
   // Validate all forms
   const validateAllForms = async () => {
     for (const lang of languages) {
       const form = languageForms[lang.languageID]
+      if (!form) continue
       const result = await form.trigger()
-      
       if (!result) {
         setActiveTab(lang.languageID)
         toast({
@@ -298,18 +375,14 @@ export default function CreateMainSubSection({
         return false
       }
     }
-    
     return true
   }
   
   // Create new subsection
   const handleCreateSubsection = async () => {
     if (!(await validateAllForms())) return
-    
     try {
       setIsCreating(true)
-      
-      // Create subsection
       const subSectionData = {
         name: sectionConfig.name,
         description: sectionConfig.description,
@@ -328,15 +401,12 @@ export default function CreateMainSubSection({
       }
       
       const response = await createMutation.mutateAsync(subSectionData)
-      
       if (response?.data) {
         const createdSubsection = response.data
         setSubsection(createdSubsection)
         setIsCreatingElements(true)
         
-        // Create content elements and translations
         await Promise.all(sectionConfig.fields.map(async (field, index) => {
-          // Create element
           const elementData = {
             name: field.label,
             defaultContent: languageForms[defaultLanguage.languageID].getValues()[field.id],
@@ -353,16 +423,16 @@ export default function CreateMainSubSection({
             throw new Error(`Failed to create content element for ${field.label}`)
           }
           
-          // Create translations for each language
           await Promise.all(languages.map(async (lang) => {
-            const formValues = languageForms[lang.languageID].getValues()
+            const form = languageForms[lang.languageID]
+            if (!form) return null
+            const formValues = form.getValues()
             const translationData = {
               content: formValues[field.id],
               language: lang._id,
               contentElement: createdElement._id,
               isActive: true
             }
-            
             return createTranslationMutation.mutateAsync(translationData)
           }))
           
@@ -370,15 +440,14 @@ export default function CreateMainSubSection({
         }))
         
         setSubsectionExists(true)
-        setHasEmptyRequiredFields(false);
+        setHasEmptyRequiredFields(false)
         
-        // Notify parent components
         if (onSubSectionCreated) {
           onSubSectionCreated(createdSubsection)
         }
         
         if (onFormValidityChange) {
-          onFormValidityChange(true);
+          onFormValidityChange(true)
         }
         
         toast({
@@ -386,8 +455,7 @@ export default function CreateMainSubSection({
           description: `Main subsection created with content in ${languages.length} language(s).`
         })
         
-        // Collapse the section after successful creation
-        setIsExpanded(false);
+        setIsExpanded(false)
       }
     } catch (error: any) {
       toast({
@@ -401,142 +469,140 @@ export default function CreateMainSubSection({
     }
   }
   
-  // Update existing subsection
-  const handleUpdateSubsection = async () => {
-    if (!(await validateAllForms())) return
+// Update existing subsection
+const handleUpdateSubsection = async () => {
+  if (!(await validateAllForms())) return
+  try {
+    setIsUpdating(true)
+    await updateMutation.mutateAsync({
+      id: subsection._id,
+      data: {
+        defaultContent: defaultLanguage && languageForms[defaultLanguage.languageID]
+          ? languageForms[defaultLanguage.languageID].getValues()
+          : {}
+      }
+    })
     
-    try {
-      setIsUpdating(true)
+    await Promise.all(contentElements.map(async (element) => {
+      const field = sectionConfig.fields.find(f => f.label === element.name)
+      if (!field) return
+      if (defaultLanguage && languageForms[defaultLanguage.languageID]) {
+        const defaultContent = languageForms[defaultLanguage.languageID].getValues()[field.id]
+        await updateElementMutation.mutateAsync({
+          id: element._id,
+          data: { defaultContent }
+        })
+      }
       
-      // Update subsection
-      await updateMutation.mutateAsync({
-        id: subsection._id,
-        data: {
-          defaultContent: defaultLanguage ? languageForms[defaultLanguage.languageID].getValues() : {}
-        }
-      })
-      
-      // Update content elements and translations
-      await Promise.all(contentElements.map(async (element) => {
-        const field = sectionConfig.fields.find(f => f.label === element.name)
-        if (!field) return
+      await Promise.all(languages.map(async (lang) => {
+        const form = languageForms[lang.languageID]
+        if (!form) return null
+        const formValues = form.getValues()
+        const content = formValues[field.id]
+        const elementTranslations = contentTranslations[element._id] || []
         
-        // Update element's default content
-        if (defaultLanguage) {
-          const defaultContent = languageForms[defaultLanguage.languageID].getValues()[field.id]
-          await updateElementMutation.mutateAsync({
-            id: element._id,
-            data: { defaultContent }
+        // Find the translation for this language - improved comparison
+        const existingTranslation = elementTranslations.find(t => {
+          // Handle both string ID and object reference cases
+          const translationLangId = typeof t.language === 'string' ? t.language : (t.language?._id || t.language)
+          const currentLangId = lang._id
+          return translationLangId === currentLangId
+        })
+        
+        if (existingTranslation) {
+          // If translation exists, update it
+          await updateTranslationMutation.mutateAsync({
+            id: existingTranslation._id,
+            data: { content }
+          })
+        } else {
+          // If translation doesn't exist, create it
+          await createTranslationMutation.mutateAsync({
+            content,
+            language: lang._id,
+            contentElement: element._id,
+            isActive: true
           })
         }
-        
-        // Update translations for each language
-        await Promise.all(languages.map(async (lang) => {
-          const formValues = languageForms[lang.languageID].getValues()
-          const content = formValues[field.id]
-          
-          // Find existing translation or create new one
-          const existingTranslations = contentTranslations[element._id] || []
-          const existingTranslation = existingTranslations.find(t => 
-            (typeof t.language === 'string' && t.language === lang._id) || 
-            (t.language && t.language._id === lang._id)
-          )
-          
-          if (existingTranslation) {
-            await updateTranslationMutation.mutateAsync({
-              id: existingTranslation._id,
-              data: { content }
-            })
-          } else {
-            await createTranslationMutation.mutateAsync({
-              content,
-              language: lang._id,
-              contentElement: element._id,
-              isActive: true
-            })
-          }
-        }))
       }))
-      
-      // Check if form is now valid
-      checkFormsEmpty();
-      
-      toast({
-        title: "Success",
-        description: `Subsection updated with content in ${languages.length} language(s).`
-      })
-      
-      setIsEditMode(false)
-      
-      // Collapse the section after successful update
-      setIsExpanded(false);
-    } catch (error: any) {
-      toast({
-        title: "Error updating subsection",
-        description: error.message || "An unexpected error occurred",
-        variant: "destructive"
-      })
-    } finally {
-      setIsUpdating(false)
-    }
+    }))
+    
+    checkFormsEmpty()
+    toast({
+      title: "Success",
+      description: `Subsection updated with content in ${languages.length} language(s).`
+    })
+    
+    setIsEditMode(false)
+    setIsExpanded(false)
+  } catch (error: any) {
+    toast({
+      title: "Error updating subsection",
+      description: error.message || "An unexpected error occurred",
+      variant: "destructive"
+    })
+  } finally {
+    setIsUpdating(false)
   }
+}
   
   // Render form content for each language tab
   const renderLanguageForms = () => {
-    return languages.map(lang => (
-      <TabsContent key={lang.languageID} value={lang.languageID}>
-        <Form {...languageForms[lang.languageID]}>
-          <div className="space-y-6">
-            {sectionConfig.fields.map((field) => (
-              <FormField
-                key={`${lang.languageID}-${field.id}`}
-                control={languageForms[lang.languageID].control}
-                name={field.id}
-                render={({ field: formField }) => (
-                  <FormItem className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm">
-                    <FormLabel className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
-                      {field.label}
-                      {field.required && <span className="text-red-500 ml-1">*</span>}
-                    </FormLabel>
-                    <FormControl>
-                      {field.type === 'textarea' ? (
-                        <Textarea
-                          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()} for ${lang.name || lang.language}`}
-                          {...formField}
-                          className="min-h-[120px] border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      ) : (
-                        <Input
-                          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()} for ${lang.name || lang.language}`}
-                          {...formField}
-                          className="border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
+    return languages.map(lang => {
+      const form = languageForms[lang.languageID]
+      if (!form) return null
+      return (
+        <TabsContent key={lang.languageID} value={lang.languageID}>
+          <Form {...form}>
+            <div className="space-y-6">
+              {sectionConfig.fields.map((field) => (
+                <FormField
+                  key={`${lang.languageID}-${field.id}`}
+                  control={form.control}
+                  name={field.id}
+                  render={({ field: formField }) => (
+                    <FormItem className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm">
+                      <FormLabel className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
+                        {field.label}
+                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                      </FormLabel>
+                      <FormControl>
+                        {field.type === 'textarea' ? (
+                          <Textarea
+                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()} for ${lang.name || lang.language}`}
+                            {...formField}
+                            className="min-h-[120px] border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        ) : (
+                          <Input
+                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()} for ${lang.name || lang.language}`}
+                            {...formField}
+                            className="border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        )}
+                      </FormControl>
+                      {field.description && (
+                        <FormDescription className="text-gray-500 dark:text-gray-400 text-sm italic mt-1">
+                          {field.description}
+                        </FormDescription>
                       )}
-                    </FormControl>
-                    {field.description && (
-                      <FormDescription className="text-gray-500 dark:text-gray-400 text-sm italic mt-1">
-                        {field.description}
-                      </FormDescription>
-                    )}
-                    <FormMessage className="text-red-500 dark:text-red-400 font-medium text-sm mt-1" />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
-        </Form>
-      </TabsContent>
-    ));
-  };
+                      <FormMessage className="text-red-500 dark:text-red-400 font-medium text-sm mt-1" />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+          </Form>
+        </TabsContent>
+      )
+    })
+  }
   
   // Display states
-  
-  // Loading state
   if (isLoadingCompleteSubsections || isLoadingLanguages) {
     return <LoadingCard />
   }
   
-  // Error state
   if (completeSubsectionsError) {
     return (
       <ErrorCard
@@ -546,7 +612,6 @@ export default function CreateMainSubSection({
     )
   }
   
-  // No languages available
   if (languages.length === 0) {
     return (
       <WarningCard
@@ -556,141 +621,116 @@ export default function CreateMainSubSection({
     )
   }
   
-  // Subsection exists (view mode)
   if (subsectionExists && subsection && !isEditMode) {
-    // Create data object for SuccessCard
     const subsectionData = {
       ...subsection,
       elements: contentElements
-    };
-    
-    // Define fields to display
+    }
     const metaFields = [
       { key: 'name', label: 'Name' },
-      { key: 'description', label: 'Description', condition: (data) => !!data.description },
+      { key: 'description', label: 'Description', condition: (data: any) => !!data.description },
       { key: 'slug', label: 'Slug' },
-      { key: 'languages', label: 'Languages', condition: (data) => data.languages && data.languages.length > 0 },
+      { key: 'languages', label: 'Languages', condition: (data: any) => data.languages && data.languages.length > 0 },
       { key: 'elements.length', label: 'Content Elements' }
-    ];
-
+    ]
     return (
       <SuccessCard
         title="Main Subsection Available"
         description="The main subsection is already set up for this section."
-        data={subsectionData}
-        metaFields={metaFields}
         onEdit={() => {
-          setIsEditMode(true);
-          setIsExpanded(true);
+          setIsEditMode(true)
+          setIsExpanded(true)
         }}
       />
     )
   }
   
-  // Create/Edit form with collapsible behavior
-  return (
-    <MainFormCard
-      title={
-        <div 
-          className="flex items-center justify-between w-full cursor-pointer"
-          onClick={() => setIsExpanded(!isExpanded)}
+// Component return section with fixed warning display
+return (
+  <MainFormCard
+    title={
+      <div
+        className="flex items-center justify-between w-full cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <span>{subsectionExists ? "Edit Main Subsection" : "Create Main Subsection"}</span>
+        <motion.div
+          animate={{ rotate: isExpanded ? 0 : 180 }}
+          transition={{ duration: 0.3 }}
+          className="p-1 bg-gray-100 dark:bg-gray-800 rounded-full"
         >
-          <span>{subsectionExists ? "Edit Main Subsection" : "Create Main Subsection"}</span>
-          <motion.div
-            animate={{ rotate: isExpanded ? 0 : 180 }}
-            transition={{ duration: 0.3 }}
-            className="p-1 bg-gray-100 dark:bg-gray-800 rounded-full"
-          >
-            {isExpanded ? 
-              <ChevronUp size={18} className="text-gray-600 dark:text-gray-300" /> : 
-              <ChevronDown size={18} className="text-gray-600 dark:text-gray-300" />
-            }
-          </motion.div>
-        </div>
-      }
-      description={
-        subsectionExists 
-          ? "Update the content for this main subsection across all languages."
-          : "Complete the required fields to create the main subsection for this section."
-      }
-    >
-      {/* Status indicators */}
-      <div className="mb-4 flex items-center">
-        <div className={`w-3 h-3 rounded-full ${!hasEmptyRequiredFields ? 'bg-green-500' : 'bg-amber-500'} mr-2`}></div>
-        <span className={`text-sm font-medium ${!hasEmptyRequiredFields ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
-          {!hasEmptyRequiredFields ? 'All required fields completed' : 'Required fields need completion'}
-        </span>
+          {isExpanded ?
+            <ChevronUp size={18} className="text-gray-600 dark:text-gray-300" /> :
+            <ChevronDown size={18} className="text-gray-600 dark:text-gray-300" />}
+        </motion.div>
       </div>
+    }
+    description={
+      subsectionExists
+        ? "Update the content for this main subsection across all languages."
+        : "Complete the required fields to create the main subsection for this section."
+    }
+  >
+   
 
-      {/* Alerts */}
-      {hasEmptyRequiredFields && (
-        <WarningAlert
-          title="Required Information Missing"
-          message="Please fill in all required fields in all languages before adding services. Services cannot be added until the main section content is complete."
-        />
+   
+    <AnimatePresence initial={false}>
+      {isExpanded && (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden"
+        >
+          <LanguageTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            languages={languages}
+          >
+            {renderLanguageForms()}
+          </LanguageTabs>
+        </motion.div>
       )}
-
-      {/* Collapsible content */}
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.div
-            key="content"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            {/* Language tabs and forms */}
-            <LanguageTabs
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              languages={languages}
-            >
-              {renderLanguageForms()}
-            </LanguageTabs>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      {/* Action buttons - always visible */}
-      <div className="mt-8 flex flex-col md:flex-row gap-3">
-        {isExpanded ? (
-          <>
-            <ActionButton
-              isLoading={false}
-              isCreating={isCreating}
-              isCreatingElements={isCreatingElements}
-              isUpdating={isUpdating}
-              exists={subsectionExists}
-              onClick={subsectionExists ? handleUpdateSubsection : handleCreateSubsection}
-              className="flex-1"
+    </AnimatePresence>
+    
+    <div className="mt-8 flex flex-col md:flex-row gap-3">
+      {isExpanded ? (
+        <>
+          <ActionButton
+            isLoading={false}
+            isCreating={isCreating}
+            isCreatingElements={isCreatingElements}
+            isUpdating={isUpdating}
+            exists={subsectionExists}
+            onClick={subsectionExists ? handleUpdateSubsection : handleCreateSubsection}
+            className="flex-1"
+          />
+          {subsectionExists && (
+            <CancelButton
+              onClick={() => {
+                setIsEditMode(false)
+                setIsExpanded(false)
+              }}
+              className="md:w-48"
             />
-            
-            {subsectionExists && (
-              <CancelButton 
-                onClick={() => {
-                  setIsEditMode(false);
-                  setIsExpanded(false);
-                }} 
-                className="md:w-48"
-              />
-            )}
-          </>
-        ) : (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setIsExpanded(true)}
-            className="w-full py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-200 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
-          >
-            <div className="flex items-center justify-center">
-              <ChevronDown size={18} className="mr-2" />
-              <span>Show Content Form</span>
-            </div>
-          </motion.button>
-        )}
-      </div>
-    </MainFormCard>
-  )
+          )}
+        </>
+      ) : (
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setIsExpanded(true)}
+          className="w-full py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-200 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
+        >
+          <div className="flex items-center justify-center">
+            <ChevronDown size={18} className="mr-2" />
+            <span>Show Content Form</span>
+          </div>
+        </motion.button>
+      )}
+    </div>
+  </MainFormCard>
+)
 }

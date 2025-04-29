@@ -342,7 +342,7 @@ const handleSave = async () => {
         slug: slug || `hero-section-${Date.now()}`, // Use provided slug or generate one
         description: "",
         isActive: true,
-        isMain: true, // Set isMain to true
+        isMain: false, // Set isMain to true
         order: 0,
         sectionItem: ParentSectionId,
         languages: languageIds as string[],
