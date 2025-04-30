@@ -24,17 +24,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { Button } from "@/src/components/ui/button"
-import { Select, SelectContent, SelectItem,  SelectValue, SelectTrigger } from "@/src/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "@/src/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import { useToast } from "@/src/hooks/use-toast"
 import { IconComponent, LoadingDialog } from "./MainSectionComponents"
-
-
-
-
 
 // Available icons
 const availableIcons = [
@@ -51,7 +47,6 @@ const availableIcons = [
 // Create a dynamic schema based on available languages
 const createProcessStepsSchema = (languageIds, activeLanguages) => {
   const schemaShape = {}
-
   const languageCodeMap = activeLanguages.reduce((acc, lang) => {
     acc[lang._id] = lang.languageID
     return acc
@@ -75,7 +70,6 @@ const createProcessStepsSchema = (languageIds, activeLanguages) => {
 
 const createDefaultValues = (languageIds, activeLanguages) => {
   const defaultValues = {}
-
   const languageCodeMap = activeLanguages.reduce((acc, lang) => {
     acc[lang._id] = lang.languageID
     return acc
@@ -163,144 +157,122 @@ const ProcessStepsForm = forwardRef(
     const validateStepCounts = () => {
       const values = form.getValues()
       const counts = Object.values(values).map((langSteps) => (Array.isArray(langSteps) ? langSteps.length : 0))
-
-      // Check if all counts are the same
       const allEqual = counts.every((count) => count === counts[0])
       setStepCountMismatch(!allEqual)
-
       return allEqual
     }
 
     // Function to process and load data into the form
     const processAndLoadData = (subsectionData) => {
-      if (!subsectionData) return;
+      if (!subsectionData) return
 
       try {
-        console.log("Processing process steps subsection data:", subsectionData);
-        setExistingSubSectionId(subsectionData._id);
+        console.log("Processing process steps subsection data:", subsectionData)
+        setExistingSubSectionId(subsectionData._id)
 
-        // Check if we have elements directly in the subsection data (API response structure)
-        const elements = subsectionData.elements || subsectionData.contentElements || [];
+        const elements = subsectionData.elements || subsectionData.contentElements || []
         
         if (elements.length > 0) {
-          // Store the content elements for later use
-          setContentElements(elements);
+          setContentElements(elements)
 
-          // Create a mapping of languages for easier access
           const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
-            acc[lang._id] = lang.languageID;
-            return acc;
-          }, {});
+            acc[lang._id] = lang.languageID
+            return acc
+          }, {})
 
-          // Group content elements by step number
-          const stepGroups = {};
-
-          elements.forEach((element: { name: string }) => {
-            // Extract step number from element name (e.g., "Step 1 - Title")
-            const match = element.name.match(/Step (\d+)/i);
+          const stepGroups = {}
+          elements.forEach((element) => {
+            const match = element.name.match(/Step (\d+)/i)
             if (match) {
-              const stepNumber = Number.parseInt(match[1]);
+              const stepNumber = Number.parseInt(match[1])
               if (!stepGroups[stepNumber]) {
-                stepGroups[stepNumber] = [];
+                stepGroups[stepNumber] = []
               }
-              stepGroups[stepNumber].push(element);
+              stepGroups[stepNumber].push(element)
             }
-          });
+          })
 
-          console.log("Step groups:", stepGroups);
+          console.log("Step groups:", stepGroups)
 
-          // Initialize form values for each language
-          const languageValues = {};
-
-          // Initialize all languages with empty arrays
+          const languageValues = {}
           languageIds.forEach((langId) => {
-            const langCode = langIdToCodeMap[langId] || langId;
-            languageValues[langCode] = [];
-          });
+            const langCode = langIdToCodeMap[langId] || langId
+            languageValues[langCode] = []
+          })
 
-          // Process each step group
           Object.entries(stepGroups).forEach(([stepNumber, elements]) => {
-            const iconElement = elements.find((el) => el.name.includes("Icon"));
-            const titleElement = elements.find((el) => el.name.includes("Title"));
-            const descriptionElement = elements.find((el) => el.name.includes("Description"));
+            const iconElement = elements.find((el) => el.name.includes("Icon"))
+            const titleElement = elements.find((el) => el.name.includes("Title"))
+            const descriptionElement = elements.find((el) => el.name.includes("Description"))
 
             if (titleElement && descriptionElement) {
-              // For each language, create a step entry
               languageIds.forEach((langId) => {
-                const langCode = langIdToCodeMap[langId] || langId;
+                const langCode = langIdToCodeMap[langId] || langId
 
-                // Helper function to get translation content for an element
                 const getTranslationContent = (element, defaultValue = "") => {
-                  if (!element) return defaultValue;
-
-                  // First check for a translation in this language
+                  if (!element) return defaultValue
                   const translation = element.translations?.find((t) => {
-                    // Handle both nested and direct language references
                     if (t.language && typeof t.language === 'object' && t.language._id) {
-                      return t.language._id === langId;
+                      return t.language._id === langId
                     } else {
-                      return t.language === langId;
+                      return t.language === langId
                     }
-                  });
-
-                  if (translation?.content) return translation.content;
-
-                  // Fall back to default content
-                  return element.defaultContent || defaultValue;
-                };
-
-                // Get content values with proper translation handling
-                const title = getTranslationContent(titleElement, "");
-                const description = getTranslationContent(descriptionElement, "");
-                const icon = iconElement ? (iconElement.defaultContent || "Car") : "Car";
-
-                // Add to language values
-                if (!languageValues[langCode]) {
-                  languageValues[langCode] = [];
+                  })
+                  return translation?.content || element.defaultContent || defaultValue
                 }
 
-                languageValues[langCode].push({ icon, title, description });
-              });
+                const title = getTranslationContent(titleElement, "")
+                const description = getTranslationContent(descriptionElement, "")
+                const icon = iconElement ? (iconElement.defaultContent || "Car") : "Car"
+
+                if (!languageValues[langCode]) {
+                  languageValues[langCode] = []
+                }
+
+                languageValues[langCode].push({ icon, title, description })
+              })
             }
-          });
+          })
 
-          console.log("Form values after processing:", languageValues);
+          console.log("Form values after processing:", languageValues)
 
-          // Set all values in form
           Object.entries(languageValues).forEach(([langCode, steps]) => {
             if (steps.length > 0) {
-              form.setValue(langCode, steps);
+              form.setValue(langCode, steps, { shouldDirty: false })
             } else {
-              // Ensure at least one empty step if none were found
               form.setValue(langCode, [
                 {
                   icon: "Car",
                   title: "",
                   description: "",
                 }
-              ]);
+              ], { shouldDirty: false })
             }
-          });
+          })
         }
 
-        setDataLoaded(true);
-        setHasUnsavedChanges(false);
-        validateStepCounts();
+        form.reset(form.getValues(), {
+          keepValues: true,
+          keepDirty: false,
+        })
+
+        setDataLoaded(true)
+        setHasUnsavedChanges(false)
+        validateStepCounts()
       } catch (error) {
-        console.error("Error processing process steps data:", error);
+        console.error("Error processing process steps data:", error)
         toast({
           title: "Error loading process steps data",
           description: error instanceof Error ? error.message : "Unknown error occurred",
           variant: "destructive",
-        });
+        })
       } finally {
-        setIsLoadingData(false);
+        setIsLoadingData(false)
       }
-    };
+    }
 
-    // Effect to populate form with existing data from complete subsection
+    // Effect to populate form with existing data
     useEffect(() => {
-      // Skip this effect entirely if no slug is provided
       if (!slug) {
         return
       }
@@ -313,7 +285,7 @@ const ProcessStepsForm = forwardRef(
       processAndLoadData(completeSubsectionData.data)
     }, [completeSubsectionData, isLoadingSubsection, dataLoaded, form, activeLanguages, languageIds, slug])
 
-    // Track form changes, but only after initial data is loaded
+    // Track form changes
     useEffect(() => {
       if (isLoadingData || !dataLoaded) return
 
@@ -327,17 +299,39 @@ const ProcessStepsForm = forwardRef(
       return () => subscription.unsubscribe()
     }, [form, isLoadingData, dataLoaded])
 
-    // Function to add a new process step
-    const addProcessStep = (langCode) => {
-      const currentSteps = form.getValues()[langCode] || []
-      form.setValue(langCode, [
-        ...currentSteps,
-        {
-          icon: "Car",
-          title: "",
-          description: "",
-        },
-      ])
+    // Function to add a new process step to all languages
+    const addProcessStep = () => {
+      const newStep = {
+        icon: "Car",
+        title: "",
+        description: "",
+      }
+
+      Object.keys(form.getValues()).forEach((langCode) => {
+        const currentSteps = form.getValues()[langCode] || []
+        form.setValue(langCode, [...currentSteps, newStep], {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      })
+
+      toast({
+        title: "Step added",
+        description: "A new process step has been added to all languages.",
+      })
+    }
+
+    // Function to update icon across all languages
+    const updateIconAcrossLanguages = (stepIndex, newIcon) => {
+      Object.keys(form.getValues()).forEach((langCode) => {
+        const steps = form.getValues()[langCode] || []
+        if (steps[stepIndex]) {
+          form.setValue(`${langCode}.${stepIndex}.icon`, newIcon, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      })
     }
 
     // Function to remove a process step
@@ -352,20 +346,15 @@ const ProcessStepsForm = forwardRef(
         return
       }
 
-      // If we have existing content elements and a subsection ID, delete the elements from the database
       if (existingSubSectionId && contentElements.length > 0) {
         try {
-          // Find the step number (1-based index)
           const stepNumber = index + 1
-
-          // Find elements associated with this step
           const stepElements = contentElements.filter((element) => {
             const match = element.name.match(/Step (\d+)/i)
             return match && Number.parseInt(match[1]) === stepNumber
           })
 
           if (stepElements.length > 0) {
-            // Delete each element
             stepElements.forEach(async (element) => {
               try {
                 await deleteContentElement.mutateAsync(element._id)
@@ -375,7 +364,6 @@ const ProcessStepsForm = forwardRef(
               }
             })
 
-            // Update the contentElements state to remove the deleted elements
             setContentElements((prev) =>
               prev.filter((element) => {
                 const match = element.name.match(/Step (\d+)/i)
@@ -389,20 +377,18 @@ const ProcessStepsForm = forwardRef(
             })
           }
 
-          // Renumber the remaining step elements in the database
           const remainingElements = contentElements.filter((element) => {
             const match = element.name.match(/Step (\d+)/i)
             return match && Number.parseInt(match[1]) > stepNumber
           })
 
-          // Update the names and orders of the remaining elements
           remainingElements.forEach(async (element) => {
             const match = element.name.match(/Step (\d+)/i)
             if (match) {
               const oldNumber = Number.parseInt(match[1])
               const newNumber = oldNumber - 1
               const newName = element.name.replace(`Step ${oldNumber}`, `Step ${newNumber}`)
-              const newOrder = element.order - 3 // Assuming icon, title, and description are consecutive
+              const newOrder = element.order - 3
 
               try {
                 await updateContentElement.mutateAsync({
@@ -428,10 +414,11 @@ const ProcessStepsForm = forwardRef(
         }
       }
 
-      // Update the form state
-      const updatedSteps = [...currentSteps]
-      updatedSteps.splice(index, 1)
-      form.setValue(langCode, updatedSteps)
+      Object.keys(form.getValues()).forEach((langCode) => {
+        const updatedSteps = [...(form.getValues()[langCode] || [])]
+        updatedSteps.splice(index, 1)
+        form.setValue(langCode, updatedSteps)
+      })
     }
 
     // Function to get step counts by language
@@ -452,23 +439,27 @@ const ProcessStepsForm = forwardRef(
         return
       }
 
-      if (!isValid) return
+      if (!isValid) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill all required fields correctly",
+          variant: "destructive",
+        })
+        return
+      }
 
       setIsSaving(true)
       setIsLoadingData(true)
       try {
-        // Get current form values before any processing
         const allFormValues = form.getValues()
         console.log("Form values at save:", allFormValues)
 
         let sectionId = existingSubSectionId
 
-        // Create or update logic here
         if (!existingSubSectionId) {
-          // Create new subsection
           const subsectionData = {
             name: "Process Steps Section",
-            slug: slug || `process-steps-section-${Date.now()}`, // Use provided slug or generate one
+            slug: slug || `process-steps-section-${Date.now()}`,
             description: "Process steps section for the website",
             isActive: true,
             order: 0,
@@ -476,38 +467,37 @@ const ProcessStepsForm = forwardRef(
             languages: languageIds,
           }
 
+          toast({
+            title: "Creating new process steps section...",
+            description: "Setting up your new process steps content.",
+          })
+
           const newSubSection = await createSubSection.mutateAsync(subsectionData)
           sectionId = newSubSection.data._id
+          setExistingSubSectionId(sectionId)
         }
 
         if (!sectionId) {
           throw new Error("Failed to create or retrieve subsection ID")
         }
 
-        // Get language ID to code mapping
-        const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
-          acc[lang._id] = lang.languageID
-          return acc
-        }, {})
-
-        // Get language code to ID mapping
         const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
           acc[lang.languageID] = lang._id
           return acc
         }, {})
 
-        // Get the maximum number of steps across all languages
-        const maxStepCount = Math.max(
-          ...Object.values(allFormValues).map((langSteps) => (Array.isArray(langSteps) ? langSteps.length : 0)),
-        )
+        const firstLangCode = Object.keys(allFormValues)[0]
+        const steps = allFormValues[firstLangCode]
+
+        if (!Array.isArray(steps)) {
+          throw new Error("Invalid steps data")
+        }
+
+        const updatedContentElements = [...contentElements]
 
         if (existingSubSectionId && contentElements.length > 0) {
-          // Update existing elements
-          // Group content elements by step number
           const stepGroups = {}
-
           contentElements.forEach((element) => {
-            // Extract step number from element name (e.g., "Step 1 - Title")
             const match = element.name.match(/Step (\d+)/i)
             if (match) {
               const stepNumber = Number.parseInt(match[1])
@@ -518,33 +508,32 @@ const ProcessStepsForm = forwardRef(
             }
           })
 
-          // Prepare translations for bulk upsert
           const translations = []
+          for (let stepIndex = 0; stepIndex < steps.length; stepIndex++) {
+            const stepNumber = stepIndex + 1
+            const stepElements = stepGroups[stepNumber]
 
-          // Process each language's steps
-          Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
-            if (!Array.isArray(langSteps)) return
+            if (stepElements) {
+              const iconElement = stepElements.find((el) => el.name.includes("Icon"))
+              const titleElement = stepElements.find((el) => el.name.includes("Title"))
+              const descriptionElement = stepElements.find((el) => el.name.includes("Description"))
 
-            const langId = langCodeToIdMap[langCode]
-            if (!langId) return
+              const iconValue = steps[stepIndex].icon
+              if (iconElement && iconValue) {
+                await updateContentElement.mutateAsync({
+                  id: iconElement._id,
+                  data: {
+                    defaultContent: iconValue,
+                  },
+                })
+                updatedContentElements.find((e) => e._id === iconElement._id).defaultContent = iconValue
+              }
 
-            // Process each step in this language
-            langSteps.forEach((step, index) => {
-              const stepNumber = index + 1
-              const stepElements = stepGroups[stepNumber]
-
-              if (stepElements) {
-                const iconElement = stepElements.find((el) => el.name.includes("Icon"))
-                const titleElement = stepElements.find((el) => el.name.includes("Title"))
-                const descriptionElement = stepElements.find((el) => el.name.includes("Description"))
-
-                // Update icon if it exists
-                if (iconElement && step.icon) {
-                  updateContentElement.mutate({
-                    _id: iconElement._id,
-                    defaultContent: step.icon,
-                  })
-                }
+              Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
+                if (!Array.isArray(langSteps) || !langSteps[stepIndex]) return
+                const langId = langCodeToIdMap[langCode]
+                if (!langId) return
+                const step = langSteps[stepIndex]
 
                 if (titleElement && step.title) {
                   translations.push({
@@ -563,162 +552,51 @@ const ProcessStepsForm = forwardRef(
                     isActive: true,
                   })
                 }
-              }
-            })
-          })
+              })
+            }
+          }
 
-          // Create new elements for steps that don't exist yet
           const existingStepCount = Object.keys(stepGroups).length
+          if (steps.length > existingStepCount) {
+            for (let stepNumber = existingStepCount + 1; stepNumber <= steps.length; stepNumber++) {
+              const stepIndex = stepNumber - 1
+              const step = steps[stepIndex]
 
-          if (maxStepCount > existingStepCount) {
-            // Create new elements for additional steps
-            for (let stepNumber = existingStepCount + 1; stepNumber <= maxStepCount; stepNumber++) {
-              // Get default content from the first language that has this step
-              let defaultIcon = "Car"
-              let defaultTitle = ""
-              let defaultDescription = ""
-
-              // Find the first language that has this step
-              for (const [langCode, langSteps] of Object.entries(allFormValues)) {
-                if (Array.isArray(langSteps) && langSteps.length >= stepNumber) {
-                  const step = langSteps[stepNumber - 1]
-                  if (step) {
-                    defaultIcon = step.icon
-                    defaultTitle = step.title
-                    defaultDescription = step.description
-                    break
-                  }
-                }
-              }
-
-              // Create icon element
               const iconElement = await createContentElement.mutateAsync({
                 name: `Step ${stepNumber} - Icon`,
                 type: "text",
                 parent: sectionId,
                 isActive: true,
                 order: (stepNumber - 1) * 3,
-                defaultContent: defaultIcon,
+                defaultContent: step.icon || "Car",
               })
 
-              // Create title element
               const titleElement = await createContentElement.mutateAsync({
                 name: `Step ${stepNumber} - Title`,
                 type: "text",
                 parent: sectionId,
                 isActive: true,
                 order: (stepNumber - 1) * 3 + 1,
-                defaultContent: defaultTitle,
+                defaultContent: step.title || "",
               })
 
-              // Create description element
               const descriptionElement = await createContentElement.mutateAsync({
                 name: `Step ${stepNumber} - Description`,
                 type: "text",
                 parent: sectionId,
                 isActive: true,
                 order: (stepNumber - 1) * 3 + 2,
-                defaultContent: defaultDescription,
+                defaultContent: step.description || "",
               })
 
-              // Add translations for new elements
-              Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
-                if (!Array.isArray(langSteps) || langSteps.length < stepNumber) return
+              updatedContentElements.push(iconElement.data, titleElement.data, descriptionElement.data)
 
+              Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
+                if (!Array.isArray(langSteps) || !langSteps[stepIndex]) return
                 const langId = langCodeToIdMap[langCode]
                 if (!langId) return
+                const step = langSteps[stepIndex]
 
-                const step = langSteps[stepNumber - 1]
-
-                if (step) {
-                  if (step.title) {
-                    translations.push({
-                      content: step.title,
-                      language: langId,
-                      contentElement: titleElement.data._id,
-                      isActive: true,
-                    })
-                  }
-
-                  if (step.description) {
-                    translations.push({
-                      content: step.description,
-                      language: langId,
-                      contentElement: descriptionElement.data._id,
-                      isActive: true,
-                    })
-                  }
-                }
-              })
-            }
-          }
-
-          // Update translations
-          if (translations.length > 0) {
-            await bulkUpsertTranslations.mutateAsync(translations)
-          }
-        } else {
-          // Create new elements for each step
-          const translations = []
-
-          // Get the first language's steps to determine how many to create
-          const firstLangSteps = Object.values(allFormValues)[0]
-          const stepCount = Array.isArray(firstLangSteps) ? firstLangSteps.length : 0
-
-          // Create elements for each step
-          for (let stepIndex = 0; stepIndex < stepCount; stepIndex++) {
-            const stepNumber = stepIndex + 1
-
-            // Get default content from the first language
-            const firstLangCode = Object.keys(allFormValues)[0]
-            const firstLangSteps = allFormValues[firstLangCode]
-            const defaultIcon =
-              Array.isArray(firstLangSteps) && firstLangSteps[stepIndex] ? firstLangSteps[stepIndex].icon : "Car"
-            const defaultTitle =
-              Array.isArray(firstLangSteps) && firstLangSteps[stepIndex] ? firstLangSteps[stepIndex].title : ""
-            const defaultDescription =
-              Array.isArray(firstLangSteps) && firstLangSteps[stepIndex] ? firstLangSteps[stepIndex].description : ""
-
-            // Create icon element
-            const iconElement = await createContentElement.mutateAsync({
-              name: `Step ${stepNumber} - Icon`,
-              type: "text",
-              parent: sectionId,
-              isActive: true,
-              order: stepIndex * 3,
-              defaultContent: defaultIcon,
-            })
-
-            // Create title element
-            const titleElement = await createContentElement.mutateAsync({
-              name: `Step ${stepNumber} - Title`,
-              type: "text",
-              parent: sectionId,
-              isActive: true,
-              order: stepIndex * 3 + 1,
-              defaultContent: defaultTitle,
-            })
-
-            // Create description element
-            const descriptionElement = await createContentElement.mutateAsync({
-              name: `Step ${stepNumber} - Description`,
-              type: "text",
-              parent: sectionId,
-              isActive: true,
-              order: stepIndex * 3 + 2,
-              defaultContent: defaultDescription,
-            })
-
-            // Create translations for each language
-            Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
-              if (!Array.isArray(langSteps) || langSteps.length <= stepIndex) return
-
-              const langId = langCodeToIdMap[langCode]
-              if (!langId) return
-
-              const step = langSteps[stepIndex]
-
-              if (step) {
                 if (step.title) {
                   translations.push({
                     content: step.title,
@@ -736,27 +614,97 @@ const ProcessStepsForm = forwardRef(
                     isActive: true,
                   })
                 }
+              })
+            }
+          }
+
+          if (translations.length > 0) {
+            await bulkUpsertTranslations.mutateAsync(translations)
+          }
+        } else {
+          const translations = []
+          for (let stepIndex = 0; stepIndex < steps.length; stepIndex++) {
+            const stepNumber = stepIndex + 1
+            const step = steps[stepIndex]
+
+            const iconElement = await createContentElement.mutateAsync({
+              name: `Step ${stepNumber} - Icon`,
+              type: "text",
+              parent: sectionId,
+              isActive: true,
+              order: stepIndex * 3,
+              defaultContent: step.icon || "Car",
+            })
+
+            const titleElement = await createContentElement.mutateAsync({
+              name: `Step ${stepNumber} - Title`,
+              type: "text",
+              parent: sectionId,
+              isActive: true,
+              order: stepIndex * 3 + 1,
+              defaultContent: step.title || "",
+            })
+
+            const descriptionElement = await createContentElement.mutateAsync({
+              name: `Step ${stepNumber} - Description`,
+              type: "text",
+              parent: sectionId,
+              isActive: true,
+              order: stepIndex * 3 + 2,
+              defaultContent: step.description || "",
+            })
+
+            updatedContentElements.push(iconElement.data, titleElement.data, descriptionElement.data)
+
+            Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
+              if (!Array.isArray(langSteps) || !langSteps[stepIndex]) return
+              const langId = langCodeToIdMap[langCode]
+              if (!langId) return
+              const step = langSteps[stepIndex]
+
+              if (step.title) {
+                translations.push({
+                  content: step.title,
+                  language: langId,
+                  contentElement: titleElement.data._id,
+                  isActive: true,
+                })
+              }
+
+              if (step.description) {
+                translations.push({
+                  content: step.description,
+                  language: langId,
+                  contentElement: descriptionElement.data._id,
+                  isActive: true,
+                })
               }
             })
           }
 
-          // Create translations
           if (translations.length > 0) {
             await bulkUpsertTranslations.mutateAsync(translations)
           }
         }
 
+        setContentElements(updatedContentElements)
+
         toast({
           title: existingSubSectionId ? "Process steps updated successfully!" : "Process steps created successfully!",
+          description: "All changes have been saved.",
+          duration: 5000,
         })
 
-        // Refresh data immediately after save
         if (slug) {
+          toast({
+            title: "Refreshing content",
+            description: "Loading the updated content...",
+          })
+
           const result = await refetch()
           if (result.data?.data) {
-            // Reset form with the new data
             setDataLoaded(false)
-            processAndLoadData(result.data.data)
+            await processAndLoadData(result.data.data)
           }
         }
 
@@ -767,6 +715,7 @@ const ProcessStepsForm = forwardRef(
           title: existingSubSectionId ? "Error updating process steps" : "Error creating process steps",
           variant: "destructive",
           description: error instanceof Error ? error.message : "Unknown error occurred",
+          duration: 5000,
         })
       } finally {
         setIsLoadingData(false)
@@ -782,7 +731,6 @@ const ProcessStepsForm = forwardRef(
 
     return (
       <div className="space-y-6">
-        {/* Loading Dialog */}
         <LoadingDialog 
           isOpen={isSaving} 
           title={existingSubSectionId ? "Updating Process Steps" : "Creating Process Steps"} 
@@ -831,7 +779,13 @@ const ProcessStepsForm = forwardRef(
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Icon</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <Select 
+                                    onValueChange={(value) => {
+                                      field.onChange(value)
+                                      updateIconAcrossLanguages(index, value)
+                                    }} 
+                                    defaultValue={field.value}
+                                  >
                                     <FormControl>
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select an icon">
@@ -857,7 +811,6 @@ const ProcessStepsForm = forwardRef(
                                 </FormItem>
                               )}
                             />
-
                             <FormField
                               control={form.control}
                               name={`${langCode}.${index}.title`}
@@ -871,7 +824,6 @@ const ProcessStepsForm = forwardRef(
                                 </FormItem>
                               )}
                             />
-
                             <FormField
                               control={form.control}
                               name={`${langCode}.${index}.description`}
@@ -888,8 +840,7 @@ const ProcessStepsForm = forwardRef(
                           </CardContent>
                         </Card>
                       ))}
-
-                      <Button type="button" variant="outline" size="sm" onClick={() => addProcessStep(langCode)}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => addProcessStep()}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add Process Step
                       </Button>
@@ -926,8 +877,6 @@ const ProcessStepsForm = forwardRef(
             )}
           </Button>
         </div>
-
-        {/* Validation Dialog */}
         <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
           <DialogContent>
             <DialogHeader>

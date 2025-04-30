@@ -41,6 +41,7 @@ export interface MultilingualSectionProps {
 }
 
 export interface FeatureContent {
+  title : string
   heading: string;
   description: string;
   features: string[];
