@@ -20,7 +20,7 @@ export interface BenefitsFormProps {
   }
   
   export interface HeroFormProps {
-    languageIds: readonly string[];
+    languageIds: any[];
     activeLanguages: Language[];
     onDataChange?: (data: any) => void;
     slug?: string;

@@ -213,7 +213,6 @@ export default function ServicesPage() {
       onSectionChange={handleSectionChange}
       sectionTitle={SERVICES_CONFIG.sectionIntegrationTitle}
       sectionDescription={SERVICES_CONFIG.sectionIntegrationDescription}
-      addButtonLabel={SERVICES_CONFIG.addSectionButtonLabel}
       editButtonLabel={SERVICES_CONFIG.editSectionButtonLabel}
       saveButtonLabel={SERVICES_CONFIG.saveSectionButtonLabel}
     />

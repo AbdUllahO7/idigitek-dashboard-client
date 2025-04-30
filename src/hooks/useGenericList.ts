@@ -178,10 +178,10 @@ export function useGenericList({
     // Close the dialog
     setIsCreateDialogOpen(false)
     
-    // Navigate to the edit page with the new item ID
-    if (itemId) {
-      router.push(`${editPath}?sectionId=${sectionId}&sectionItemId=${itemId}&mode=edit`)
-    }
+    // // Navigate to the edit page with the new item ID
+    // if (itemId) {
+    //   router.push(`${editPath}?sectionId=${sectionId}&sectionItemId=${itemId}&mode=edit`)
+    // }
     
     // Refresh the items list
     refetchItems()

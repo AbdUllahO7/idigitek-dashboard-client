@@ -61,9 +61,6 @@ function extractId(response: any): string | null {
 function GenericSectionIntegration({
   onSectionChange,
   config,
-  sectionDescription,
-  addButtonLabel,
-  noDataMessage,
   ParentSectionId,
   createMainService = false,
 }: GenericSectionIntegrationProps) {

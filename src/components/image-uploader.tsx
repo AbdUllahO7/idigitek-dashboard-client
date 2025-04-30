@@ -1,9 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
-
+import { useState, useEffect } from "react"
 import { Upload, X } from "lucide-react"
 import { Card } from "./ui/card"
 import { Button } from "./ui/button"
@@ -17,7 +15,18 @@ interface ImageUploaderProps {
 
 export function ImageUploader({ value, onChange, onFileChange }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string>("")
   const { toast } = useToast()
+
+  // Set initial preview URL if value exists
+  useEffect(() => {
+    if (value && value.startsWith("http")) {
+      setPreviewUrl(value)
+    } else if (value && !value.startsWith("data:")) {
+      // This is likely a server-side path
+      setPreviewUrl(value)
+    }
+  }, [value])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -35,27 +44,26 @@ export function ImageUploader({ value, onChange, onFileChange }: ImageUploaderPr
 
     setIsUploading(true)
 
-    // Read file as data URL for preview
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        onChange(event.target.result as string)
-        onFileChange(file)
-        setIsUploading(false)
-      }
+    // Generate a local object URL for preview only
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+    
+    // Keep value as original image URL or empty if changing
+    // Don't store the base64 data in the value anymore
+    onChange(value.startsWith("http") ? value : "pending-upload")
+    
+    // Pass the file object to the parent for actual upload
+    onFileChange(file)
+    setIsUploading(false)
+
+    return () => {
+      // Clean up the object URL when no longer needed
+      URL.revokeObjectURL(objectUrl)
     }
-    reader.onerror = () => {
-      toast({
-        title: "Error reading file",
-        description: "There was an error reading the selected file",
-        variant: "destructive",
-      })
-      setIsUploading(false)
-    }
-    reader.readAsDataURL(file)
   }
 
   const handleRemove = () => {
+    setPreviewUrl("")
     onChange("")
     onFileChange(null)
   }
@@ -63,12 +71,17 @@ export function ImageUploader({ value, onChange, onFileChange }: ImageUploaderPr
   return (
     <Card className="overflow-hidden">
       <div className="p-4">
-        {value ? (
+        {previewUrl ? (
           <div className="relative">
             <img
-              src={value || "/placeholder.svg"}
+              src={previewUrl}
               alt="Image preview"
               className="w-full h-48 object-cover rounded-md"
+              onError={(e) => {
+                // Fallback if the image URL is invalid
+                const target = e.target as HTMLImageElement
+                target.src = "/placeholder.svg"
+              }}
             />
             <Button
               size="icon"

@@ -19,8 +19,6 @@ import apiClient from "@/src/lib/api-client"
 import { useToast } from "@/src/hooks/use-toast"
 import { LoadingDialog } from "./MainSectionComponents"
 
-
-
 const createHeroSchema = (languageIds, activeLanguages) => {
   const schemaShape = {
     backgroundImage: z.string().optional(), // Made optional for better UX
@@ -75,9 +73,9 @@ const HeroForm = forwardRef(
   const [existingSubSectionId, setExistingSubSectionId] = useState(null)
   const [contentElements, setContentElements] = useState([])
   const [isSaving, setIsSaving] = useState(false)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [dataProcessAttempts, setDataProcessAttempts] = useState(0)
+  const [isFormReady, setIsFormReady] = useState(false)
   const { toast } = useToast()
+  const dataProcessed = useRef(false)
 
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
@@ -133,7 +131,7 @@ const HeroForm = forwardRef(
     refetch 
   } = useGetCompleteBySlug(
     slug || '', 
-    false,    
+    Boolean(slug),  // Only enable query if slug exists
   )
   
   // Function to process and load initial data from parent component into the form
@@ -156,6 +154,7 @@ const HeroForm = forwardRef(
       
       setDataLoaded(true)
       setHasUnsavedChanges(false)
+      setIsFormReady(true)
     }
   }
 
@@ -271,61 +270,53 @@ const HeroForm = forwardRef(
   
   // Effect to process initial data from parent component
   useEffect(() => {
-    if (isInitialLoad && !dataLoaded && initialData) {
-      processInitialData()
-      setIsInitialLoad(false)
+    if (!dataLoaded && initialData) {
+      processInitialData();
     }
-  }, [initialData, dataLoaded, isInitialLoad])
+  }, [initialData]);
   
   // Effect to populate form with existing data from complete subsection
   useEffect(() => {
-    // Skip if no slug or data already loaded
-    if (!slug || dataLoaded || isLoadingSubsection || !completeSubsectionData?.data) {
-      return
+    if (!slug || isLoadingSubsection || dataProcessed.current) {
+      return;
     }
 
-    setIsLoadingData(true);
-    const success = processAndLoadData(completeSubsectionData.data);
-    
-    if (success) {
-      setDataLoaded(true);
-      setDataProcessAttempts(0);
-    } else {
-      // If processing failed but we have attempts left, increment counter
-      // This will trigger a re-fetch
-      if (dataProcessAttempts < 3) {
-        setDataProcessAttempts(prev => prev + 1);
-      }
-    }
-    
-    setIsLoadingData(false);
-  }, [completeSubsectionData, isLoadingSubsection, dataLoaded, slug, dataProcessAttempts])
-
-  // Effect to retry loading data if needed
-  useEffect(() => {
-    if (slug && dataProcessAttempts > 0 && dataProcessAttempts < 3 && !dataLoaded) {
-      // Wait 1 second before retrying to avoid rapid refetches
-      const timeoutId = setTimeout(() => {
-        console.log(`Retrying data fetch, attempt ${dataProcessAttempts}`);
-        refetch();
-      }, 1000);
+    if (completeSubsectionData?.data) {
+      setIsLoadingData(true);
       
-      return () => clearTimeout(timeoutId);
+      const success = processAndLoadData(completeSubsectionData.data);
+      
+      if (success) {
+        setDataLoaded(true);
+        dataProcessed.current = true;
+      }
+      
+      setIsLoadingData(false);
+      setIsFormReady(true);
     }
-  }, [dataProcessAttempts, slug, refetch, dataLoaded]);
+  }, [completeSubsectionData, isLoadingSubsection, slug]);
+
+  // Make form ready even if no data is loaded
+  useEffect(() => {
+    if (!isLoadingData && !isLoadingSubsection && !isFormReady) {
+      // If we've finished loading attempts but form isn't ready yet, make it ready
+      setIsFormReady(true);
+    }
+  }, [isLoadingData, isLoadingSubsection, isFormReady]);
 
   // Track form changes, but only after initial data is loaded
   useEffect(() => {
-    if (isLoadingData || !dataLoaded) return
+    if (isLoadingData || !isFormReady) return;
 
     const subscription = form.watch((value) => {
-      setHasUnsavedChanges(true)
+      setHasUnsavedChanges(true);
       if (onDataChangeRef.current) {
-        onDataChangeRef.current(value)
+        onDataChangeRef.current(value);
       }
-    })
-    return () => subscription.unsubscribe()
-  }, [form, isLoadingData, dataLoaded])
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form, isLoadingData, isFormReady]);
 
   // Handler for saving the form
   const handleSave = async () => {
@@ -375,7 +366,7 @@ const HeroForm = forwardRef(
         // Update existing subsection if needed
         const updateData = {
           isActive: true,
-          isMain: true, // Ensure isMain is set to true
+          isMain: false, 
           languages: languageIds
         }
         await updateSubSection.mutateAsync({
@@ -388,12 +379,6 @@ const HeroForm = forwardRef(
         throw new Error("Failed to create or retrieve subsection ID")
       }
 
-      // Get language ID to code mapping
-      const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
-        acc[lang._id] = lang.languageID
-        return acc
-      }, {})
-      
       // Get language code to ID mapping 
       const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
         acc[lang.languageID] = lang._id
@@ -493,6 +478,8 @@ const HeroForm = forwardRef(
             order: index,
             defaultContent: defaultContent,
           }
+
+          console.log("Creating content element:", elementData)
           
           const newElement = await createContentElement.mutateAsync(elementData)
           createdElements.push({ ...newElement.data, key: el.key })
@@ -504,15 +491,43 @@ const HeroForm = forwardRef(
         // Step 2: Upload background image if needed
         const bgImageElement = createdElements.find(e => e.key === 'backgroundImage')
         if (bgImageElement && imageFile) {
-          console.log("Uploading image for new element:", bgImageElement._id)
+          console.log("Uploading image for element:", bgImageElement._id)
           const formData = new FormData()
           formData.append('image', imageFile)
+          
           try {
-            await apiClient.post(`/content-elements/${bgImageElement._id}/image`, formData, {
-              headers: { 'Content-Type': 'multipart/form-data' },
-            })
+            // Use axios or your API client to upload the file directly
+            const uploadResult = await apiClient.post(
+              `/content-elements/${bgImageElement._id}/image`, 
+              formData, 
+              {
+                headers: { 
+                  'Content-Type': 'multipart/form-data',
+                  // Increase timeout for large files if needed
+                  'timeout': 30000
+                },
+                // Add progress tracking if desired
+                onUploadProgress: (progressEvent) => {
+                  const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
+                  console.log(`Upload progress: ${percentCompleted}%`);
+                }
+              }
+            )
+            
+            // Update the form value with the returned image URL if available
+            if (uploadResult.data && uploadResult.data.imageUrl) {
+              form.setValue('backgroundImage', uploadResult.data.imageUrl)
+            }
+            
+            console.log("Image upload successful:", uploadResult)
           } catch (error) {
             console.error("Failed to upload image:", error)
+            toast({
+              title: "Image Upload Failed",
+              description: error instanceof Error ? error.message : "Unable to upload image",
+              variant: "destructive"
+            })
+            // Continue with other operations even if image upload fails
           }
         }
 
