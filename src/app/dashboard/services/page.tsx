@@ -118,6 +118,7 @@ export default function ServicesPage() {
   })
 
   // Determine if main subsection exists when data loads & set section data if needed
+  console.log("Complete Subsections Data:", completeSubsectionsData)
   useEffect(() => {
     if (!isLoadingCompleteSubsections && completeSubsectionsData?.data) {
       const mainSubsection = completeSubsectionsData.data.find(sub => sub.isMain)

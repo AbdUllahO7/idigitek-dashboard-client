@@ -20,7 +20,6 @@ import {
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { Plus, Trash2, X, Save, AlertTriangle, Upload, ImageIcon } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
 import { Label } from "@/src/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
@@ -28,9 +27,8 @@ import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import apiClient from "@/src/lib/api-client"
-import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
+import type {  Language, Feature } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
-import { Feature } from "@/src/api/types/sectionsTypes"
 
 interface FeaturesFormProps {
   languageIds: readonly string[];
@@ -66,7 +64,6 @@ const createFeaturesSchema = (languageIds: string[], activeLanguages: Language[]
               .array(z.string().min(1, { message: "Feature cannot be empty" }))
               .min(1, { message: "At least one feature is required" }),
             image: z.string().min(1, { message: "Image is required" }),
-            imagePosition: z.enum(["left", "right"]),
           }),
         }),
       )
@@ -99,7 +96,6 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
           description: "",
           features: [""],
           image: "",
-          imagePosition: "right",
         },
       },
     ]
@@ -107,6 +103,7 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
 
   return defaultValues
 }
+
 
 const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId }, ref) => {
   const featuresSchema = createFeaturesSchema(languageIds as string[], activeLanguages)
@@ -185,152 +182,154 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
   }
 
   // Function to process and load data into the form
- // Fix for the processAndLoadData function in FeaturesForm.tsx
 
-const processAndLoadData = (subsectionData: any) => {
-  if (!subsectionData) return;
-
-  try {
-    console.log("Processing features subsection data:", subsectionData);
-    setExistingSubSectionId(subsectionData._id);
-
-    // Check if we have elements directly in the subsection data (API response structure)
-    const elements = subsectionData.elements || subsectionData.contentElements || [];
-    
-    if (elements.length > 0) {
-      // Store the content elements for later use
-      setContentElements(elements);
-
-      // Create a mapping of languages for easier access
-      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-        acc[lang._id] = lang.languageID;
-        return acc;
-      }, {});
-
-      // Group content elements by feature
-      const featureGroups: Record<string, any[]> = {};
-
-      elements.forEach((element: any) => {
-        // Extract feature ID from element name (e.g., "Feature 1 - Heading" -> "1")
-        const featureIdMatch = element.name.match(/Feature (\d+)/i);
-        if (featureIdMatch) {
-          const featureId = featureIdMatch[1];
-          if (!featureGroups[featureId]) {
-            featureGroups[featureId] = [];
+  const processAndLoadData = async (subsectionData: any) => {
+    if (!subsectionData) return;
+  
+    try {
+      console.log("Processing features subsection data:", subsectionData);
+      setExistingSubSectionId(subsectionData._id);
+  
+      // Check if we have elements directly in the subsection data (API response structure)
+      const elements = subsectionData.elements || subsectionData.contentElements || [];
+      
+      if (elements.length > 0) {
+        // Store the content elements for later use
+        setContentElements(elements);
+  
+        // Create a mapping of languages for easier access
+        const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+          acc[lang._id] = lang.languageID;
+          return acc;
+        }, {});
+  
+        // Group content elements by feature
+        const featureGroups: Record<string, any[]> = {};
+  
+        elements.forEach((element: any) => {
+          // Extract feature ID from element name (e.g., "Feature 1 - Heading" -> "1")
+          const featureIdMatch = element.name.match(/Feature (\d+)/i);
+          if (featureIdMatch) {
+            const featureId = featureIdMatch[1];
+            if (!featureGroups[featureId]) {
+              featureGroups[featureId] = [];
+            }
+            featureGroups[featureId].push(element);
           }
-          featureGroups[featureId].push(element);
-        }
-      });
-
-      console.log("Feature groups:", featureGroups);
-
-      // Initialize form values for each language
-      const languageValues: Record<string, Feature[]> = {};
-
-      // Initialize all languages with empty feature arrays
-      languageIds.forEach((langId) => {
-        const langCode = langIdToCodeMap[langId] || langId;
-        languageValues[langCode] = [];
-      });
-
-      // Process each feature group
-      Object.entries(featureGroups).forEach(([featureId, elements]) => {
-        // Find elements for this feature
-        const headingElement = elements.find((el) => el.name.includes("Heading"));
-        const descriptionElement = elements.find((el) => el.name.includes("Description"));
-        const imageElement = elements.find((el) => el.name.includes("Image") && el.type === "image");
-        const imagePositionElement = elements.find((el) => el.name.includes("Image Position"));
-        const featureListElements = elements.filter((el) => el.name.includes("Feature Item"));
-
-        // For each language, create a feature object
+        });
+  
+        console.log("Feature groups:", featureGroups);
+  
+        // Initialize form values for each language
+        const languageValues: Record<string, Feature[]> = {};
+  
+        // Initialize all languages with empty feature arrays
         languageIds.forEach((langId) => {
           const langCode = langIdToCodeMap[langId] || langId;
-
-          // Helper function to get translation content for an element
-          const getTranslationContent = (element: any, defaultValue = "") => {
-            if (!element) return defaultValue;
-
-            // First check for a translation in this language
-            const translation = element.translations?.find((t: any) => {
-              // Handle both nested and direct language references
-              if (t.language && typeof t.language === 'object' && t.language._id) {
-                return t.language._id === langId;
-              } else {
-                return t.language === langId;
-              }
-            });
-
-            if (translation?.content) return translation.content;
-
-            // Fall back to default content
-            return element.defaultContent || defaultValue;
-          };
-
-          // Get feature list items
-          const featureItems = featureListElements.map((el) => getTranslationContent(el, "")).filter(Boolean);
-          
-          // If no items were found, add an empty one
-          if (featureItems.length === 0) {
-            featureItems.push("");
-          }
-
-          // Create the feature object
-          const feature: Feature = {
-            id: `feature-${featureId}`,
-            title: getTranslationContent(headingElement, ""),
-            content: {
-              heading: getTranslationContent(headingElement, ""),
-              description: getTranslationContent(descriptionElement, ""),
-              features: featureItems,
-              image: imageElement?.imageUrl || "",
-              imagePosition: getTranslationContent(imagePositionElement, "right") as "left" | "right",
-            },
-          };
-
-          // Add to language values
-          languageValues[langCode].push(feature);
+          languageValues[langCode] = [];
         });
-      });
-
-      console.log("Form values after processing:", languageValues);
-
-      // Set all values in form
-      Object.entries(languageValues).forEach(([langCode, features]) => {
-        if (features.length > 0) {
-          form.setValue(langCode as any, features as any);
-        } else {
-          // Ensure at least one empty feature if none were found
-          form.setValue(langCode as any, [
-            {
-              id: `feature-1`,
-              title: "",
-              content: {
-                heading: "",
-                description: "",
-                features: [""],
-                image: "",
-                imagePosition: "right",
-              },
+  
+        // Process each feature group
+        Object.entries(featureGroups).forEach(([featureId, elements]) => {
+          // Find elements for this feature
+          const headingElement = elements.find((el) => el.name.includes("Heading"));
+          const descriptionElement = elements.find((el) => el.name.includes("Description"));
+          const imageElement = elements.find((el) => el.name.includes("Image") && el.type === "image");
+          const featureListElements = elements.filter((el) => el.name.includes("Feature Item"));
+  
+          // For each language, create a feature object
+          languageIds.forEach((langId) => {
+            const langCode = langIdToCodeMap[langId] || langId;
+  
+            // Helper function to get translation content for an element
+            const getTranslationContent = (element: any, defaultValue = "") => {
+              if (!element) return defaultValue;
+  
+              // First check for a translation in this language
+              const translation = element.translations?.find((t: any) => {
+                // Handle both nested and direct language references
+                if (t.language && typeof t.language === 'object' && t.language._id) {
+                  return t.language._id === langId;
+                } else {
+                  return t.language === langId;
+                }
+              });
+  
+              if (translation?.content) return translation.content;
+  
+              // Fall back to default content
+              return element.defaultContent || defaultValue;
+            };
+  
+            // Get feature list items
+            const featureItems = featureListElements.map((el) => getTranslationContent(el, "")).filter(Boolean);
+            
+            // If no items were found, add an empty one
+            if (featureItems.length === 0) {
+              featureItems.push("");
             }
-          ] as any);
-        }
+  
+            // Create the feature object with a stable ID based on the feature number
+            const feature: Feature = {
+              id: `feature-${featureId}`,
+              title: getTranslationContent(headingElement, ""),
+              content: {
+                heading: getTranslationContent(headingElement, ""),
+                description: getTranslationContent(descriptionElement, ""),
+                features: featureItems,
+                image: imageElement?.imageUrl || "",
+              },
+            };
+  
+            // Add to language values
+            languageValues[langCode].push(feature);
+          });
+        });
+  
+        console.log("Form values after processing:", languageValues);
+  
+        // Set all values in form
+        Object.entries(languageValues).forEach(([langCode, features]) => {
+          if (features.length > 0) {
+            form.setValue(langCode as any, features as any, { shouldDirty: false });
+          } else {
+            // Ensure at least one empty feature if none were found
+            form.setValue(langCode as any, [
+              {
+                id: `feature-1`,
+                title: "",
+                content: {
+                  heading: "",
+                  description: "",
+                  features: [""],
+                  image: "",
+                },
+              }
+            ] as any, { shouldDirty: false });
+          }
+        });
+      }
+  
+      // Reset form state to match the loaded values
+      form.reset(form.getValues(), {
+        keepValues: true,
+        keepDirty: false,
       });
+  
+      setDataLoaded(true);
+      setHasUnsavedChanges(false);
+      validateFeatureCounts();
+    } catch (error) {
+      console.error("Error processing features section data:", error);
+      toast({
+        title: "Error loading features section data",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingData(false);
     }
-
-    setDataLoaded(true);
-    setHasUnsavedChanges(false);
-    validateFeatureCounts();
-  } catch (error) {
-    console.error("Error processing features section data:", error);
-    toast({
-      title: "Error loading features section data",
-      description: error instanceof Error ? error.message : "Unknown error occurred",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoadingData(false);
-  }
-};
+  };
 
   // Effect to populate form with existing data from complete subsection - only run once when data is available
   useEffect(() => {
@@ -433,336 +432,418 @@ const processAndLoadData = (subsectionData: any) => {
     })
   }
 
+
+
+
   const handleSave = async () => {
-    const isValid = await form.trigger()
-    const hasEqualFeatureCounts = validateFeatureCounts()
-
+    const isValid = await form.trigger();
+    const hasEqualFeatureCounts = validateFeatureCounts();
+  
     if (!hasEqualFeatureCounts) {
-      setIsValidationDialogOpen(true)
-      return
+      setIsValidationDialogOpen(true);
+      return;
     }
-
-    if (!isValid) return
-
-    setIsLoadingData(true)
+  
+    if (!isValid) return;
+  
+    // Show a toast to indicate saving has started
+    toast({
+      title: "Saving changes...",
+      description: "Your feature content is being saved. Please wait.",
+    });
+  
+    setIsLoadingData(true);
     try {
-      // Get current form values before any processing
-      const allFormValues = form.getValues()
-      console.log("Form values at save:", allFormValues)
-
-      let sectionId = existingSubSectionId
-
-      // Create or update logic here
+      // Get current form values
+      const allFormValues = form.getValues();
+  
+      let sectionId = existingSubSectionId;
+  
+      // Create section if needed
       if (!existingSubSectionId) {
-        // Create new subsection
-        const subsectionData: Omit<SubSection, "_id"> = {
+        // Create new subsection logic...
+        const subsectionData = {
           name: "Features Section",
-          slug: slug || `features-section-${Date.now()}`, // Use provided slug or generate one
+          slug: slug || `features-section-${Date.now()}`,
           description: "Features section for the website",
           isActive: true,
           order: 0,
           sectionItem: ParentSectionId,
           languages: languageIds as string[],
-        }
-
-        const newSubSection = await createSubSection.mutateAsync(subsectionData)
-        sectionId = newSubSection.data._id
+        };
+  
+        toast({
+          title: "Creating new features section...",
+          description: "Setting up your new features content.",
+        });
+  
+        const newSubSection = await createSubSection.mutateAsync(subsectionData);
+        sectionId = newSubSection.data._id;
+        setExistingSubSectionId(sectionId);
       }
-
+  
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID")
+        throw new Error("Failed to create or retrieve subsection ID");
       }
-
-      // Get language ID to code mapping
-      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-        acc[lang._id] = lang.languageID
-        return acc
-      }, {})
-
-      // Get language code to ID mapping
-      const langCodeToIdMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-        acc[lang.languageID] = lang._id
-        return acc
-      }, {})
-
-      if (existingSubSectionId && contentElements.length > 0) {
-        // Update existing elements
-        // For image elements, handle the upload if there's a new file
-        for (const [featureIndex, file] of Object.entries(featureImages)) {
-          if (!file) continue
-
-          const featureNum = Number.parseInt(featureIndex) + 1
-          const imageElement = contentElements.find(
-            (e) => e.type === "image" && e.name.includes(`Feature ${featureNum}`),
-          )
-
-          if (imageElement) {
-            const formData = new FormData()
-            formData.append("image", file)
-            await apiClient.post(`/content-elements/${imageElement._id}/image`, formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-            })
+  
+      // Get language mappings
+      const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
+        acc[lang._id] = lang.languageID;
+        return acc;
+      }, {});
+  
+      const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
+        acc[lang.languageID] = lang._id;
+        return acc;
+      }, {});
+  
+      // Get the first language code for reference
+      const firstLangCode = Object.keys(allFormValues)[0];
+      const features = allFormValues[firstLangCode];
+  
+      if (!Array.isArray(features)) {
+        throw new Error("Invalid features data");
+      }
+  
+      // Find the highest feature number in existing content elements
+      let highestFeatureNum = 0;
+      contentElements.forEach(element => {
+        const featureMatch = element.name.match(/Feature (\d+)/i);
+        if (featureMatch) {
+          const num = parseInt(featureMatch[1], 10);
+          if (num > highestFeatureNum) {
+            highestFeatureNum = num;
           }
         }
-
-        // For text elements, update the translations
-        const translations: Omit<ContentTranslation, "_id">[] = []
-
-        // Process form values and create translations
-        Object.entries(allFormValues).forEach(([langCode, features]) => {
-          const langId = langCodeToIdMap[langCode]
-          if (!langId || !Array.isArray(features)) return
-
-          features.forEach((feature, featureIndex) => {
-            const featureNum = featureIndex + 1
-
+      });
+  
+      // Process each feature with progress feedback
+      for (let featureIndex = 0; featureIndex < features.length; featureIndex++) {
+        // Show progress toast
+        toast({
+          title: `Processing feature ${featureIndex + 1} of ${features.length}`,
+          description: "Please wait while we save your content.",
+        });
+        
+        const featureNum = featureIndex + 1;
+        
+        // Check if this feature already exists
+        const headingElementName = `Feature ${featureNum} - Heading`;
+        const existingHeading = contentElements.find(e => e.name === headingElementName);
+        
+        if (existingHeading) {
+          // This is an existing feature - update it
+          console.log(`Updating existing feature ${featureNum}`);
+          
+          // Create a collection of translations
+          const translations = [];
+          
+          // Process each language
+          Object.entries(allFormValues).forEach(([langCode, langFeatures]) => {
+            const langId = langCodeToIdMap[langCode];
+            if (!langId || !Array.isArray(langFeatures) || !langFeatures[featureIndex]) return;
+            
+            const feature = langFeatures[featureIndex];
+            
             // Find elements for this feature
-            const headingElement = contentElements.find((e) => e.name === `Feature ${featureNum} - Heading`)
-            const descriptionElement = contentElements.find((e) => e.name === `Feature ${featureNum} - Description`)
-            const imagePositionElement = contentElements.find(
-              (e) => e.name === `Feature ${featureNum} - Image Position`,
-            )
-
-            // Find feature item elements
-            const featureItemElements = contentElements.filter((e) =>
-              e.name.startsWith(`Feature ${featureNum} - Feature Item `),
-            )
-
-            // Create translations for each element
+            const headingElement = contentElements.find(e => e.name === `Feature ${featureNum} - Heading`);
+            const descriptionElement = contentElements.find(e => e.name === `Feature ${featureNum} - Description`);
+            
+            // Add translations for main elements
             if (headingElement) {
               translations.push({
                 content: feature.content.heading,
                 language: langId,
                 contentElement: headingElement._id,
                 isActive: true,
-              })
+              });
             }
-
+            
             if (descriptionElement) {
               translations.push({
                 content: feature.content.description,
                 language: langId,
                 contentElement: descriptionElement._id,
                 isActive: true,
-              })
+              });
             }
-
-        
-
-            if (imagePositionElement) {
-              translations.push({
-                content: feature.content.imagePosition,
-                language: langId,
-                contentElement: imagePositionElement._id,
-                isActive: true,
-              })
-            }
-
-            // Create translations for feature items
-            feature.content.features.forEach((featureItem, itemIndex) => {
-              const itemElement = featureItemElements.find(
-                (e) => e.name === `Feature ${featureNum} - Feature Item ${itemIndex + 1}`,
-              )
-
+            
+            
+            // Process feature items
+            const featureItems = feature.content.features || [];
+            featureItems.forEach((item, itemIndex) => {
+              const itemName = `Feature ${featureNum} - Feature Item ${itemIndex + 1}`;
+              const itemElement = contentElements.find(e => e.name === itemName);
+              
               if (itemElement) {
+                // Update existing item
                 translations.push({
-                  content: featureItem,
+                  content: item,
                   language: langId,
                   contentElement: itemElement._id,
                   isActive: true,
-                })
+                });
               } else {
-                // Create new feature item element if it doesn't exist
-                createContentElement
-                  .mutateAsync({
-                    name: `Feature ${featureNum} - Feature Item ${itemIndex + 1}`,
-                    type: "text",
-                    parent: sectionId,
+                // Create new item element if it doesn't exist
+                console.log(`Creating new feature item: ${itemName}`);
+                createContentElement.mutateAsync({
+                  name: itemName,
+                  type: "text",
+                  parent: sectionId,
+                  isActive: true,
+                  order: itemIndex,
+                  defaultContent: item,
+                }).then(newElement => {
+                  // Add translation for new element
+                  const newTranslation = {
+                    content: item,
+                    language: langId,
+                    contentElement: newElement.data._id,
                     isActive: true,
-                    order: itemIndex,
-                    defaultContent: featureItem,
-                  })
-                  .then((newElement) => {
-                    translations.push({
-                      content: featureItem,
-                      language: langId,
-                      contentElement: newElement.data._id,
-                      isActive: true,
-                    })
-
-                    // Add to bulk upsert if we have a batch
-                    if (translations.length > 0) {
-                      bulkUpsertTranslations.mutateAsync(translations)
-                    }
-                  })
+                  };
+                  
+                  // Process this translation individually to avoid race conditions
+                  bulkUpsertTranslations.mutateAsync([newTranslation]).catch(err => {
+                    console.error(`Error creating translation for new item ${itemName}:`, err);
+                  });
+                });
               }
-            })
-          })
-        })
-
-        if (translations.length > 0) {
-          await bulkUpsertTranslations.mutateAsync(translations)
-        }
-      } else {
-        // Create new elements for each feature
-        const firstLangCode = Object.keys(allFormValues)[0]
-        const features = allFormValues[firstLangCode]
-
-        if (!Array.isArray(features)) {
-          throw new Error("Invalid features data")
-        }
-
-        // Create elements for each feature
-        for (let featureIndex = 0; featureIndex < features.length; featureIndex++) {
-          const featureNum = featureIndex + 1
-          const elementTypes = [
-            { type: "image", key: "image", name: `Feature ${featureNum} - Image` },
-            { type: "text", key: "heading", name: `Feature ${featureNum} - Heading` },
-            { type: "text", key: "description", name: `Feature ${featureNum} - Description` },
-            { type: "text", key: "imagePosition", name: `Feature ${featureNum} - Image Position` },
-          ]
-
-          const createdElements = []
-
-          // Step 1: Create base elements first
-          for (const [index, el] of elementTypes.entries()) {
-            let defaultContent = ""
-
-            if (el.type === "image") {
-              defaultContent = "image-placeholder"
-            } else if (el.type === "text" && allFormValues[defaultLangCode]) {
-              // For text elements, use the value from the default language
-              const feature = allFormValues[defaultLangCode][featureIndex]
-              if (feature && feature.content && el.key in feature.content) {
-                defaultContent = feature.content[el.key]
-              }
-            }
-
-            const elementData = {
-              name: el.name,
-              type: el.type,
-              parent: sectionId,
-              isActive: true,
-              order: index,
-              defaultContent: defaultContent,
-            }
-
-            const newElement = await createContentElement.mutateAsync(elementData)
-            createdElements.push({ ...newElement.data, key: el.key })
-          }
-
-          // Step 2: Create feature item elements
-          const featureItems = features[featureIndex].content.features || []
-          const featureItemElements = []
-
-          for (let itemIndex = 0; itemIndex < featureItems.length; itemIndex++) {
-            const itemName = `Feature ${featureNum} - Feature Item ${itemIndex + 1}`
-            const defaultContent = featureItems[itemIndex] || ""
-
-            const elementData = {
-              name: itemName,
-              type: "text",
-              parent: sectionId,
-              isActive: true,
-              order: itemIndex,
-              defaultContent: defaultContent,
-            }
-
-            const newElement = await createContentElement.mutateAsync(elementData)
-            featureItemElements.push({ ...newElement.data, itemIndex })
-          }
-
-          // Step 3: Upload image if needed
-          const imageElement = createdElements.find((e) => e.key === "image")
-          const imageFile = featureImages[featureIndex]
-
-          if (imageElement && imageFile) {
-            const formData = new FormData()
-            formData.append("image", imageFile)
+            });
+          });
+          
+          // Process all collected translations
+          if (translations.length > 0) {
             try {
+              toast({
+                title: `Updating translations for feature ${featureNum}`,
+                description: `Processing ${translations.length} translations...`,
+              });
+              
+              await bulkUpsertTranslations.mutateAsync(translations);
+            } catch (error) {
+              console.error(`Error updating translations for feature ${featureNum}:`, error);
+              throw error;
+            }
+          }
+          
+          // Handle image upload if needed
+          const imageFile = featureImages[featureIndex];
+          if (imageFile) {
+            toast({
+              title: `Uploading image for feature ${featureNum}`,
+              description: "Uploading image file...",
+            });
+            
+            const imageElement = contentElements.find(e => 
+              e.type === "image" && e.name === `Feature ${featureNum} - Image`
+            );
+            
+            if (imageElement) {
+              const formData = new FormData();
+              formData.append("image", imageFile);
               await apiClient.post(`/content-elements/${imageElement._id}/image`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
-              })
-            } catch (error) {
-              console.error(`Failed to upload image for feature ${featureNum}:`, error)
+              });
             }
           }
-
-          // Step 4: Create translations for all text elements
-          const translations: Omit<ContentTranslation, "_id">[] = []
-
-          // Process each language in the form values
+        } else {
+          // This is a new feature - create it
+          toast({
+            title: `Creating new feature ${featureNum}`,
+            description: "Setting up new feature content...",
+          });
+          
+          console.log(`Creating new feature ${featureNum}`);
+          
+          // Get the actual feature number to use (avoid duplicates)
+          const actualFeatureNum = highestFeatureNum + (featureIndex - featureIndex + 1);
+          highestFeatureNum = actualFeatureNum;
+          
+          const elementTypes = [
+            { type: "image", key: "image", name: `Feature ${actualFeatureNum} - Image` },
+            { type: "text", key: "heading", name: `Feature ${actualFeatureNum} - Heading` },
+            { type: "text", key: "description", name: `Feature ${actualFeatureNum} - Description` },
+          ];
+          
+          // Create elements one by one
+          const createdElements = [];
+          for (const [index, el] of elementTypes.entries()) {
+            let defaultContent = "";
+            
+            if (el.type === "image") {
+              defaultContent = "image-placeholder";
+            } else if (el.type === "text" && allFormValues[firstLangCode]) {
+              const feature = allFormValues[firstLangCode][featureIndex];
+              if (feature?.content && el.key in feature.content) {
+                defaultContent = feature.content[el.key];
+              }
+            }
+            
+            try {
+              const elementData = {
+                name: el.name,
+                type: el.type,
+                parent: sectionId,
+                isActive: true,
+                order: index,
+                defaultContent: defaultContent,
+              };
+              
+              const newElement = await createContentElement.mutateAsync(elementData);
+              createdElements.push({ ...newElement.data, key: el.key });
+            } catch (error) {
+              console.error(`Error creating element ${el.name}:`, error);
+              throw error;
+            }
+          }
+          
+          // Create feature items
+          toast({
+            title: `Creating feature items for feature ${featureNum}`,
+            description: "Setting up feature details...",
+          });
+          
+          const featureItemElements = [];
+          const featureItems = features[featureIndex].content.features || [];
+          
+          for (let itemIndex = 0; itemIndex < featureItems.length; itemIndex++) {
+            const itemName = `Feature ${actualFeatureNum} - Feature Item ${itemIndex + 1}`;
+            const defaultContent = featureItems[itemIndex] || "";
+            
+            try {
+              const elementData = {
+                name: itemName,
+                type: "text",
+                parent: sectionId,
+                isActive: true,
+                order: itemIndex,
+                defaultContent: defaultContent,
+              };
+              
+              const newElement = await createContentElement.mutateAsync(elementData);
+              featureItemElements.push({ ...newElement.data, itemIndex });
+            } catch (error) {
+              console.error(`Error creating feature item ${itemName}:`, error);
+              throw error;
+            }
+          }
+          
+          // Upload image if needed
+          const imageElement = createdElements.find(e => e.key === "image");
+          const imageFile = featureImages[featureIndex];
+          
+          if (imageElement && imageFile) {
+            toast({
+              title: `Uploading image for new feature ${featureNum}`,
+              description: "Uploading image file...",
+            });
+            
+            try {
+              const formData = new FormData();
+              formData.append("image", imageFile);
+              await apiClient.post(`/content-elements/${imageElement._id}/image`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              });
+            } catch (error) {
+              console.error(`Error uploading image for feature ${actualFeatureNum}:`, error);
+            }
+          }
+          
+          // Create translations
+          const translations = [];
+          
+          // For each language, create translations
           for (const [langCode, langFeatures] of Object.entries(allFormValues)) {
-            const langId = langCodeToIdMap[langCode]
-            if (!langId || !Array.isArray(langFeatures) || !langFeatures[featureIndex]) continue
-
-            const feature = langFeatures[featureIndex]
-
+            const langId = langCodeToIdMap[langCode];
+            if (!langId || !Array.isArray(langFeatures) || !langFeatures[featureIndex]) continue;
+            
+            const feature = langFeatures[featureIndex];
+            
             // Add translations for main elements
             for (const element of createdElements) {
-              if (element.key === "image") continue
-
+              if (element.key === "image") continue;
+              
               if (feature.content && element.key in feature.content) {
                 translations.push({
                   content: feature.content[element.key],
                   language: langId,
                   contentElement: element._id,
                   isActive: true,
-                })
+                });
               }
             }
-
+            
             // Add translations for feature items
-            const items = feature.content?.features || []
+            const items = feature.content?.features || [];
             for (let i = 0; i < items.length && i < featureItemElements.length; i++) {
               translations.push({
                 content: items[i],
                 language: langId,
                 contentElement: featureItemElements[i]._id,
                 isActive: true,
-              })
+              });
             }
           }
-
+          
+          // Process translations for this feature (do it in smaller batches)
           if (translations.length > 0) {
-            try {
-              await bulkUpsertTranslations.mutateAsync(translations)
-            } catch (error) {
-              console.error(`Failed to create translations for feature ${featureNum}:`, error)
+            toast({
+              title: `Creating translations for new feature ${featureNum}`,
+              description: `Processing ${translations.length} translations...`,
+            });
+            
+            // Process in batches of 20 to avoid overwhelming the server
+            const batchSize = 20;
+            for (let i = 0; i < translations.length; i += batchSize) {
+              const batch = translations.slice(i, i + batchSize);
+              try {
+                await bulkUpsertTranslations.mutateAsync(batch);
+              } catch (error) {
+                console.error(`Error creating translations for feature ${actualFeatureNum} (batch ${i/batchSize}):`, error);
+                throw error;
+              }
             }
           }
         }
       }
-
+      
+      // Final success message
       toast({
         title: existingSubSectionId
-          ? "Features section updated successfully!"
-          : "Features section created successfully!",
-      })
-
-      // Refresh data immediately after save
+          ? "Features section updated successfully! ✅"
+          : "Features section created successfully! ✅",
+        description: "All changes have been saved.",
+        duration: 5000, // Show for longer
+      });
+      
+      // Refresh data
       if (slug) {
-        const result = await refetch()
+        toast({
+          title: "Refreshing content",
+          description: "Loading the updated content...",
+        });
+        
+        const result = await refetch();
         if (result.data?.data) {
-          // Reset form with the new data
-          setDataLoaded(false)
-          processAndLoadData(result.data.data)
+          setDataLoaded(false);
+          await processAndLoadData(result.data.data);
         }
       }
-
-      setHasUnsavedChanges(false)
-      setFeatureImages({}) // Clear the file state after saving
+      
+      setHasUnsavedChanges(false);
+      setFeatureImages({});
     } catch (error) {
-      console.error("Operation failed:", error)
+      console.error("Operation failed:", error);
       toast({
-        title: existingSubSectionId ? "Error updating features section" : "Error creating features section",
+        title: existingSubSectionId ? "Error updating features section ❌" : "Error creating features section ❌",
         variant: "destructive",
         description: error instanceof Error ? error.message : "Unknown error occurred",
-      })
+        duration: 5000, // Show for longer
+      });
     } finally {
-      setIsLoadingData(false)
+      setIsLoadingData(false);
     }
-  }
+  };
 
   // Function to add a new feature item
   const addFeatureItem = (langCode: string, featureIndex: number) => {
@@ -921,27 +1002,46 @@ const processAndLoadData = (subsectionData: any) => {
     return acc
   }, {})
 
-  // Function to add a new feature
   const addFeature = (langCode: string) => {
+    // Generate a unique ID for the new feature
+    const newFeatureId = `feature-${Date.now()}`;
+    
     const newFeature: Feature = {
-      id: `feature-${Date.now()}`,
+      id: newFeatureId,
       title: "",
       content: {
         heading: "",
         description: "",
         features: [""],
         image: "",
-        imagePosition: "right",
       },
-    }
+    };
 
     // Add the new feature to all languages to maintain consistency
     Object.keys(form.getValues()).forEach((lang) => {
-      const features = [...(form.getValues()[lang] || [])]
-      features.push(newFeature)
-      form.setValue(lang as any, features)
-    })
-  }
+      const currentFeatures = form.getValues()[lang] || [];
+      const updatedFeatures = [...currentFeatures, newFeature];
+      
+      // Use form.setValue with shouldDirty: true to ensure React Hook Form knows the form is dirty
+      form.setValue(lang as any, updatedFeatures, { 
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true 
+      });
+    });
+    
+    // Force validation to ensure feature counts are consistent
+    validateFeatureCounts();
+    
+    // Mark form as having unsaved changes
+    setHasUnsavedChanges(true);
+    
+    // Show a loading indicator for better user feedback
+    toast({
+      title: "Feature added",
+      description: "A new feature has been added. Please fill in the details and save your changes.",
+    });
+  };
 
   // Function to remove a feature
   const removeFeature = (langCode: string, featureIndex: number) => {
@@ -1169,29 +1269,6 @@ const processAndLoadData = (subsectionData: any) => {
                                   </div>
                                 )}
 
-                           
-
-                                <FormField
-                                  control={form.control}
-                                  name={`${langCode}.${index}.content.imagePosition` as any}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Image Position</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select position" />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          <SelectItem value="left">Left</SelectItem>
-                                          <SelectItem value="right">Right</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
                               </CardContent>
                             </Card>
                           </AccordionContent>

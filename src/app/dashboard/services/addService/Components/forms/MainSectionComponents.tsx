@@ -4,10 +4,14 @@ import React, { ReactNode } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { Skeleton } from "@/src/components/ui/skeleton"
-import { Check, AlertCircle, Loader2, Globe, Info, Edit, Save, AlertTriangle } from 'lucide-react'
+import { Check, AlertCircle, Loader2, Globe, Info, Edit, Save, AlertTriangle, Car, MonitorSmartphone, CreditCard, Settings, Clock, MessageSquare, Headphones, LineChart } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { motion } from "framer-motion"
+// Import the Plus icon that was missing
+import { Plus } from 'lucide-react'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
+
 
 // Loading Card Component
 export function LoadingCard() {
@@ -384,5 +388,43 @@ export function MainFormCard({
   )
 }
 
-// Import the Plus icon that was missing
-import { Plus } from 'lucide-react'
+interface LoadingDialogProps {
+  isOpen: boolean
+  title: string
+  description: string
+}
+
+// Loading Dialog Component
+export const LoadingDialog = ({ isOpen, title, description } : LoadingDialogProps) => {
+  return (
+    <Dialog open={isOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center justify-center p-6">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+
+// Icon mapping component to render the actual icons
+export const IconComponent = ({ iconName } : {iconName : string}) => {
+  const icons = {
+    Car: <Car className="h-4 w-4" />,
+    MonitorSmartphone: <MonitorSmartphone className="h-4 w-4" />,
+    Settings: <Settings className="h-4 w-4" />,
+    CreditCard: <CreditCard className="h-4 w-4" />,
+    Clock: <Clock className="h-4 w-4" />,
+    MessageSquare: <MessageSquare className="h-4 w-4" />,
+    LineChart: <LineChart className="h-4 w-4" />,
+    Headphones: <Headphones className="h-4 w-4" />
+  };
+
+  return icons[iconName] || <Car className="h-4 w-4" />;
+};
+

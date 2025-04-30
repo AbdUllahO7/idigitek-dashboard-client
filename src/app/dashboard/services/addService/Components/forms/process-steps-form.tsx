@@ -4,20 +4,36 @@ import { forwardRef, useImperativeHandle, useEffect, useState, useRef } from "re
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Save, Trash2, Plus, AlertTriangle } from "lucide-react"
+import { 
+  Save, 
+  Trash2, 
+  Plus, 
+  AlertTriangle,
+  Car,
+  MonitorSmartphone,
+  Settings,
+  CreditCard,
+  Clock,
+  MessageSquare,
+  LineChart,
+  Headphones,
+  Loader2
+} from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { Button } from "@/src/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
+import { Select, SelectContent, SelectItem,  SelectValue, SelectTrigger } from "@/src/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
-import type { ContentTranslation, SubSection, Language } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
-import { ProcessStepsFormProps } from "@/src/api/types/sectionsTypes"
+import { IconComponent, LoadingDialog } from "./MainSectionComponents"
+
+
+
 
 
 // Available icons
@@ -33,10 +49,10 @@ const availableIcons = [
 ]
 
 // Create a dynamic schema based on available languages
-const createProcessStepsSchema = (languageIds: string[], activeLanguages: Language[]) => {
-  const schemaShape: Record<string, any> = {}
+const createProcessStepsSchema = (languageIds, activeLanguages) => {
+  const schemaShape = {}
 
-  const languageCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+  const languageCodeMap = activeLanguages.reduce((acc, lang) => {
     acc[lang._id] = lang.languageID
     return acc
   }, {})
@@ -57,12 +73,10 @@ const createProcessStepsSchema = (languageIds: string[], activeLanguages: Langua
   return z.object(schemaShape)
 }
 
-type SchemaType = ReturnType<typeof createProcessStepsSchema>
+const createDefaultValues = (languageIds, activeLanguages) => {
+  const defaultValues = {}
 
-const createDefaultValues = (languageIds: string[], activeLanguages: Language[]) => {
-  const defaultValues: Record<string, any> = {}
-
-  const languageCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+  const languageCodeMap = activeLanguages.reduce((acc, lang) => {
     acc[lang._id] = lang.languageID
     return acc
   }, {})
@@ -81,24 +95,25 @@ const createDefaultValues = (languageIds: string[], activeLanguages: Language[])
   return defaultValues
 }
 
-const ProcessStepsForm = forwardRef<any, ProcessStepsFormProps>(
-  ({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId}, ref) => {
-    const formSchema = createProcessStepsSchema(languageIds as string[], activeLanguages)
+const ProcessStepsForm = forwardRef(
+  ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
+    const formSchema = createProcessStepsSchema(languageIds, activeLanguages)
     const [isLoadingData, setIsLoadingData] = useState(!slug)
     const [dataLoaded, setDataLoaded] = useState(!slug)
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
     const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false)
     const [stepCountMismatch, setStepCountMismatch] = useState(false)
-    const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
-    const [contentElements, setContentElements] = useState<any[]>([])
+    const [existingSubSectionId, setExistingSubSectionId] = useState(null)
+    const [contentElements, setContentElements] = useState([])
+    const [isSaving, setIsSaving] = useState(false)
     const { toast } = useToast()
 
     // Get default language code for form values
     const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : "en"
 
-    const form = useForm<z.infer<SchemaType>>({
+    const form = useForm({
       resolver: zodResolver(formSchema),
-      defaultValues: createDefaultValues(languageIds as string[], activeLanguages),
+      defaultValues: createDefaultValues(languageIds, activeLanguages),
     })
 
     // Expose form data to parent component
@@ -157,133 +172,131 @@ const ProcessStepsForm = forwardRef<any, ProcessStepsFormProps>(
     }
 
     // Function to process and load data into the form
-// Fixed processAndLoadData function for ProcessStepsForm.tsx
+    const processAndLoadData = (subsectionData) => {
+      if (!subsectionData) return;
 
-const processAndLoadData = (subsectionData: any) => {
-  if (!subsectionData) return;
+      try {
+        console.log("Processing process steps subsection data:", subsectionData);
+        setExistingSubSectionId(subsectionData._id);
 
-  try {
-    console.log("Processing process steps subsection data:", subsectionData);
-    setExistingSubSectionId(subsectionData._id);
+        // Check if we have elements directly in the subsection data (API response structure)
+        const elements = subsectionData.elements || subsectionData.contentElements || [];
+        
+        if (elements.length > 0) {
+          // Store the content elements for later use
+          setContentElements(elements);
 
-    // Check if we have elements directly in the subsection data (API response structure)
-    const elements = subsectionData.elements || subsectionData.contentElements || [];
-    
-    if (elements.length > 0) {
-      // Store the content elements for later use
-      setContentElements(elements);
+          // Create a mapping of languages for easier access
+          const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
+            acc[lang._id] = lang.languageID;
+            return acc;
+          }, {});
 
-      // Create a mapping of languages for easier access
-      const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-        acc[lang._id] = lang.languageID;
-        return acc;
-      }, {});
+          // Group content elements by step number
+          const stepGroups = {};
 
-      // Group content elements by step number
-      const stepGroups: Record<number, any[]> = {};
+          elements.forEach((element: { name: string }) => {
+            // Extract step number from element name (e.g., "Step 1 - Title")
+            const match = element.name.match(/Step (\d+)/i);
+            if (match) {
+              const stepNumber = Number.parseInt(match[1]);
+              if (!stepGroups[stepNumber]) {
+                stepGroups[stepNumber] = [];
+              }
+              stepGroups[stepNumber].push(element);
+            }
+          });
 
-      elements.forEach((element: any) => {
-        // Extract step number from element name (e.g., "Step 1 - Title")
-        const match = element.name.match(/Step (\d+)/i);
-        if (match) {
-          const stepNumber = Number.parseInt(match[1]);
-          if (!stepGroups[stepNumber]) {
-            stepGroups[stepNumber] = [];
-          }
-          stepGroups[stepNumber].push(element);
-        }
-      });
+          console.log("Step groups:", stepGroups);
 
-      console.log("Step groups:", stepGroups);
+          // Initialize form values for each language
+          const languageValues = {};
 
-      // Initialize form values for each language
-      const languageValues: Record<string, any[]> = {};
-
-      // Initialize all languages with empty arrays
-      languageIds.forEach((langId) => {
-        const langCode = langIdToCodeMap[langId] || langId;
-        languageValues[langCode] = [];
-      });
-
-      // Process each step group
-      Object.entries(stepGroups).forEach(([stepNumber, elements]) => {
-        const iconElement = elements.find((el) => el.name.includes("Icon"));
-        const titleElement = elements.find((el) => el.name.includes("Title"));
-        const descriptionElement = elements.find((el) => el.name.includes("Description"));
-
-        if (titleElement && descriptionElement) {
-          // For each language, create a step entry
+          // Initialize all languages with empty arrays
           languageIds.forEach((langId) => {
             const langCode = langIdToCodeMap[langId] || langId;
+            languageValues[langCode] = [];
+          });
 
-            // Helper function to get translation content for an element
-            const getTranslationContent = (element: any, defaultValue = "") => {
-              if (!element) return defaultValue;
+          // Process each step group
+          Object.entries(stepGroups).forEach(([stepNumber, elements]) => {
+            const iconElement = elements.find((el) => el.name.includes("Icon"));
+            const titleElement = elements.find((el) => el.name.includes("Title"));
+            const descriptionElement = elements.find((el) => el.name.includes("Description"));
 
-              // First check for a translation in this language
-              const translation = element.translations?.find((t: any) => {
-                // Handle both nested and direct language references
-                if (t.language && typeof t.language === 'object' && t.language._id) {
-                  return t.language._id === langId;
-                } else {
-                  return t.language === langId;
+            if (titleElement && descriptionElement) {
+              // For each language, create a step entry
+              languageIds.forEach((langId) => {
+                const langCode = langIdToCodeMap[langId] || langId;
+
+                // Helper function to get translation content for an element
+                const getTranslationContent = (element, defaultValue = "") => {
+                  if (!element) return defaultValue;
+
+                  // First check for a translation in this language
+                  const translation = element.translations?.find((t) => {
+                    // Handle both nested and direct language references
+                    if (t.language && typeof t.language === 'object' && t.language._id) {
+                      return t.language._id === langId;
+                    } else {
+                      return t.language === langId;
+                    }
+                  });
+
+                  if (translation?.content) return translation.content;
+
+                  // Fall back to default content
+                  return element.defaultContent || defaultValue;
+                };
+
+                // Get content values with proper translation handling
+                const title = getTranslationContent(titleElement, "");
+                const description = getTranslationContent(descriptionElement, "");
+                const icon = iconElement ? (iconElement.defaultContent || "Car") : "Car";
+
+                // Add to language values
+                if (!languageValues[langCode]) {
+                  languageValues[langCode] = [];
                 }
+
+                languageValues[langCode].push({ icon, title, description });
               });
-
-              if (translation?.content) return translation.content;
-
-              // Fall back to default content
-              return element.defaultContent || defaultValue;
-            };
-
-            // Get content values with proper translation handling
-            const title = getTranslationContent(titleElement, "");
-            const description = getTranslationContent(descriptionElement, "");
-            const icon = iconElement ? (iconElement.defaultContent || "Car") : "Car";
-
-            // Add to language values
-            if (!languageValues[langCode]) {
-              languageValues[langCode] = [];
             }
+          });
 
-            languageValues[langCode].push({ icon, title, description });
+          console.log("Form values after processing:", languageValues);
+
+          // Set all values in form
+          Object.entries(languageValues).forEach(([langCode, steps]) => {
+            if (steps.length > 0) {
+              form.setValue(langCode, steps);
+            } else {
+              // Ensure at least one empty step if none were found
+              form.setValue(langCode, [
+                {
+                  icon: "Car",
+                  title: "",
+                  description: "",
+                }
+              ]);
+            }
           });
         }
-      });
 
-      console.log("Form values after processing:", languageValues);
-
-      // Set all values in form
-      Object.entries(languageValues).forEach(([langCode, steps]) => {
-        if (steps.length > 0) {
-          form.setValue(langCode as any, steps as any);
-        } else {
-          // Ensure at least one empty step if none were found
-          form.setValue(langCode as any, [
-            {
-              icon: "Car",
-              title: "",
-              description: "",
-            }
-          ] as any);
-        }
-      });
-    }
-
-    setDataLoaded(true);
-    setHasUnsavedChanges(false);
-    validateStepCounts();
-  } catch (error) {
-    console.error("Error processing process steps data:", error);
-    toast({
-      title: "Error loading process steps data",
-      description: error instanceof Error ? error.message : "Unknown error occurred",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoadingData(false);
-  }
-};
+        setDataLoaded(true);
+        setHasUnsavedChanges(false);
+        validateStepCounts();
+      } catch (error) {
+        console.error("Error processing process steps data:", error);
+        toast({
+          title: "Error loading process steps data",
+          description: error instanceof Error ? error.message : "Unknown error occurred",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
 
     // Effect to populate form with existing data from complete subsection
     useEffect(() => {
@@ -315,7 +328,7 @@ const processAndLoadData = (subsectionData: any) => {
     }, [form, isLoadingData, dataLoaded])
 
     // Function to add a new process step
-    const addProcessStep = (langCode: string) => {
+    const addProcessStep = (langCode) => {
       const currentSteps = form.getValues()[langCode] || []
       form.setValue(langCode, [
         ...currentSteps,
@@ -328,7 +341,7 @@ const processAndLoadData = (subsectionData: any) => {
     }
 
     // Function to remove a process step
-    const removeProcessStep = (langCode: string, index: number) => {
+    const removeProcessStep = (langCode, index) => {
       const currentSteps = form.getValues()[langCode] || []
       if (currentSteps.length <= 1) {
         toast({
@@ -441,6 +454,7 @@ const processAndLoadData = (subsectionData: any) => {
 
       if (!isValid) return
 
+      setIsSaving(true)
       setIsLoadingData(true)
       try {
         // Get current form values before any processing
@@ -452,14 +466,14 @@ const processAndLoadData = (subsectionData: any) => {
         // Create or update logic here
         if (!existingSubSectionId) {
           // Create new subsection
-          const subsectionData: Omit<SubSection, "_id"> = {
+          const subsectionData = {
             name: "Process Steps Section",
             slug: slug || `process-steps-section-${Date.now()}`, // Use provided slug or generate one
             description: "Process steps section for the website",
             isActive: true,
             order: 0,
             sectionItem: ParentSectionId,
-            languages: languageIds as string[],
+            languages: languageIds,
           }
 
           const newSubSection = await createSubSection.mutateAsync(subsectionData)
@@ -471,13 +485,13 @@ const processAndLoadData = (subsectionData: any) => {
         }
 
         // Get language ID to code mapping
-        const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
           acc[lang._id] = lang.languageID
           return acc
         }, {})
 
         // Get language code to ID mapping
-        const langCodeToIdMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+        const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
           acc[lang.languageID] = lang._id
           return acc
         }, {})
@@ -490,9 +504,9 @@ const processAndLoadData = (subsectionData: any) => {
         if (existingSubSectionId && contentElements.length > 0) {
           // Update existing elements
           // Group content elements by step number
-          const stepGroups: Record<number, any[]> = {}
+          const stepGroups = {}
 
-          contentElements.forEach((element: any) => {
+          contentElements.forEach((element) => {
             // Extract step number from element name (e.g., "Step 1 - Title")
             const match = element.name.match(/Step (\d+)/i)
             if (match) {
@@ -505,7 +519,7 @@ const processAndLoadData = (subsectionData: any) => {
           })
 
           // Prepare translations for bulk upsert
-          const translations: Omit<ContentTranslation, "_id">[] = []
+          const translations = []
 
           // Process each language's steps
           Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
@@ -645,7 +659,7 @@ const processAndLoadData = (subsectionData: any) => {
           }
         } else {
           // Create new elements for each step
-          const translations: Omit<ContentTranslation, "_id">[] = []
+          const translations = []
 
           // Get the first language's steps to determine how many to create
           const firstLangSteps = Object.values(allFormValues)[0]
@@ -756,19 +770,28 @@ const processAndLoadData = (subsectionData: any) => {
         })
       } finally {
         setIsLoadingData(false)
+        setIsSaving(false)
       }
     }
 
     // Get language codes for display
-    const languageCodes = activeLanguages.reduce((acc: Record<string, string>, lang) => {
+    const languageCodes = activeLanguages.reduce((acc, lang) => {
       acc[lang._id] = lang.languageID
       return acc
     }, {})
 
     return (
       <div className="space-y-6">
+        {/* Loading Dialog */}
+        <LoadingDialog 
+          isOpen={isSaving} 
+          title={existingSubSectionId ? "Updating Process Steps" : "Creating Process Steps"} 
+          description="Please wait while we save your changes..."
+        />
+        
         {slug && (isLoadingData || isLoadingSubsection) && !dataLoaded ? (
           <div className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
             <p className="text-muted-foreground">Loading process steps data...</p>
           </div>
         ) : (
@@ -811,13 +834,21 @@ const processAndLoadData = (subsectionData: any) => {
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Select an icon" />
+                                        <SelectValue placeholder="Select an icon">
+                                          <div className="flex items-center">
+                                            <span className="mr-2"><IconComponent iconName={field.value} /></span>
+                                            {field.value}
+                                          </div>
+                                        </SelectValue>
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
                                       {availableIcons.map((icon) => (
                                         <SelectItem key={icon} value={icon}>
-                                          {icon}
+                                          <div className="flex items-center">
+                                            <span className="mr-2"><IconComponent iconName={icon} /></span>
+                                            {icon}
+                                          </div>
                                         </SelectItem>
                                       ))}
                                     </SelectContent>
@@ -879,15 +910,20 @@ const processAndLoadData = (subsectionData: any) => {
           <Button
             type="button"
             onClick={handleSave}
-            disabled={isLoadingData || stepCountMismatch}
+            disabled={isLoadingData || stepCountMismatch || isSaving}
             className="flex items-center"
           >
-            <Save className="mr-2 h-4 w-4" />
-            {createSubSection.isPending
-              ? "Saving..."
-              : existingSubSectionId
-                ? "Update Process Steps"
-                : "Save Process Steps"}
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                {existingSubSectionId ? "Update Process Steps" : "Save Process Steps"}
+              </>
+            )}
           </Button>
         </div>
 

@@ -27,3 +27,5 @@ export const serviceSectionConfig = {
         "serviceDetails": "ServiceDetails"
     }
 };
+
+
