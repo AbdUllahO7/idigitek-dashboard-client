@@ -11,7 +11,6 @@ import { ImageUploader } from "@/src/components/image-uploader"
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { Button } from "@/src/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
@@ -19,12 +18,91 @@ import apiClient from "@/src/lib/api-client"
 import { useToast } from "@/src/hooks/use-toast"
 import { LoadingDialog } from "./MainSectionComponents"
 
-const createHeroSchema = (languageIds, activeLanguages) => {
-  const schemaShape = {
+interface Language {
+  _id: string;
+  languageID: string;
+}
+
+interface ContentElement {
+  _id: string;
+  name: string;
+  type: string;
+  parent: string;
+  isActive: boolean;
+  order: number;
+  defaultContent: string;
+  imageUrl?: string;
+  translations?: Translation[];
+  key?: string;
+}
+
+interface Translation {
+  content: string;
+  language: string;
+  contentElement: string;
+  isActive: boolean;
+  _id?: string;
+}
+
+interface SubSectionData {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  isActive: boolean;
+  isMain: boolean;
+  order: number;
+  sectionItem: string;
+  languages: string[];
+  elements?: ContentElement[];
+  contentElements?: ContentElement[];
+}
+
+interface FormLanguageValues {
+  title: string;
+  description: string;
+  backLinkText: string;
+}
+
+interface FormValues {
+  backgroundImage: string;
+  [key: string]: string | FormLanguageValues;
+}
+
+interface InitialData {
+  description?: string;
+  image?: string;
+}
+
+// Component props interface
+interface HeroFormProps {
+  languageIds: string[];
+  activeLanguages: Language[];
+  onDataChange?: (data: any) => void;
+  slug?: string;
+  ParentSectionId?: string;
+  initialData?: InitialData;
+}
+
+// Ref interface for imperative handle
+interface HeroFormRef {
+  getFormData: () => Promise<any>;
+  getImageFile: () => File | null;
+  form: ReturnType<typeof useForm<FormValues>>;
+  hasUnsavedChanges: boolean;
+  resetUnsavedChanges: () => void;
+  existingSubSectionId: string | null;
+  contentElements: ContentElement[];
+  saveData: () => Promise<boolean>;
+}
+
+// Create Zod schema with types
+const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
+  const schemaShape: Record<string, z.ZodTypeAny> = {
     backgroundImage: z.string().optional(), // Made optional for better UX
   }
 
-  const languageCodeMap = activeLanguages.reduce((acc, lang) => {
+  const languageCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
     acc[lang._id] = lang.languageID
     return acc
   }, {})
@@ -41,12 +119,13 @@ const createHeroSchema = (languageIds, activeLanguages) => {
   return z.object(schemaShape)
 }
 
-const createDefaultValues = (languageIds, activeLanguages) => {
-  const defaultValues = {
+// Create default values with proper typing
+const createDefaultValues = (languageIds: string[], activeLanguages: Language[]): FormValues => {
+  const defaultValues: FormValues = {
     backgroundImage: "",
   }
 
-  const languageCodeMap = activeLanguages.reduce((acc, lang) => {
+  const languageCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
     acc[lang._id] = lang.languageID
     return acc
   }, {})
@@ -57,32 +136,35 @@ const createDefaultValues = (languageIds, activeLanguages) => {
       title: "",
       description: "",
       backLinkText: "", // Default value for better UX
-    }
+    } as FormLanguageValues
   })
 
   return defaultValues
 }
 
-const HeroForm = forwardRef(
+const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData }, ref) => {
+  // Create schema with type safety
   const formSchema = createHeroSchema(languageIds, activeLanguages)
-  const [isLoadingData, setIsLoadingData] = useState(false)
-  const [dataLoaded, setDataLoaded] = useState(false)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [imageFile, setImageFile] = useState(null)
-  const [existingSubSectionId, setExistingSubSectionId] = useState(null)
-  const [contentElements, setContentElements] = useState([])
-  const [isSaving, setIsSaving] = useState(false)
-  const [isFormReady, setIsFormReady] = useState(false)
+  type FormSchemaType = z.infer<typeof formSchema>
+  
+  const [isLoadingData, setIsLoadingData] = useState<boolean>(false)
+  const [dataLoaded, setDataLoaded] = useState<boolean>(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
+  const [contentElements, setContentElements] = useState<ContentElement[]>([])
+  const [isSaving, setIsSaving] = useState<boolean>(false)
+  const [isFormReady, setIsFormReady] = useState<boolean>(false)
   const { toast } = useToast()
-  const dataProcessed = useRef(false)
+  const dataProcessed = useRef<boolean>(false)
 
   // Get default language code for form values
   const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
 
-  const form = useForm({
+  const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: createDefaultValues(languageIds, activeLanguages),
+    defaultValues: createDefaultValues(languageIds, activeLanguages) as z.infer<typeof formSchema>,
   })
 
   // Make form methods and data available to parent component
@@ -108,7 +190,8 @@ const HeroForm = forwardRef(
     saveData: handleSave // Expose save method to parent
   }))
 
-  const onDataChangeRef = useRef(onDataChange)
+  // Use ref for callback to avoid unnecessary re-renders
+  const onDataChangeRef = useRef<((data: any) => void) | undefined>(onDataChange)
   useEffect(() => {
     onDataChangeRef.current = onDataChange
   }, [onDataChange])
@@ -143,8 +226,8 @@ const HeroForm = forwardRef(
       if (initialData.description) {
         // Set description for default language
         const formValues = form.getValues()
-        if (formValues[defaultLangCode]) {
-          form.setValue(`${defaultLangCode}.description`, initialData.description)
+        if (formValues[defaultLangCode] && typeof formValues[defaultLangCode] === 'object') {
+          form.setValue(`${defaultLangCode}.description` as any, initialData.description)
         }
       }
       
@@ -158,7 +241,7 @@ const HeroForm = forwardRef(
     }
   }
 
-  const processAndLoadData = (subsectionData) => {
+  const processAndLoadData = (subsectionData: SubSectionData | null): boolean => {
     if (!subsectionData) {
       console.log("No subsection data to process");
       return false;
@@ -185,20 +268,20 @@ const HeroForm = forwardRef(
         }
 
         // Map element names to keys for form values
-        const elementKeyMap = {
+        const elementKeyMap: Record<string, string> = {
           'Title': 'title',
           'Description': 'description',
           'Back Link Text': 'backLinkText'
         };
 
         // Create a mapping of languages for easier access
-        const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
+        const langIdToCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
           acc[lang._id] = lang.languageID;
           return acc;
         }, {});
 
         // Initialize form values for each language
-        const languageValues = {};
+        const languageValues: Record<string, FormLanguageValues> = {};
 
         // Initialize all languages with empty values
         languageIds.forEach(langId => {
@@ -221,7 +304,7 @@ const HeroForm = forwardRef(
           const defaultContent = element.defaultContent || '';
           if (defaultContent) {
             Object.keys(languageValues).forEach(langCode => {
-              languageValues[langCode][key] = defaultContent;
+              languageValues[langCode][key as keyof FormLanguageValues] = defaultContent;
             });
           }
           
@@ -229,17 +312,17 @@ const HeroForm = forwardRef(
           if (element.translations && element.translations.length > 0) {
             element.translations.forEach((translation) => {
               // Get the language code from the language object or ID
-              let langCode;
-              if (translation.language && typeof translation.language === 'object' && translation.language._id) {
+              let langCode: string | undefined;
+              if (translation.language && typeof translation.language === 'object' && 'language' in translation && '_id' in (translation.language as any)) {
                 // Handle nested language object
-                langCode = langIdToCodeMap[translation.language._id];
+                langCode = langIdToCodeMap[(translation.language as any)._id];
               } else if (translation.language) {
                 // Handle language ID directly
                 langCode = langIdToCodeMap[translation.language];
               }
               
               if (langCode && languageValues[langCode] && translation.content) {
-                languageValues[langCode][key] = translation.content;
+                languageValues[langCode][key as keyof FormLanguageValues] = translation.content;
               }
             });
           }
@@ -249,7 +332,7 @@ const HeroForm = forwardRef(
 
         // Set all values in form
         Object.entries(languageValues).forEach(([langCode, values]) => {
-          form.setValue(langCode, values);
+          form.setValue(langCode as any, values);
         });
         
         return true;
@@ -284,7 +367,7 @@ const HeroForm = forwardRef(
     if (completeSubsectionData?.data) {
       setIsLoadingData(true);
       
-      const success = processAndLoadData(completeSubsectionData.data);
+      const success = processAndLoadData(completeSubsectionData.data as unknown as SubSectionData);
       
       if (success) {
         setDataLoaded(true);
@@ -319,7 +402,7 @@ const HeroForm = forwardRef(
   }, [form, isLoadingData, isFormReady]);
 
   // Handler for saving the form
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     const isValid = await form.trigger()
     if (!isValid) {
       toast({
@@ -380,13 +463,13 @@ const HeroForm = forwardRef(
       }
 
       // Get language code to ID mapping 
-      const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
+      const langCodeToIdMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
         acc[lang.languageID] = lang._id
         return acc
       }, {})
       
       // Element key to name mapping
-      const elementKeyToNameMap = {
+      const elementKeyToNameMap: Record<string, string> = {
         'title': 'Title',
         'description': 'Description',
         'backLinkText': 'Back Link Text'
@@ -409,10 +492,10 @@ const HeroForm = forwardRef(
 
         // For text elements, update the translations
         const textElements = contentElements.filter(e => e.type === 'text')
-        const translations = []
+        const translations: Translation[] = []
         
         // Map element names to keys for form values
-        const elementNameToKeyMap = {
+        const elementNameToKeyMap: Record<string, string> = {
           'Title': 'title',
           'Description': 'description',
           'Back Link Text': 'backLinkText'
@@ -429,7 +512,7 @@ const HeroForm = forwardRef(
             const key = elementNameToKeyMap[element.name]
             if (key && values && typeof values === 'object' && key in values) {
               translations.push({
-                content: values[key],
+                content: (values as FormLanguageValues)[key as keyof FormLanguageValues] as string,
                 language: langId,
                 contentElement: element._id,
                 isActive: true,
@@ -452,7 +535,7 @@ const HeroForm = forwardRef(
           { type: 'text', key: 'backLinkText', name: 'Back Link Text' },
         ]
 
-        const createdElements = []
+        const createdElements: (ContentElement & { key: string })[] = []
         
         // Step 1: Create all elements first
         for (const [index, el] of elementTypes.entries()) {
@@ -460,11 +543,11 @@ const HeroForm = forwardRef(
           
           if (el.type === 'image') {
             defaultContent = allFormValues.backgroundImage || 'image-placeholder'
-          } else if (el.type === 'text' && allFormValues[defaultLangCode]) {
+          } else if (el.type === 'text' && typeof allFormValues[defaultLangCode] === 'object') {
             // For text elements, use the value from the default language
-            const langValues = allFormValues[defaultLangCode]
+            const langValues = allFormValues[defaultLangCode] as FormLanguageValues
             defaultContent = langValues && typeof langValues === 'object' && el.key in langValues
-              ? langValues[el.key]
+              ? langValues[el.key as keyof FormLanguageValues] as string
               : ''
               
             console.log(`Creating element ${el.name} with default content: ${defaultContent}`)
@@ -533,7 +616,7 @@ const HeroForm = forwardRef(
 
         // Step 3: Create translations for all text elements
         const textElements = createdElements.filter(e => e.key !== 'backgroundImage')
-        const translations = []
+        const translations: Translation[] = []
         
         // Process each language in the form values
         for (const [langCode, langValues] of Object.entries(allFormValues)) {
@@ -547,7 +630,7 @@ const HeroForm = forwardRef(
           // For each text element, create a translation
           for (const element of textElements) {
             if (langValues && typeof langValues === 'object' && element.key in langValues) {
-              const content = langValues[element.key]
+              const content = (langValues as FormLanguageValues)[element.key as keyof FormLanguageValues] as string
               console.log(`Creating translation for ${element.key}: ${content}`)
               
               translations.push({
@@ -604,10 +687,11 @@ const HeroForm = forwardRef(
   };
 
   // Get language codes for display
-  const languageCodes = activeLanguages.reduce((acc, lang) => {
+  const languageCodes = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
     acc[lang._id] = lang.languageID
     return acc
   }, {})
+
 
   return (
     <div className="space-y-6">
