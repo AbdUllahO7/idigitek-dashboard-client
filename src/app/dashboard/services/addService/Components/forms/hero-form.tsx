@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useImperativeHandle, useEffect, useState, useRef } from "react"
+import { forwardRef,  useEffect, useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -16,81 +16,51 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-
 import apiClient from "@/src/lib/api-client"
 import { useToast } from "@/src/hooks/use-toast"
 import { LoadingDialog } from "./MainSectionComponents"
-import { ContentElement, FormLanguageValues, FormValues, HeroFormProps, Language, SubSectionData, Translation } from "../../types/HeroFor.types"
+import { ContentElement, FormLanguageValues,  HeroFormProps, SubSectionData, Translation } from "../../types/HeroFor.types"
 import { HeroFormRef } from "../../types/BenefitsForm.types"
 import { Label } from "@/src/components/ui/label"
 import { createHeroSchema } from "../../Utils/language-specifi-schemas"
+import { createHeroDefaultValues } from "../../Utils/Language-default-values"
+import { createFormRef } from "../../Utils/Expose-form-data"
+import { processAndLoadData } from "../../Utils/load-form-data"
+import { ContentElementType } from "@/src/api/types"
 
-// Create default values with proper typing
-const createDefaultValues = (languageIds: string[], activeLanguages: Language[]): FormValues => {
-  const defaultValues: FormValues = {
-    backgroundImage: "",
-  }
 
-  const languageCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-    acc[lang._id] = lang.languageID
-    return acc
-  }, {})
-
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId
-    defaultValues[langCode] = {
-      title: "",
-      description: "",
-      backLinkText: "", // Default value for better UX
-    } as FormLanguageValues
-  })
-
-  return defaultValues
-}
 
 const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData }, ref) => {
     // Create schema with type safety
     const formSchema = createHeroSchema(languageIds, activeLanguages)
     type FormSchemaType = z.infer<typeof formSchema>
-    
+    const defaultValues = createHeroDefaultValues(languageIds, activeLanguages)
     const [isLoadingData, setIsLoadingData] = useState<boolean>(false)
     const [dataLoaded, setDataLoaded] = useState<boolean>(false)
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false)
     const [imageFile, setImageFile] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
-    const [contentElements, setContentElements] = useState<ContentElement[]>([])
+    const [contentElements, setContentElements] = useState<ContentElementType[]>([])
     const [isSaving, setIsSaving] = useState<boolean>(false)
     const [isFormReady, setIsFormReady] = useState<boolean>(false)
     const { toast } = useToast()
     const dataProcessed = useRef<boolean>(false)
+    // API hooks
+    const { useCreate: useCreateSubSection, useGetCompleteBySlug, useUpdate: useUpdateSubSection } = useSubSections()
+    const { useCreate: useCreateContentElement } = useContentElements()
+    const { useBulkUpsert: useBulkUpsertTranslations } = useContentTranslations()
+    const createSubSection = useCreateSubSection()
+    const updateSubSection = useUpdateSubSection()
+    const createContentElement = useCreateContentElement()
+    const bulkUpsertTranslations = useBulkUpsertTranslations()
+
 
     // Get default language code for form values
     const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
 
     const form = useForm<FormSchemaType>({
       resolver: zodResolver(formSchema),
-      defaultValues: createDefaultValues(languageIds, activeLanguages) as z.infer<typeof formSchema>,
+      defaultValues: defaultValues
     })
-
-    // Make form methods and data available to parent component
-    useImperativeHandle(ref, () => ({
-      getFormData: async () => {
-        const isValid = await form.trigger()
-        if (!isValid) throw new Error("Hero form has validation errors")
-    
-        const formValues = form.getValues()
-        return {
-          ...formValues,
-          imageFile: imageFile,
-          existingSubSectionId,
-        }
-      },
-      getImageFile: () => imageFile,
-      form: form,
-      hasUnsavedChanges,
-      resetUnsavedChanges: () => setHasUnsavedChanges(false),
-      existingSubSectionId,
-      contentElements,
-      saveData: handleSave,
-    }))
 
     // Use ref for callback to avoid unnecessary re-renders
     const onDataChangeRef = useRef<((data: any) => void) | undefined>(onDataChange)
@@ -98,17 +68,6 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
       onDataChangeRef.current = onDataChange
     }, [onDataChange])
 
-    // API hooks
-    const { useCreate: useCreateSubSection, useGetCompleteBySlug, useUpdate: useUpdateSubSection } = useSubSections()
-    const { useCreate: useCreateContentElement, useUpdate: useUpdateContentElement } = useContentElements()
-    const { useBulkUpsert: useBulkUpsertTranslations } = useContentTranslations()
-
-    const createSubSection = useCreateSubSection()
-    const updateSubSection = useUpdateSubSection()
-    const createContentElement = useCreateContentElement()
-    const updateContentElement = useUpdateContentElement()
-    const bulkUpsertTranslations = useBulkUpsertTranslations()
-    
     // Query for complete subsection data by slug if provided
     const { 
       data: completeSubsectionData, 
@@ -118,8 +77,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
       slug || '', 
       Boolean(slug),  // Only enable query if slug exists
     )
-
-    // Function to process and load initial data from parent component into the form
+    
     const processInitialData = () => {
       // If initialData is provided directly (from parent service/section item), use that
       if (initialData && !dataLoaded) {
@@ -144,116 +102,76 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
       }
     }
 
-    const processAndLoadData = (subsectionData: SubSectionData | null): boolean => {
-      if (!subsectionData) {
-        console.log("No subsection data to process")
-        return false
-      }
-
-      try {
-        console.log("Processing hero subsection data:", subsectionData)
-        setExistingSubSectionId(subsectionData._id)
-
-        // Check if we have elements directly in the subsection data
-        const elements = subsectionData.elements || subsectionData.contentElements || []
-        
-        if (elements.length > 0) {
-          // Store the content elements for later use
-          setContentElements(elements)
-
-          // Find background image element
-          const bgImageElement = elements.find(
-            (el) => el.name === 'Background Image' && el.type === 'image'
-          )
-
-          if (bgImageElement && bgImageElement.imageUrl) {
-            form.setValue('backgroundImage', bgImageElement.imageUrl)
-            setImagePreview(bgImageElement.imageUrl) // Set for preview
-          }
-
-          // Map element names to keys for form values
-          const elementKeyMap: Record<string, string> = {
-            'Title': 'title',
-            'Description': 'description',
-            'Back Link Text': 'backLinkText'
-          }
-
-          // Create a mapping of languages for easier access
-          const langIdToCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-            acc[lang._id] = lang.languageID
-            return acc
-          }, {})
-
-          // Initialize form values for each language
-          const languageValues: Record<string, FormLanguageValues> = {}
-
-          // Initialize all languages with empty values
-          languageIds.forEach(langId => {
-            const langCode = langIdToCodeMap[langId] || langId
-            languageValues[langCode] = {
+    const processHeroData = (subsectionData: SubSectionData | null) => {
+      processAndLoadData(
+        subsectionData,
+        form,
+        languageIds,
+        activeLanguages,
+        {
+          // Group elements by their type - for hero we don't need grouping
+          groupElements: (elements) => {
+            // For hero section, we don't group by ID, but by element name
+            return {
+              'hero': elements.filter(el => el.type === 'text' || (el.name === 'Background Image' && el.type === 'image'))
+            };
+          },
+          
+          // Process the hero elements for a language
+          processElementGroup: (groupId, elements, langId, getTranslationContent) => {
+            // Map element names to keys for form values
+            const elementKeyMap = {
+              'Title': 'title',
+              'Description': 'description',
+              'Back Link Text': 'backLinkText'
+            };
+            
+            // Create result object
+            const result = {
               title: '',
               description: '',
               backLinkText: ''
-            }
-          })
-
-          // Process text elements and their translations
-          const textElements = elements.filter((el) => el.type === 'text')
-          
-          textElements.forEach((element) => {
-            const key = elementKeyMap[element.name]
-            if (!key) return
-
-            // First set default content for all languages
-            const defaultContent = element.defaultContent || ''
-            if (defaultContent) {
-              Object.keys(languageValues).forEach(langCode => {
-                languageValues[langCode][key as keyof FormLanguageValues] = defaultContent
-              })
-            }
+            };
             
-            // Then process each translation
-            if (element.translations && element.translations.length > 0) {
-              element.translations.forEach((translation) => {
-                // Get the language code from the language object or ID
-                let langCode: string | undefined
-                if (translation.language && typeof translation.language === 'object' && 'language' in translation && '_id' in (translation.language as any)) {
-                  // Handle nested language object
-                  langCode = langIdToCodeMap[(translation.language as any)._id]
-                } else if (translation.language) {
-                  // Handle language ID directly
-                  langCode = langIdToCodeMap[translation.language]
-                }
-                
-                if (langCode && languageValues[langCode] && translation.content) {
-                  languageValues[langCode][key as keyof FormLanguageValues] = translation.content
-                }
-              })
-            }
-          })
-
-          console.log("Form values after processing:", languageValues)
-
-          // Set all values in form
-          Object.entries(languageValues).forEach(([langCode, values]) => {
-            form.setValue(langCode as any, values)
-          })
+            // Find and set values for text elements
+            elements.filter(el => el.type === 'text').forEach(element => {
+              const key = elementKeyMap[element.name];
+              if (key) {
+                result[key] = getTranslationContent(element, '');
+              }
+            });
+            
+            return result;
+          },
           
-          return true
-        } else {
-          console.log("No content elements found in subsection data")
-          return false
+          // Default value for hero
+          getDefaultValue: () => ({
+            title: '',
+            description: '',
+            backLinkText: ''
+          })
+        },
+        {
+          setExistingSubSectionId,
+          setContentElements,
+          setDataLoaded,
+          setHasUnsavedChanges,
+          setIsLoadingData
         }
-      } catch (error) {
-        console.error('Error processing hero section data:', error)
-        toast({
-          title: 'Error loading hero section data',
-          description: error instanceof Error ? error.message : 'Unknown error occurred',
-          variant: 'destructive',
-        })
-        return false
+      );
+      
+      // Handle background image separately (this is outside the language structure)
+      const bgImageElement = subsectionData?.elements?.find(
+        (el) => el.name === 'Background Image' && el.type === 'image'
+      ) || subsectionData?.contentElements?.find(
+        (el) => el.name === 'Background Image' && el.type === 'image'
+      );
+      
+      if (bgImageElement?.imageUrl) {
+        form.setValue('backgroundImage', bgImageElement.imageUrl);
+        setImagePreview(bgImageElement.imageUrl);
       }
-    }
+    };
     
     // Effect to process initial data from parent component
     useEffect(() => {
@@ -267,11 +185,9 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
       if (!slug || isLoadingSubsection || dataProcessed.current) return
       if (completeSubsectionData?.data) {
         setIsLoadingData(true)
-        const success = processAndLoadData(completeSubsectionData.data as unknown as SubSectionData)
-        if (success) {
-          setDataLoaded(true)
-          dataProcessed.current = true
-        }
+        processHeroData(completeSubsectionData.data as unknown as SubSectionData)
+        setDataLoaded(true)
+        dataProcessed.current = true
         setIsLoadingData(false)
         setIsFormReady(true)
       }
@@ -510,6 +426,23 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
         setIsSaving(false)
       }
     }
+
+    createFormRef(ref, {
+      form,
+      hasUnsavedChanges,
+      setHasUnsavedChanges,
+      existingSubSectionId,
+      contentElements,
+      componentName: 'Hero',
+      extraMethods: {
+        getImageFile: () => imageFile,
+        saveData: handleSave
+      },
+      extraData: {
+        imageFile,
+        existingSubSectionId
+      }
+    });
 
     // Get language codes for display
     const languageCodes = activeLanguages.reduce<Record<string, string>>((acc, lang) => {

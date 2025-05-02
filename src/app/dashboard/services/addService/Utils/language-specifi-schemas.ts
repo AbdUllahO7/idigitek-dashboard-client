@@ -1,13 +1,7 @@
 import { z } from "zod";
+import { Language } from "../types/HeroFor.types";
 
-// Define common types
-type Language = {
-    _id: string;
-    languageID: string;
-  };
-  
-  // Generic schema creator function that accepts a schema definition function
-  const createLanguageSchema = <T>(
+const createLanguageSchema = <T>(
     languageIds: string[], 
     activeLanguages: Language[], 
     schemaDefinitionFn: (z: any) => T
@@ -27,10 +21,9 @@ type Language = {
     });
     
     return z.object(schemaShape);
-  };
+};
   
-  // Schema definitions for each component type
-  const schemaDefinitions = {
+const schemaDefinitions = {
     hero: (z: any) => z.object({
       title: z.string().min(1, { message: "Title is required" }),
       description: z.string().min(1, { message: "Description is required" }),
@@ -74,33 +67,32 @@ type Language = {
         }),
       })
     ).min(1, { message: "At least one feature is required" }),
-  };
-  
-  // Simplified functions that use the generic creator
-  export const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
+};
+
+export const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
     const schema = createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.hero);
     // Add any hero-specific fields
     return z.object({
       ...schema.shape,
       backgroundImage: z.string().optional(),
     });
-  };
+};
   
-  export const createProcessStepsSchema = (languageIds: string[], activeLanguages: Language[]) => {
+export const createProcessStepsSchema = (languageIds: string[], activeLanguages: Language[]) => {
     return createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.processStep);
-  };
+};
   
-  export const createBenefitsSchema = (languageIds: string[], activeLanguages: Language[]) => {
+export const createBenefitsSchema = (languageIds: string[], activeLanguages: Language[]) => {
     return createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.benefit);
-  };
+};
   
-  export const createFaqSchema = (languageIds: string[], activeLanguages: Language[]) => {
+export const createFaqSchema = (languageIds: string[], activeLanguages: Language[]) => {
     return createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.faq);
-  };
+};
   
-  export const createFeaturesSchema = (languageIds: string[], activeLanguages: Language[]) => {
+export const createFeaturesSchema = (languageIds: string[], activeLanguages: Language[]) => {
     return createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.feature);
-  };
+};
   
-  // Usage remains the same
-  // const formSchema = createHeroSchema(languageIds, activeLanguages);
+// Usage remains the same
+// const formSchema = createHeroSchema(languageIds, activeLanguages);

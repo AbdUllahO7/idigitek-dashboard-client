@@ -1,22 +1,13 @@
 "use client"
 
-import { forwardRef, useImperativeHandle, useEffect, useState, useRef } from "react"
+import { forwardRef,  useEffect, useState, useRef, Key } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
 import { 
   Save, 
   Trash2, 
   Plus, 
   AlertTriangle,
-  Car,
-  MonitorSmartphone,
-  Settings,
-  CreditCard,
-  Clock,
-  MessageSquare,
-  LineChart,
-  Headphones,
   Loader2
 } from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
@@ -32,6 +23,11 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-
 import { useToast } from "@/src/hooks/use-toast"
 import { IconComponent, LoadingDialog } from "./MainSectionComponents"
 import { createProcessStepsSchema } from "../../Utils/language-specifi-schemas"
+import { createProcessStepsDefaultValues } from "../../Utils/Language-default-values"
+import { createFormRef } from "../../Utils/Expose-form-data"
+import { processAndLoadData } from "../../Utils/load-form-data"
+import { HeroFormProps, SubSectionData } from "../../types/HeroFor.types"
+import { HeroFormRef } from "../../types/BenefitsForm.types"
 
 // Available icons
 const availableIcons = [
@@ -47,28 +43,9 @@ const availableIcons = [
 
 
 
-const createDefaultValues = (languageIds, activeLanguages) => {
-  const defaultValues = {}
-  const languageCodeMap = activeLanguages.reduce((acc, lang) => {
-    acc[lang._id] = lang.languageID
-    return acc
-  }, {})
 
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId
-    defaultValues[langCode] = [
-      {
-        icon: "Car",
-        title: "",
-        description: "",
-      },
-    ]
-  })
 
-  return defaultValues
-}
-
-const ProcessStepsForm = forwardRef(
+const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
     const formSchema = createProcessStepsSchema(languageIds, activeLanguages)
     const [isLoadingData, setIsLoadingData] = useState(!slug)
@@ -77,33 +54,20 @@ const ProcessStepsForm = forwardRef(
     const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false)
     const [stepCountMismatch, setStepCountMismatch] = useState(false)
     const [existingSubSectionId, setExistingSubSectionId] = useState(null)
-    const [contentElements, setContentElements] = useState([])
+    const [contentElements, setContentElements] = useState<Array<{ _id: string; name: string; order: number }>>([])
     const [isSaving, setIsSaving] = useState(false)
     const { toast } = useToast()
 
     // Get default language code for form values
     const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : "en"
+    const defaultValues = createProcessStepsDefaultValues(languageIds, activeLanguages)
 
     const form = useForm({
       resolver: zodResolver(formSchema),
-      defaultValues: createDefaultValues(languageIds, activeLanguages),
+      defaultValues:defaultValues
     })
 
-    // Expose form data to parent component
-    useImperativeHandle(ref, () => ({
-      getFormData: async () => {
-        const isValid = await form.trigger()
-        if (!isValid) {
-          throw new Error("Process steps form has validation errors")
-        }
-        return form.getValues()
-      },
-      form: form,
-      hasUnsavedChanges,
-      resetUnsavedChanges: () => setHasUnsavedChanges(false),
-      existingSubSectionId,
-      contentElements,
-    }))
+
 
     const onDataChangeRef = useRef(onDataChange)
     useEffect(() => {
@@ -142,113 +106,65 @@ const ProcessStepsForm = forwardRef(
     }
 
     // Function to process and load data into the form
-    const processAndLoadData = (subsectionData) => {
-      if (!subsectionData) return
-
-      try {
-        console.log("Processing process steps subsection data:", subsectionData)
-        setExistingSubSectionId(subsectionData._id)
-
-        const elements = subsectionData.elements || subsectionData.contentElements || []
-        
-        if (elements.length > 0) {
-          setContentElements(elements)
-
-          const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
-            acc[lang._id] = lang.languageID
-            return acc
-          }, {})
-
-          const stepGroups = {}
-          elements.forEach((element) => {
-            const match = element.name.match(/Step (\d+)/i)
-            if (match) {
-              const stepNumber = Number.parseInt(match[1])
-              if (!stepGroups[stepNumber]) {
-                stepGroups[stepNumber] = []
+    const processProcessStepsData = (subsectionData: SubSectionData | null) => {
+      processAndLoadData(
+        subsectionData,
+        form,
+        languageIds,
+        activeLanguages,
+        {
+          // Group elements by step number
+          groupElements: (elements) => {
+            const stepGroups = {};
+            elements.forEach((element) => {
+              const match = element.name.match(/Step (\d+)/i);
+              if (match) {
+                const stepNumber = Number.parseInt(match[1]);
+                if (!stepGroups[stepNumber]) {
+                  stepGroups[stepNumber] = [];
+                }
+                stepGroups[stepNumber].push(element);
               }
-              stepGroups[stepNumber].push(element)
-            }
-          })
-
-          console.log("Step groups:", stepGroups)
-
-          const languageValues = {}
-          languageIds.forEach((langId) => {
-            const langCode = langIdToCodeMap[langId] || langId
-            languageValues[langCode] = []
-          })
-
-          Object.entries(stepGroups).forEach(([stepNumber, elements]) => {
-            const iconElement = elements.find((el) => el.name.includes("Icon"))
-            const titleElement = elements.find((el) => el.name.includes("Title"))
-            const descriptionElement = elements.find((el) => el.name.includes("Description"))
-
+            });
+            return stepGroups;
+          },
+          
+          // Process a step group for a language
+          processElementGroup: (stepNumber, elements, langId, getTranslationContent) => {
+            const iconElement = elements.find((el) => el.name.includes("Icon"));
+            const titleElement = elements.find((el) => el.name.includes("Title"));
+            const descriptionElement = elements.find((el) => el.name.includes("Description"));
+            
+            // Only create a step if we have title and description
             if (titleElement && descriptionElement) {
-              languageIds.forEach((langId) => {
-                const langCode = langIdToCodeMap[langId] || langId
-
-                const getTranslationContent = (element, defaultValue = "") => {
-                  if (!element) return defaultValue
-                  const translation = element.translations?.find((t) => {
-                    if (t.language && typeof t.language === 'object' && t.language._id) {
-                      return t.language._id === langId
-                    } else {
-                      return t.language === langId
-                    }
-                  })
-                  return translation?.content || element.defaultContent || defaultValue
-                }
-
-                const title = getTranslationContent(titleElement, "")
-                const description = getTranslationContent(descriptionElement, "")
-                const icon = iconElement ? (iconElement.defaultContent || "Car") : "Car"
-
-                if (!languageValues[langCode]) {
-                  languageValues[langCode] = []
-                }
-
-                languageValues[langCode].push({ icon, title, description })
-              })
+              const title = getTranslationContent(titleElement, "");
+              const description = getTranslationContent(descriptionElement, "");
+              const icon = iconElement ? (iconElement.defaultContent || "Car") : "Car";
+              
+              return { icon, title, description };
             }
-          })
-
-          console.log("Form values after processing:", languageValues)
-
-          Object.entries(languageValues).forEach(([langCode, steps]) => {
-            if (steps.length > 0) {
-              form.setValue(langCode, steps, { shouldDirty: false })
-            } else {
-              form.setValue(langCode, [
-                {
-                  icon: "Car",
-                  title: "",
-                  description: "",
-                }
-              ], { shouldDirty: false })
-            }
-          })
+            
+            // Return default if we don't have required elements
+            return { icon: "Car", title: "", description: "" };
+          },
+          
+          // Default value for process steps
+          getDefaultValue: () => [{
+            icon: "Car",
+            title: "",
+            description: ""
+          }]
+        },
+        {
+          setExistingSubSectionId,
+          setContentElements,
+          setDataLoaded,
+          setHasUnsavedChanges,
+          setIsLoadingData,
+          validateCounts: validateStepCounts
         }
-
-        form.reset(form.getValues(), {
-          keepValues: true,
-          keepDirty: false,
-        })
-
-        setDataLoaded(true)
-        setHasUnsavedChanges(false)
-        validateStepCounts()
-      } catch (error) {
-        console.error("Error processing process steps data:", error)
-        toast({
-          title: "Error loading process steps data",
-          description: error instanceof Error ? error.message : "Unknown error occurred",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoadingData(false)
-      }
-    }
+      );
+    };
 
     // Effect to populate form with existing data
     useEffect(() => {
@@ -261,7 +177,7 @@ const ProcessStepsForm = forwardRef(
       }
 
       setIsLoadingData(true)
-      processAndLoadData(completeSubsectionData.data)
+      processProcessStepsData(completeSubsectionData.data)
     }, [completeSubsectionData, isLoadingSubsection, dataLoaded, form, activeLanguages, languageIds, slug])
 
     // Track form changes
@@ -301,7 +217,7 @@ const ProcessStepsForm = forwardRef(
     }
 
     // Function to update icon across all languages
-    const updateIconAcrossLanguages = (stepIndex, newIcon) => {
+    const updateIconAcrossLanguages = (stepIndex: string | number, newIcon: string) => {
       Object.keys(form.getValues()).forEach((langCode) => {
         const steps = form.getValues()[langCode] || []
         if (steps[stepIndex]) {
@@ -314,7 +230,7 @@ const ProcessStepsForm = forwardRef(
     }
 
     // Function to remove a process step
-    const removeProcessStep = (langCode, index) => {
+    const removeProcessStep = (langCode: string | number, index: number) => {
       const currentSteps = form.getValues()[langCode] || []
       if (currentSteps.length <= 1) {
         toast({
@@ -345,7 +261,7 @@ const ProcessStepsForm = forwardRef(
 
             setContentElements((prev) =>
               prev.filter((element) => {
-                const match = element.name.match(/Step (\d+)/i)
+                const match = element?.name?.match(/Step (\d+)/i)
                 return !(match && Number.parseInt(match[1]) === stepNumber)
               }),
             )
@@ -460,10 +376,10 @@ const ProcessStepsForm = forwardRef(
           throw new Error("Failed to create or retrieve subsection ID")
         }
 
-        const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
+        const langCodeToIdMap: Record<string, string> = activeLanguages.reduce((acc, lang) => {
           acc[lang.languageID] = lang._id
           return acc
-        }, {})
+        }, {} as Record<string, string>)
 
         const firstLangCode = Object.keys(allFormValues)[0]
         const steps = allFormValues[firstLangCode]
@@ -475,7 +391,7 @@ const ProcessStepsForm = forwardRef(
         const updatedContentElements = [...contentElements]
 
         if (existingSubSectionId && contentElements.length > 0) {
-          const stepGroups = {}
+          const stepGroups: { [key: number]: Array<{ _id: string; name: string; order: number; defaultContent?: string }> } = {}
           contentElements.forEach((element) => {
             const match = element.name.match(/Step (\d+)/i)
             if (match) {
@@ -487,15 +403,15 @@ const ProcessStepsForm = forwardRef(
             }
           })
 
-          const translations = []
+          const translations: { content: any; language: any; contentElement: any; isActive: boolean }[] = []
           for (let stepIndex = 0; stepIndex < steps.length; stepIndex++) {
             const stepNumber = stepIndex + 1
             const stepElements = stepGroups[stepNumber]
 
             if (stepElements) {
-              const iconElement = stepElements.find((el) => el.name.includes("Icon"))
-              const titleElement = stepElements.find((el) => el.name.includes("Title"))
-              const descriptionElement = stepElements.find((el) => el.name.includes("Description"))
+              const iconElement = stepElements.find((el: { name: string | string[] }) => el.name.includes("Icon"))
+              const titleElement = stepElements.find((el: { name: string | string[] }) => el.name.includes("Title"))
+              const descriptionElement = stepElements.find((el: { name: string | string[] }) => el.name.includes("Description"))
 
               const iconValue = steps[stepIndex].icon
               if (iconElement && iconValue) {
@@ -505,7 +421,10 @@ const ProcessStepsForm = forwardRef(
                     defaultContent: iconValue,
                   },
                 })
-                updatedContentElements.find((e) => e._id === iconElement._id).defaultContent = iconValue
+                const foundElement = updatedContentElements.find((e) => e._id === iconElement._id);
+                if (foundElement) {
+                  foundElement.defaultContent = iconValue;
+                }
               }
 
               Object.entries(allFormValues).forEach(([langCode, langSteps]) => {
@@ -601,7 +520,7 @@ const ProcessStepsForm = forwardRef(
             await bulkUpsertTranslations.mutateAsync(translations)
           }
         } else {
-          const translations = []
+          const translations: { content: any; language: any; contentElement: any; isActive: boolean }[] = []
           for (let stepIndex = 0; stepIndex < steps.length; stepIndex++) {
             const stepNumber = stepIndex + 1
             const step = steps[stepIndex]
@@ -683,7 +602,7 @@ const ProcessStepsForm = forwardRef(
           const result = await refetch()
           if (result.data?.data) {
             setDataLoaded(false)
-            await processAndLoadData(result.data.data)
+            await processProcessStepsData(result.data.data)
           }
         }
 
@@ -702,8 +621,17 @@ const ProcessStepsForm = forwardRef(
       }
     }
 
+    createFormRef(ref, {
+      form,
+      hasUnsavedChanges,
+      setHasUnsavedChanges,
+      existingSubSectionId,
+      contentElements,
+      componentName: 'Process steps'
+    });
+
     // Get language codes for display
-    const languageCodes = activeLanguages.reduce((acc, lang) => {
+    const languageCodes = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
       acc[lang._id] = lang.languageID
       return acc
     }, {})
@@ -738,15 +666,15 @@ const ProcessStepsForm = forwardRef(
                       <CardDescription>Manage process steps content for {langCode.toUpperCase()}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {form.watch(langCode)?.map((_, index) => (
+                      {form.watch(langCode)?.map((_: any, index: Key | null | undefined) => (
                         <Card key={index} className="border border-muted">
                           <CardHeader className="p-4 flex flex-row items-center justify-between">
-                            <CardTitle className="text-base">Step {index + 1}</CardTitle>
+                            <CardTitle className="text-base">Step {Number(index) + 1}</CardTitle>
                             <Button
                               type="button"
                               variant="destructive"
                               size="icon"
-                              onClick={() => removeProcessStep(langCode, index)}
+                              onClick={() => removeProcessStep(langCode, Number(index))}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -761,7 +689,7 @@ const ProcessStepsForm = forwardRef(
                                   <Select 
                                     onValueChange={(value) => {
                                       field.onChange(value)
-                                      updateIconAcrossLanguages(index, value)
+                                      updateIconAcrossLanguages(Number(index), value)
                                     }} 
                                     defaultValue={field.value}
                                   >

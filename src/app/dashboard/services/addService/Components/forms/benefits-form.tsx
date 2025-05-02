@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useImperativeHandle, useEffect, useState, useRef } from "react"
+import { forwardRef, useEffect, useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -9,7 +9,6 @@ import {
   Trash2, 
   Plus, 
   AlertTriangle, 
-
   Loader2
 } from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
@@ -24,10 +23,12 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import { useToast } from "@/src/hooks/use-toast"
 import { IconComponent, LoadingDialog } from "./MainSectionComponents"
-import { Language } from "../../types/HeroFor.types"
 import { BenefitCount, BenefitItem, BenefitsFormProps, BenefitsFormRef, FormValues, SubsectionData, Translation } from "../../types/BenefitsForm.types"
 import { ContentElement } from "@/src/api/types"
 import { createBenefitsSchema } from "../../Utils/language-specifi-schemas"
+import { createBenefitsDefaultValues } from "../../Utils/Language-default-values"
+import { createFormRef } from "../../Utils/Expose-form-data"
+import { processAndLoadData } from "../../Utils/load-form-data"
 
 // Define interfaces for component data structures
 // Available icons
@@ -43,35 +44,12 @@ const availableIcons = [
 ] as const;
 
 
-
-
-const createDefaultValues = (languageIds: string[], activeLanguages: Language[]): FormValues => {
-  const defaultValues: FormValues = {};
-
-  const languageCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-    acc[lang._id] = lang.languageID;
-    return acc;
-  }, {});
-
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId;
-    defaultValues[langCode] = [
-      {
-        icon: "Clock",
-        title: "",
-        description: "",
-      },
-    ];
-  });
-
-  return defaultValues;
-};
-
 const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
     // Create schema with proper type safety
     const formSchema = createBenefitsSchema(languageIds, activeLanguages);
     type FormSchemaType = z.infer<typeof formSchema>;
+    const defaultValues = createBenefitsDefaultValues(languageIds, activeLanguages)
     
     const [isLoadingData, setIsLoadingData] = useState<boolean>(!slug);
     const [dataLoaded, setDataLoaded] = useState<boolean>(!slug);
@@ -85,24 +63,9 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
 
     const form = useForm<FormSchemaType>({
       resolver: zodResolver(formSchema),
-      defaultValues: createDefaultValues(languageIds, activeLanguages) as z.infer<typeof formSchema>,
+      defaultValues: defaultValues
     });
 
-    // Expose form data to parent component
-    useImperativeHandle(ref, () => ({
-      getFormData: async () => {
-        const isValid = await form.trigger();
-        if (!isValid) {
-          throw new Error("Benefits form has validation errors");
-        }
-        return form.getValues();
-      },
-      form: form,
-      hasUnsavedChanges,
-      resetUnsavedChanges: () => setHasUnsavedChanges(false),
-      existingSubSectionId,
-      contentElements,
-    }));
 
     const onDataChangeRef = useRef<((data: FormValues) => void) | undefined>(onDataChange);
     useEffect(() => {
@@ -165,133 +128,64 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
     };
 
     // Function to process and load data into the form
-    const processAndLoadData = (subsectionData: SubsectionData): void => {
-      if (!subsectionData) return;
-
-      try {
-        console.log("Processing subsection data:", subsectionData);
-        setExistingSubSectionId(subsectionData._id);
-
-        // Check if we have elements directly in the subsection data (API response structure)
-        const elements = subsectionData.elements || subsectionData.contentElements || [];
-        
-        if (elements.length > 0) {
-          // Store the content elements for later use
-          setContentElements(elements);
-
-          // Create a mapping of languages for easier access
-          const langIdToCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-            acc[lang._id] = lang.languageID;
-            return acc;
-          }, {});
-
-          // Group content elements by benefit number
-          const benefitGroups: Record<string, ContentElement[]> = {};
-
-          elements.forEach((element) => {
-            // Extract benefit number from element name (e.g., "Benefit 1 - Title")
-            const match = element.name.match(/Benefit (\d+)/i);
-            if (match) {
-              const benefitNumber = parseInt(match[1], 10);
-              if (!benefitGroups[benefitNumber]) {
-                benefitGroups[benefitNumber] = [];
+    const processBenefitsData = (subsectionData: SubsectionData | null) => {
+      processAndLoadData(
+        subsectionData,
+        form,
+        languageIds,
+        activeLanguages,
+        {
+          // Group elements by benefit number
+          groupElements: (elements) => {
+            const benefitGroups = {};
+            elements.forEach((element) => {
+              const match = element.name.match(/Benefit (\d+)/i);
+              if (match) {
+                const benefitNumber = parseInt(match[1], 10);
+                if (!benefitGroups[benefitNumber]) {
+                  benefitGroups[benefitNumber] = [];
+                }
+                benefitGroups[benefitNumber].push(element);
               }
-              benefitGroups[benefitNumber].push(element);
-            }
-          });
-
-          console.log("Benefit groups:", benefitGroups);
-
-          // Initialize form values for each language
-          const languageValues: Record<string, BenefitItem[]> = {};
-
-          // Initialize all languages with empty arrays
-          languageIds.forEach(langId => {
-            const langCode = langIdToCodeMap[langId] || langId;
-            languageValues[langCode] = [];
-          });
-
-          // Process each benefit group
-          Object.entries(benefitGroups).forEach(([benefitNumber, elements]) => {
+            });
+            return benefitGroups;
+          },
+          
+          // Process a benefit group for a language
+          processElementGroup: (benefitNumber, elements, langId, getTranslationContent) => {
             const iconElement = elements.find(el => el.name.includes("Icon"));
             const titleElement = elements.find(el => el.name.includes("Title"));
             const descriptionElement = elements.find(el => el.name.includes("Description"));
-
+            
             if (titleElement && descriptionElement) {
-              // For each language, create a benefit entry
-              languageIds.forEach(langId => {
-                const langCode = langIdToCodeMap[langId] || langId;
-
-                // Find translations for this language
-                let titleTranslation;
-                let descriptionTranslation;
-
-                // Check for translations with different data structures
-                if (titleElement.translations) {
-                  titleTranslation = titleElement.translations.find((t) => {
-                    // Handle both nested and direct language references
-                    if (t.language && typeof t.language === 'object' && 'language' in t && '_id' in t.language) {
-                      return t.language._id === langId;
-                    } else {
-                      return t.language === langId;
-                    }
-                  });
-                }
-
-                if (descriptionElement.translations) {
-                  descriptionTranslation = descriptionElement.translations.find((t) => {
-                    // Handle both nested and direct language references
-                    if (t.language && typeof t.language === 'object' && 'language' in t && '_id' in t.language) {
-                      return t.language._id === langId;
-                    } else {
-                      return t.language === langId;
-                    }
-                  });
-                }
-
-                // Use translation content or default content
-                const title = titleTranslation?.content || titleElement.defaultContent || "";
-                const description = descriptionTranslation?.content || descriptionElement.defaultContent || "";
-
-                // Get icon value
-                const icon = iconElement?.defaultContent || "Clock";
-
-                // Add to language values
-                languageValues[langCode].push({ icon, title, description });
-              });
+              const title = getTranslationContent(titleElement, "");
+              const description = getTranslationContent(descriptionElement, "");
+              const icon = iconElement?.defaultContent || "Clock";
+              
+              return { icon, title, description };
             }
-          });
-
-          console.log("Form values after processing:", languageValues);
-
-          // Set all values in form
-          Object.entries(languageValues).forEach(([langCode, benefits]) => {
-            if (benefits.length > 0) {
-              form.setValue(langCode as any, benefits);
-            } else {
-              // Ensure at least one empty benefit if none were found
-              form.setValue(langCode as any, [{ icon: "Clock", title: "", description: "" }]);
-            }
-          });
+            
+            return { icon: "Clock", title: "", description: "" };
+          },
+          
+          // Default value for benefits
+          getDefaultValue: () => [{
+            icon: "Clock",
+            title: "",
+            description: ""
+          }]
+        },
+        {
+          setExistingSubSectionId,
+          setContentElements,
+          setDataLoaded,
+          setHasUnsavedChanges,
+          setIsLoadingData,
+          validateCounts: validateBenefitCounts
         }
-
-        setDataLoaded(true);
-        setHasUnsavedChanges(false);
-
-        // Validate benefit counts after loading data
-        validateBenefitCounts();
-      } catch (error) {
-        console.error("Error processing benefits data:", error);
-        toast({
-          title: "Error loading benefits data",
-          description: error instanceof Error ? error.message : "Unknown error occurred",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingData(false);
-      }
+      );
     };
-
+    
     // Effect to populate form with existing data from complete subsection
     useEffect(() => {
       // Skip this effect entirely if no slug is provided
@@ -304,7 +198,7 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
       }
 
       setIsLoadingData(true);
-      processAndLoadData(completeSubsectionData.data as SubsectionData);
+      processBenefitsData(completeSubsectionData.data as SubsectionData);
     }, [completeSubsectionData, isLoadingSubsection, dataLoaded, form, activeLanguages, languageIds, slug]);
 
     // Track form changes, but only after initial data is loaded
@@ -750,7 +644,7 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
               form.reset();
               
               // Process and load the new data
-              processAndLoadData(result.data.data as SubsectionData);
+              processBenefitsData(result.data.data as SubsectionData);
             } else {
               console.warn("No data returned from refetch");
             }
@@ -778,6 +672,15 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
         setIsSaving(false);
       }
     };
+
+    createFormRef(ref, {
+      form,
+      hasUnsavedChanges,
+      setHasUnsavedChanges,
+      existingSubSectionId,
+      contentElements,
+      componentName: 'Benefits'
+    });
 
     // Get language codes for display
     const languageCodes = activeLanguages.reduce<Record<string, string>>((acc, lang) => {

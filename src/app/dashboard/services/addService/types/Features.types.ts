@@ -1,6 +1,6 @@
-import { Language } from "@/src/api/types";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Language } from "./HeroFor.types";
 
 export const createFeaturesSchema = (languageIds: string[], activeLanguages: Language[]) => {
   const schemaShape: Record<string, any> = {}
@@ -86,7 +86,7 @@ export interface FeatureContent {
   }
   
   export  interface FeaturesFormProps {
-    languageIds: readonly string[];
+    languageIds: string[];
     activeLanguages: Language[];
     onDataChange?: (data: Record<string, Feature[]>) => void;
     slug?: string; // Optional slug to load existing data

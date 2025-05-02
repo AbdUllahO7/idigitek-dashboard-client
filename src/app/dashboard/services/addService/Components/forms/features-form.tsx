@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { forwardRef, useImperativeHandle, useEffect, useState, useRef } from "react"
+import { forwardRef,  useEffect, useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -31,55 +31,17 @@ import type {  Feature } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
 import { LoadingDialog } from "./MainSectionComponents"
 import { createFeaturesSchema } from "../../Utils/language-specifi-schemas"
-import { Language } from "../../types/HeroFor.types"
-
-interface FeaturesFormProps {
-  languageIds: readonly string[];
-  activeLanguages: Language[];
-  onDataChange?: (data: any) => void;
-  slug?: string; // Optional slug to load existing data
-  ParentSectionId: string; // Optional parent section ID for creating new sections
-  initialData?: any; // Added missing initialData prop
-}
-
-// Define interfaces to improve type safety
-
+import { createFeaturesDefaultValues } from "../../Utils/Language-default-values"
+import { FeaturesFormProps, SubsectionData } from "../../types/Features.types"
+import { createFormRef } from "../../Utils/Expose-form-data"
+import { processAndLoadData } from "../../Utils/load-form-data"
 
 
 // Helper type to infer the schema type
 type FeaturesSchemaType = ReturnType<typeof createFeaturesSchema>
 
-// Create default values for the form
-const createDefaultValues = (languageIds: string[], activeLanguages: Language[]) => {
-  const defaultValues: Record<string, Feature[]> = {}
-
-  const languageCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-    acc[lang._id] = lang.languageID
-    return acc
-  }, {})
-
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId
-    defaultValues[langCode] = [
-      {
-        id: "feature-1",
-        title: "",
-        content: {
-          heading: "",
-          description: "",
-          features: [""],
-          image: "",
-        },
-      },
-    ]
-  })
-
-  return defaultValues
-}
-
-
 const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLanguages, onDataChange, slug , ParentSectionId }, ref) => {
-  const featuresSchema = createFeaturesSchema(languageIds as string[], activeLanguages)
+  const featuresSchema = createFeaturesSchema(languageIds, activeLanguages)
   const [isLoadingData, setIsLoadingData] = useState(!slug)
   const [dataLoaded, setDataLoaded] = useState(!slug)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -90,31 +52,15 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
   const [contentElements, setContentElements] = useState<any[]>([])
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
+  const defaultValues = createFeaturesDefaultValues(languageIds, activeLanguages)
 
-  // Get default language code for form values
-  const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : "en"
 
   const form = useForm<z.infer<FeaturesSchemaType>>({
     resolver: zodResolver(featuresSchema),
-    defaultValues: createDefaultValues(languageIds as string[], activeLanguages),
+    defaultValues: defaultValues
   })
 
-  // Expose form data to parent component
-  useImperativeHandle(ref, () => ({
-    getFormData: async () => {
-      const isValid = await form.trigger()
-      if (!isValid) {
-        throw new Error("Features form has validation errors")
-      }
-      return form.getValues()
-    },
-    getFeatureImages: () => featureImages,
-    form: form,
-    hasUnsavedChanges,
-    resetUnsavedChanges: () => setHasUnsavedChanges(false),
-    existingSubSectionId,
-    contentElements,
-  }))
+
 
   const onDataChangeRef = useRef(onDataChange)
   useEffect(() => {
@@ -157,152 +103,79 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
 
   // Function to process and load data into the form
 
-  const processAndLoadData = async (subsectionData: any) => {
-    if (!subsectionData) return;
-  
-    try {
-      console.log("Processing features subsection data:", subsectionData);
-      setExistingSubSectionId(subsectionData._id);
-  
-      // Check if we have elements directly in the subsection data (API response structure)
-      const elements = subsectionData.elements || subsectionData.contentElements || [];
-      
-      if (elements.length > 0) {
-        // Store the content elements for later use
-        setContentElements(elements);
-  
-        // Create a mapping of languages for easier access
-        const langIdToCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-          acc[lang._id] = lang.languageID;
-          return acc;
-        }, {});
-  
-        // Group content elements by feature
-        const featureGroups: Record<string, any[]> = {};
-  
-        elements.forEach((element: any) => {
-          // Extract feature ID from element name (e.g., "Feature 1 - Heading" -> "1")
-          const featureIdMatch = element.name.match(/Feature (\d+)/i);
-          if (featureIdMatch) {
-            const featureId = featureIdMatch[1];
-            if (!featureGroups[featureId]) {
-              featureGroups[featureId] = [];
+  const processFeaturesData = (subsectionData: SubsectionData | null) => {
+    processAndLoadData(
+      subsectionData,
+      form,
+      languageIds,
+      activeLanguages,
+      {
+        // Group elements by feature ID
+        groupElements: (elements) => {
+          const featureGroups = {};
+          elements.forEach((element) => {
+            const featureIdMatch = element.name.match(/Feature (\d+)/i);
+            if (featureIdMatch) {
+              const featureId = featureIdMatch[1];
+              if (!featureGroups[featureId]) {
+                featureGroups[featureId] = [];
+              }
+              featureGroups[featureId].push(element);
             }
-            featureGroups[featureId].push(element);
-          }
-        });
-  
-        console.log("Feature groups:", featureGroups);
-  
-        // Initialize form values for each language
-        const languageValues: Record<string, Feature[]> = {};
-  
-        // Initialize all languages with empty feature arrays
-        languageIds.forEach((langId) => {
-          const langCode = langIdToCodeMap[langId] || langId;
-          languageValues[langCode] = [];
-        });
-  
-        // Process each feature group
-        Object.entries(featureGroups).forEach(([featureId, elements]) => {
-          // Find elements for this feature
+          });
+          return featureGroups;
+        },
+        
+        // Process a feature group for a language
+        processElementGroup: (featureId, elements, langId, getTranslationContent) => {
           const headingElement = elements.find((el) => el.name.includes("Heading"));
           const descriptionElement = elements.find((el) => el.name.includes("Description"));
           const imageElement = elements.find((el) => el.name.includes("Image") && el.type === "image");
           const featureListElements = elements.filter((el) => el.name.includes("Feature Item"));
-  
-          // For each language, create a feature object
-          languageIds.forEach((langId) => {
-            const langCode = langIdToCodeMap[langId] || langId;
-  
-            // Helper function to get translation content for an element
-            const getTranslationContent = (element: any, defaultValue = "") => {
-              if (!element) return defaultValue;
-  
-              // First check for a translation in this language
-              const translation = element.translations?.find((t: any) => {
-                // Handle both nested and direct language references
-                if (t.language && typeof t.language === 'object' && t.language._id) {
-                  return t.language._id === langId;
-                } else {
-                  return t.language === langId;
-                }
-              });
-  
-              if (translation?.content) return translation.content;
-  
-              // Fall back to default content
-              return element.defaultContent || defaultValue;
-            };
-  
-            // Get feature list items
-            const featureItems = featureListElements.map((el) => getTranslationContent(el, "")).filter(Boolean);
-            
-            // If no items were found, add an empty one
-            if (featureItems.length === 0) {
-              featureItems.push("");
-            }
-  
-            // Create the feature object with a stable ID based on the feature number
-            const feature: Feature = {
-              id: `feature-${featureId}`,
-              title: getTranslationContent(headingElement, ""),
-              content: {
-                heading: getTranslationContent(headingElement, ""),
-                description: getTranslationContent(descriptionElement, ""),
-                features: featureItems,
-                image: imageElement?.imageUrl || "",
-              },
-            };
-  
-            // Add to language values
-            languageValues[langCode].push(feature);
-          });
-        });
-  
-        console.log("Form values after processing:", languageValues);
-  
-        // Set all values in form
-        Object.entries(languageValues).forEach(([langCode, features]) => {
-          if (features.length > 0) {
-            form.setValue(langCode as any, features as any, { shouldDirty: false });
-          } else {
-            // Ensure at least one empty feature if none were found
-            form.setValue(langCode as any, [
-              {
-                id: `feature-1`,
-                title: "",
-                content: {
-                  heading: "",
-                  description: "",
-                  features: [""],
-                  image: "",
-                },
-              }
-            ] as any, { shouldDirty: false });
+          
+          // Get feature list items
+          const featureItems = featureListElements.map((el) => 
+            getTranslationContent(el, "")
+          ).filter(Boolean);
+          
+          // If no items were found, add an empty one
+          if (featureItems.length === 0) {
+            featureItems.push("");
           }
-        });
+          
+          return {
+            id: `feature-${featureId}`,
+            title: getTranslationContent(headingElement, ""),
+            content: {
+              heading: getTranslationContent(headingElement, ""),
+              description: getTranslationContent(descriptionElement, ""),
+              features: featureItems,
+              image: imageElement?.imageUrl || "",
+            }
+          };
+        },
+        
+        // Default value for features
+        getDefaultValue: () => [{
+          id: "feature-1",
+          title: "",
+          content: {
+            heading: "",
+            description: "",
+            features: [""],
+            image: "",
+          }
+        }]
+      },
+      {
+        setExistingSubSectionId,
+        setContentElements,
+        setDataLoaded,
+        setHasUnsavedChanges,
+        setIsLoadingData,
+        validateCounts: validateFeatureCounts
       }
-  
-      // Reset form state to match the loaded values
-      form.reset(form.getValues(), {
-        keepValues: true,
-        keepDirty: false,
-      });
-  
-      setDataLoaded(true);
-      setHasUnsavedChanges(false);
-      validateFeatureCounts();
-    } catch (error) {
-      console.error("Error processing features section data:", error);
-      toast({
-        title: "Error loading features section data",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingData(false);
-    }
+    );
   };
 
   // Effect to populate form with existing data from complete subsection - only run once when data is available
@@ -317,7 +190,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
     }
 
     setIsLoadingData(true)
-    processAndLoadData(completeSubsectionData.data)
+    processFeaturesData(completeSubsectionData.data)
   }, [completeSubsectionData, isLoadingSubsection, dataLoaded, form, activeLanguages, languageIds, slug])
 
   // Update parent component with form data on change
@@ -808,7 +681,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
         const result = await refetch();
         if (result.data?.data) {
           setDataLoaded(false);
-          await processAndLoadData(result.data.data);
+          await processFeaturesData(result.data.data);
         }
       }
       
@@ -827,6 +700,18 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(({ languageIds, activeLa
       setIsSaving(false)
     }
   };
+
+  createFormRef(ref, {
+    form,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
+    existingSubSectionId,
+    contentElements,
+    componentName: 'Features',
+    extraMethods: {
+      getFeatureImages: () => featureImages
+    }
+  });
 
   // Function to add a new feature item
   const addFeatureItem = (langCode: string, featureIndex: number) => {
