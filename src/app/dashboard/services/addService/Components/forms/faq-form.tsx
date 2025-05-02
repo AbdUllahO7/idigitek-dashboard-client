@@ -449,12 +449,7 @@ const FaqForm = forwardRef(
           throw new Error("Failed to create or retrieve subsection ID")
         }
 
-        // Get language ID to code mapping
-        const langIdToCodeMap = activeLanguages.reduce((acc, lang) => {
-          acc[lang._id] = lang.languageID
-          return acc
-        }, {})
-
+    
         // Get language code to ID mapping
         const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
           acc[lang.languageID] = lang._id

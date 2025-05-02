@@ -135,8 +135,8 @@ export default function CreateMainSubSection({
   } = useGetAllLanguages()
   
   // Derived state
-  const languages = languagesData?.data?.filter(lang => lang.isActive) || []
-  const defaultLanguage = languages.find(lang => lang.isDefault) || (languages.length > 0 ? languages[0] : null)
+  const languages = languagesData?.data?.filter((lang: { isActive: any }) => lang.isActive) || []
+  const defaultLanguage = languages.find((lang: { isDefault: any }) => lang.isDefault) || (languages.length > 0 ? languages[0] : null)
   
   // Form setup
   // Build form schema
