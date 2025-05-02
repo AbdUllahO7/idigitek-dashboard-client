@@ -28,6 +28,7 @@ import { createFormRef } from "../../Utils/Expose-form-data"
 import { processAndLoadData } from "../../Utils/load-form-data"
 import { HeroFormProps, SubSectionData } from "../../types/HeroFor.types"
 import { HeroFormRef } from "../../types/BenefitsForm.types"
+import { createLanguageCodeMap } from "../../Utils/language-utils"
 
 // Available icons
 const availableIcons = [
@@ -631,10 +632,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
     });
 
     // Get language codes for display
-    const languageCodes = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-      acc[lang._id] = lang.languageID
-      return acc
-    }, {})
+    const languageCodes = createLanguageCodeMap(activeLanguages);
 
     return (
       <div className="space-y-6">

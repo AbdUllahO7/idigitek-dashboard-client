@@ -1,10 +1,10 @@
 "use client"
 
-import { forwardRef,  useEffect, useState, useRef } from "react"
+import { forwardRef, useEffect, useState, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Save, Loader2, ImageIcon, Upload, X } from "lucide-react"
+import { Save, Loader2, ImageIcon } from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Input } from "@/src/components/ui/input"
@@ -16,7 +16,7 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-
 import apiClient from "@/src/lib/api-client"
 import { useToast } from "@/src/hooks/use-toast"
 import { LoadingDialog } from "./MainSectionComponents"
-import { ContentElement, FormLanguageValues,  HeroFormProps, SubSectionData, Translation } from "../../types/HeroFor.types"
+import { ContentElement, FormLanguageValues, HeroFormProps, SubSectionData, Translation } from "../../types/HeroFor.types"
 import { HeroFormRef } from "../../types/BenefitsForm.types"
 import { Label } from "@/src/components/ui/label"
 import { createHeroSchema } from "../../Utils/language-specifi-schemas"
@@ -24,8 +24,8 @@ import { createHeroDefaultValues } from "../../Utils/Language-default-values"
 import { createFormRef } from "../../Utils/Expose-form-data"
 import { processAndLoadData } from "../../Utils/load-form-data"
 import { ContentElementType } from "@/src/api/types"
-
-
+import { createLanguageCodeMap } from "../../Utils/language-utils"
+import { SimpleImageUploader, useImageUpload } from "../../Utils/Image-uploader"
 
 const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData }, ref) => {
@@ -36,14 +36,13 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
     const [isLoadingData, setIsLoadingData] = useState<boolean>(false)
     const [dataLoaded, setDataLoaded] = useState<boolean>(false)
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false)
-    const [imageFile, setImageFile] = useState<File | null>(null)
-    const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
     const [contentElements, setContentElements] = useState<ContentElementType[]>([])
     const [isSaving, setIsSaving] = useState<boolean>(false)
     const [isFormReady, setIsFormReady] = useState<boolean>(false)
     const { toast } = useToast()
     const dataProcessed = useRef<boolean>(false)
+    
     // API hooks
     const { useCreate: useCreateSubSection, useGetCompleteBySlug, useUpdate: useUpdateSubSection } = useSubSections()
     const { useCreate: useCreateContentElement } = useContentElements()
@@ -53,7 +52,6 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
     const createContentElement = useCreateContentElement()
     const bulkUpsertTranslations = useBulkUpsertTranslations()
 
-
     // Get default language code for form values
     const defaultLangCode = activeLanguages.length > 0 ? activeLanguages[0].languageID : 'en'
 
@@ -61,6 +59,24 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
       resolver: zodResolver(formSchema),
       defaultValues: defaultValues
     })
+
+    // Use the image upload hook from our utility
+    const { 
+      imageFile, 
+      imagePreview, 
+      handleImageUpload, 
+      handleImageRemove 
+    } = useImageUpload({
+      form,
+      fieldPath: 'backgroundImage',
+      initialImageUrl: initialData?.image || form.getValues().backgroundImage,
+      onUpload: (file) => {
+        setHasUnsavedChanges(true);
+      },
+      onRemove: () => {
+        setHasUnsavedChanges(true);
+      }
+    });
 
     // Use ref for callback to avoid unnecessary re-renders
     const onDataChangeRef = useRef<((data: any) => void) | undefined>(onDataChange)
@@ -93,7 +109,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
         
         if (initialData.image) {
           form.setValue('backgroundImage', initialData.image)
-          setImagePreview(initialData.image) // Set initial image for preview
+          // Image preview is now handled by the useImageUpload hook
         }
         
         setDataLoaded(true)
@@ -169,7 +185,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
       
       if (bgImageElement?.imageUrl) {
         form.setValue('backgroundImage', bgImageElement.imageUrl);
-        setImagePreview(bgImageElement.imageUrl);
+        // Image preview is now handled by the useImageUpload hook
       }
     };
     
@@ -271,11 +287,6 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
           return acc
         }, {})
 
-        const elementKeyToNameMap: Record<string, string> = {
-          title: "Title",
-          description: "Description",
-          backLinkText: "Back Link Text",
-        }
 
         if (contentElements.length > 0) {
           const bgImageElement = contentElements.find((e) => e.type === "image")
@@ -287,7 +298,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
             })
             if (uploadResult.data?.imageUrl) {
               form.setValue("backgroundImage", uploadResult.data.imageUrl, { shouldDirty: false })
-              setImagePreview(uploadResult.data.imageUrl) // Update preview with Cloudinary URL
+              // Update handled by the form value
             }
           }
 
@@ -372,7 +383,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
 
             if (uploadResult.data?.imageUrl) {
               form.setValue("backgroundImage", uploadResult.data.imageUrl, { shouldDirty: false })
-              setImagePreview(uploadResult.data.imageUrl) // Update preview with Cloudinary URL
+              // Update handled by the form value
             }
           }
 
@@ -406,8 +417,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
         })
 
         setHasUnsavedChanges(false)
-        setImageFile(null)
-        // Do not clear imagePreview here to retain Cloudinary URL
+        // Do not clear imageFile here, as it's managed by the utility hook
 
         if (slug) {
           await refetch()
@@ -427,6 +437,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
       }
     }
 
+    // Use the form ref utility
     createFormRef(ref, {
       form,
       hasUnsavedChanges,
@@ -445,118 +456,7 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
     });
 
     // Get language codes for display
-    const languageCodes = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-      acc[lang._id] = lang.languageID
-      return acc
-    }, {})
-
-    // Handle image upload
-    const handleImageUpload = (file: File) => {
-      if (!file) return
-
-      // Check file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Image must be less than 2MB",
-          variant: "destructive",
-        })
-        return
-      }
-
-      // Store the file in state
-      setImageFile(file)
-
-      // Create a temporary URL for preview
-      const previewUrl = URL.createObjectURL(file)
-      setImagePreview(previewUrl)
-
-      toast({
-        title: "Image selected",
-        description: "Background image has been selected successfully",
-      })
-
-      // Clean up preview URL when component unmounts or new file is selected
-      return () => URL.revokeObjectURL(previewUrl)
-    }
-
-    // Handle image removal
-    const handleImageRemove = () => {
-      setImageFile(null)
-      setImagePreview(null)
-      form.setValue("backgroundImage", "", { shouldDirty: true })
-      toast({
-        title: "Image removed",
-        description: "Background image has been removed",
-      })
-    }
-
-    // Simple Image Uploader Component
-    const SimpleImageUploader = () => {
-      // Prioritize imagePreview (local file) over backgroundImage (server URL) when a new file is selected
-      const imageValue = imagePreview || form.getValues().backgroundImage || ""
-      const inputId = `file-upload-background-image`
-
-      const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-          handleImageUpload(file)
-        }
-      }
-
-      return (
-        <Card className="overflow-hidden">
-          <div className="p-4">
-            {imageValue ? (
-              <div className="relative">
-                <img
-                  src={imageValue}
-                  alt="Background image preview"
-                  className="w-full h-48 object-cover rounded-md"
-                  key={imageValue} // Force re-render when imageValue changes
-                  onError={() => {
-                    console.error("Failed to load image:", imageValue)
-                    toast({
-                      title: "Image Load Error",
-                      description: "Failed to load the background image. Please check the URL or try uploading again.",
-                      variant: "destructive",
-                    })
-                  }}
-                />
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  className="absolute top-2 right-2 h-8 w-8 rounded-full"
-                  onClick={() => handleImageRemove()}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-                <div className="mt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => document.getElementById(inputId)?.click()}
-                  >
-                    Change Image
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
-                onClick={() => document.getElementById(inputId)?.click()}
-              >
-                <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                <p className="text-sm font-medium">Click to upload image</p>
-                <p className="text-xs text-muted-foreground mt-1">SVG, PNG, JPG or GIF (max. 2MB)</p>
-              </div>
-            )}
-            <input id={inputId} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-          </div>
-        </Card>
-      )
-    }
+    const languageCodes = createLanguageCodeMap(activeLanguages);
 
     return (
       <div className="space-y-6">
@@ -588,7 +488,14 @@ const HeroForm = forwardRef<HeroFormRef, HeroFormProps>(
                         Background Image
                         <span className="text-xs text-muted-foreground">(applies to all languages)</span>
                       </Label>
-                      <SimpleImageUploader />
+                      {/* Use our SimpleImageUploader component from the utilities */}
+                      <SimpleImageUploader
+                        imageValue={imagePreview || form.getValues().backgroundImage}
+                        inputId="file-upload-background-image"
+                        onUpload={handleImageUpload}
+                        onRemove={handleImageRemove}
+                        altText="Background image preview"
+                      />
                     </div>
                   </div>
                 </CardContent>

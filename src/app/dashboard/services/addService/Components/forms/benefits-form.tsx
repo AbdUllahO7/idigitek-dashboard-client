@@ -29,6 +29,7 @@ import { createBenefitsSchema } from "../../Utils/language-specifi-schemas"
 import { createBenefitsDefaultValues } from "../../Utils/Language-default-values"
 import { createFormRef } from "../../Utils/Expose-form-data"
 import { processAndLoadData } from "../../Utils/load-form-data"
+import { createLanguageCodeMap } from "../../Utils/language-utils"
 
 // Define interfaces for component data structures
 // Available icons
@@ -683,10 +684,8 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
     });
 
     // Get language codes for display
-    const languageCodes = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-      acc[lang._id] = lang.languageID;
-      return acc;
-    }, {});
+    const languageCodes = createLanguageCodeMap(activeLanguages);
+
 
     useEffect(() => {
       // Force validation whenever the form is changed

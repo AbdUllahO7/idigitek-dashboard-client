@@ -21,6 +21,7 @@ import { createFaqDefaultValues } from "../../Utils/Language-default-values"
 import { createFormRef } from "../../Utils/Expose-form-data"
 import { processAndLoadData } from "../../Utils/load-form-data"
 import { SubSectionData } from "../../types/HeroFor.types"
+import { createLanguageCodeMap } from "../../Utils/language-utils"
 
 
 const FaqForm = forwardRef(
@@ -588,10 +589,8 @@ const FaqForm = forwardRef(
     });
 
     // Get language codes for display
-    const languageCodes = activeLanguages.reduce((acc, lang) => {
-      acc[lang._id] = lang.languageID
-      return acc
-    }, {})
+    const languageCodes = createLanguageCodeMap(activeLanguages);
+
 
     return (
       <div className="space-y-6">
