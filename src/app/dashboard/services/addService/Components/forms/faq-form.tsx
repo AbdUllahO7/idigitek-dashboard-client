@@ -17,31 +17,10 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import { useToast } from "@/src/hooks/use-toast"
 import { LoadingDialog } from "./MainSectionComponents"
+import { createFaqSchema } from "../../Utils/language-specifi-schemas"
 
 
-// Create a dynamic schema based on available languages
-const createFaqSchema = (languageIds, activeLanguages) => {
-  const schemaShape = {}
 
-  const languageCodeMap = activeLanguages.reduce((acc, lang) => {
-    acc[lang._id] = lang.languageID
-    return acc
-  }, {})
-
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId
-    schemaShape[langCode] = z
-      .array(
-        z.object({
-          question: z.string().min(1, { message: "Question is required" }),
-          answer: z.string().min(1, { message: "Answer is required" }),
-        }),
-      )
-      .min(1, { message: "At least one FAQ is required" })
-  })
-
-  return z.object(schemaShape)
-}
 
 const createDefaultValues = (languageIds, activeLanguages) => {
   const defaultValues = {}

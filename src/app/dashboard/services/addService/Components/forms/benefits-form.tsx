@@ -24,7 +24,10 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import { useToast } from "@/src/hooks/use-toast"
 import { IconComponent, LoadingDialog } from "./MainSectionComponents"
-import { BenefitCount, BenefitItem, BenefitsFormProps, BenefitsFormRef, ContentElement, FormValues, Language, SubsectionData, Translation } from "../../types/Benefits-form"
+import { Language } from "../../types/HeroFor.types"
+import { BenefitCount, BenefitItem, BenefitsFormProps, BenefitsFormRef, FormValues, SubsectionData, Translation } from "../../types/BenefitsForm.types"
+import { ContentElement } from "@/src/api/types"
+import { createBenefitsSchema } from "../../Utils/language-specifi-schemas"
 
 // Define interfaces for component data structures
 // Available icons
@@ -40,30 +43,7 @@ const availableIcons = [
 ] as const;
 
 
-// Create a dynamic schema based on available languages
-const createBenefitsSchema = (languageIds: string[], activeLanguages: Language[]) => {
-  const schemaShape: Record<string, z.ZodTypeAny> = {};
 
-  const languageCodeMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-    acc[lang._id] = lang.languageID;
-    return acc;
-  }, {});
-
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId;
-    schemaShape[langCode] = z
-      .array(
-        z.object({
-          icon: z.string().min(1, { message: "Icon is required" }),
-          title: z.string().min(1, { message: "Title is required" }),
-          description: z.string().min(1, { message: "Description is required" }),
-        }),
-      )
-      .min(1, { message: "At least one benefit is required" });
-  });
-
-  return z.object(schemaShape);
-};
 
 const createDefaultValues = (languageIds: string[], activeLanguages: Language[]): FormValues => {
   const defaultValues: FormValues = {};

@@ -31,6 +31,7 @@ import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elem
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import { useToast } from "@/src/hooks/use-toast"
 import { IconComponent, LoadingDialog } from "./MainSectionComponents"
+import { createProcessStepsSchema } from "../../Utils/language-specifi-schemas"
 
 // Available icons
 const availableIcons = [
@@ -44,29 +45,7 @@ const availableIcons = [
   "Headphones",
 ]
 
-// Create a dynamic schema based on available languages
-const createProcessStepsSchema = (languageIds, activeLanguages) => {
-  const schemaShape = {}
-  const languageCodeMap = activeLanguages.reduce((acc, lang) => {
-    acc[lang._id] = lang.languageID
-    return acc
-  }, {})
 
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId
-    schemaShape[langCode] = z
-      .array(
-        z.object({
-          icon: z.string().min(1, { message: "Icon is required" }),
-          title: z.string().min(1, { message: "Title is required" }),
-          description: z.string().min(1, { message: "Description is required" }),
-        }),
-      )
-      .min(1, { message: "At least one process step is required" })
-  })
-
-  return z.object(schemaShape)
-}
 
 const createDefaultValues = (languageIds, activeLanguages) => {
   const defaultValues = {}

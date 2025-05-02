@@ -27,9 +27,11 @@ import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import apiClient from "@/src/lib/api-client"
-import type {  Language, Feature } from "@/src/api/types"
+import type {  Feature } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
 import { LoadingDialog } from "./MainSectionComponents"
+import { createFeaturesSchema } from "../../Utils/language-specifi-schemas"
+import { Language } from "../../types/HeroFor.types"
 
 interface FeaturesFormProps {
   languageIds: readonly string[];
@@ -42,37 +44,7 @@ interface FeaturesFormProps {
 
 // Define interfaces to improve type safety
 
-// Create a dynamic schema based on available languages
-const createFeaturesSchema = (languageIds: string[], activeLanguages: Language[]) => {
-  const schemaShape: Record<string, any> = {}
 
-  const languageCodeMap = activeLanguages.reduce((acc: Record<string, string>, lang) => {
-    acc[lang._id] = lang.languageID
-    return acc
-  }, {})
-
-  languageIds.forEach((langId) => {
-    const langCode = languageCodeMap[langId] || langId
-    schemaShape[langCode] = z
-      .array(
-        z.object({
-          id: z.string().min(1, { message: "ID is required" }),
-          title: z.string().min(1, { message: "Title is required" }),
-          content: z.object({
-            heading: z.string().min(1, { message: "Heading is required" }),
-            description: z.string().min(1, { message: "Description is required" }),
-            features: z
-              .array(z.string().min(1, { message: "Feature cannot be empty" }))
-              .min(1, { message: "At least one feature is required" }),
-            image: z.string().min(1, { message: "Image is required" }),
-          }),
-        }),
-      )
-      .min(1, { message: "At least one feature is required" })
-  })
-
-  return z.object(schemaShape)
-}
 
 // Helper type to infer the schema type
 type FeaturesSchemaType = ReturnType<typeof createFeaturesSchema>
