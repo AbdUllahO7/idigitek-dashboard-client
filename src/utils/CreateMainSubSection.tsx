@@ -21,11 +21,11 @@ import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
-import { ActionButton, CancelButton, ErrorCard, InfoAlert, LanguageSelector, LanguageTabs, LoadingCard, MainFormCard, SuccessCard, WarningAlert, WarningCard } from "./MainSectionComponents"
+import { ActionButton, CancelButton, ErrorCard,LanguageTabs, LoadingCard, MainFormCard, SuccessCard, WarningCard } from "./MainSectionComponents"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
-// Types
+// Types 
 interface FieldConfig {
   id: string
   label: string

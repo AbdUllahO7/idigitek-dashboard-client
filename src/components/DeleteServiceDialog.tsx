@@ -25,7 +25,9 @@ export default function DeleteServiceDialog({
   onOpenChange,
   serviceName,
   onConfirm,
-  isDeleting
+  isDeleting,
+  title,
+  confirmText
 }: DeleteServiceDialogProps) {
   
   const handleConfirm = async () => {
@@ -37,7 +39,7 @@ export default function DeleteServiceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             Are you sure you want to delete <span className="font-semibold">{serviceName}</span>? This action cannot be undone.
           </DialogDescription>
@@ -62,7 +64,7 @@ export default function DeleteServiceDialog({
                 Deleting...
               </>
             ) : (
-              "Delete Service"
+              `${confirmText}`
             )}
           </Button>
         </DialogFooter>

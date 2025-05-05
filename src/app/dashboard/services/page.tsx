@@ -8,10 +8,10 @@ import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { serviceSectionConfig } from "./serviceSectionConfig"
 import { CountBadgeCell, GenericTable, StatusCell, TruncatedCell } from "@/src/components/dashboard/MainSections/GenericTable"
 import { GenericListPage } from "@/src/components/dashboard/MainSections/GenericListPage"
-import CreateMainSubSection from "./addService/Components/forms/CreateMainSubSection"
 import GenericSectionIntegration from "@/src/components/dashboard/GenericSectionIntegration"
 import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import DeleteServiceDialog from "@/src/components/DeleteServiceDialog"
+import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 
 // Configuration for the Services page
 const SERVICES_CONFIG = {
