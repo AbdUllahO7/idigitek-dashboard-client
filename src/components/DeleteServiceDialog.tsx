@@ -18,6 +18,8 @@ interface DeleteServiceDialogProps {
   serviceName: string;
   onConfirm: () => Promise<void>;
   isDeleting: boolean;
+  title?: string,
+  confirmText?:string
 }
 
 export default function DeleteServiceDialog({

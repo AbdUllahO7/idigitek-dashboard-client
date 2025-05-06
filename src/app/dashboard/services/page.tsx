@@ -121,7 +121,7 @@ export default function ServicesPage() {
   console.log("Complete Subsections Data:", completeSubsectionsData)
   useEffect(() => {
     if (!isLoadingCompleteSubsections && completeSubsectionsData?.data) {
-      const mainSubsection = completeSubsectionsData.data.find(sub => sub.isMain)
+      const mainSubsection = completeSubsectionsData.data.find((sub: { isMain: any }) => sub.isMain)
       setHasMainSubSection(!!mainSubsection)
       setIsLoadingMainSubSection(false)
       
@@ -234,6 +234,8 @@ export default function ServicesPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
+      title = "Delete Section"
+      confirmText="Confirm"
     />
   );
 
