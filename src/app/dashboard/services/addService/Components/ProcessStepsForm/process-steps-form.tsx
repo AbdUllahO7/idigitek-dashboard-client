@@ -27,18 +27,6 @@ import DeleteServiceDialog from "@/src/components/DeleteServiceDialog"
 import { LanguageCard } from "./LanguageCard"
 import { LoadingDialog } from "@/src/utils/MainSectionComponents"
 
-// Available icons - moved outside component to prevent recreation on render
-const AVAILABLE_ICONS = [
-  "Car",
-  "MonitorSmartphone",
-  "Settings",
-  "CreditCard",
-  "Clock",
-  "MessageSquare",
-  "LineChart",
-  "Headphones",
-]
-
 
 
 

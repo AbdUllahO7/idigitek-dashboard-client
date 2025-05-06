@@ -12,7 +12,7 @@ interface LanguageCardProps {
   defaultLangCode: string;
   form: any;
   onAddStep: () => void;
-  onDeleteStep: (index: number) => void;
+  onDeleteStep: ( langCode : any, index: number) => void;
 }
 
 // Memoized LanguageCard component to prevent unnecessary rerenders
@@ -60,7 +60,7 @@ export const LanguageCard = memo(({
             isFirstLanguage={isFirstLanguage}
             defaultLangCode={defaultLangCode}
             form={form}
-            onDelete={(_, index) => onDeleteStep(index)}
+            onDelete={(langCode, index) => onDeleteStep(langCode,index)}
             availableIcons={[...getAvailableIcons()]}
           />
         ))}

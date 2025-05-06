@@ -7,11 +7,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 /**
  * ValidationDialog - Dialog shown when benefit counts don't match across languages
  */
+interface ValidationDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  benefitCounts: Array<{ language: string; count: number }>;
+}
+
 export const ValidationDialog = memo(({
   isOpen,
   onOpenChange,
   benefitCounts
-}) => {
+}: ValidationDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>

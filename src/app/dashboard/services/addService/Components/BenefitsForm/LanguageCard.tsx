@@ -5,6 +5,7 @@
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
   import { Button } from "@/src/components/ui/button";
   import { BenefitCard } from "./BenefitCard";
+import { IconNames } from "@/src/utils/MainSectionComponents";
 
   /**
    * LanguageCard - Component for managing benefits content in a specific language
@@ -15,9 +16,9 @@
     form: any;
     addBenefit: (langCode: string) => void;
     removeBenefit: (langCode: string, index: number) => void;
-    syncIcons: () => void;
-    availableIcons: string[];
-    onDeleteStep: (index: number) => void;
+    syncIcons: (index: number, iconValue: string) => void;
+    availableIcons: IconNames[];
+    onDeleteStep: ( langCode : any , index: number ) => void;
   }
   
   export const LanguageCard = memo(({ 
@@ -25,7 +26,6 @@
     isFirstLanguage, 
     form, 
     addBenefit, 
-    removeBenefit, 
     syncIcons, 
     availableIcons,
     onDeleteStep
@@ -58,7 +58,7 @@
               isFirstLanguage={isFirstLanguage}
               syncIcons={syncIcons}
               availableIcons={availableIcons}
-              onDelete={(langCodeParam, index) => onDeleteStep(index)}
+              onDelete={(langCodeParam, index) => onDeleteStep(langCodeParam,index)}
 
             />
           ))}

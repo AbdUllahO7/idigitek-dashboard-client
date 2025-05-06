@@ -8,15 +8,16 @@ import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
 import { Button } from "@/src/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
-import { IconComponent } from "@/src/utils/MainSectionComponents";
+import { IconComponent, IconNames } from "@/src/utils/MainSectionComponents";
+
 
 interface BenefitCardProps {
   langCode: string;
   index: number;
   form: any;
   isFirstLanguage: boolean;
-  syncIcons: (index: number, value: string) => void;
-  availableIcons: string[];
+  syncIcons: (index: number, value: IconNames) => void;
+  availableIcons: IconNames[];
   onDelete: (langCode: string, index: number) => void;
 }
 
@@ -60,7 +61,7 @@ export const BenefitCard = memo(({
                   onValueChange={(value) => {
                     field.onChange(value);
                     // Sync this icon value to all other languages
-                    syncIcons(index, value);
+                    syncIcons(index, value as IconNames);
                   }} 
                   defaultValue={field.value || "Clock"}
                 >

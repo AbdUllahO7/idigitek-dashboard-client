@@ -413,7 +413,7 @@ export const LoadingDialog = ({ isOpen, title, description } : LoadingDialogProp
 
 
 // Icon mapping component to render the actual icons
-type IconNames = 'Car' | 'MonitorSmartphone' | 'Settings' | 'CreditCard' | 'Clock' | 'MessageSquare' | 'LineChart' | 'Headphones';
+export type IconNames = 'Car' | 'MonitorSmartphone' | 'Settings' | 'CreditCard' | 'Clock' | 'MessageSquare' | 'LineChart' | 'Headphones';
 
 export const IconComponent = ({ iconName } : {iconName : IconNames}) => {
   const icons = {

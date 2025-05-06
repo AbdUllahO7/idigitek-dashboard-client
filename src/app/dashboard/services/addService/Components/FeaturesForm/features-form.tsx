@@ -17,7 +17,7 @@ import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions"
 import apiClient from "@/src/lib/api-client"
-import type { Feature } from "@/src/api/types"
+import type { ContentTranslation, Feature } from "@/src/api/types"
 import { useToast } from "@/src/hooks/use-toast"
 import { createFeaturesSchema } from "../../Utils/language-specifi-schemas"
 import { createFeaturesDefaultValues } from "../../Utils/Language-default-values"
@@ -75,7 +75,7 @@ const LanguageCard = memo(({
       </CardHeader>
       <CardContent className="space-y-4">
         <Accordion type="single" collapsible className="w-full">
-          {features.map((feature, index) => (
+          {features.map((feature: { title: string; content: { heading: string; description: string; features: any[] } }, index: number) => (
             <FeatureForm
               key={`${langCode}-feature-${index}`}
               index={index}
@@ -396,10 +396,12 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
         id: newFeatureId,
         title: "",
         content: {
+          title:"",
           heading: "",
           description: "",
           features: [""],
           image: "",
+          imagePosition : "right"
         },
       };
 
@@ -543,6 +545,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
             description: "Features section for the website",
             isActive: true,
             order: 0,
+            defaultContent : "",
             sectionItem: ParentSectionId,
             languages: languageIds as string[],
           };
@@ -557,7 +560,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
         }
 
         // Create language map for quick lookups
-        const langCodeToIdMap = activeLanguages.reduce((acc, lang) => {
+        const langCodeToIdMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
           acc[lang.languageID] = lang._id;
           return acc;
         }, {});
@@ -593,7 +596,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
 
             if (existingHeading || existingTitle) {
               // Update existing feature
-              const translations = [];
+              const translations: (Omit<ContentTranslation, "_id"> & { id?: string })[] | { content: any; language: string; contentElement: any; isActive: boolean }[] = [];
               
               Object.entries(allFormValues).forEach(([langCode, langFeatures]) => {
                 const langId = langCodeToIdMap[langCode];
@@ -632,7 +635,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
                 }
 
                 const featureItems = feature.content.features || [];
-                featureItems.forEach((item, itemIndex) => {
+                featureItems.forEach((item: any, itemIndex: number) => {
                   const itemName = `Feature ${featureNum} - Feature Item ${itemIndex + 1}`;
                   const itemElement = contentElements.find((e) => e.name === itemName);
 
@@ -731,7 +734,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
 
               // Create feature items in parallel
               const featureItems = features[featureIndex].content.features || [];
-              const itemPromises = featureItems.map(async (item, itemIndex) => {
+              const itemPromises = featureItems.map(async (item: any, itemIndex: number) => {
                 const itemName = `Feature ${actualFeatureNum} - Feature Item ${itemIndex + 1}`;
                 const elementData = {
                   name: itemName,
@@ -974,7 +977,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
           isDeleting={isDeleting}
           title="Delete Feature"
           confirmText="Delete Feature"
-          dangerText="This will permanently remove this feature from all languages."
         />
         
         {/* Delete Feature Item Confirmation Dialog */}
@@ -986,7 +988,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
           isDeleting={isDeletingFeatureItem}
           title="Delete Feature Item"
           confirmText="Delete Item"
-          dangerText="This will permanently remove this feature item from the list."
         />
       </div>
     );

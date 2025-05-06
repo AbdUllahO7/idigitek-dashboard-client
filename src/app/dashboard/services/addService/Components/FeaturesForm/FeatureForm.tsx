@@ -9,6 +9,26 @@ import { Plus, Trash2 } from "lucide-react";
 import { memo } from "react";
 import { FeatureItem } from "./FeatureItem";
 
+interface FeatureFormProps {
+  index: number;
+  feature: {
+    title: string;
+    content: {
+      heading: string;
+      description: string;
+      features: any[];
+    };
+  };
+  langCode: string;
+  langId: string;
+  languageIds: string[];
+  form: any;
+  onRemoveFeature: (langCode: string, index: number) => void;
+  onAddFeatureItem: (langCode: string, index: number) => void;
+  onRemoveFeatureItem: (langCode: string, featureIndex: number, itemIndex: number) => void;
+  FeatureImageUploader: React.ComponentType<{ featureIndex: number }>;
+}
+
 // Feature Form component - memoized to prevent unnecessary re-renders
 export const FeatureForm = memo(({
   index,
@@ -21,8 +41,8 @@ export const FeatureForm = memo(({
   onAddFeatureItem,
   onRemoveFeatureItem,
   FeatureImageUploader
-}) => {
-  const handleDelete = (e) => {
+} :FeatureFormProps ) => {
+  const handleDelete = (e: { stopPropagation: () => void; }) => {
     e.stopPropagation();
     onRemoveFeature(langCode, index);
   };

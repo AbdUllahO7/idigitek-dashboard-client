@@ -50,7 +50,7 @@ export interface SubSection {
   updatedAt?: string;
   isMain?: boolean;
   parentSections?: string[];
-  section :SubSection,
+  section?:SubSection,
 }
 
 export interface Service extends SectionItem {

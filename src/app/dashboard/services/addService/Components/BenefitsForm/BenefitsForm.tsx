@@ -10,58 +10,64 @@ import {
 } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, UseFormReturn } from "react-hook-form";
-import * as z from "zod";
 import { Save, AlertTriangle, Loader2 } from "lucide-react";
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/src/components/ui/dialog";
-import { useQuery, useMutation, UseQueryResult, UseMutationResult } from "@tanstack/react-query";
-import { toast } from "@/src/components/ui/use-toast";
+import { useToast } from "@/src/hooks/use-toast";
+import { createBenefitsSchema } from "../../Utils/language-specifi-schemas";
+import { createBenefitsDefaultValues } from "../../Utils/Language-default-values";
+import { createFormRef, getAvailableIcons, getBenefitCountsByLanguage, getSafeIconValue, useForceUpdate, validateBenefitCounts } from "../../Utils/Expose-form-data";
+import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
+import { useContentElements } from "@/src/hooks/webConfiguration/use-conent-elements";
+import { useContentTranslations } from "@/src/hooks/webConfiguration/use-conent-translitions";
+import { processAndLoadData } from "../../Utils/load-form-data";
+import { createLanguageCodeMap } from "../../Utils/language-utils";
+import { ValidationDialog } from "./ValidationDialog";
+import DeleteServiceDialog from "@/src/components/DeleteServiceDialog";
+import { LanguageCard } from "./LanguageCard";
+import { LoadingDialog } from "@/src/utils/MainSectionComponents";
+import { BenefitsFormProps, BenefitsFormRef, ContentElement } from "../../types/BenefitsForm.types";
+import { SubSectionData } from "../../types/HeroFor.types";
+import { ContentTranslation, FormData } from "@/src/api/types";
 
 // Types
-interface Benefit {
-  icon: string;
-  title: string;
-  description: string;
-}
+// interface Benefit {
+//   icon: string;
+//   title: string;
+//   description: string;
+// }
 
-type FormData = {
-  [languageId: string]: Benefit[];
-};
+// type FormData = {
+//   [languageId: string]: Benefit[];
+// };
 
-interface ContentElement {
-  _id: string;
-  name: string;
-  type: string;
-  parent: string;
-  isActive: boolean;
-  order: number;
-  defaultContent?: string;
-}
+// interface ContentElement {
+//   _id: string;
+//   name: string;
+//   type: string;
+//   parent: string;
+//   isActive: boolean;
+//   order: number;
+//   defaultContent?: string;
+// }
 
-interface SubSection {
-  _id: string;
-  name: string;
-  slug: string;
-  description: string;
-  isActive: boolean;
-  order: number;
-  sectionItem: string;
-  languages: string[];
-}
+// interface SubSection {
+//   _id: string;
+//   name: string;
+//   slug: string;
+//   description: string;
+//   isActive: boolean;
+//   order: number;
+//   sectionItem: string;
+//   languages: string[];
+// }
 
-interface ContentTranslation {
-  content: string;
-  language: string;
-  contentElement: string;
-  isActive: boolean;
-}
+// interface ContentTranslation {
+//   content: string;
+//   language: string;
+//   contentElement: string;
+//   isActive: boolean;
+// }
 
 interface BenefitsFormState {
   isLoadingData: boolean;
@@ -79,339 +85,30 @@ interface StepToDelete {
   index: number;
 }
 
-interface BenefitsFormRef {
-  form: UseFormReturn<FormData>;
-  hasUnsavedChanges: boolean;
-  setHasUnsavedChanges: (value: boolean) => void;
-  existingSubSectionId: string | null;
-  contentElements: ContentElement[];
-  componentName: string;
-}
+// interface BenefitsFormRef {
+//   form: UseFormReturn<FormData>;
+//   hasUnsavedChanges: boolean;
+//   setHasUnsavedChanges: (value: boolean) => void;
+//   existingSubSectionId: string | null;
+//   contentElements: ContentElement[];
+//   componentName: string;
+// }
 
-interface BenefitsFormProps {
-  languageIds: string[];
-  activeLanguages: { languageID: string; _id: string }[];
-  onDataChange?: (data: FormData) => void;
-  slug?: string;
-  ParentSectionId?: string;
-}
+// interface BenefitsFormProps {
+//   languageIds: string[];
+//   activeLanguages: { languageID: string; _id: string }[];
+//   onDataChange?: (data: FormData) => void;
+//   slug?: string;
+//   ParentSectionId?: string;
+// }
 
-// Utility Functions
-const createBenefitsSchema = (
-  languageIds: string[],
-  activeLanguages: { languageID: string; _id: string }[]
-): z.ZodType<FormData> => {
-  const benefitSchema = z.object({
-    icon: z.string(),
-    title: z.string(),
-    description: z.string(),
-  });
 
-  const schema: { [key: string]: z.ZodArray<z.ZodType<Benefit>> } = {};
-  languageIds.forEach((langId) => {
-    schema[langId] = z.array(benefitSchema);
-  });
-  return z.object(schema);
-};
 
-const createBenefitsDefaultValues = (
-  languageIds: string[],
-  activeLanguages: { languageID: string; _id: string }[]
-): FormData => {
-  const defaultValues: FormData = {};
-  languageIds.forEach((langId) => {
-    defaultValues[langId] = [{ icon: "Clock", title: "", description: "" }];
-  });
-  return defaultValues;
-};
 
-const getAvailableIcons = (): string[] => {
-  return ["Clock", "Star", "Check", "Heart", "Shield"];
-};
 
-const getSafeIconValue = (formValues: FormData, index: number): string => {
-  const firstLang = Object.keys(formValues)[0];
-  return formValues[firstLang]?.[index]?.icon || "Clock";
-};
 
-const validateBenefitCounts = (values: FormData): boolean => {
-  const counts = Object.values(values).map((benefits) => benefits.length);
-  return counts.every((count) => count === counts[0]);
-};
 
-const getBenefitCountsByLanguage = (
-  values: FormData
-): Record<string, number> => {
-  return Object.entries(values).reduce((acc, [lang, benefits]) => {
-    acc[lang] = benefits.length;
-    return acc;
-  }, {} as Record<string, number>);
-};
 
-const createLanguageCodeMap = (
-  activeLanguages: { languageID: string; _id: string }[]
-): Record<string, string> => {
-  return activeLanguages.reduce((map, lang) => {
-    map[lang.languageID] = lang.languageID;
-    return map;
-  }, {} as Record<string, string>);
-};
-
-const useForceUpdate = (): (() => void) => {
-  const [, setState] = useState({});
-  return useCallback(() => setState({}), []);
-};
-
-const createFormRef = (
-  ref: ForwardedRef<BenefitsFormRef>,
-  value: BenefitsFormRef
-): void => {
-  if (ref) {
-    if (typeof ref === "function") {
-      ref(value);
-    } else {
-      ref.current = value;
-    }
-  }
-};
-
-const processAndLoadData = (
-  subsectionData: SubSection,
-  form: UseFormReturn<FormData>,
-  languageIds: string[],
-  activeLanguages: { languageID: string; _id: string }[],
-  options: {
-    groupElements: (elements: ContentElement[]) => { [key: number]: ContentElement[] };
-    processElementGroup: (
-      benefitNumber: number,
-      elements: ContentElement[],
-      langId: string,
-      getTranslationContent: (element: ContentElement, defaultValue: string) => string
-    ) => Benefit;
-    getDefaultValue: () => Benefit[];
-  },
-  callbacks: {
-    setExistingSubSectionId: (id: string | null) => void;
-    setContentElements: (elements: ContentElement[]) => void;
-    setDataLoaded: (loaded: boolean) => void;
-    setHasUnsavedChanges: (hasChanges: boolean) => void;
-    setIsLoadingData: (loading: boolean) => void;
-    validateCounts: () => boolean;
-  }
-): void => {
-  const { groupElements, processElementGroup, getDefaultValue } = options;
-  const {
-    setExistingSubSectionId,
-    setContentElements,
-    setDataLoaded,
-    setHasUnsavedChanges,
-    setIsLoadingData,
-    validateCounts,
-  } = callbacks;
-
-  setIsLoadingData(true);
-  setExistingSubSectionId(subsectionData._id);
-  setContentElements(subsectionData.contentElements || []);
-
-  const groupedElements = groupElements(subsectionData.contentElements || []);
-  const formValues: FormData = {};
-
-  languageIds.forEach((langId) => {
-    const benefits: Benefit[] = [];
-    Object.keys(groupedElements).forEach((benefitNumber) => {
-      const elements = groupedElements[parseInt(benefitNumber)];
-      const benefit = processElementGroup(
-        parseInt(benefitNumber),
-        elements,
-        langId,
-        (element, defaultValue) => element.defaultContent || defaultValue
-      );
-      benefits.push(benefit);
-    });
-    formValues[langId] = benefits.length > 0 ? benefits : getDefaultValue();
-  });
-
-  form.reset(formValues);
-  setHasUnsavedChanges(false);
-  setDataLoaded(true);
-  setIsLoadingData(false);
-  validateCounts();
-};
-
-// Mock API Hooks (Replace with actual implementations)
-const useSubSections = () => ({
-  useCreate: () =>
-    useMutation({
-      mutationFn: async (data: Partial<SubSection>) =>
-        ({ data: { _id: "new-id", ...data } } as { data: SubSection }),
-    }),
-  useGetCompleteBySlug: (slug: string, enabled: boolean) =>
-    useQuery({
-      queryKey: ["subsection", slug],
-      queryFn: async () =>
-        ({
-          data: {
-            _id: "existing-id",
-            name: "Benefits Section",
-            slug,
-            description: "Benefits section",
-            isActive: true,
-            order: 0,
-            sectionItem: "parent-id",
-            languages: [],
-            contentElements: [],
-          },
-        } as { data: SubSection }),
-      enabled,
-    }),
-});
-
-const useContentElements = () => ({
-  useCreate: () =>
-    useMutation({
-      mutationFn: async (data: Partial<ContentElement>) =>
-        ({ data: { _id: "new-element-id", ...data } } as { data: ContentElement }),
-    }),
-  useUpdate: () =>
-    useMutation({
-      mutationFn: async ({ id, data }: { id: string; data: Partial<ContentElement> }) =>
-        ({ data: { _id: id, ...data } } as { data: ContentElement }),
-    }),
-  useDelete: () =>
-    useMutation({
-      mutationFn: async (id: string) => Promise.resolve(),
-    }),
-});
-
-const useContentTranslations = () => ({
-  useBulkUpsert: () =>
-    useMutation({
-      mutationFn: async (translations: ContentTranslation[]) => Promise.resolve(),
-    }),
-});
-
-// Mock Components (Replace with actual implementations)
-interface LanguageCardProps {
-  langId: string;
-  langCode: string;
-  isFirstLanguage: boolean;
-  form: UseFormReturn<FormData>;
-  addBenefit: (langCode: string) => void;
-  removeBenefit: (langCode: string, index: number) => Promise<void>;
-  syncIcons: (index: number, iconValue: string) => void;
-  availableIcons: string[];
-  onDeleteStep: (langCode: string, index: number) => void;
-}
-
-const LanguageCard: React.FC<LanguageCardProps> = ({
-  langId,
-  langCode,
-  isFirstLanguage,
-  form,
-  addBenefit,
-  removeBenefit,
-  syncIcons,
-  availableIcons,
-  onDeleteStep,
-}) => (
-  <div>
-    <h3>{langCode}</h3>
-    <button onClick={() => addBenefit(langCode)}>Add Benefit</button>
-    {form.getValues()[langCode]?.map((benefit, index) => (
-      <div key={index}>
-        <input
-          {...form.register(`${langCode}.${index}.title`)}
-          placeholder="Title"
-        />
-        <button onClick={() => onDeleteStep(langCode, index)}>Delete</button>
-      </div>
-    ))}
-  </div>
-);
-
-interface ValidationDialogProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  benefitCounts: Record<string, number>;
-}
-
-const ValidationDialog: React.FC<ValidationDialogProps> = ({
-  isOpen,
-  onOpenChange,
-  benefitCounts,
-}) => (
-  <Dialog open={isOpen} onOpenChange={onOpenChange}>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Validation Error</DialogTitle>
-        <DialogDescription>
-          Benefit counts differ across languages:
-          {Object.entries(benefitCounts).map(([lang, count]) => (
-            <div key={lang}>
-              {lang}: {count}
-            </div>
-          ))}
-        </DialogDescription>
-      </DialogHeader>
-    </DialogContent>
-  </Dialog>
-);
-
-interface DeleteServiceDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  serviceName: string;
-  onConfirm: () => Promise<void>;
-  isDeleting: boolean;
-  title: string;
-  confirmText: string;
-}
-
-const DeleteServiceDialog: React.FC<DeleteServiceDialogProps> = ({
-  open,
-  onOpenChange,
-  serviceName,
-  onConfirm,
-  isDeleting,
-  title,
-  confirmText,
-}) => (
-  <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>
-          Are you sure you want to delete {serviceName}?
-        </DialogDescription>
-      </DialogHeader>
-      <Button onClick={onConfirm} disabled={isDeleting}>
-        {isDeleting ? <Loader2 className="animate-spin" /> : confirmText}
-      </Button>
-    </DialogContent>
-  </Dialog>
-);
-
-interface LoadingDialogProps {
-  isOpen: boolean;
-  title: string;
-  description: string;
-}
-
-const LoadingDialog: React.FC<LoadingDialogProps> = ({
-  isOpen,
-  title,
-  description,
-}) => (
-  <Dialog open={isOpen}>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
-      <Loader2 className="animate-spin" />
-    </DialogContent>
-  </Dialog>
-);
 
 // Main Component
 const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
@@ -453,7 +150,8 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
       },
       []
     );
-
+    
+    
     const {
       isLoadingData,
       dataLoaded,
@@ -534,19 +232,120 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
       updateState({ benefitCountMismatch: !isValid });
       return isValid;
     }, [form, updateState]);
+// Remove process step
+const removeProcessStep = useCallback(async () => {
+  if (!stepToDelete) return;
+
+  const { langCode, index } = stepToDelete;
+  setIsDeleting(true);
+
+  const currentSteps = form.getValues()[langCode] || [];
+  if (currentSteps.length <= 1) {
+    toast({
+      title: "Cannot remove",
+      description: "You need at least one process step",
+      variant: "destructive",
+    });
+    setIsDeleting(false);
+    setDeleteDialogOpen(false);
+    return;
+  }
+
+  if (existingSubSectionId && contentElements.length > 0) {
+    try {
+      const stepNumber = index + 1;
+      const stepElements = contentElements.filter((element) => {
+        const match = element.name.match(/Benefit (\d+)/i);
+        return match && Number.parseInt(match[1]) === stepNumber;
+      });
+
+      if (stepElements.length > 0) {
+        await Promise.all(
+          stepElements.map(async (element) => {
+            await deleteContentElement.mutateAsync(element._id);
+          })
+        );
+
+        updateState({
+          contentElements: contentElements.filter((element) => {
+            const match = element.name.match(/Benefit (\d+)/i);
+            return !(match && Number.parseInt(match[1]) === stepNumber);
+          }),
+        });
+
+        toast({
+          title: "Step deleted",
+          description: `Step ${stepNumber} has been deleted from the database`,
+        });
+      }
+
+      const remainingElements = contentElements.filter((element) => {
+        const match = element.name.match(/Benefit (\d+)/i);
+        return match && Number.parseInt(match[1]) > stepNumber;
+      });
+
+      await Promise.all(
+        remainingElements.map(async (element) => {
+          const match = element.name.match(/Benefit (\d+)/i);
+          if (match) {
+            const oldNumber = Number.parseInt(match[1]);
+            const newNumber = oldNumber - 1;
+            const newName = element.name.replace(
+              `Benefit ${oldNumber}`,
+              `Benefit ${newNumber}`
+            );
+            const newOrder = element.order - 3;
+
+            await updateContentElement.mutateAsync({
+              id: element._id,
+              data: { name: newName, order: newOrder },
+            });
+          }
+        })
+      );
+    } catch (error) {
+      console.error("Error removing process step elements:", error);
+      toast({
+        title: "Error removing step",
+        description: "There was an error removing the step from the database",
+        variant: "destructive",
+      });
+    }
+  }
+
+  Object.keys(form.getValues()).forEach((langCode) => {
+    const updatedSteps = [...(form.getValues()[langCode] || [])];
+    updatedSteps.splice(index, 1);
+    form.setValue(langCode, updatedSteps);
+  });
+
+  setIsDeleting(false);
+  setDeleteDialogOpen(false);
+  validateFormBenefitCounts();
+}, [
+  stepToDelete,
+  form,
+  existingSubSectionId,
+  contentElements,
+  deleteContentElement,
+  updateContentElement,
+  toast,
+  validateFormBenefitCounts,
+  updateState,
+]);
 
     // Process benefits data
     const processBenefitsData = useCallback(
-      (subsectionData: SubSection) => {
+      (subsectionData: SubSectionData) => {
         processAndLoadData(
           subsectionData,
           form,
           languageIds,
           activeLanguages,
           {
-            groupElements: (elements) => {
+            groupElements: (elements ) => {
               const benefitGroups: { [key: number]: ContentElement[] } = {};
-              elements.forEach((element) => {
+              elements.forEach((element : any) => {
                 const match = element.name.match(/Benefit (\d+)/i);
                 if (match) {
                   const benefitNumber = parseInt(match[1], 10);
@@ -818,6 +617,7 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
             name: "Benefits Section",
             slug: slug || `benefits-section-${Date.now()}`,
             description: "Benefits section for the website",
+            defaultContent :'',
             isActive: true,
             order: 0,
             sectionItem: ParentSectionId,
@@ -865,9 +665,11 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
               defaultContent: iconValue,
             });
             iconElement = newElement.data;
-            updateState({
-              contentElements: [...contentElements, iconElement],
-            });
+            if (iconElement) {
+              updateState({
+                contentElements: [...contentElements, iconElement],
+              });
+            }
           } else {
             await updateContentElement.mutateAsync({
               id: iconElement._id,
@@ -888,9 +690,11 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
               defaultContent: "",
             });
             titleElement = newElement.data;
-            updateState({
-              contentElements: [...contentElements, titleElement],
-            });
+            if (titleElement) {
+              updateState({
+                contentElements: [...contentElements, titleElement],
+              });
+            }
           }
 
           let descElement = contentElements.find(
@@ -906,9 +710,11 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
               defaultContent: "",
             });
             descElement = newElement.data;
-            updateState({
-              contentElements: [...contentElements, descElement],
-            });
+            if (descElement) {
+              updateState({
+                contentElements: [...contentElements, descElement],
+              });
+            }
           }
 
           Object.entries(allFormValues).forEach(([langCode, benefits]) => {
@@ -919,6 +725,7 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
             const benefit = benefits[i];
             if (titleElement) {
               translations.push({
+                _id : benefit.id,
                 content: benefit.title,
                 language: langId,
                 contentElement: titleElement._id,
@@ -927,6 +734,7 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
             }
             if (descElement) {
               translations.push({
+                _id : benefit.id,
                 content: benefit.description,
                 language: langId,
                 contentElement: descElement._id,
@@ -1029,111 +837,11 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
       );
     }
 
-    // Remove process step
-    const removeProcessStep = useCallback(async () => {
-      if (!stepToDelete) return;
-
-      const { langCode, index } = stepToDelete;
-      setIsDeleting(true);
-
-      const currentSteps = form.getValues()[langCode] || [];
-      if (currentSteps.length <= 1) {
-        toast({
-          title: "Cannot remove",
-          description: "You need at least one process step",
-          variant: "destructive",
-        });
-        setIsDeleting(false);
-        setDeleteDialogOpen(false);
-        return;
-      }
-
-      if (existingSubSectionId && contentElements.length > 0) {
-        try {
-          const stepNumber = index + 1;
-          const stepElements = contentElements.filter((element) => {
-            const match = element.name.match(/Benefit (\d+)/i);
-            return match && Number.parseInt(match[1]) === stepNumber;
-          });
-
-          if (stepElements.length > 0) {
-            await Promise.all(
-              stepElements.map(async (element) => {
-                await deleteContentElement.mutateAsync(element._id);
-              })
-            );
-
-            updateState({
-              contentElements: contentElements.filter((element) => {
-                const match = element.name.match(/Benefit (\d+)/i);
-                return !(match && Number.parseInt(match[1]) === stepNumber);
-              }),
-            });
-
-            toast({
-              title: "Step deleted",
-              description: `Step ${stepNumber} has been deleted from the database`,
-            });
-          }
-
-          const remainingElements = contentElements.filter((element) => {
-            const match = element.name.match(/Benefit (\d+)/i);
-            return match && Number.parseInt(match[1]) > stepNumber;
-          });
-
-          await Promise.all(
-            remainingElements.map(async (element) => {
-              const match = element.name.match(/Benefit (\d+)/i);
-              if (match) {
-                const oldNumber = Number.parseInt(match[1]);
-                const newNumber = oldNumber - 1;
-                const newName = element.name.replace(
-                  `Benefit ${oldNumber}`,
-                  `Benefit ${newNumber}`
-                );
-                const newOrder = element.order - 3;
-
-                await updateContentElement.mutateAsync({
-                  id: element._id,
-                  data: { name: newName, order: newOrder },
-                });
-              }
-            })
-          );
-        } catch (error) {
-          console.error("Error removing process step elements:", error);
-          toast({
-            title: "Error removing step",
-            description: "There was an error removing the step from the database",
-            variant: "destructive",
-          });
-        }
-      }
-
-      Object.keys(form.getValues()).forEach((langCode) => {
-        const updatedSteps = [...(form.getValues()[langCode] || [])];
-        updatedSteps.splice(index, 1);
-        form.setValue(langCode, updatedSteps);
-      });
-
-      setIsDeleting(false);
-      setDeleteDialogOpen(false);
-      validateFormBenefitCounts();
-    }, [
-      stepToDelete,
-      form,
-      existingSubSectionId,
-      contentElements,
-      deleteContentElement,
-      updateContentElement,
-      toast,
-      validateFormBenefitCounts,
-      updateState,
-    ]);
 
     // Confirm delete step
     const confirmDeleteStep = (langCode: string, index: number) => {
       setStepToDelete({ langCode, index });
+      console.log("index:" ,  index)
       setDeleteDialogOpen(true);
     };
 
@@ -1154,7 +862,6 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
               return (
                 <LanguageCard
                   key={langId}
-                  langId={langId}
                   langCode={langCode}
                   isFirstLanguage={isFirstLanguage}
                   form={form}
@@ -1210,7 +917,7 @@ const BenefitsForm = forwardRef<BenefitsFormRef, BenefitsFormProps>(
 
         <ValidationDialog
           isOpen={isValidationDialogOpen}
-          onOpenChange={(isOpen) =>
+          onOpenChange={(isOpen: any) =>
             updateState({ isValidationDialogOpen: isOpen })
           }
           benefitCounts={getBenefitCountsByLanguage(form.getValues())}
