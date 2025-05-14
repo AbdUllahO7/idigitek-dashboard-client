@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useGenericList } from "@/src/hooks/useGenericList"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
@@ -14,22 +14,7 @@ import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
 import { headerSectionConfig } from "./HeaderSectionConfig"
 
 // Configuration for the Header page
-const HEADER_CONFIG = {
-  title: "Header Management",
-  description: "Manage your Header inventory and multilingual content",
-  addButtonLabel: "Add New Nav item",
-  emptyStateMessage: "No Header found. Create your first Header by clicking the \"Add New Header\" button.",
-  noSectionMessage: "Please create a Header section first before adding Header.",
-  mainSectionRequiredMessage: "Please enter your main section data before adding Header.",
-  emptyFieldsMessage: "Please complete all required fields in the main section before adding Header.",
-  sectionIntegrationTitle: "Header Section Content",
-  sectionIntegrationDescription: "Manage your Header section content in multiple languages.",
-  addSectionButtonLabel: "Add Header Section",
-  editSectionButtonLabel: "Edit Header Section",
-  saveSectionButtonLabel: "Save Header Section",
-  listTitle: "Header List",
-  editPath: "header/addNavItems"
-}
+
 
 // Column definitions
 const HEADER_COLUMNS = [
@@ -69,7 +54,7 @@ const HEADER_COLUMNS = [
     cell: CountBadgeCell
   }
 ]
-
+ 
 export default function HeaderPage() {
   const searchParams = useSearchParams()
   const sectionId = searchParams.get("sectionId")
@@ -77,7 +62,23 @@ export default function HeaderPage() {
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
-  
+
+ const HEADER_CONFIG = useMemo (() => ({
+  title: "Header Management",
+  description: "Manage your Header inventory and multilingual content",
+  addButtonLabel: "Add New Nav item",
+  emptyStateMessage: "No Header found. Create your first Header by clicking the \"Add New Header\" button.",
+  noSectionMessage: "Please create a Header section first before adding Header.",
+  mainSectionRequiredMessage: "Please enter your main section data before adding Header.",
+  emptyFieldsMessage: "Please complete all required fields in the main section before adding Header.",
+  sectionIntegrationTitle: "Header Section Content",
+  sectionIntegrationDescription: "Manage your Header section content in multiple languages.",
+  addSectionButtonLabel: "Add Header Section",
+  editSectionButtonLabel: "Edit Header Section",
+  saveSectionButtonLabel: "Save Header Section",
+  listTitle: "Header List",
+  editPath: "header/addNavItems"
+}), [] );
   // Refs to track previous values for debugging
   const prevHasMainSubSection = useRef(hasMainSubSection);
   const isFirstRender = useRef(true);
@@ -107,7 +108,6 @@ export default function HeaderPage() {
     itemToDelete,
     isDeleting,
     isAddButtonDisabled: defaultAddButtonDisabled,
-    addButtonTooltip: defaultAddButtonTooltip,
     handleSectionChange,
     handleEdit,
     handleDelete,
@@ -285,23 +285,9 @@ export default function HeaderPage() {
     isLoadingMainSubSection ||
     (Boolean(sectionId) && !hasMainSubSection);
   
-  // Debug logging specifically for our button disabling conditions
-  useEffect(() => {
-    console.log("BUTTON DISABLED LOGIC:", {
-      defaultAddButtonDisabled,
-      isLoadingMainSubSection,
-      sectionId: sectionId || "none",
-      hasMainSubSection,
-      finalIsAddButtonDisabled: isAddButtonDisabled
-    });
-  }, [defaultAddButtonDisabled, isLoadingMainSubSection, sectionId, hasMainSubSection, isAddButtonDisabled]);
+
   
-  // Custom tooltip message based on condition
-  const addButtonTooltip = !headerSection && !sectionData 
-    ? HEADER_CONFIG.noSectionMessage 
-    : (!hasMainSubSection && !isLoadingMainSubSection && sectionId)
-      ? HEADER_CONFIG.mainSectionRequiredMessage
-      : defaultAddButtonTooltip;
+
 
   // Custom message for empty state 
   const emptyStateMessage = !headerSection && !sectionData 
@@ -350,7 +336,6 @@ export default function HeaderPage() {
         sectionId={sectionId}
         sectionConfig={headerSectionConfig}
         isAddButtonDisabled={isAddButtonDisabled}
-        addButtonTooltip={addButtonTooltip}
         tableComponent={NavItemsTable}
         createDialogComponent={CreateDialog}
         deleteDialogComponent={DeleteDialog}
