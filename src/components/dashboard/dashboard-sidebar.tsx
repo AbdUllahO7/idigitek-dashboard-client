@@ -25,6 +25,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  Component,
 } from "lucide-react"
 import { Button } from "../ui/button"
 import { cn } from "@/src/lib/utils"
@@ -108,8 +109,14 @@ const allNavItems: NavItem[] = [
     sectionId: "ourprocess",
   },
   {
-    title: "Settings",
-    href: "/dashboard/settings",
+    title: "Team",
+    href: "/dashboard/team",
+    icon: Component,
+    sectionId: "team",
+  },
+  {
+    title: "Profile",
+    href: "/dashboard/profile",
     icon: Settings,
     roles: ["superAdmin", "owner", "admin", "user"],
   },

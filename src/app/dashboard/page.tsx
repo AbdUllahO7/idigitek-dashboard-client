@@ -136,14 +136,8 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {/* Dashboard tabs */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="w-full justify-start">
-          <TabsTrigger value="overview" className="rounded-lg">Overview</TabsTrigger>
-        </TabsList>
 
         {/* Overview tab content */}
-        <TabsContent value="overview" className="space-y-6">
           {/* Metric cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {loading || noWebsiteSelected ? (
@@ -459,74 +453,9 @@ export default function DashboardPage() {
               </Card>
             </div>
           )}
-        </TabsContent>
 
         {/* Users tab content */}
-        <TabsContent value="users" className="space-y-6">
-          {loading || noWebsiteSelected ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {[1, 2, 3, 4, 5, 6].map((_, index) => (
-                <CardLoader key={index} />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">Website User Management</h2>
-                <Button size="sm">
-                  Add User
-                </Button>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {usersData.map((user: any) => (
-                  <Card key={user._id || user.userId} className="overflow-hidden">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium truncate">{user.name || user.email}</CardTitle>
-                      <div className={`rounded-full p-1.5 ${
-                        user.role === 'superAdmin' 
-                          ? 'bg-red-100 text-red-600 dark:bg-red-900/40' 
-                          : user.role === 'admin'
-                            ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/40'
-                            : 'bg-blue-100 text-blue-600 dark:bg-blue-900/40'
-                      }`}>
-                        <UserCircle className="h-4 w-4" />
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm truncate text-muted-foreground mb-2">{user.email}</div>
-                      <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          user.role === 'superAdmin'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                            : user.role === 'admin'
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
-                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                        }`}>
-                          {user.role}
-                        </span>
-                        {user.isActive ? (
-                          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400">
-                            Inactive
-                          </span>
-                        )}
-                      </div>
-                    </CardContent>
-                    <CardFooter className="border-t px-6 py-3 flex justify-end">
-                      <Button variant="ghost" size="sm">
-                        <EllipsisIcon className="h-4 w-4" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+
     </div>
   )
 }
