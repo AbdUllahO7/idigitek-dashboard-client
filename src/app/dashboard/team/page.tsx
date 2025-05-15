@@ -119,22 +119,17 @@ export default function Team() {
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {    
-
-    
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
-      console.log("Still loading subsection data...");
       setIsLoadingMainSubSection(true);
       return;
     }
-    
     // We're done loading, now check the data
     let foundMainSubSection = false;
     let mainSubSection = null;
     
     // Get expected name from configuration
     const expectedSlug = teamSectionConfig.name;
-    console.log("Expected subsection name:", expectedSlug);
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -151,12 +146,6 @@ export default function Team() {
         foundMainSubSection = sectionData.isMain === true && sectionData.name === expectedSlug;
         mainSubSection = foundMainSubSection ? sectionData : null;
       }
-      
-      console.log("Section subsections check:", { 
-        foundMainSubSection, 
-        mainSubSection,
-        matchesSlug: mainSubSection ? mainSubSection.name === expectedSlug : false
-      });
     }
     
     // If we didn't find anything in the section-specific data, check the website-wide data
@@ -175,19 +164,10 @@ export default function Team() {
         mainSubSection = foundMainSubSection ? websiteData : null;
       }
       
-      console.log("Website subsections check:", { 
-        foundMainSubSection, 
-        mainSubSection,
-        matchesSlug: mainSubSection ? mainSubSection.name === expectedSlug : false
-      });
+
     }
     
-    console.log("Final subsection result:", { 
-      foundMainSubSection, 
-      mainSubSection,
-      name: mainSubSection?.name,
-      expectedSlug
-    });
+  
     
     // Update state based on what we found
     setHasMainSubSection(foundMainSubSection);
@@ -199,7 +179,6 @@ export default function Team() {
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
       
-      console.log("Setting section data:", sectionInfo);
       
       // Set local section data
       setSectionData(sectionInfo);
@@ -222,7 +201,6 @@ export default function Team() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
     
     // Check if subsection has the correct name
     const expectedSlug = teamSectionConfig.name;
@@ -231,12 +209,7 @@ export default function Team() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
-    // Log the name check
-    console.log("Main subsection name check:", {
-      actualSlug: subsection.name,
-      expectedSlug,
-      isCorrect: hasCorrectSlug
-    });
+
     
     // If we have section data from the subsection, update it
     if (subsection.section) {
