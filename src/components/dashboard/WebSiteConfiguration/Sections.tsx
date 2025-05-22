@@ -207,7 +207,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     error: sectionsError,
     refetch: refetchSections,
     isError,
-  } = useGetByWebsiteId(websiteId, true, hasWebsite) // Changed to true to include inactive sections
+  } = useGetByWebsiteId(websiteId, false, hasWebsite)
 
   const createSectionMutation = useCreateSection()
   const deleteSectionMutation = useDeleteSection()
@@ -254,31 +254,6 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
           console.error("Error creating user-section relationship:", error)
         },
       },
-    )
-  }
-
-  // Handle toggle section active/inactive
-  const handleToggleSection = (section: Section) => {
-    if (!section._id) return
-
-    toggleSectionActiveMutation.mutate(
-      { id: section._id, isActive: !section.isActive },
-      {
-        onSuccess: () => {
-          toast({
-            title: section.isActive ? "Section hidden" : "Section activated",
-            description: `${section.name} section is now ${section.isActive ? "hidden" : "active"}.`,
-          })
-          showSuccessMessage()
-        },
-        onError: (error: any) => {
-          toast({
-            title: "Error updating section",
-            description: error.message || "An error occurred while updating the section.",
-            variant: "destructive",
-          })
-        },
-      }
     )
   }
 
@@ -383,6 +358,29 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     }
   }
 
+  // const handleToggleActive = (section: Section) => {
+  //   if (!section._id) return
+
+  //   toggleSectionActiveMutation.mutate(
+  //     { id: section._id, isActive: !section.isActive },
+  //     {
+  //       onSuccess: () => {
+  //         toast({
+  //           title: `Section ${section.isActive ? "hidden" : "activated"}`,
+  //           description: `${section.name} is now ${section.isActive ? "hidden" : "visible"} on your website.`,
+  //         })
+  //         showSuccessMessage()
+  //       },
+  //       onError: (error: any) => {
+  //         toast({
+  //           title: "Error updating section",
+  //           description: error.message || "An error occurred while updating the section.",
+  //           variant: "destructive",
+  //         })
+  //       },
+  //     },
+  //   )
+  // }
 
   const handleReorder = (reorderedSections: Section[]) => {
     // Only process if we're not still dragging
@@ -602,11 +600,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                             handleReorder(orderedSections);
                           }}
                         >
-                          <Card className={`border transition-all duration-300 overflow-hidden ${
-                            section.isActive 
-                              ? "border-slate-200 dark:border-slate-700 hover:shadow-md bg-white dark:bg-slate-900" 
-                              : "border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 opacity-75"
-                          }`}>
+                          <Card className="border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-300 overflow-hidden bg-white dark:bg-slate-900">
                             <div className="p-4 flex items-center gap-4">
                               <div className="text-muted-foreground border border-dashed border-slate-200 dark:border-slate-700 p-1.5 rounded-md cursor-grab">
                                 <GripVertical className="h-5 w-5" />
@@ -614,29 +608,21 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
 
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
-                                  <h3 className={`font-semibold text-base ${!section.isActive ? 'text-muted-foreground' : ''}`}>
-                                    {section.name}
-                                  </h3>
+                                  <h3 className="font-semibold text-base">{section.name}</h3>
                                   <Badge
-                                    className={
-                                      section.isActive 
-                                        ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800" 
-                                        : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:border-slate-600"
-                                    }
+                                    
+                                    className={section.isActive ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800" : ""}
                                   >
                                     {section.isActive ? "Active" : "Hidden"}
                                   </Badge>
                                 </div>
                                 {section.description && (
-                                  <p className={`text-sm mt-1 ${!section.isActive ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>
-                                    {section.description}
-                                  </p>
+                                  <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
                                 )}
                               </div>
 
                               <div className="flex items-center gap-2">
-                                {/* Toggle visibility button */}
-                                <TooltipProvider>
+                                {/* <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Button
@@ -644,31 +630,19 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                                         size="icon"
                                         onClick={(e) => {
                                           e.stopPropagation() // Prevent reordering
-                                          handleToggleSection(section)
+                                          handleToggleActive(section)
                                         }}
-                                        disabled={toggleSectionActiveMutation.isPending}
-                                        className={
-                                          section.isActive
-                                            ? "text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/30"
-                                            : "text-slate-500 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
-                                        }
+                                        className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
                                       >
-                                        {toggleSectionActiveMutation.isPending ? (
-                                          <Loader2 className="h-4 w-4 animate-spin" />
-                                        ) : section.isActive ? (
-                                          <Eye className="h-4 w-4" />
-                                        ) : (
-                                          <EyeOff className="h-4 w-4" />
-                                        )}
+                                        {section.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <p>{section.isActive ? "Hide section" : "Show section"}</p>
                                     </TooltipContent>
                                   </Tooltip>
-                                </TooltipProvider>
+                                </TooltipProvider> */}
 
-                                {/* Delete button */}
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -685,7 +659,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>Delete section permanently</p>
+                                      <p>Delete section</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
