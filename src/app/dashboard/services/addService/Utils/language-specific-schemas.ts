@@ -31,6 +31,9 @@ const schemaDefinitions = {
       description: z.string().min(1, { message: "Description is required" }),
       backLinkText: z.string().min(1, { message: "Back link text is required" }),
     }),
+      overView: (z: any) => z.object({
+      description: z.string().min(1, { message: "Description is required" }),
+    }),
     process: (z: any) => z.object({
       title: z.string().min(1, { message: "Title is required" }),
       description: z.string().min(1, { message: "Description is required" }),
@@ -174,6 +177,7 @@ const schemaDefinitions = {
         image : z.string().min(1, "Request Button text is required"),
       })
     ).min(1, { message: "At least one feature is required" }),
+    
     footerSection: (z: any) =>
           z.array(
 
@@ -247,6 +251,12 @@ const schemaDefinitions = {
   };
 
 export const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
+    const schema = createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.hero);
+    return z.object({
+      ...schema.shape,
+    });
+};
+export const createOverViewSchema = (languageIds: string[], activeLanguages: Language[]) => {
     const schema = createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.hero);
     return z.object({
       ...schema.shape,
