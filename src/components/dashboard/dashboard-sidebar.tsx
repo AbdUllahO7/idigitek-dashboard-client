@@ -52,8 +52,17 @@ interface NavItem {
   title: string
   href: string
   icon: React.ElementType
-  sectionId?: string // The section ID this nav item corresponds to
+  sectionId?: string
   roles?: string[]
+}
+
+/**
+ * Section order interface
+ */
+interface SectionOrder {
+  name: string
+  order: number
+  id: string
 }
 
 /**
@@ -97,7 +106,7 @@ const allNavItems: NavItem[] = [
     sectionId: "industrysolutions",
   },
   {
-    title: "f",
+    title: "Why Choose Us",
     href: "/dashboard/WhyChooseUs",
     icon: Briefcase,
     sectionId: "whychooseus",
@@ -132,7 +141,7 @@ const allNavItems: NavItem[] = [
     icon: HeartHandshake,
     sectionId: "partners",
   },
-    {
+  {
     title: "FAQ",
     href: "/dashboard/FAQ",
     icon: ShieldQuestion,
@@ -144,7 +153,7 @@ const allNavItems: NavItem[] = [
     icon: PenBoxIcon,
     sectionId: "blog",
   },
-    {
+  {
     title: "Contact",
     href: "/dashboard/contact",
     icon: Contact,
@@ -156,7 +165,7 @@ const allNavItems: NavItem[] = [
     icon: TouchpadOff,
     sectionId: "hero",
   },
-   {
+  {
     title: "Footer",
     href: "/dashboard/footer",
     icon: TouchpadOff,
@@ -180,13 +189,6 @@ const allNavItems: NavItem[] = [
     icon: Settings,
     roles: ["idigitekAdmin"],
   },
-    {
-    title: "Idigitek Admin",
-    href: "/dashboard/idigitekAdmin",
-    icon: Settings,
-    roles: ["idigitekAdmin"],
-  },
-  
 ]
 
 /**
@@ -208,8 +210,9 @@ export default function DashboardSidebar() {
   // Check if screen is mobile
   const isMobile = useMediaQuery("(max-width: 768px)")
 
-  // Store the mapping of section names to actual section IDs from API
+  // Store the mapping of section names to actual section IDs and orders
   const [sectionIdMapping, setSectionIdMapping] = useState<Map<string, string>>(new Map())
+  const [sectionOrderMapping, setSectionOrderMapping] = useState<Map<string, SectionOrder>>(new Map())
 
   // Use refs to track the current user and website for cache invalidation
   const processedWebsiteRef = useRef<string | null>(null)
@@ -227,9 +230,6 @@ export default function DashboardSidebar() {
     refetch: refetchWebsiteSections,
     dataUpdatedAt,
   } = useGetByWebsiteId(websiteId || "", false, !!websiteId)
-
-  // Extract active sections from the API response
-  const activeSections = websiteSections?.data?.filter((section: Section) => section.isActive) || []
 
   // Manual refresh function for sections
   const handleManualRefresh = useCallback(() => {
@@ -298,12 +298,13 @@ export default function DashboardSidebar() {
     userRole: string | undefined,
     activeSections: Section[],
     sectionNameMap: Map<string, string>,
+    sectionOrderMap: Map<string, SectionOrder>,
   ) => {
     try {
       // Get active section IDs from the API data
-      const activeSectionIds = activeSections.map((section: Section) => {
-        return section.name.toLowerCase().replace(/\s/g, "")
-      })
+      const activeSectionIds = activeSections.map((section: Section) =>
+        section.name.toLowerCase().replace(/\s/g, "")
+      )
 
       // Start with all non-section-based nav items that match the user's role
       const baseNavItems = allNavItems.filter((item) => {
@@ -313,7 +314,6 @@ export default function DashboardSidebar() {
             return false
           }
         }
-
         // Include if it's not a section-specific item
         return !item.sectionId
       })
@@ -323,20 +323,24 @@ export default function DashboardSidebar() {
         .filter((item) => {
           // Only process items with section IDs
           if (!item.sectionId) return false
-
           // Check if this section ID is in our active sections
           return activeSectionIds.includes(item.sectionId)
         })
         .map((item) => {
           // Create a copy to modify
           const newItem = { ...item }
-
           // Update title if we have it in our mapping
           if (item.sectionId && sectionNameMap.has(item.sectionId)) {
             newItem.title = sectionNameMap.get(item.sectionId) || item.title
           }
-
           return newItem
+        })
+        // Sort section-specific items based on order from sectionOrderMap
+        .sort((a, b) => {
+          if (!a.sectionId || !b.sectionId) return 0
+          const orderA = sectionOrderMap.get(a.sectionId)?.order ?? Infinity
+          const orderB = sectionOrderMap.get(b.sectionId)?.order ?? Infinity
+          return orderA - orderB
         })
 
       // Combine and return all matching nav items
@@ -345,7 +349,6 @@ export default function DashboardSidebar() {
       console.error("Error filtering nav items:", error)
       // In case of error, show only the items without sectionId and respect role restrictions
       return allNavItems.filter((item) => {
-        // Check role restrictions
         if (item.roles && userRole) {
           if (!item.roles.includes(userRole)) {
             return false
@@ -376,35 +379,45 @@ export default function DashboardSidebar() {
       return
     }
 
-    // Map section IDs to their names
+    // Map section IDs to their names and orders
     const sectionNameMap = new Map<string, string>()
     const idMapping = new Map<string, string>()
+    const orderMapping = new Map<string, SectionOrder>()
 
-    if (activeSections.length > 0) {
+    if (websiteSections?.data?.length > 0) {
+      const activeSections = websiteSections.data.filter((section: Section) => section.isActive)
       activeSections.forEach((section: Section) => {
         const sectionId = section.name.toLowerCase().replace(/\s/g, "")
         sectionNameMap.set(sectionId, section.name)
-
-        // Store the actual database ID for each section
         if (section._id) {
           idMapping.set(sectionId, section._id)
+          orderMapping.set(sectionId, {
+            name: section.name,
+            order: section.order ?? 0,
+            id: section._id,
+          })
         }
       })
 
-      // Save the ID mapping for use in navigation
+      // Save the ID and order mappings
       setSectionIdMapping(idMapping)
+      setSectionOrderMapping(orderMapping)
 
       // Store active section IDs in localStorage for persistence
       const storageKey = currentUserId ? `selectedSections_${currentUserId}` : "selectedSections"
-
       const activeSectionIds = activeSections.map((section: { name: string }) =>
-        section.name.toLowerCase().replace(/\s/g, ""),
+        section.name.toLowerCase().replace(/\s/g, "")
       )
       localStorage.setItem(storageKey, JSON.stringify(activeSectionIds))
     }
 
-    // Filter nav items based on user role and active sections
-    const filteredItems = filterNavItems(user?.role, activeSections, sectionNameMap)
+    // Filter nav items based on user role, active sections, and order
+    const filteredItems = filterNavItems(
+      user?.role,
+      websiteSections?.data?.filter((section: Section) => section.isActive) || [],
+      sectionNameMap,
+      orderMapping
+    )
     setNavItems(filteredItems)
 
     // Update loading state
@@ -414,7 +427,7 @@ export default function DashboardSidebar() {
     processedWebsiteRef.current = websiteId
     processedUserRef.current = currentUserId as string
     setLastRefreshTime(new Date(currentTimestamp))
-  }, [user, userIsLoading, websiteId, isLoadingSections, activeSections, dataUpdatedAt, isRefreshing, lastRefreshTime])
+  }, [user, userIsLoading, websiteId, isLoadingSections, websiteSections, dataUpdatedAt, isRefreshing, lastRefreshTime])
 
   /**
    * Handle navigation with loading indicator and section ID parameter
@@ -496,7 +509,7 @@ export default function DashboardSidebar() {
 
       {/* Navigation items */}
       <div className="flex-1 overflow-auto px-3">
-        {activeSections.length === 0 && websiteId ? (
+        {websiteSections?.data?.length === 0 && websiteId ? (
           <div className="p-3 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-center">
             <AlertTriangle className="h-5 w-5 text-amber-500 mx-auto mb-1" />
             <p className="text-amber-800 dark:text-amber-200 text-sm">No active sections found</p>

@@ -123,7 +123,6 @@ export default function BlogPage() {
     
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
-      console.log("Still loading subsection data...");
       setIsLoadingMainSubSection(true);
       return;
     }
@@ -134,7 +133,6 @@ export default function BlogPage() {
     
     // Get expected name from configuration
     const expectedSlug = blogSectionConfig.name;
-    console.log("Expected subsection name:", expectedSlug);
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -152,11 +150,7 @@ export default function BlogPage() {
         mainSubSection = foundMainSubSection ? sectionData : null;
       }
       
-      console.log("Section subsections check:", { 
-        foundMainSubSection, 
-        mainSubSection,
-        matchesSlug: mainSubSection ? mainSubSection.name === expectedSlug : false
-      });
+
     }
     
     // If we didn't find anything in the section-specific data, check the website-wide data
@@ -174,20 +168,10 @@ export default function BlogPage() {
         foundMainSubSection = websiteData.isMain === true && websiteData.name === expectedSlug;
         mainSubSection = foundMainSubSection ? websiteData : null;
       }
-      
-      console.log("Website subsections check:", { 
-        foundMainSubSection, 
-        mainSubSection,
-        matchesSlug: mainSubSection ? mainSubSection.name === expectedSlug : false
-      });
+
     }
     
-    console.log("Final subsection result:", { 
-      foundMainSubSection, 
-      mainSubSection,
-      name: mainSubSection?.name,
-      expectedSlug
-    });
+
     
     // Update state based on what we found
     setHasMainSubSection(foundMainSubSection);
@@ -199,7 +183,6 @@ export default function BlogPage() {
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
       
-      console.log("Setting section data:", sectionInfo);
       
       // Set local section data
       setSectionData(sectionInfo);
@@ -222,7 +205,6 @@ export default function BlogPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
     
     // Check if subsection has the correct name
     const expectedSlug = blogSectionConfig.name;
@@ -231,12 +213,7 @@ export default function BlogPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
-    // Log the name check
-    console.log("Main subsection name check:", {
-      actualSlug: subsection.name,
-      expectedSlug,
-      isCorrect: hasCorrectSlug
-    });
+  
     
     // If we have section data from the subsection, update it
     if (subsection.section) {
