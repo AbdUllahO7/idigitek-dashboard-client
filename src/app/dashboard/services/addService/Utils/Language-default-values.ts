@@ -57,7 +57,11 @@ const defaultValueDefinitions = {
         title: "",
         description: "",
         exploreButton: "",
+        exploreButtonType: "default",
+        exploreButtonUrl: "",
         requestButton: "",
+        requestButtonType: "default", 
+        requestButtonUrl: "",
         image :""
     }],
         teamSection: () => [{
@@ -183,6 +187,7 @@ export const createContactSendMessageDefaultValues = (languageIds: string[], act
       emailPlaceHolder: "",
       message: "",
       messagePlaceHolder: "",
+      subjectTitle : "",
       subjects: [""],
       buttonText: "",
     };
