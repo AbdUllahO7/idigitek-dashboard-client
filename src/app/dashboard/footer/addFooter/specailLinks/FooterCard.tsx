@@ -1,262 +1,434 @@
-"use client";
+"use client"
 
-import { memo, useState } from "react";
-import { Trash2, Plus, Minus } from "lucide-react";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
-import { Input } from "@/src/components/ui/input";
-import { Textarea } from "@/src/components/ui/textarea";
-import { Button } from "@/src/components/ui/button";
-import { LabeledImageUploader, useImageUpload } from "../../../services/addService/Utils/Image-uploader";
-import * as Collapsible from "@radix-ui/react-collapsible";
+import type React from "react"
+
+import { memo, useState } from "react"
+import { Trash2, Plus, Minus, ChevronDown, ChevronUp, GripVertical, ExternalLink, Lock, Globe, Trash } from "lucide-react"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { Input } from "@/src/components/ui/input"
+import { Textarea } from "@/src/components/ui/textarea"
+import { Button } from "@/src/components/ui/button"
+import { LabeledImageUploader, useImageUpload } from "../../../services/addService/Utils/Image-uploader"
+import { cn } from "@/src/lib/utils"
 
 interface FooterCardProps {
-  langCode: string;
-  index: number;
-  form: any;
-  isFirstLanguage: boolean;
-  onDelete: (langCode: string, index: number) => void;
-  FooterImageUploader?: React.ComponentType<any>;
-  SocialLinkImageUploader?: React.ComponentType<any>;
+  langCode: string
+  index: number
+  form: any
+  isFirstLanguage: boolean
+  onDelete: (langCode: string, index: number) => void
+  FooterImageUploader?: React.ComponentType<any>
+  SocialLinkImageUploader?: React.ComponentType<any>
 }
 
-export const FooterCard = memo(({ langCode, index, form, isFirstLanguage, onDelete, FooterImageUploader, SocialLinkImageUploader }: FooterCardProps) => {
-  const { imageFile, imagePreview, handleImageUpload, handleImageRemove } = useImageUpload({
+export const FooterCard = memo(
+  ({
+    langCode,
+    index,
     form,
-    fieldPath: `${langCode}.${index}.image`,
-    validate: (file) => {
-      if (file.size > 2 * 1024 * 1024) {
-        return "Image must be less than 2MB";
-      }
-      return true;
-    },
-  });
+    isFirstLanguage,
+    onDelete,
+    FooterImageUploader,
+    SocialLinkImageUploader,
+  }: FooterCardProps) => {
+    const { imageFile, imagePreview, handleImageUpload, handleImageRemove } = useImageUpload({
+      form,
+      fieldPath: `${langCode}.${index}.image`,
+      validate: (file) => {
+        if (file.size > 2 * 1024 * 1024) {
+          return "Image must be less than 2MB"
+        }
+        return true
+      },
+    })
 
-  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true)
+    const [isSocialLinksExpanded, setIsSocialLinksExpanded] = useState(false)
 
-  const handleDelete = () => onDelete(langCode, index);
+    const handleDelete = () => onDelete(langCode, index)
 
-  const addSocialLink = () => {
-    const currentSocialLinks = form.getValues(`${langCode}.${index}.socialLinks`) || [];
-    const newSocialLink = { image: "", url: "", linkName: "" };
-    
-    // Add to current language
-    form.setValue(`${langCode}.${index}.socialLinks`, [
-        ...currentSocialLinks,
-        newSocialLink,
-    ], { shouldDirty: true, shouldValidate: true });
-    
-    // If this is the first language, sync structure to all other languages
-    if (isFirstLanguage) {
-        const allValues = form.getValues();
-        Object.keys(allValues).forEach((otherLangCode) => {
-            if (otherLangCode !== langCode) {
-                const otherSocialLinks = form.getValues(`${otherLangCode}.${index}.socialLinks`) || [];
-                form.setValue(`${otherLangCode}.${index}.socialLinks`, [
-                    ...otherSocialLinks,
-                    { 
-                        image: "", 
-                        url: "", // Will be synced when user enters URL in first language
-                        linkName: "" // Each language will have its own linkName
-                    },
-                ], { shouldDirty: true, shouldValidate: true });
-            }
-        });
-    }
-  };
+    const currentSocialLinks = form.watch(`${langCode}.${index}.socialLinks`) || []
+    const currentTitle = form.watch(`${langCode}.${index}.title`) || ""
 
-  const removeSocialLink = (socialLinkIndex: number) => {
-    const currentSocialLinks = form.getValues(`${langCode}.${index}.socialLinks`) || [];
-    const updatedSocialLinks = currentSocialLinks.filter((_: any, i: number) => i !== socialLinkIndex);
-    
-    // Remove from current language
-    form.setValue(`${langCode}.${index}.socialLinks`, updatedSocialLinks, {
+    const addSocialLink = () => {
+      const currentSocialLinks = form.getValues(`${langCode}.${index}.socialLinks`) || []
+      const newSocialLink = { image: "", url: "", linkName: "" }
+
+      // Add to current language
+      form.setValue(`${langCode}.${index}.socialLinks`, [...currentSocialLinks, newSocialLink], {
         shouldDirty: true,
         shouldValidate: true,
-    });
-    
-    // If this is the first language, sync removal to all other languages
-    if (isFirstLanguage) {
-        const allValues = form.getValues();
+      })
+
+      // If this is the first language, sync structure to all other languages
+      if (isFirstLanguage) {
+        const allValues = form.getValues()
         Object.keys(allValues).forEach((otherLangCode) => {
-            if (otherLangCode !== langCode) {
-                const otherSocialLinks = form.getValues(`${otherLangCode}.${index}.socialLinks`) || [];
-                const otherUpdatedSocialLinks = otherSocialLinks.filter((_: any, i: number) => i !== socialLinkIndex);
-                form.setValue(`${otherLangCode}.${index}.socialLinks`, otherUpdatedSocialLinks, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                });
-            }
-        });
+          if (otherLangCode !== langCode) {
+            const otherSocialLinks = form.getValues(`${otherLangCode}.${index}.socialLinks`) || []
+            form.setValue(
+              `${otherLangCode}.${index}.socialLinks`,
+              [
+                ...otherSocialLinks,
+                {
+                  image: "", // Will be synced when user uploads in first language
+                  url: "", // Will be synced when user enters URL in first language
+                  linkName: "", // Each language will have its own linkName
+                },
+              ],
+              { shouldDirty: true, shouldValidate: true },
+            )
+          }
+        })
+      }
     }
-  };
 
-  // Get the current social links for this language
-  const currentSocialLinks = form.watch(`${langCode}.${index}.socialLinks`) || [];
+    const removeSocialLink = (socialLinkIndex: number) => {
+      const currentSocialLinks = form.getValues(`${langCode}.${index}.socialLinks`) || []
+      const updatedSocialLinks = currentSocialLinks.filter((_: any, i: number) => i !== socialLinkIndex)
 
-  return (
-    <Card className="border border-muted">
-      <CardHeader className="p-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-base">Footer {index + 1}</CardTitle>
-        {isFirstLanguage && (
-          <Button type="button" variant="destructive" size="icon" onClick={handleDelete}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        )}
-      </CardHeader>
-      <CardContent className="p-4 pt-0 space-y-4">
-        <FormField
-          control={form.control}
-          name={`${langCode}.${index}.title`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Enter title" className="min-h-[80px]" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        {/* Show social links for ALL languages, but with different permissions */}
-        {currentSocialLinks.length > 0 && (
-          <Collapsible.Root open={isCollapsibleOpen} onOpenChange={setIsCollapsibleOpen}>
-            <Collapsible.Trigger asChild>
-              <Button type="button" variant="outline" className="w-full flex justify-between">
-                <span>
-                  Social Links 
-                  {!isFirstLanguage && <span className="text-sm text-muted-foreground ml-2">(Translate Names)</span>}
-                </span>
-                <span>{isCollapsibleOpen ? "Collapse" : "Expand"}</span>
+      // Remove from current language
+      form.setValue(`${langCode}.${index}.socialLinks`, updatedSocialLinks, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+
+      // If this is the first language, sync removal to all other languages
+      if (isFirstLanguage) {
+        const allValues = form.getValues()
+        Object.keys(allValues).forEach((otherLangCode) => {
+          if (otherLangCode !== langCode) {
+            const otherSocialLinks = form.getValues(`${otherLangCode}.${index}.socialLinks`) || []
+            const otherUpdatedSocialLinks = otherSocialLinks.filter((_: any, i: number) => i !== socialLinkIndex)
+            form.setValue(`${otherLangCode}.${index}.socialLinks`, otherUpdatedSocialLinks, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
+        })
+      }
+    }
+
+    return (
+      <Card
+        className = ""
+      >
+        <CardHeader className="p-4 pb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <GripVertical className="h-4 w-4 text-gray-400 cursor-grab" />
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
+                    isFirstLanguage ? "bg-slate-100 text-slate-700" : "bg-gray-100 text-gray-700",
+                  )}
+                >
+                  {index + 1}
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  Footer Section {index + 1}
+                  {!isFirstLanguage && <Globe className="h-4 w-4 text-blue-500" />}
+                </CardTitle>
+                {currentTitle && (
+                  <CardDescription className="text-xs text-gray-500 mt-1 line-clamp-1">
+                    {currentTitle.substring(0, 80)}
+                    {currentTitle.length > 80 ? "..." : ""}
+                  </CardDescription>
+                )}
+                <div className="flex items-center gap-4 mt-1 text-xs">
+                  {currentSocialLinks.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      <ExternalLink className="h-3 w-3 text-blue-500" />
+                      <span className="text-blue-600">{currentSocialLinks.length} social link(s)</span>
+                    </div>
+                  )}
+                  {!isFirstLanguage && (
+                    <span className="text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full text-xs">
+                      Translation Mode
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="h-8 w-8 p-0 "
+              >
+                {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
               </Button>
-            </Collapsible.Trigger>
-            <Collapsible.Content className="space-y-4 mt-4">
-              {currentSocialLinks.map((_: any, socialLinkIndex: number) => (
-                <div key={`${langCode}-${index}-social-${socialLinkIndex}`} className="border p-4 rounded-md space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-sm font-medium">Social Link {socialLinkIndex + 1}</h4>
-                    {/* Only allow first language to remove social links */}
+
+              {isFirstLanguage && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDelete}
+                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent
+          className={cn(
+            "transition-all duration-300 ease-in-out overflow-hidden",
+            isCollapsed ? "max-h-0 p-0" : "max-h-none p-4 pt-0",
+          )}
+        >
+          <div className="space-y-6">
+            {/* Title Field */}
+            <FormField
+              control={form.control}
+              name={`${langCode}.${index}.title`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">
+                    Footer Title
+                    {!isFirstLanguage && <span className="text-amber-600 ml-1">(Translate)</span>}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter footer title"
+                      className="min-h-[100px] hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20 resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Social Links Section */}
+            {currentSocialLinks.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ExternalLink className="h-4 w-4 text-primary" />
+                    <h4 className="text-sm font-medium">Social Links</h4>
+                    {!isFirstLanguage ? (
+                      <span className="text-xs bg-amber-100 text-amber-700 rounded-full px-2 py-0.5">
+                        Translate Names
+                      </span>
+                    ) : (
+                      <span className="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5">
+                        Primary Control
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsSocialLinksExpanded(!isSocialLinksExpanded)}
+                    className="h-8 px-3 "
+                  >
+                    <span className="text-xs mr-1">{isSocialLinksExpanded ? "Collapse" : "Expand"}</span>
+                    {isSocialLinksExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  </Button>
+                </div>
+
+                <div
+                  className={cn(
+                    "transition-all duration-300 ease-in-out overflow-hidden",
+                    isSocialLinksExpanded ? "max-h-none" : "max-h-0",
+                  )}
+                >
+                  <div className="space-y-4">
+                    {currentSocialLinks.map((_: any, socialLinkIndex: number) => (
+                      <Card
+                        key={`${langCode}-${index}-social-${socialLinkIndex}`}
+                        className=""
+                      >
+                        <CardContent className="p-4 space-y-4">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={cn(
+                                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold",
+                                  isFirstLanguage ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700",
+                                )}
+                              >
+                                {socialLinkIndex + 1}
+                              </div>
+                              <h5 className="text-sm font-medium">Social Link {socialLinkIndex + 1}</h5>
+                              {!isFirstLanguage && <Lock className="h-3 w-3 text-amber-600" />}
+                            </div>
+                            {isFirstLanguage && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeSocialLink(socialLinkIndex)}
+                                className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 transition-colors"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+
+                          <div className="grid gap-4 md:grid-cols-2">
+                            {/* LinkName field - EDITABLE for ALL languages */}
+                            <FormField
+                              control={form.control}
+                              name={`${langCode}.${index}.socialLinks.${socialLinkIndex}.linkName`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-sm font-medium">
+                                    Link Name
+                                    {!isFirstLanguage && <span className="text-amber-600 ml-1">(Translate this)</span>}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Enter link name"
+                                      className="h-10 hover:border-primary transition-colors"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* URL field - Different behavior for first language vs others */}
+                            <FormField
+                              control={form.control}
+                              name={`${langCode}.${index}.socialLinks.${socialLinkIndex}.url`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-sm font-medium flex items-center gap-1">
+                                    Social Link URL
+                                    {!isFirstLanguage && (
+                                      <>
+                                        <Lock className="h-3 w-3 text-amber-600" />
+                                      </>
+                                    )}
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="https://example.com"
+                                      className={cn(
+                                        "h-10 transition-colors",
+                                        isFirstLanguage ? "hover:border-primary" : "bg-gray-100 cursor-not-allowed",
+                                      )}
+                                      {...field}
+                                      disabled={!isFirstLanguage}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          {/* Image upload - Only for first language */}
+                          {isFirstLanguage ? (
+                            <div className="space-y-2">
+                              <FormLabel className="text-sm font-medium">Social Link Image</FormLabel>
+                              {SocialLinkImageUploader ? (
+                                <SocialLinkImageUploader
+                                  heroIndex={index}
+                                  socialLinkIndex={socialLinkIndex}
+                                  langCode={langCode}
+                                />
+                              ) : (
+                                <LabeledImageUploader
+                                  label=""
+                                  helperText="This image will be used across all languages"
+                                  imageValue={
+                                    form.watch(`${langCode}.${index}.socialLinks.${socialLinkIndex}.image`) || ""
+                                  }
+                                  inputId={`social-link-image-${langCode}-${index}-${socialLinkIndex}`}
+                                  onUpload={(file) => {
+                                    const reader = new FileReader()
+                                    reader.onload = () => {
+                                      form.setValue(
+                                        `${langCode}.${index}.socialLinks.${socialLinkIndex}.image`,
+                                        reader.result as string,
+                                        {
+                                          shouldDirty: true,
+                                          shouldValidate: true,
+                                        },
+                                      )
+                                    }
+                                    reader.readAsDataURL(file)
+                                  }}
+                                  onRemove={() => {
+                                    form.setValue(`${langCode}.${index}.socialLinks.${socialLinkIndex}.image`, "", {
+                                      shouldDirty: true,
+                                      shouldValidate: true,
+                                    })
+                                  }}
+                                  altText={`Social Link ${socialLinkIndex + 1} image`}
+                                />
+                              )}
+                            </div>
+                          ) : (
+                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                              <div className="flex items-center gap-2 text-amber-700">
+                                <Lock className="h-4 w-4" />
+                                <span className="text-sm font-medium">Image Management</span>
+                              </div>
+                              <p className="text-xs text-amber-600 mt-1">
+                                Images are managed from the primary language and shared across all languages
+                              </p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+
+                    {/* Add Social Link button - Only for first language */}
                     {isFirstLanguage && (
                       <Button
                         type="button"
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => removeSocialLink(socialLinkIndex)}
+                        variant="outline"
+                        size="sm"
+                        onClick={addSocialLink}
+                        className="w-full hover:bg-primary hover:text-primary-foreground transition-colors"
                       >
-                        <Minus className="h-4 w-4" />
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Social Link
                       </Button>
                     )}
                   </div>
-                  
-                  {/* LinkName field - EDITABLE for ALL languages */}
-                  <FormField
-                    control={form.control}
-                    name={`${langCode}.${index}.socialLinks.${socialLinkIndex}.linkName`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Link Name 
-                          {!isFirstLanguage && <span className="text-sm text-muted-foreground ml-1">(Translate this)</span>}
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter link name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  {/* URL field - Different behavior for first language vs others */}
-                  <FormField
-                    control={form.control}
-                    name={`${langCode}.${index}.socialLinks.${socialLinkIndex}.url`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Social Link URL
-                          {!isFirstLanguage && <span className="text-sm text-muted-foreground ml-1">(Synced from primary language)</span>}
-                        </FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Enter social link URL" 
-                            {...field}
-                            disabled={!isFirstLanguage} // Disable for non-primary languages
-                            className={!isFirstLanguage ? "bg-muted" : ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  {/* Image upload - Only for first language */}
-                  {isFirstLanguage && (
-                    <>
-                      {SocialLinkImageUploader ? (
-                        <SocialLinkImageUploader
-                          heroIndex={index}
-                          socialLinkIndex={socialLinkIndex}
-                          langCode={langCode}
-                        />
-                      ) : (
-                        <LabeledImageUploader
-                          label={`Social Link ${socialLinkIndex + 1} Image`}
-                          helperText="(applies to all languages)"
-                          imageValue={form.watch(`${langCode}.${index}.socialLinks.${socialLinkIndex}.image`) || ""}
-                          inputId={`social-link-image-${langCode}-${index}-${socialLinkIndex}`}
-                          onUpload={(file) => {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              form.setValue(`${langCode}.${index}.socialLinks.${socialLinkIndex}.image`, reader.result as string, {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              });
-                            };
-                            reader.readAsDataURL(file);
-                          }}
-                          onRemove={() => {
-                            form.setValue(`${langCode}.${index}.socialLinks.${socialLinkIndex}.image`, "", {
-                              shouldDirty: true,
-                              shouldValidate: true,
-                            });
-                          }}
-                          altText={`Social Link ${socialLinkIndex + 1} image`}
-                        />
-                      )}
-                    </>
-                  )}
-                  
-                  {/* Show note for non-primary languages about image sharing */}
-                  {!isFirstLanguage && (
-                    <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
-                      <span>📷 Image is managed from the primary language and shared across all languages</span>
-                    </div>
-                  )}
                 </div>
-              ))}
-              
-              {/* Add Social Link button - Only for first language */}
-              {isFirstLanguage && (
-                <Button type="button" variant="outline" size="sm" onClick={addSocialLink}>
+              </div>
+            )}
+
+            {/* Show "Add Social Link" button if no social links exist and this is first language */}
+            {isFirstLanguage && currentSocialLinks.length === 0 && (
+              <div className="text-center py-6">
+                <ExternalLink className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-sm font-medium text-gray-500 mb-3">No social links added yet</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addSocialLink}
+                  className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Social Link
                 </Button>
-              )}
-            </Collapsible.Content>
-          </Collapsible.Root>
-        )}
-        
-        {/* Show "Add Social Link" button if no social links exist and this is first language */}
-        {isFirstLanguage && currentSocialLinks.length === 0 && (
-          <Button type="button" variant="outline" size="sm" onClick={addSocialLink}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Social Link
-          </Button>
-        )}
-      </CardContent>
-    </Card>
-  );
-});
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  },
+)
 
-FooterCard.displayName = "FooterCard";
+FooterCard.displayName = "FooterCard"

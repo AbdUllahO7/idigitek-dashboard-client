@@ -628,11 +628,11 @@ const SendUsaMessageForm = forwardRef<any, ContactFormProps>((props, ref) => {
       />
 
       {/* Delete Confirmation Dialog */}
-        <DeleteConfirmationDialog
+        {/* <DeleteConfirmationDialog
         {...deleteManager.confirmationDialogProps}
         title="Delete Contact Form"
         description="Are you sure you want to delete this contact form? This action cannot be undone."
-      />
+      /> */}
 
       <Form {...form}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -650,9 +650,9 @@ const SendUsaMessageForm = forwardRef<any, ContactFormProps>((props, ref) => {
         </div>
       </Form>
 
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-end mt-6">
         {/* Delete Button - Only show if there's an existing subsection */}
-        {existingSubSectionId && (
+        {/* {existingSubSectionId && (
           <Button
             type="button"
             variant="destructive"
@@ -663,7 +663,7 @@ const SendUsaMessageForm = forwardRef<any, ContactFormProps>((props, ref) => {
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Contact Form
           </Button>
-        )}
+        )} */}
 
         {/* Save Button */}
         <div className={existingSubSectionId ? "" : "ml-auto"}>

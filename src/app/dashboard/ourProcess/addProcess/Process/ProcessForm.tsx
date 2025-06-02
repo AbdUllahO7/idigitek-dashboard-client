@@ -566,7 +566,7 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
             }
             }}
           onRemove={handleImageRemove}
-          imageType="logo"
+          imageType="backGround"
         />
         
         {/* Language Cards Grid */}

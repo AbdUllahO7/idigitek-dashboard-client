@@ -635,11 +635,11 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmationDialog
+      {/* <DeleteConfirmationDialog
         {...deleteManager.confirmationDialogProps}
         title="Delete Hero Section"
         description="Are you sure you want to delete this hero section? This action cannot be undone."
-      />
+      /> */}
       
       <Form {...form}>
         {/* Background Image Section */}
@@ -670,9 +670,9 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       </Form>
       
       {/* Action Buttons */}
-      <div className="flex justify-between items-center mt-6">
+      <div className="flex justify-end items-center mt-6">
         {/* Delete Button - Only show if there's an existing subsection */}
-        {existingSubSectionId && (
+        {/* {existingSubSectionId && (
           <Button
             type="button"
             variant="destructive"
@@ -683,7 +683,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Hero Section
           </Button>
-        )}
+        )} */}
 
         {/* Save Button */}
         <div className={existingSubSectionId ? "" : "ml-auto"}>

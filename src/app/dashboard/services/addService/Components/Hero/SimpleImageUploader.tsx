@@ -102,11 +102,11 @@ export const BackgroundImageSection = memo(({
       <Card className="w-full">
         <CardHeader>
           <CardTitle> {
-            imageType === "logo" ? 'Logo Image Uploading':"Hero Background Image"
+            imageType === "logo" ? 'Logo Image Uploading':"Section  Image"
             }</CardTitle>
           <CardDescription>
               
-              {      imageType === "logo" ? 'Logo Image Uploading for header':"Upload a background image for the hero section (applies to all languages)"}
+              {      imageType === "logo" ? 'Logo Image Uploading for header':"Upload a  image for the  section (applies to all languages)"}
           </CardDescription>
         </CardHeader>
         <CardContent>

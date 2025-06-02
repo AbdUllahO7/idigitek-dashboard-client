@@ -40,8 +40,7 @@ const ChooseUsForm = forwardRef<ChooseUsFormRef, ChooseUsFormProps>(
     const { websiteId } = useWebsiteContext();
     const formSchema = createChooseUsSchema(languageIds, activeLanguages);
     const defaultValues = createChooseUsDefaultValues(languageIds, activeLanguages);
-
- 
+    
     const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues,

@@ -69,7 +69,7 @@ export const LanguageCard = memo(({ langCode, form } : LanguageCardProps) => {
           name={`${langCode}.backLinkText`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Button Text</FormLabel>
+              <FormLabel>Back Button Text</FormLabel>
               <FormControl>
                 <Input 
                   placeholder="Get Started" 

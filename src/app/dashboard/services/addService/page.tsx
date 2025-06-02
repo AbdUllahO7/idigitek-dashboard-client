@@ -137,7 +137,7 @@ export default function AddService() {
   const tabs = [
     {
       id: "hero",
-      label: "Hero",
+      label: "Main banner",
       icon: <Layout className="h-4 w-4" />,
       component: (
         <HeroForm

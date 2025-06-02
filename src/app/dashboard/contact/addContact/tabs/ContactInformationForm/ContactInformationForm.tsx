@@ -541,11 +541,11 @@ const ContactInformationForm = forwardRef<any, ContactFormProps>((props, ref) =>
       />
 
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmationDialog
+      {/* <DeleteConfirmationDialog
         {...deleteManager.confirmationDialogProps}
         title="Delete Contact Information"
         description="Are you sure you want to delete this contact information section? This action cannot be undone."
-      />
+      /> */}
 
       <Form {...form}>
         {/* Language Cards Grid */}
@@ -565,9 +565,9 @@ const ContactInformationForm = forwardRef<any, ContactFormProps>((props, ref) =>
       </Form>
 
       {/* Action Buttons */}
-      <div className="flex justify-between items-center mt-6">
+      <div className="flex justify-end items-center mt-6">
         {/* Delete Button - Only show if there's an existing subsection */}
-        {existingSubSectionId && (
+        {/* {existingSubSectionId && (
           <Button
             type="button"
             variant="destructive"
@@ -578,7 +578,7 @@ const ContactInformationForm = forwardRef<any, ContactFormProps>((props, ref) =>
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Contact Information
           </Button>
-        )}
+        )} */}
 
         {/* Save Button */}
         <div className={existingSubSectionId ? "" : "ml-auto"}>

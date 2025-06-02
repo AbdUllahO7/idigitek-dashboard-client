@@ -864,11 +864,11 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         />
 
         {/* Subsection Delete Confirmation Dialog */}
-        <DeleteConfirmationDialog
+        {/* <DeleteConfirmationDialog
           {...deleteManager.confirmationDialogProps}
           title="Delete Benefits Section"
           description="Are you sure you want to delete this entire benefits section? This action cannot be undone."
-        />
+        /> */}
 
         {/* Individual Benefit Delete Dialog */}
         <DeleteSectionDialog
@@ -907,7 +907,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         {/* Action Buttons */}
         <div className="flex justify-between items-center mt-6">
           {/* Delete Section Button - Only show if there's an existing subsection */}
-          {existingSubSectionId && (
+          {/* {existingSubSectionId && (
             <Button
               type="button"
               variant="destructive"
@@ -918,7 +918,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Benefits Section
             </Button>
-          )}
+          )} */}
 
           {/* Save Button and Validation Warning */}
           <div className={`flex items-center gap-4 ${existingSubSectionId ? "" : "ml-auto"}`}>
