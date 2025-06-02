@@ -1,9 +1,9 @@
 "use client"
 
-import { forwardRef, useEffect, useState, useRef,  useMemo } from "react"
+import { forwardRef, useEffect, useState, useRef, useMemo, useCallback } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Save,  AlertTriangle, Loader2 } from "lucide-react"
+import { Save, AlertTriangle, Loader2, Trash2 } from "lucide-react"
 import { Form} from "@/src/components/ui/form"
 import { Button } from "@/src/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
@@ -23,6 +23,8 @@ import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations"
 import { createFaqSchema } from "../../Utils/language-specific-schemas"
+import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager"
+import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog"
 
 
 
@@ -49,8 +51,9 @@ const FaqForm = forwardRef<any, FaqFormProps>(
     const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null);
     const [contentElements, setContentElements] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [isRefreshingAfterDelete, setIsRefreshingAfterDelete] = useState(false);
     
-    // Delete dialog state
+    // Delete dialog state for individual FAQs
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [faqToDelete, setFaqToDelete] = useState<{ langCode: string; index: number } | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -91,7 +94,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
     } = useGetCompleteBySlug(slug || "", !slug);
 
     // Check if all languages have the same number of FAQs
-    const validateFaqCounts = useRef(() => {
+    const validateFaqCounts = useCallback(() => {
       const values = form.getValues();
       const counts = Object.values(values).map((langFaqs) => 
         (Array.isArray(langFaqs) ? langFaqs.length : 0)
@@ -102,10 +105,10 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       setFaqCountMismatch(!allEqual);
 
       return allEqual;
-    }).current;
+    }, [form]);
 
     // Function to process and load data into the form
-    const processFaqData = useRef((subsectionData: SubSection | null) => {
+    const processFaqData = useCallback((subsectionData: SubSection | null) => {
       processAndLoadData(
         subsectionData,
         form,
@@ -158,7 +161,56 @@ const FaqForm = forwardRef<any, FaqFormProps>(
           validateCounts: validateFaqCounts
         }
       );
-    }).current;
+    }, [form, languageIds, activeLanguages, validateFaqCounts]);
+
+    // Delete manager for entire subsection
+    const deleteManager = useSubsectionDeleteManager({
+      subsectionId: existingSubSectionId,
+      websiteId,
+      slug,
+      sectionName: "FAQ section",
+      contentElements,
+      customWarnings: [
+        "All FAQ questions and answers will be permanently removed",
+        "This action cannot be undone"
+      ],
+      shouldRefetch: !!slug,
+      refetchFn: refetch,
+      resetForm: () => {
+        form.reset(defaultValues);
+      },
+      resetState: () => {
+        setExistingSubSectionId(null);
+        setContentElements([]);
+        setHasUnsavedChanges(false);
+        setDataLoaded(!slug);
+        setFaqCountMismatch(false);
+      },
+      onDataChange,
+      onDeleteSuccess: async () => {
+        setIsRefreshingAfterDelete(true);
+        
+        if (slug) {
+          try {
+            const result = await refetch();
+            if (result.data?.data) {
+              setIsLoadingData(true);
+              await processFaqData(result.data.data);
+              setIsLoadingData(false);
+            } else {
+              setDataLoaded(true);
+              setIsLoadingData(false);
+            }
+          } catch (refetchError) {
+            console.log("Refetch after deletion resulted in expected error (subsection deleted)");
+            setDataLoaded(true);
+            setIsLoadingData(false);
+          }
+        }
+        
+        setIsRefreshingAfterDelete(false);
+      },
+    });
 
     // Effect to populate form with existing data from complete subsection
     useEffect(() => {
@@ -210,125 +262,126 @@ const FaqForm = forwardRef<any, FaqFormProps>(
     };
 
     // Function to confirm FAQ deletion - opens the dialog
-  const confirmRemoveFaq = (langCode: string, index: any) => {
-    const currentFaqs = form.getValues()[langCode] || [];
-    if (currentFaqs.length <= 1) {
-      toast({
-        title: "Cannot remove",
-        description: "You need at least one FAQ",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Set the FAQ to delete and open the dialog
-    setFaqToDelete({ langCode  , index });
-    setDeleteDialogOpen(true);
-  };
-  
-  // Function to execute the actual FAQ removal - called from dialog
-  const removeFaq = async () => {
-    if (!faqToDelete) return;
-    
-    const { langCode, index } = faqToDelete;
-    setIsDeleting(true);
-    
-    try {
-      // If we have existing content elements and a subsection ID, delete the elements from the database
-      if (existingSubSectionId && contentElements.length > 0) {
-        // Find the FAQ number (1-based index)
-        const faqNumber = index + 1;
-
-        // Find elements associated with this FAQ
-        const faqElements = contentElements.filter((element) => {
-          const match = element.name.match(/FAQ (\d+)/i);
-          return match && Number.parseInt(match[1]) === faqNumber;
+    const confirmRemoveFaq = (langCode: string, index: any) => {
+      const currentFaqs = form.getValues()[langCode] || [];
+      if (currentFaqs.length <= 1) {
+        toast({
+          title: "Cannot remove",
+          description: "You need at least one FAQ",
+          variant: "destructive",
         });
-
-        if (faqElements.length > 0) {
-          // Delete each element in parallel for better performance
-          await Promise.all(faqElements.map(async (element) => {
-            try {
-              await deleteContentElement.mutateAsync(element._id);
-            } catch (error) {
-              console.error(`Failed to delete content element ${element.name}:`, error);
-            }
-          }));
-
-          // Update the contentElements state to remove the deleted elements
-          setContentElements((prev) =>
-            prev.filter((element) => {
-              const match = element.name.match(/FAQ (\d+)/i);
-              return !(match && Number.parseInt(match[1]) === faqNumber);
-            }),
-          );
-
-          toast({
-            title: "FAQ deleted",
-            description: `FAQ ${faqNumber} has been deleted from the database`,
-          });
-        }
-
-        // Renumber the remaining FAQ elements in the database
-        const remainingElements = contentElements.filter((element) => {
-          const match = element.name.match(/FAQ (\d+)/i);
-          return match && Number.parseInt(match[1]) > faqNumber;
-        });
-
-        // Update the names and orders of the remaining elements in parallel
-        if (remainingElements.length > 0) {
-          await Promise.all(remainingElements.map(async (element) => {
-            const match = element.name.match(/FAQ (\d+)/i);
-            if (match) {
-              const oldNumber = Number.parseInt(match[1]);
-              const newNumber = oldNumber - 1;
-              const newName = element.name.replace(`FAQ ${oldNumber}`, `FAQ ${newNumber}`);
-              const newOrder = element.order - 2; // Assuming question and answer are consecutive
-
-              try {
-                await updateContentElement.mutateAsync({
-                  id: element._id,
-                  data: {
-                    name: newName,
-                    order: newOrder,
-                  },
-                });
-              } catch (error) {
-                console.error(`Failed to update element ${element.name}:`, error);
-              }
-            }
-          }));
-        }
+        return;
       }
-
-      // Update the form state for all languages to keep counts consistent
-      Object.keys(form.getValues()).forEach((currentLangCode) => {
-        const faqs = form.getValues()[currentLangCode] || [];
-        
-        // Only remove if this language has enough FAQs
-        if (faqs.length > index) {
-          const updatedFaqs = [...faqs];
-          updatedFaqs.splice(index, 1);
-          form.setValue(currentLangCode, updatedFaqs, { 
-            shouldDirty: true, 
-            shouldValidate: true 
-          });
-        }
-      });
       
-      // Re-validate counts
-      validateFaqCounts();
-    } catch (error) {
-      console.error("Error removing FAQ elements:", error);
-      toast({
-        title: "Error removing FAQ",
-        description: "There was an error removing the FAQ from the database",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+      // Set the FAQ to delete and open the dialog
+      setFaqToDelete({ langCode  , index });
+      setDeleteDialogOpen(true);
+    };
+    
+    // Function to execute the actual FAQ removal - called from dialog
+    const removeFaq = async () => {
+      if (!faqToDelete) return;
+      
+      const { langCode, index } = faqToDelete;
+      setIsDeleting(true);
+      
+      try {
+        // If we have existing content elements and a subsection ID, delete the elements from the database
+        if (existingSubSectionId && contentElements.length > 0) {
+          // Find the FAQ number (1-based index)
+          const faqNumber = index + 1;
+
+          // Find elements associated with this FAQ
+          const faqElements = contentElements.filter((element) => {
+            const match = element.name.match(/FAQ (\d+)/i);
+            return match && Number.parseInt(match[1]) === faqNumber;
+          });
+
+          if (faqElements.length > 0) {
+            // Delete each element in parallel for better performance
+            await Promise.all(faqElements.map(async (element) => {
+              try {
+                await deleteContentElement.mutateAsync(element._id);
+              } catch (error) {
+                console.error(`Failed to delete content element ${element.name}:`, error);
+              }
+            }));
+
+            // Update the contentElements state to remove the deleted elements
+            setContentElements((prev) =>
+              prev.filter((element) => {
+                const match = element.name.match(/FAQ (\d+)/i);
+                return !(match && Number.parseInt(match[1]) === faqNumber);
+              }),
+            );
+
+            toast({
+              title: "FAQ deleted",
+              description: `FAQ ${faqNumber} has been deleted from the database`,
+            });
+          }
+
+          // Renumber the remaining FAQ elements in the database
+          const remainingElements = contentElements.filter((element) => {
+            const match = element.name.match(/FAQ (\d+)/i);
+            return match && Number.parseInt(match[1]) > faqNumber;
+          });
+
+          // Update the names and orders of the remaining elements in parallel
+          if (remainingElements.length > 0) {
+            await Promise.all(remainingElements.map(async (element) => {
+              const match = element.name.match(/FAQ (\d+)/i);
+              if (match) {
+                const oldNumber = Number.parseInt(match[1]);
+                const newNumber = oldNumber - 1;
+                const newName = element.name.replace(`FAQ ${oldNumber}`, `FAQ ${newNumber}`);
+                const newOrder = element.order - 2; // Assuming question and answer are consecutive
+
+                try {
+                  await updateContentElement.mutateAsync({
+                    id: element._id,
+                    data: {
+                      name: newName,
+                      order: newOrder,
+                    },
+                  });
+                } catch (error) {
+                  console.error(`Failed to update element ${element.name}:`, error);
+                }
+              }
+            }));
+          }
+        }
+
+        // Update the form state for all languages to keep counts consistent
+        Object.keys(form.getValues()).forEach((currentLangCode) => {
+          const faqs = form.getValues()[currentLangCode] || [];
+          
+          // Only remove if this language has enough FAQs
+          if (faqs.length > index) {
+            const updatedFaqs = [...faqs];
+            updatedFaqs.splice(index, 1);
+            form.setValue(currentLangCode, updatedFaqs, { 
+              shouldDirty: true, 
+              shouldValidate: true 
+            });
+          }
+        });
+        
+        // Re-validate counts
+        validateFaqCounts();
+      } catch (error) {
+        console.error("Error removing FAQ elements:", error);
+        toast({
+          title: "Error removing FAQ",
+          description: "There was an error removing the FAQ from the database",
+          variant: "destructive",
+        });
+      } finally {
+        setIsDeleting(false);
+        setDeleteDialogOpen(false);
+      }
+    };
 
     // Function to get FAQ counts by language
     const getFaqCountsByLanguage = useMemo(() => {
@@ -340,14 +393,14 @@ const FaqForm = forwardRef<any, FaqFormProps>(
     }, [form, faqCountMismatch]);
 
     // Optimized save handler
-    const handleSave = async () => {
+    const handleSave = useCallback(async () => {
       // Validate first before doing expensive operations
       const isValid = await form.trigger();
       const hasEqualFaqCounts = validateFaqCounts();
 
       if (!hasEqualFaqCounts) {
         setIsValidationDialogOpen(true);
-        return;
+        return false;
       }
 
       if (!isValid) {
@@ -356,7 +409,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
           description: "Please fill all required fields correctly",
           variant: "destructive",
         });
-        return;
+        return false;
       }
 
       setIsSaving(true);
@@ -663,6 +716,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
         }
 
         setHasUnsavedChanges(false);
+        return true;
       } catch (error) {
         console.error("Operation failed:", error);
         toast({
@@ -671,11 +725,28 @@ const FaqForm = forwardRef<any, FaqFormProps>(
           description: error instanceof Error ? error.message : "Unknown error occurred",
           duration: 5000,
         });
+        return false;
       } finally {
         setIsLoadingData(false);
         setIsSaving(false);
       }
-    };
+    }, [
+      form,
+      validateFaqCounts,
+      toast,
+      existingSubSectionId,
+      slug,
+      ParentSectionId,
+      languageIds,
+      websiteId,
+      createSubSection,
+      activeLanguages,
+      contentElements,
+      createContentElement,
+      bulkUpsertTranslations,
+      refetch,
+      processFaqData,
+    ]);
 
     // Create form ref for parent component access
     createFormRef(ref, {
@@ -684,7 +755,14 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       setHasUnsavedChanges,
       existingSubSectionId,
       contentElements,
-      componentName: 'FAQ'
+      componentName: 'FAQ',
+      extraMethods: {
+        saveData: handleSave,
+        deleteData: deleteManager.handleDelete,
+      },
+      extraData: {
+        existingSubSectionId,
+      },
     });
 
     // Get language codes for display
@@ -705,11 +783,30 @@ const FaqForm = forwardRef<any, FaqFormProps>(
 
     return (
       <div className="space-y-6">
-        {/* Loading Dialog */}
+        {/* Loading Dialogs */}
         <LoadingDialog 
           isOpen={isSaving} 
           title={existingSubSectionId ? "Updating FAQ Section" : "Creating FAQ Section"}
           description="Please wait while we save your changes..."
+        />
+
+        <LoadingDialog
+          isOpen={deleteManager.isDeleting}
+          title="Deleting FAQ Section"
+          description="Please wait while we delete the FAQ section..."
+        />
+
+        <LoadingDialog
+          isOpen={isRefreshingAfterDelete}
+          title="Refreshing Data"
+          description="Updating the interface after deletion..."
+        />
+        
+        {/* Delete Confirmation Dialog for entire section */}
+        <DeleteConfirmationDialog
+          {...deleteManager.confirmationDialogProps}
+          title="Delete FAQ Section"
+          description="Are you sure you want to delete this entire FAQ section? This action cannot be undone."
         />
         
         {/* Main Form */}
@@ -731,32 +828,61 @@ const FaqForm = forwardRef<any, FaqFormProps>(
           </div>
         </Form>
         
-        {/* Save Button */}
-        <div className="flex justify-end mt-6">
-          {faqCountMismatch && (
-            <div className="flex items-center text-amber-500 mr-4">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              <span className="text-sm">Each language must have the same number of FAQs</span>
-            </div>
+        {/* Action Buttons */}
+        <div className="flex justify-between mt-6">
+          {/* Delete Button - Only show if there's an existing subsection */}
+          {existingSubSectionId && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={deleteManager.openDeleteDialog}
+              disabled={
+                isLoadingData || 
+                isSaving || 
+                deleteManager.isDeleting || 
+                isRefreshingAfterDelete ||
+                faqCountMismatch
+              }
+              className="flex items-center"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete FAQ Section
+            </Button>
           )}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={isLoadingData || faqCountMismatch || isSaving}
-            className="flex items-center"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                {existingSubSectionId ? "Update FAQ Content" : "Save FAQ Content"}
-              </>
+
+          {/* Save Button */}
+          <div className={existingSubSectionId ? "" : "ml-auto"}>
+            {faqCountMismatch && (
+              <div className="flex items-center text-amber-500 mr-4 mb-2">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                <span className="text-sm">Each language must have the same number of FAQs</span>
+              </div>
             )}
-          </Button>
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={
+                isLoadingData || 
+                faqCountMismatch || 
+                isSaving || 
+                deleteManager.isDeleting || 
+                isRefreshingAfterDelete
+              }
+              className="flex items-center"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {existingSubSectionId ? "Update FAQ Content" : "Save FAQ Content"}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Validation Dialog */}
@@ -786,7 +912,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
           </DialogContent>
         </Dialog>
 
-        {/* Delete FAQ Confirmation Dialog */}
+        {/* Delete Individual FAQ Confirmation Dialog */}
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}

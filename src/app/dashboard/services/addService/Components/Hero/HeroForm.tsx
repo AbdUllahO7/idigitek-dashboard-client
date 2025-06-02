@@ -13,9 +13,9 @@ import { createLanguageCodeMap } from "../../Utils/language-utils";
 import { BackgroundImageSection } from "./SimpleImageUploader";
 import { LanguageCard } from "./LanguageCard";
 import { processAndLoadData } from "../../Utils/load-form-data";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Trash2 } from "lucide-react";
 import { createHeroDefaultValues } from "../../Utils/Language-default-values";
-import {  useImageUploader } from "../../Utils/Image-uploader";
+import { useImageUploader } from "../../Utils/Image-uploader";
 import { createFormRef } from "../../Utils/Expose-form-data";
 import { LoadingDialog } from "@/src/utils/MainSectionComponents";
 import { HeroFormProps } from "@/src/api/types/sections/service/serviceSections.types";
@@ -24,7 +24,8 @@ import { SubSection } from "@/src/api/types/hooks/section.types";
 import { useWebsiteContext } from "@/src/providers/WebsiteContext";
 import { createHeroSchema } from "../../Utils/language-specific-schemas";
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations";
-
+import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog";
+import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager";
 
 const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
   const { 
@@ -49,16 +50,17 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
 
   // State management
   const [state, setState] = useState({
-    isLoadingData: !slug,
+    isLoadingData: !!slug, // Fixed: should be true if slug exists initially
     dataLoaded: !slug,
     hasUnsavedChanges: false,
-    existingSubSectionId: null as string | null ,
+    existingSubSectionId: null as string | null,
     contentElements: [] as ContentElement[],
-    isSaving: false
+    isSaving: false,
+    isRefreshingAfterDelete: false,
   });
 
   // Use object state update for better performance and readability
-  const updateState = useCallback((newState: { isLoadingData?: boolean; dataLoaded?: boolean; hasUnsavedChanges?: boolean; existingSubSectionId?: string | null; contentElements?: any[]; isSaving?: boolean; }) => {
+  const updateState = useCallback((newState: Partial<typeof state>) => {
     setState(prev => ({ ...prev, ...newState }));
   }, []);
 
@@ -69,7 +71,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     hasUnsavedChanges, 
     existingSubSectionId, 
     contentElements, 
-    isSaving 
+    isSaving,
+    isRefreshingAfterDelete
   } = state;
 
   // Hooks
@@ -97,7 +100,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
   const { 
     imageFile, 
     imagePreview, 
-    handleImageUpload : handleOriginalImageUpload, 
+    handleImageUpload: handleOriginalImageUpload, 
     handleImageRemove 
   } = useImageUploader({
     form,
@@ -105,11 +108,9 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     initialImageUrl: initialData?.image || form.getValues().backgroundImage,
     onUpload: () => updateState({
       hasUnsavedChanges: true,
-
     }),
     onRemove: () => updateState({
       hasUnsavedChanges: true,
-
     }),
     validate: (file: { type: string; }) => {
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
@@ -123,30 +124,6 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     isLoading: isLoadingSubsection, 
     refetch 
   } = useGetCompleteBySlug(slug || '', Boolean(slug));
-
-  // Update reference when onDataChange changes
-  useEffect(() => {
-    onDataChangeRef.current = onDataChange;
-  }, [onDataChange]);
-
-  // Process initial data from parent
-  const processInitialData = useCallback(() => {
-    if (initialData && !dataLoaded) {
-      
-      if (initialData.description) {
-        form.setValue(`${defaultLangCode}.description`, initialData.description);
-      }
-      
-      if (initialData.image) {
-        form.setValue('backgroundImage', initialData.image);
-      }
-      
-      updateState({ 
-        dataLoaded: true, 
-        hasUnsavedChanges: false 
-      });
-    }
-  }, [initialData, dataLoaded, defaultLangCode, form]);
 
   // Process hero data from API
   const processHeroData = useCallback((subsectionData: SubSection | null) => {
@@ -206,7 +183,88 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     if (bgImageElement?.imageUrl) {
       form.setValue('backgroundImage', bgImageElement.imageUrl);
     }
-  }, [form, languageIds, activeLanguages]);
+  }, [form, languageIds, activeLanguages, updateState]);
+
+  // Delete functionality using the delete manager
+  const deleteManager = useSubsectionDeleteManager({
+    subsectionId: existingSubSectionId,
+    websiteId,
+    slug,
+    sectionName: "hero section",
+    contentElements,
+    customWarnings: [
+      "The hero background image will be permanently deleted",
+      "All hero content and translations will be removed",
+      "This may affect the main visual presentation of your website"
+    ],
+    shouldRefetch: !!slug,
+    refetchFn: refetch,
+    resetForm: () => {
+      form.reset(defaultValues);
+    },
+    resetState: () => {
+      updateState({
+        existingSubSectionId: null,
+        contentElements: [],
+        hasUnsavedChanges: false,
+        dataLoaded: !slug,
+      });
+      dataProcessed.current = false;
+    },
+    onDataChange,
+    onDeleteSuccess: async () => {
+      // Custom success handling after deletion
+      updateState({ isRefreshingAfterDelete: true });
+      
+      if (slug) {
+        try {
+          const result = await refetch();
+          if (result.data?.data) {
+            updateState({ isLoadingData: true });
+            await processHeroData(result.data.data);
+            updateState({ isLoadingData: false });
+            dataProcessed.current = true;
+          } else {
+            updateState({ 
+              dataLoaded: true,
+              isLoadingData: false 
+            });
+          }
+        } catch (refetchError) {
+          console.log("Refetch after deletion resulted in expected error (subsection deleted)");
+          updateState({ 
+            dataLoaded: true,
+            isLoadingData: false 
+          });
+        }
+      }
+      
+      updateState({ isRefreshingAfterDelete: false });
+    },
+  });
+
+  // Update reference when onDataChange changes
+  useEffect(() => {
+    onDataChangeRef.current = onDataChange;
+  }, [onDataChange]);
+
+  // Process initial data from parent
+  const processInitialData = useCallback(() => {
+    if (initialData && !dataLoaded) {
+      if (initialData.description) {
+        form.setValue(`${defaultLangCode}.description`, initialData.description);
+      }
+      
+      if (initialData.image) {
+        form.setValue('backgroundImage', initialData.image);
+      }
+      
+      updateState({ 
+        dataLoaded: true, 
+        hasUnsavedChanges: false 
+      });
+    }
+  }, [initialData, dataLoaded, defaultLangCode, form, updateState]);
 
   // Process initial data effect
   useEffect(() => {
@@ -228,7 +286,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       });
       dataProcessed.current = true;
     }
-  }, [completeSubsectionData, isLoadingSubsection, slug, processHeroData]);
+  }, [completeSubsectionData, isLoadingSubsection, slug, processHeroData, updateState]);
 
   // Form watch effect for unsaved changes
   useEffect(() => {
@@ -315,10 +373,10 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           isActive: true,
           isMain: false,
           order: 0,
-          defaultContent : '',
+          defaultContent: '',
           sectionItem: ParentSectionId,
           languages: languageIds,
-          WebSiteId : websiteId
+          WebSiteId: websiteId
         };
         
         const newSubSection = await createSubSection.mutateAsync(subsectionData);
@@ -359,7 +417,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
 
         // Update translations for text elements
         const textElements = contentElements.filter((e) => e.type === "text");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] | { content: any; language: string; contentElement: string; isActive: boolean; }[] = [];
+        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
         const elementNameToKeyMap: Record<string, 'title' | 'description' | 'backLinkText'> = {
           'Title': 'title',
           'Description': 'description',
@@ -432,7 +490,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
 
         // Create translations for new elements
         const textElements = createdElements.filter((e) => e.key !== "backgroundImage");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] | { content: any; language: string; contentElement: any; isActive: boolean; }[] = [];
+        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
         
         Object.entries(allFormValues).forEach(([langCode, langValues]) => {
           if (langCode === "backgroundImage") return;
@@ -520,7 +578,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     updateState, 
     updateSubSection, 
     uploadImage, 
-    activeLanguages
+    activeLanguages,
+    websiteId
   ]);
 
   // Create form ref for parent component
@@ -533,7 +592,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     componentName: 'Hero',
     extraMethods: {
       getImageFile: () => imageFile,
-      saveData: handleSave
+      saveData: handleSave,
+      deleteData: deleteManager.handleDelete,
     },
     extraData: {
       imageFile,
@@ -555,10 +615,30 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
 
   return (
     <div className="space-y-6">
+      {/* Loading Dialogs */}
       <LoadingDialog 
         isOpen={isSaving} 
         title={existingSubSectionId ? "Updating Hero Section" : "Creating Hero Section"}
         description="Please wait while we save your changes..."
+      />
+      
+      <LoadingDialog
+        isOpen={deleteManager.isDeleting}
+        title="Deleting Hero Section"
+        description="Please wait while we delete the hero section..."
+      />
+
+      <LoadingDialog
+        isOpen={isRefreshingAfterDelete}
+        title="Refreshing Data"
+        description="Updating the interface after deletion..."
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        {...deleteManager.confirmationDialogProps}
+        title="Delete Hero Section"
+        description="Are you sure you want to delete this hero section? This action cannot be undone."
       />
       
       <Form {...form}>
@@ -566,11 +646,12 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         <BackgroundImageSection 
           imagePreview={imagePreview || undefined} 
           imageValue={form.getValues().backgroundImage}
-              onUpload={(event: React.ChangeEvent<HTMLInputElement>) => {
-              if (event.target.files && event.target.files.length > 0) {
-                handleOriginalImageUpload({ target: { files: Array.from(event.target.files) } });
-              }
-            }}          onRemove={handleImageRemove}
+          onUpload={(event: React.ChangeEvent<HTMLInputElement>) => {
+            if (event.target.files && event.target.files.length > 0) {
+              handleOriginalImageUpload({ target: { files: Array.from(event.target.files) } });
+            }
+          }}          
+          onRemove={handleImageRemove}
         />
         
         {/* Language Cards Grid */}
@@ -588,26 +669,43 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         </div>
       </Form>
       
-      {/* Save Button */}
-      <div className="flex justify-end mt-6">
-        <Button 
-          type="button" 
-          onClick={handleSave} 
-          disabled={isLoadingData || isSaving}
-          className="flex items-center"
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update Hero Content" : "Save Hero Content"}
-            </>
-          )}
-        </Button>
+      {/* Action Buttons */}
+      <div className="flex justify-between items-center mt-6">
+        {/* Delete Button - Only show if there's an existing subsection */}
+        {existingSubSectionId && (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={deleteManager.openDeleteDialog}
+            disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+            className="flex items-center"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete Hero Section
+          </Button>
+        )}
+
+        {/* Save Button */}
+        <div className={existingSubSectionId ? "" : "ml-auto"}>
+          <Button 
+            type="button" 
+            onClick={handleSave} 
+            disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+            className="flex items-center"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                {existingSubSectionId ? "Update Hero Content" : "Save Hero Content"}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

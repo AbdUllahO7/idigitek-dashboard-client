@@ -35,7 +35,7 @@ export const OverviewCard = memo(({ langCode, form }: OverviewCardProps) => {
               <FormControl>
                 <Textarea 
                   placeholder="Enter description" 
-                  className="min-h-[100px]" 
+                  className="min-h-[200px]" 
                   {...field} 
                 />
               </FormControl>

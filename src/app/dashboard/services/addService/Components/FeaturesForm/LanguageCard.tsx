@@ -1,9 +1,10 @@
+// Language Card Component
+
 import { Accordion } from "@/src/components/ui/accordion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
-import { memo } from "react";
 import { Button } from "@/src/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Plus } from "lucide-react";
-import FeaturesForm from "./features-form";
+import { memo } from "react";
 import { FeatureForm } from "./FeatureForm";
 
 interface LanguageCardProps {
@@ -19,7 +20,7 @@ interface LanguageCardProps {
 }
 
 // Language Card component - memoized to prevent unnecessary re-renders
-export const LanguageCard = memo(({
+const LanguageCard = memo(({
   langId,
   langCode,
   languageIds,
@@ -74,3 +75,7 @@ export const LanguageCard = memo(({
     </Card>
   );
 });
+
+export default LanguageCard;
+
+LanguageCard.displayName = "LanguageCard";

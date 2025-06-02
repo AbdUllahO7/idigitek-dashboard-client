@@ -6,12 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Button } from "@/src/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import {
   Form,
 } from "@/src/components/ui/form"
-import { Plus, Save, AlertTriangle, X, Loader2 } from "lucide-react"
-import { Accordion } from "@/src/components/ui/accordion"
+import {  Save, AlertTriangle, X, Loader2, Trash2 } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/src/components/ui/dialog"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { useContentElements } from "@/src/hooks/webConfiguration/use-content-elements"
@@ -23,170 +21,21 @@ import { processAndLoadData } from "../../Utils/load-form-data"
 import { createLanguageCodeMap } from "../../Utils/language-utils"
 import { useFeatureImages } from "../../Utils/Image-uploader"
 import { LoadingDialog } from "@/src/utils/MainSectionComponents"
-import { FeatureForm } from "./FeatureForm"
 import { SubSection } from "@/src/api/types/hooks/section.types"
 import { Feature } from "@/src/api/types/hooks/MultilingualSection.types"
 import { ContentTranslation } from "@/src/api/types/hooks/content.types"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
+import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog"
 
 // Helper type to infer the schema type
 type FeaturesSchemaType = ReturnType<typeof createFeaturesSchema>
 
 // FeatureItem Component
-import { FormControl, FormField, FormItem, FormMessage } from "@/src/components/ui/form"
-import { Input } from "@/src/components/ui/input"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
 import { createFeaturesSchema } from "../../Utils/language-specific-schemas"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations"
-
-interface FeatureItemProps {
-  featureItemIndex: number;
-  langCode: string;
-  index: number;
-  form: any;
-  onRemoveFeatureItem: (langCode: string, index: number, featureItemIndex: number) => void;
-}
-
-// Fixed Feature Item component
-export const FeatureItem = memo(({
-  featureItemIndex,
-  langCode,
-  index,
-  form,
-  onRemoveFeatureItem
-}: FeatureItemProps) => {
-  // Create a stable reference for the field name
-  const fieldName = `${langCode}.${index}.content.features.${featureItemIndex}`;
-  const previousFieldNameRef = useRef(fieldName);
-  
-  // Update the ref when the field name changes
-  useEffect(() => {
-    previousFieldNameRef.current = fieldName;
-  }, [fieldName]);
-  
-  const handleRemove = () => onRemoveFeatureItem(langCode, index, featureItemIndex);
-  
-  // Add data attributes for better debugging
-  const dataAttributes = {
-    'data-feature-item': true,
-    'data-lang-code': langCode,
-    'data-feature-index': index,
-    'data-item-index': featureItemIndex,
-  };
-  
-  return (
-    <FormField
-      control={form.control}
-      name={fieldName}
-      render={({ field }) => (
-        <FormItem className="flex items-center gap-2" {...dataAttributes}>
-          <div className="flex-1">
-            <FormControl>
-              <Input 
-                placeholder={`Feature ${featureItemIndex + 1}`} 
-                {...field} 
-                onChange={(e) => {
-                  field.onChange(e);
-                  // Force form to register this specific field value
-                  const currentValues = form.getValues();
-                  if (currentValues[langCode]?.[index]?.content?.features?.length > featureItemIndex) {
-                    form.setValue(fieldName, e.target.value, { 
-                      shouldDirty: true,
-                      shouldTouch: true,
-                    });
-                  }
-                }}
-              />
-            </FormControl>
-            <FormMessage />
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={handleRemove}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </FormItem>
-      )}
-    />
-  );
-});
-
-FeatureItem.displayName = "FeatureItem";
-
-// Language Card Component
-interface LanguageCardProps {
-  langId: string;
-  langCode: string;
-  languageIds: string[];
-  form: any;
-  onRemoveFeature: (langCode: string, index: number) => void;
-  onAddFeature: (langCode: string) => void;
-  onAddFeatureItem: (langCode: string, featureIndex: number) => void;
-  onRemoveFeatureItem: (langCode: string, featureIndex: number, itemIndex: number) => void;
-  FeatureImageUploader: React.ComponentType<any>;
-}
-
-// Language Card component - memoized to prevent unnecessary re-renders
-const LanguageCard = memo(({
-  langId,
-  langCode,
-  languageIds,
-  form,
-  onRemoveFeature,
-  onAddFeature,
-  onAddFeatureItem,
-  onRemoveFeatureItem,
-  FeatureImageUploader
-}: LanguageCardProps) => {
-  const features = form.watch(`${langCode}` as any) || [];
-  
-  return (
-    <Card key={langId} className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
-            {langCode}
-          </span>
-          Features Section
-        </CardTitle>
-        <CardDescription>Manage features content for {langCode.toUpperCase()}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Accordion type="single" collapsible className="w-full">
-          {features.map((feature: { title: string; content: { heading: string; description: string; features: any[] } }, index: number) => (
-            <FeatureForm
-              key={`${langCode}-feature-${index}`}
-              index={index}
-              feature={feature}
-              langCode={langCode}
-              langId={langId}
-              languageIds={languageIds}
-              form={form}
-              onRemoveFeature={onRemoveFeature}
-              onAddFeatureItem={onAddFeatureItem}
-              onRemoveFeatureItem={onRemoveFeatureItem}
-              FeatureImageUploader={FeatureImageUploader}
-            />
-          ))}
-        </Accordion>
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm" 
-          onClick={() => onAddFeature(langCode)}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Feature
-        </Button>
-      </CardContent>
-    </Card>
-  );
-});
-
-LanguageCard.displayName = "LanguageCard";
+import LanguageCard from "./LanguageCard"
+import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager"
 
 // Main Features Form Component
 interface FeaturesFormProps {
@@ -205,7 +54,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
     // Track feature item IDs to prevent duplicates
     const [featureItemIds, setFeatureItemIds] = useState<Record<string, Set<string>>>({});
     
-
     // Memoize schema and default values
     const featuresSchema = useMemo(() => 
       createFeaturesSchema(languageIds, activeLanguages),
@@ -217,7 +65,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       [languageIds, activeLanguages]
     );
 
-    const [isLoadingData, setIsLoadingData] = useState(!slug);
+    // Enhanced state management with delete-related states
+    const [isLoadingData, setIsLoadingData] = useState(!!slug); // Fixed: should be true if slug exists initially
     const [dataLoaded, setDataLoaded] = useState(!slug);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [featureCountMismatch, setFeatureCountMismatch] = useState(false);
@@ -225,6 +74,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
     const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null);
     const [contentElements, setContentElements] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [isRefreshingAfterDelete, setIsRefreshingAfterDelete] = useState(false);
     
     // Delete feature dialog state
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -249,7 +99,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
     });
 
     // Initialize useFeatureImages hook
-    const { featureImages,  handleFeatureImageRemove, updateFeatureImageIndices, FeatureImageUploader } = useFeatureImages(form);
+    const { featureImages, handleFeatureImageRemove, updateFeatureImageIndices, FeatureImageUploader } = useFeatureImages(form);
 
     // Use ref to prevent unnecessary effect reruns
     const onDataChangeRef = useRef(onDataChange);
@@ -276,38 +126,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       isLoading: isLoadingSubsection,
       refetch,
     } = useGetCompleteBySlug(slug || "", Boolean(slug));
-
-    // Get a unique feature item name that doesn't exist yet
-    const getUniqueFeatureItemName = (featureNum: number, itemIndex: number): string => {
-      const baseName = `Feature ${featureNum} - Feature Item ${itemIndex + 1}`;
-      
-      // Check if this name already exists in content elements
-      const nameExists = contentElements.some(el => el.name === baseName);
-      
-      if (!nameExists) {
-        return baseName;
-      }
-      
-      // Find a unique name by appending a counter
-      let counter = 1;
-      let uniqueName = `${baseName} (${counter})`;
-      
-      while (contentElements.some(el => el.name === uniqueName)) {
-        counter++;
-        uniqueName = `${baseName} (${counter})`;
-      }
-      
-      return uniqueName;
-    };
-
-    // Check if all languages have the same number of features
-    const validateFeatureCounts = () => {
-      const values = form.getValues();
-      const counts = Object.values(values).map((features) => features?.length || 0);
-      const allEqual = counts.every((count) => count === counts[0]);
-      setFeatureCountMismatch(!allEqual);
-      return allEqual;
-    };
 
     // Function to process and load data into the form
     const processFeaturesData = (subsectionData: SubSection | null) => {
@@ -439,6 +257,95 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
         });
         setIsLoadingData(false);
       }
+    };
+
+    // Delete functionality using the delete manager
+    const deleteManager = useSubsectionDeleteManager({
+      subsectionId: existingSubSectionId,
+      websiteId,
+      slug,
+      sectionName: "features section",
+      contentElements,
+      customWarnings: [
+        "All feature content including titles, descriptions, and images will be deleted",
+        "Feature items and lists for all languages will be removed",
+        "Uploaded feature images will be permanently deleted",
+        "This may affect the features showcase on your website"
+      ],
+      shouldRefetch: !!slug,
+      refetchFn: refetch,
+      resetForm: () => {
+        form.reset(defaultValues);
+        // Clear feature images
+        Object.keys(featureImages).forEach(index => {
+          handleFeatureImageRemove(parseInt(index));
+        });
+      },
+      resetState: () => {
+        setExistingSubSectionId(null);
+        setContentElements([]);
+        setHasUnsavedChanges(false);
+        setDataLoaded(!slug);
+        setFeatureCountMismatch(false);
+        setFeatureItemIds({});
+      },
+      onDataChange,
+      onDeleteSuccess: async () => {
+        // Custom success handling after deletion
+        setIsRefreshingAfterDelete(true);
+        
+        if (slug) {
+          try {
+            const result = await refetch();
+            if (result.data?.data) {
+              setIsLoadingData(true);
+              await processFeaturesData(result.data.data);
+              setIsLoadingData(false);
+            } else {
+              setDataLoaded(true);
+              setIsLoadingData(false);
+            }
+          } catch (refetchError) {
+            console.log("Refetch after deletion resulted in expected error (subsection deleted)");
+            setDataLoaded(true);
+            setIsLoadingData(false);
+          }
+        }
+        
+        setIsRefreshingAfterDelete(false);
+      },
+    });
+
+    // Get a unique feature item name that doesn't exist yet
+    const getUniqueFeatureItemName = (featureNum: number, itemIndex: number): string => {
+      const baseName = `Feature ${featureNum} - Feature Item ${itemIndex + 1}`;
+      
+      // Check if this name already exists in content elements
+      const nameExists = contentElements.some(el => el.name === baseName);
+      
+      if (!nameExists) {
+        return baseName;
+      }
+      
+      // Find a unique name by appending a counter
+      let counter = 1;
+      let uniqueName = `${baseName} (${counter})`;
+      
+      while (contentElements.some(el => el.name === uniqueName)) {
+        counter++;
+        uniqueName = `${baseName} (${counter})`;
+      }
+      
+      return uniqueName;
+    };
+
+    // Check if all languages have the same number of features
+    const validateFeatureCounts = () => {
+      const values = form.getValues();
+      const counts = Object.values(values).map((features) => features?.length || 0);
+      const allEqual = counts.every((count) => count === counts[0]);
+      setFeatureCountMismatch(!allEqual);
+      return allEqual;
     };
 
     // Effect to populate form with existing data
@@ -1201,7 +1108,12 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       componentName: 'Features',
       extraMethods: {
         getFeatureImages: () => featureImages,
+        saveData: handleSave,
+        deleteData: deleteManager.handleDelete,
       },
+      extraData: {
+        existingSubSectionId
+      }
     });
 
     // Get language codes for display
@@ -1222,13 +1134,52 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
 
     return (
       <div className="space-y-6">
-        
-        
-        {/* Loading Dialog */}
+        {/* Loading Dialogs */}
         <LoadingDialog
           isOpen={isSaving}
           title={existingSubSectionId ? "Updating Features Section" : "Creating Features Section"}
           description="Please wait while we save your changes..."
+        />
+        
+        <LoadingDialog
+          isOpen={deleteManager.isDeleting}
+          title="Deleting Features Section"
+          description="Please wait while we delete the features section..."
+        />
+
+        <LoadingDialog
+          isOpen={isRefreshingAfterDelete}
+          title="Refreshing Data"
+          description="Updating the interface after deletion..."
+        />
+
+        {/* Subsection Delete Confirmation Dialog */}
+        <DeleteConfirmationDialog
+          {...deleteManager.confirmationDialogProps}
+          title="Delete Features Section"
+          description="Are you sure you want to delete this entire features section? This action cannot be undone."
+        />
+        
+        {/* Individual Feature Delete Dialog */}
+        <DeleteSectionDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          serviceName={featureToDelete ? `Feature ${featureToDelete.index + 1}` : ''}
+          onConfirm={removeFeature}
+          isDeleting={isDeleting}
+          title="Delete Feature"
+          confirmText="Delete Feature"
+        />
+        
+        {/* Individual Feature Item Delete Dialog */}
+        <DeleteSectionDialog
+          open={deleteFeatureItemDialogOpen}
+          onOpenChange={setDeleteFeatureItemDialogOpen}
+          serviceName={featureItemToDelete ? `Feature Item ${featureItemToDelete.itemIndex + 1}` : ''}
+          onConfirm={removeFeatureItem}
+          isDeleting={isDeletingFeatureItem}
+          title="Delete Feature Item"
+          confirmText="Delete Item"
         />
         
         {/* Main Form */}
@@ -1254,32 +1205,50 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
           </div>
         </Form>
         
-        {/* Save Button */}
-        <div className="flex justify-end mt-6">
-          {featureCountMismatch && (
-            <div className="flex items-center text-amber-500 mr-4">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              <span className="text-sm">Each language must have the same number of features</span>
-            </div>
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center mt-6">
+          {/* Delete Section Button - Only show if there's an existing subsection */}
+          {existingSubSectionId && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={deleteManager.openDeleteDialog}
+              disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+              className="flex items-center"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Features Section
+            </Button>
           )}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={isLoadingData || isSaving || featureCountMismatch}
-            className="flex items-center"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                {existingSubSectionId ? "Update Features Content" : "Save Features Content"}
-              </>
+
+          {/* Save Button and Validation Warning */}
+          <div className={`flex items-center gap-4 ${existingSubSectionId ? "" : "ml-auto"}`}>
+            {featureCountMismatch && (
+              <div className="flex items-center text-amber-500">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                <span className="text-sm">Each language must have the same number of features</span>
+              </div>
             )}
-          </Button>
+            
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={isLoadingData || isSaving || featureCountMismatch || deleteManager.isDeleting || isRefreshingAfterDelete}
+              className="flex items-center"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {existingSubSectionId ? "Update Features Content" : "Save Features Content"}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
         
         {/* Feature Count Mismatch Dialog */}
@@ -1308,28 +1277,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
             </div>
           </DialogContent>
         </Dialog>
-        
-        {/* Delete Feature Confirmation Dialog */}
-        <DeleteSectionDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          serviceName={featureToDelete ? `Feature ${featureToDelete.index + 1}` : ''}
-          onConfirm={removeFeature}
-          isDeleting={isDeleting}
-          title="Delete Feature"
-          confirmText="Delete Feature"
-        />
-        
-        {/* Delete Feature Item Confirmation Dialog */}
-        <DeleteSectionDialog
-          open={deleteFeatureItemDialogOpen}
-          onOpenChange={setDeleteFeatureItemDialogOpen}
-          serviceName={featureItemToDelete ? `Feature Item ${featureItemToDelete.itemIndex + 1}` : ''}
-          onConfirm={removeFeatureItem}
-          isDeleting={isDeletingFeatureItem}
-          title="Delete Feature Item"
-          confirmText="Delete Item"
-        />
       </div>
     );
   }

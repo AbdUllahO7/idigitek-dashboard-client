@@ -11,12 +11,14 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content
 import { useToast } from "@/src/hooks/use-toast";
 import { createLanguageCodeMap } from "../../Utils/language-utils";
 import { processAndLoadData } from "../../Utils/load-form-data";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Trash2 } from "lucide-react";
 import { LoadingDialog } from "@/src/utils/MainSectionComponents";
 import { OverviewCard } from "./OverviewCard";
 import { useWebsiteContext } from "@/src/providers/WebsiteContext";
 import { ContentElement, ContentTranslation } from "@/src/api/types/hooks/content.types";
 import { SubSection } from "@/src/api/types/hooks/section.types";
+import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog";
+import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager";
 
 interface OverviewFormProps {
     languageIds: string[];
@@ -43,9 +45,6 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
 
     // Create language code mapping first
     const languageCodes = createLanguageCodeMap(activeLanguages);
-    console.log("Language Codes Mapping:", languageCodes);
-    console.log("Language IDs:", languageIds);
-    console.log("Active Languages:", activeLanguages);
 
     // Create schema for overview form (description only)
     const createOverviewSchema = (langIds: string[], activeLangs: any[]) => {
@@ -60,11 +59,9 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         // Use languageCodes mapping to ensure consistency
         langIds.forEach(langId => {
             const langCode = languageCodes[langId] || langId;
-            console.log(`Creating schema for langId: ${langId}, langCode: ${langCode}`);
             schemaObject[langCode] = languageSchema;
         });
 
-        console.log("Final Schema Object:", schemaObject);
         return z.object(schemaObject);
     };
 
@@ -73,12 +70,10 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         const defaultValues: Record<string, any> = {};
         languageIds.forEach(langId => {
             const langCode = languageCodes[langId] || langId;
-            console.log(`Creating default value for langId: ${langId}, langCode: ${langCode}`);
             defaultValues[langCode] = {
                 description: ""
             };
         });
-        console.log("Default Values:", defaultValues);
         return defaultValues;
     };
 
@@ -88,24 +83,33 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
     const form = useForm({
         resolver: zodResolver(formSchema),
         mode: "onChange",
-        defaultValues: createDefaultValues() // Add default values
+        defaultValues: createDefaultValues()
     });
 
-    // State management
+    // Enhanced state management with delete-related states
     const [state, setState] = useState({
-        isLoadingData: !slug,
+        isLoadingData: !!slug, // Fixed: should be true if slug exists initially
         dataLoaded: !slug,
         hasUnsavedChanges: false,
         existingSubSectionId: null as string | null,
         contentElements: [] as ContentElement[],
-        isSaving: false
+        isSaving: false,
+        isRefreshingAfterDelete: false,
     });
 
     const updateState = useCallback((newState: Partial<typeof state>) => {
         setState(prev => ({ ...prev, ...newState }));
     }, []);
 
-    const { isLoadingData, dataLoaded, hasUnsavedChanges, existingSubSectionId, contentElements, isSaving } = state;
+    const { 
+        isLoadingData, 
+        dataLoaded, 
+        hasUnsavedChanges, 
+        existingSubSectionId, 
+        contentElements, 
+        isSaving,
+        isRefreshingAfterDelete
+    } = state;
 
     // Hooks
     const { toast } = useToast();
@@ -134,27 +138,6 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         isLoading: isLoadingSubsection, 
         refetch 
     } = useGetCompleteBySlug(slug || '', Boolean(slug));
-
-    // Update reference when onDataChange changes
-    useEffect(() => {
-        onDataChangeRef.current = onDataChange;
-    }, [onDataChange]);
-
-    // Process initial data from parent
-    const processInitialData = useCallback(() => {
-        if (initialData && !dataLoaded) {
-            if (initialData.description) {
-                // Set for the default language first
-                const defaultLangCodeMapped = languageCodes[activeLanguages[0]?._id] || defaultLangCode;
-                form.setValue(`${defaultLangCodeMapped}.description`, initialData.description);
-            }
-            
-            updateState({ 
-                dataLoaded: true, 
-                hasUnsavedChanges: false 
-            });
-        }
-    }, [initialData, dataLoaded, defaultLangCode, form, languageCodes, activeLanguages]);
 
     // Process overview data from API
     const processOverviewData = useCallback((subsectionData: SubSection | null) => {
@@ -192,7 +175,86 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
                 setIsLoadingData: (loading) => updateState({ isLoadingData: loading })
             }
         );
-    }, [form, languageIds, activeLanguages]);
+    }, [form, languageIds, activeLanguages, updateState]);
+
+    // Delete functionality using the delete manager
+    const deleteManager = useSubsectionDeleteManager({
+        subsectionId: existingSubSectionId,
+        websiteId,
+        slug,
+        sectionName: "overview section",
+        contentElements,
+        customWarnings: [
+            "All overview descriptions will be permanently deleted",
+            "Overview content for all languages will be removed",
+            "This may affect the main description on your website"
+        ],
+        shouldRefetch: !!slug,
+        refetchFn: refetch,
+        resetForm: () => {
+            form.reset(createDefaultValues());
+        },
+        resetState: () => {
+            updateState({
+                existingSubSectionId: null,
+                contentElements: [],
+                hasUnsavedChanges: false,
+                dataLoaded: !slug,
+            });
+            dataProcessed.current = false;
+        },
+        onDataChange,
+        onDeleteSuccess: async () => {
+            // Custom success handling after deletion
+            updateState({ isRefreshingAfterDelete: true });
+            
+            if (slug) {
+                try {
+                    const result = await refetch();
+                    if (result.data?.data) {
+                        updateState({ isLoadingData: true });
+                        await processOverviewData(result.data.data);
+                        updateState({ isLoadingData: false });
+                        dataProcessed.current = true;
+                    } else {
+                        updateState({ 
+                            dataLoaded: true,
+                            isLoadingData: false 
+                        });
+                    }
+                } catch (refetchError) {
+                    console.log("Refetch after deletion resulted in expected error (subsection deleted)");
+                    updateState({ 
+                        dataLoaded: true,
+                        isLoadingData: false 
+                    });
+                }
+            }
+            
+            updateState({ isRefreshingAfterDelete: false });
+        },
+    });
+
+    // Update reference when onDataChange changes
+    useEffect(() => {
+        onDataChangeRef.current = onDataChange;
+    }, [onDataChange]);
+
+    // Process initial data from parent
+    const processInitialData = useCallback(() => {
+        if (initialData && !dataLoaded) {
+            if (initialData.description) {
+                // Set for the default language first
+                const defaultLangCodeMapped = languageCodes[activeLanguages[0]?._id] || defaultLangCode;
+                form.setValue(`${defaultLangCodeMapped}.description`, initialData.description);
+            }
+            
+            updateState({ 
+                dataLoaded: true, 
+                hasUnsavedChanges: false 
+            });
+        }
+    }, [initialData, dataLoaded, defaultLangCode, form, languageCodes, activeLanguages, updateState]);
 
     // Process initial data effect
     useEffect(() => {
@@ -214,14 +276,13 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
             });
             dataProcessed.current = true;
         }
-    }, [completeSubsectionData, isLoadingSubsection, slug, processOverviewData]);
+    }, [completeSubsectionData, isLoadingSubsection, slug, processOverviewData, updateState]);
 
     // Form watch effect for unsaved changes
     useEffect(() => {
         if (isLoadingData || !dataLoaded) return;
         
         const subscription = form.watch((value) => {
-            console.log("Form value changed:", value);
             updateState({ hasUnsavedChanges: true });
             if (onDataChangeRef.current) {
                 onDataChangeRef.current(value);
@@ -231,41 +292,19 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         return () => subscription.unsubscribe();
     }, [form, isLoadingData, dataLoaded, updateState]);
 
-    // Debug effect to monitor form state
-    useEffect(() => {
-        console.log("Form state changed:");
-        console.log("- Is Valid:", form.formState.isValid);
-        console.log("- Errors:", form.formState.errors);
-        console.log("- Values:", form.getValues());
-        console.log("- Dirty Fields:", form.formState.dirtyFields);
-    }, [form.formState.errors, form.formState.isValid, form.formState.dirtyFields]);
-
     // Save handler
     const handleSave = useCallback(async () => {
-        console.log("=== SAVE HANDLER CALLED ===");
-        
         try {
-            console.log("Getting form values...");
             const allFormValues = form.getValues();
-            console.log("Form Values:", allFormValues);
             
-            console.log("Getting form errors...");
-            console.log("Form Errors:", form.formState.errors);
-            
-            console.log("Triggering form validation...");
             const isValid = await form.trigger();
-            console.log("Form is valid:", isValid);
             
             // Check if all required fields have values
             const hasEmptyFields = Object.entries(allFormValues).some(([langCode, values]) => {
-                console.log(`Checking ${langCode}:`, values);
                 return !values || typeof values !== "object" || !values.description || values.description.trim() === "";
             });
-            
-            console.log("Has empty fields:", hasEmptyFields);
 
             if (!isValid || hasEmptyFields) {
-                console.log("Validation failed - showing error toast");
                 toast({
                     title: "Validation Error", 
                     description: "Please fill all required fields correctly",
@@ -448,6 +487,33 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         languageCodes
     ]);
 
+    // Create form ref for parent component
+    const createFormRef = (refToSet: any, config: any) => {
+        if (refToSet) {
+            if (typeof refToSet === 'function') {
+                refToSet(config);
+            } else {
+                refToSet.current = config;
+            }
+        }
+    };
+
+    createFormRef(ref, {
+        form,
+        hasUnsavedChanges,
+        setHasUnsavedChanges: (value: boolean) => updateState({ hasUnsavedChanges: value }),
+        existingSubSectionId,
+        contentElements,
+        componentName: 'Overview',
+        extraMethods: {
+            saveData: handleSave,
+            deleteData: deleteManager.handleDelete,
+        },
+        extraData: {
+            existingSubSectionId
+        }
+    });
+
     // Loading state
     if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
         return (
@@ -460,10 +526,30 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
 
     return (
         <div className="space-y-6">
+            {/* Loading Dialogs */}
             <LoadingDialog 
                 isOpen={isSaving} 
                 title={existingSubSectionId ? "Updating Overview" : "Creating Overview"}
                 description="Please wait while we save your changes..."
+            />
+            
+            <LoadingDialog
+                isOpen={deleteManager.isDeleting}
+                title="Deleting Overview Section"
+                description="Please wait while we delete the overview section..."
+            />
+
+            <LoadingDialog
+                isOpen={isRefreshingAfterDelete}
+                title="Refreshing Data"
+                description="Updating the interface after deletion..."
+            />
+
+            {/* Delete Confirmation Dialog */}
+            <DeleteConfirmationDialog
+                {...deleteManager.confirmationDialogProps}
+                title="Delete Overview Section"
+                description="Are you sure you want to delete this overview section? This action cannot be undone."
             />
             
             <Form {...form}>
@@ -482,29 +568,43 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
                 </div>
             </Form>
             
-            {/* Save Button */}
-            <div className="flex justify-end mt-6">
-                <Button 
-                    type="button" 
-                    onClick={() => {
-                        console.log("Save button clicked!");
-                        handleSave();
-                    }}
-                    disabled={isLoadingData || isSaving}
-                    className="flex items-center"
-                >
-                    {isSaving ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Saving...
-                        </>
-                    ) : (
-                        <>
-                            <Save className="mr-2 h-4 w-4" />
-                            {existingSubSectionId ? "Update Overview" : "Save Overview"}
-                        </>
-                    )}
-                </Button>
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center mt-6">
+                {/* Delete Button - Only show if there's an existing subsection */}
+                {existingSubSectionId && (
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={deleteManager.openDeleteDialog}
+                        disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+                        className="flex items-center"
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Overview Section
+                    </Button>
+                )}
+
+                {/* Save Button */}
+                <div className={existingSubSectionId ? "" : "ml-auto"}>
+                    <Button 
+                        type="button" 
+                        onClick={handleSave}
+                        disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+                        className="flex items-center"
+                    >
+                        {isSaving ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save className="mr-2 h-4 w-4" />
+                                {existingSubSectionId ? "Update Overview" : "Save Overview"}
+                            </>
+                        )}
+                    </Button>
+                </div>
             </div>
         </div>
     );

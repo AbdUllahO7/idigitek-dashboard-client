@@ -1,164 +1,290 @@
-import { AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion";
-import { Button } from "@/src/components/ui/button";
-import { Card, CardContent } from "@/src/components/ui/card";
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
-import { Textarea } from "@/src/components/ui/textarea";
-import { Plus, Trash2 } from "lucide-react";
-import { memo } from "react";
-import { FeatureItem } from "./FeatureItem";
+"use client"
+
+import type React from "react"
+
+import { AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
+import { Button } from "@/src/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
+import { Input } from "@/src/components/ui/input"
+import { Label } from "@/src/components/ui/label"
+import { Textarea } from "@/src/components/ui/textarea"
+import { Badge } from "@/src/components/ui/badge"
+import { Separator } from "@/src/components/ui/separator"
+import { Plus, Trash2, GripVertical, ImageIcon, FileText, List } from "lucide-react"
+import { memo } from "react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/src/components/ui/alert-dialog"
+
+// Mock FeatureItem component for demo
+const FeatureItem = ({ featureItemIndex, langCode, index, form, onRemoveFeatureItem }: any) => (
+  <div className="p-3 border rounded-lg bg-muted/30">
+    <div className="flex items-center justify-between">
+      <span className="text-sm font-medium">Feature Item {featureItemIndex + 1}</span>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => onRemoveFeatureItem(langCode, index, featureItemIndex)}
+      >
+        <Trash2 className="h-3 w-3" />
+      </Button>
+    </div>
+  </div>
+)
 
 interface FeatureFormProps {
-  index: number;
+  index: number
   feature: {
-    title: string;
+    title: string
     content: {
-      heading: string;
-      description: string;
-      features: any[];
-    };
-  };
-  langCode: string;
-  langId: string;
-  languageIds: string[];
-  form: any;
-  onRemoveFeature: (langCode: string, index: number) => void;
-  onAddFeatureItem: (langCode: string, index: number) => void;
-  onRemoveFeatureItem: (langCode: string, featureIndex: number, itemIndex: number) => void;
-  FeatureImageUploader: React.ComponentType<{ featureIndex: number }>;
+      heading: string
+      description: string
+      features: any[]
+    }
+  }
+  langCode: string
+  langId: string
+  languageIds: string[]
+  form: any
+  onRemoveFeature: (langCode: string, index: number) => void
+  onAddFeatureItem: (langCode: string, index: number) => void
+  onRemoveFeatureItem: (langCode: string, featureIndex: number, itemIndex: number) => void
+  FeatureImageUploader: React.ComponentType<{ featureIndex: number }>
 }
 
-// Feature Form component - memoized to prevent unnecessary re-renders
-export const FeatureForm = memo(({
-  index,
-  feature,
-  langCode,
-  langId,
-  languageIds,
-  form,
-  onRemoveFeature,
-  onAddFeatureItem,
-  onRemoveFeatureItem,
-  FeatureImageUploader
-} :FeatureFormProps ) => {
-  const handleDelete = (e: { stopPropagation: () => void; }) => {
-    e.stopPropagation();
-    onRemoveFeature(langCode, index);
-  };
+export const FeatureForm = memo(
+  ({
+    index,
+    feature,
+    langCode,
+    langId,
+    languageIds,
+    form,
+    onRemoveFeature,
+    onAddFeatureItem,
+    onRemoveFeatureItem,
+    FeatureImageUploader,
+  }: FeatureFormProps) => {
+    const handleDelete = (e: { stopPropagation: () => void }) => {
+      e.stopPropagation()
+      onRemoveFeature(langCode, index)
+    }
 
-  return (
-    <AccordionItem key={index} value={`item-${index}`}>
-      <div className="flex items-center justify-between">
-        <AccordionTrigger className="flex-1">
-          {feature.title || `Feature ${index + 1}`}
-        </AccordionTrigger>
-        <Button
-          type="button"
-          variant="destructive"
-          size="icon"
-          className="mr-4"
-          onClick={handleDelete}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-      <AccordionContent>
-        <Card className="border border-muted">
-          <CardContent className="p-4 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+    const isPrimaryLanguage = langId === languageIds[0]
+    const featureCount = feature.content.features.length
+
+    return (
+      <AccordionItem value={`item-${index}`} className="border rounded-lg overflow-hidden">
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="flex items-center gap-2">
+                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                  <AccordionTrigger className="hover:no-underline p-0 border-0">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" />
+                        <CardTitle className="text-base font-semibold">
+                          {feature.title || `Feature ${index + 1}`}
+                        </CardTitle>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isPrimaryLanguage && (
+                          <Badge variant="secondary" className="text-xs">
+                            Primary
+                          </Badge>
+                        )}
+                        {featureCount > 0 && (
+                          <Badge variant="outline" className="text-xs">
+                            {featureCount} items
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                
+                </div>
+                
+              </div>
+   <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="mr-4"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 className="h-4 w-4" />
+              </Button>
+          
+            </div>
+          </CardHeader>
+
+          <AccordionContent className="pb-0">
+            <CardContent className="pt-0 space-y-6">
+              {/* Hidden ID field */}
               <FormField
                 control={form.control}
                 name={`${langCode}.${index}.id` as any}
                 render={({ field }) => (
                   <FormItem className="hidden">
-                    <FormLabel>ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="feature-id" {...field} />
+                      <Input {...field} />
                     </FormControl>
-                    <FormDescription>A unique identifier for this feature</FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name={`${langCode}.${index}.title` as any}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Feature title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`${langCode}.${index}.content.heading` as any}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Heading</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Feature heading" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name={`${langCode}.${index}.content.description` as any}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Feature description"
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label>Feature List</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onAddFeatureItem(langCode, index)}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Feature
-                </Button>
-              </div>
-                {feature.content.features.map((featureItem, featureItemIndex) => (
-                  <FeatureItem
-                    key={`${langCode}-${index}-feature-${featureItemIndex}`}
-                    featureItemIndex={featureItemIndex}
-                    langCode={langCode}
-                    index={index}
-                    form={form}
-                    onRemoveFeatureItem={onRemoveFeatureItem}
-                  />
-                ))}
-                </div>
-            {langId === languageIds[0] && (
-              <div className="grid grid-cols-1 gap-4">
-                <FeatureImageUploader featureIndex={index} />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </AccordionContent>
-    </AccordionItem>
-  );
-});
 
-FeatureForm.displayName = "FeatureForm";
+              {/* Basic Information Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-sm font-medium">Basic Information</Label>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name={`${langCode}.${index}.title` as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Feature Title</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter feature title"
+                            className="transition-all focus:ring-2 focus:ring-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`${langCode}.${index}.content.heading` as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Section Heading</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter section heading"
+                            className="transition-all focus:ring-2 focus:ring-primary/20"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name={`${langCode}.${index}.content.description` as any}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe this feature in detail..."
+                          className="min-h-[120px] transition-all focus:ring-2 focus:ring-primary/20"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>Provide a comprehensive description of this feature</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <Separator />
+
+              {/* Feature Items Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <List className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-sm font-medium">Feature Items</Label>
+                    {featureCount > 0 && (
+                      <Badge variant="outline" className="text-xs">
+                        {featureCount}
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onAddFeatureItem(langCode, index)}
+                    className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Item
+                  </Button>
+                </div>
+
+                {featureCount === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <List className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No feature items yet</p>
+                    <p className="text-xs">Click "Add Item" to get started</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {feature.content.features.map((featureItem, featureItemIndex) => (
+                      <FeatureItem
+                        key={`${langCode}-${index}-feature-${featureItemIndex}`}
+                        featureItemIndex={featureItemIndex}
+                        langCode={langCode}
+                        index={index}
+                        form={form}
+                        onRemoveFeatureItem={onRemoveFeatureItem}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Image Upload Section - Only for primary language */}
+              {isPrimaryLanguage && (
+                <>
+                  <Separator />
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                      <Label className="text-sm font-medium">Feature Image</Label>
+                      <Badge variant="secondary" className="text-xs">
+                        Primary Language Only
+                      </Badge>
+                    </div>
+                    <div className="p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg bg-muted/30">
+                      <FeatureImageUploader featureIndex={index} />
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </AccordionContent>
+          
+        </Card>
+      </AccordionItem>
+    )
+  },
+)
+
+FeatureForm.displayName = "FeatureForm"
+
+export default FeatureForm

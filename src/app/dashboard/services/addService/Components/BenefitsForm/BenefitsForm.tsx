@@ -10,7 +10,7 @@ import {
 } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Save, AlertTriangle, Loader2 } from "lucide-react";
+import { Save, AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
 import { useToast } from "@/src/hooks/use-toast";
@@ -30,17 +30,19 @@ import { SubSection } from "@/src/api/types/hooks/section.types";
 import { useWebsiteContext } from "@/src/providers/WebsiteContext";
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog";
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations";
-
+import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog";
+import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager";
 
 // Main Component
 const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
-  ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId },ref) => {
+  ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
     const { websiteId } = useWebsiteContext();
     const formSchema = createBenefitsSchema(languageIds, activeLanguages);
     const defaultValues = createBenefitsDefaultValues(
       languageIds,
       activeLanguages
     );
+    
     interface FormData {
       [key: string]: Array<{
         icon: string;
@@ -51,14 +53,16 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
     }
     
     const form = useForm<FormData>({
-          resolver: zodResolver(formSchema),
-          defaultValues,
-          mode: "onChange",
-        });
+      resolver: zodResolver(formSchema),
+      defaultValues,
+      mode: "onChange",
+    });
 
-    // State management
-    const [state, setState] = useState<BenefitsFormState>({
-      isLoadingData: !slug,
+    // Enhanced state management with delete-related states
+    const [state, setState] = useState<BenefitsFormState & {
+      isRefreshingAfterDelete: boolean;
+    }>({
+      isLoadingData: !!slug, // Fixed: should be true if slug exists initially
       dataLoaded: !slug,
       hasUnsavedChanges: false,
       isValidationDialogOpen: false,
@@ -66,6 +70,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       existingSubSectionId: null,
       contentElements: [],
       isSaving: false,
+      isRefreshingAfterDelete: false,
     });
 
     const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
@@ -73,12 +78,11 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
     const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
     const updateState = useCallback(
-      (newState: Partial<BenefitsFormState>) => {
+      (newState: Partial<BenefitsFormState & { isRefreshingAfterDelete: boolean }>) => {
         setState((prev) => ({ ...prev, ...newState }));
       },
       []
     );
-    
     
     const {
       isLoadingData,
@@ -89,6 +93,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       existingSubSectionId,
       contentElements,
       isSaving,
+      isRefreshingAfterDelete,
     } = state;
 
     // Hooks
@@ -118,6 +123,132 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       isLoading: isLoadingSubsection,
       refetch,
     } = useGetCompleteBySlug(slug || "", Boolean(slug));
+
+    // Process benefits data
+    const processBenefitsData = useCallback(
+      (subsectionData: SubSection) => {
+        processAndLoadData(
+          subsectionData,
+          form,
+          languageIds,
+          activeLanguages,
+          {
+            groupElements: (elements) => {
+              const benefitGroups: { [key: number]: ContentElement[] } = {};
+              elements.forEach((element: any) => {
+                const match = element.name.match(/Benefit (\d+)/i);
+                if (match) {
+                  const benefitNumber = parseInt(match[1], 10);
+                  if (!benefitGroups[benefitNumber]) {
+                    benefitGroups[benefitNumber] = [];
+                  }
+                  benefitGroups[benefitNumber].push(element);
+                }
+              });
+              return benefitGroups;
+            },
+            processElementGroup: (
+              benefitNumber,
+              elements,
+              langId,
+              getTranslationContent
+            ) => {
+              const iconElement = elements.find((el) =>
+                el.name.includes("Icon")
+              );
+              const titleElement = elements.find((el) =>
+                el.name.includes("Title")
+              );
+              const descriptionElement = elements.find((el) =>
+                el.name.includes("Description")
+              );
+
+              if (titleElement && descriptionElement) {
+                const title = getTranslationContent(titleElement, "");
+                const description = getTranslationContent(descriptionElement, "");
+                const icon = iconElement?.defaultContent || "Clock";
+                return { icon, title, description };
+              }
+
+              return { icon: "Clock", title: "", description: "" };
+            },
+            getDefaultValue: () => [
+              { icon: "Clock", title: "", description: "" },
+            ],
+          },
+          {
+            setExistingSubSectionId: (id) =>
+              updateState({ existingSubSectionId: id }),
+            setContentElements: (elements) =>
+              updateState({ contentElements: elements }),
+            setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
+            setHasUnsavedChanges: (hasChanges) =>
+              updateState({ hasUnsavedChanges: hasChanges }),
+            setIsLoadingData: (loading) =>
+              updateState({ isLoadingData: loading }),
+            validateCounts: validateFormBenefitCounts,
+          }
+        );
+      },
+      [form, languageIds, activeLanguages, updateState]
+    );
+
+    // Delete functionality using the delete manager
+    const deleteManager = useSubsectionDeleteManager({
+      subsectionId: existingSubSectionId,
+      websiteId,
+      slug,
+      sectionName: "benefits section",
+      contentElements,
+      customWarnings: [
+        "All benefit icons and descriptions will be removed",
+        "Benefits data for all languages will be deleted",
+        "This may affect the features presentation on your website"
+      ],
+      shouldRefetch: !!slug,
+      refetchFn: refetch,
+      resetForm: () => {
+        form.reset(defaultValues);
+      },
+      resetState: () => {
+        updateState({
+          existingSubSectionId: null,
+          contentElements: [],
+          hasUnsavedChanges: false,
+          dataLoaded: !slug,
+          benefitCountMismatch: false,
+        });
+      },
+      onDataChange,
+      onDeleteSuccess: async () => {
+        // Custom success handling after deletion
+        updateState({ isRefreshingAfterDelete: true });
+        
+        if (slug) {
+          try {
+            const result = await refetch();
+            if (result.data?.data) {
+              updateState({ isLoadingData: true });
+              await processBenefitsData(result.data.data);
+              updateState({ isLoadingData: false });
+            } else {
+              updateState({ 
+                dataLoaded: true,
+                isLoadingData: false 
+              });
+            }
+          } catch (refetchError) {
+            console.log("Refetch after deletion resulted in expected error (subsection deleted)");
+            updateState({ 
+              dataLoaded: true,
+              isLoadingData: false 
+            });
+          }
+        }
+        
+        updateState({ isRefreshingAfterDelete: false });
+      },
+    });
 
     // Update onDataChange ref
     useEffect(() => {
@@ -160,7 +291,8 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       updateState({ benefitCountMismatch: !isValid });
       return isValid;
     }, [form, updateState]);
-    // Remove process step
+
+    // Remove process step (individual benefit deletion)
     const removeProcessStep = useCallback(async () => {
       if (!stepToDelete) return;
 
@@ -262,75 +394,6 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       updateState,
     ]);
 
-    // Process benefits data
-    const processBenefitsData = useCallback(
-      (subsectionData: SubSection) => {
-        processAndLoadData(
-          subsectionData,
-          form,
-          languageIds,
-          activeLanguages,
-          {
-            groupElements: (elements ) => {
-              const benefitGroups: { [key: number]: ContentElement[] } = {};
-              elements.forEach((element : any) => {
-                const match = element.name.match(/Benefit (\d+)/i);
-                if (match) {
-                  const benefitNumber = parseInt(match[1], 10);
-                  if (!benefitGroups[benefitNumber]) {
-                    benefitGroups[benefitNumber] = [];
-                  }
-                  benefitGroups[benefitNumber].push(element);
-                }
-              });
-              return benefitGroups;
-            },
-            processElementGroup: (
-              benefitNumber,
-              elements,
-              langId,
-              getTranslationContent
-            ) => {
-              const iconElement = elements.find((el) =>
-                el.name.includes("Icon")
-              );
-              const titleElement = elements.find((el) =>
-                el.name.includes("Title")
-              );
-              const descriptionElement = elements.find((el) =>
-                el.name.includes("Description")
-              );
-
-              if (titleElement && descriptionElement) {
-                const title = getTranslationContent(titleElement, "");
-                const description = getTranslationContent(descriptionElement, "");
-                const icon = iconElement?.defaultContent || "Clock";
-                return { icon, title, description };
-              }
-
-              return { icon: "Clock", title: "", description: "" };
-            },
-            getDefaultValue: () => [
-              { icon: "Clock", title: "", description: "" },
-            ],
-          },
-          {
-            setExistingSubSectionId: (id) =>
-              updateState({ existingSubSectionId: id }),
-            setContentElements: (elements) =>
-              updateState({ contentElements: elements }),
-            setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
-            setHasUnsavedChanges: (hasChanges) =>
-              updateState({ hasUnsavedChanges: hasChanges }),
-            setIsLoadingData: (loading) =>
-              updateState({ isLoadingData: loading }),
-            validateCounts: validateFormBenefitCounts,
-          }
-        );
-      },
-      [form, languageIds, activeLanguages, updateState, validateFormBenefitCounts]
-    );
-
     // Load existing data
     useEffect(() => {
       if (!slug || dataLoaded || isLoadingSubsection || !completeSubsectionData?.data) {
@@ -345,6 +408,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       dataLoaded,
       slug,
       processBenefitsData,
+      updateState,
     ]);
 
     // Track form changes
@@ -404,7 +468,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       [form, forceUpdate, validateFormBenefitCounts, updateState]
     );
 
-    // Remove benefit
+    // Remove benefit (individual benefit removal)
     const removeBenefit = useCallback(
       async (langCode: string, index: number) => {
         const currentBenefits = form.getValues()[langCode] || [];
@@ -463,8 +527,6 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
                   `Benefit ${newNumber}`
                 );
                 const newOrder = element.order - 3;
-
-
 
                 await updateContentElement.mutateAsync({
                   id: element._id,
@@ -545,12 +607,12 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
             name: "Benefits Section",
             slug: slug || `benefits-section-${Date.now()}`,
             description: "Benefits section for the website",
-            defaultContent :'',
+            defaultContent: '',
             isActive: true,
             order: 0,
             sectionItem: ParentSectionId,
             languages: languageIds,
-            WebSiteId : websiteId
+            WebSiteId: websiteId
           };
 
           const newSubSection = await createSubSection.mutateAsync(subsectionData);
@@ -654,7 +716,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
             const benefit = benefits[i];
             if (titleElement) {
               translations.push({
-                _id : String(benefit.id),
+                _id: String(benefit.id),
                 content: benefit.title,
                 language: langId,
                 contentElement: titleElement._id,
@@ -663,7 +725,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
             }
             if (descElement) {
               translations.push({
-                _id : String(benefit.id),
+                _id: String(benefit.id),
                 content: benefit.description,
                 language: langId,
                 contentElement: descElement._id,
@@ -730,6 +792,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       refetch,
       processBenefitsData,
       updateState,
+      websiteId,
     ]);
 
     // Create form ref
@@ -740,6 +803,13 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       existingSubSectionId,
       contentElements,
       componentName: "Benefits",
+      extraMethods: {
+        saveData: handleSave,
+        deleteData: deleteManager.handleDelete,
+      },
+      extraData: {
+        existingSubSectionId
+      }
     });
 
     // Get language codes
@@ -756,6 +826,12 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       return () => subscription.unsubscribe();
     }, [dataLoaded, isLoadingData, form, validateFormBenefitCounts]);
 
+    // Confirm delete step (individual benefit deletion)
+    const confirmDeleteStep = (langCode: string, index: number) => {
+      setStepToDelete({ langCode, index });
+      setDeleteDialogOpen(true);
+    };
+
     // Loading state
     if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
       return (
@@ -765,18 +841,44 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         </div>
       );
     }
-    // Confirm delete step
-    const confirmDeleteStep = (langCode: string, index: number) => {
-      setStepToDelete({ langCode, index });
-      setDeleteDialogOpen(true);
-    };
 
     return (
       <div className="space-y-6">
+        {/* Loading Dialogs */}
         <LoadingDialog
           isOpen={isSaving}
           title={existingSubSectionId ? "Updating Benefits" : "Creating Benefits"}
           description="Please wait while we save your changes..."
+        />
+
+        <LoadingDialog
+          isOpen={deleteManager.isDeleting}
+          title="Deleting Benefits Section"
+          description="Please wait while we delete the benefits section..."
+        />
+
+        <LoadingDialog
+          isOpen={isRefreshingAfterDelete}
+          title="Refreshing Data"
+          description="Updating the interface after deletion..."
+        />
+
+        {/* Subsection Delete Confirmation Dialog */}
+        <DeleteConfirmationDialog
+          {...deleteManager.confirmationDialogProps}
+          title="Delete Benefits Section"
+          description="Are you sure you want to delete this entire benefits section? This action cannot be undone."
+        />
+
+        {/* Individual Benefit Delete Dialog */}
+        <DeleteSectionDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          serviceName={stepToDelete ? `Benefit ${stepToDelete.index + 1}` : ""}
+          onConfirm={removeProcessStep}
+          isDeleting={isDeleting}
+          title="Delete Benefit"
+          confirmText="Delete Benefit"
         />
 
         <Form {...form}>
@@ -802,45 +904,55 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
           </div>
         </Form>
 
-        <div className="flex justify-end mt-6">
-          {benefitCountMismatch && (
-            <div className="flex items-center text-amber-500 mr-4">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              <span className="text-sm">
-                Each language must have the same number of benefits
-              </span>
-            </div>
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center mt-6">
+          {/* Delete Section Button - Only show if there's an existing subsection */}
+          {existingSubSectionId && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={deleteManager.openDeleteDialog}
+              disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+              className="flex items-center"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Benefits Section
+            </Button>
           )}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={isLoadingData || benefitCountMismatch || isSaving}
-            className="flex items-center"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                {existingSubSectionId ? "Update Benefits" : "Save Benefits"}
-              </>
+
+          {/* Save Button and Validation Warning */}
+          <div className={`flex items-center gap-4 ${existingSubSectionId ? "" : "ml-auto"}`}>
+            {benefitCountMismatch && (
+              <div className="flex items-center text-amber-500">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                <span className="text-sm">
+                  Each language must have the same number of benefits
+                </span>
+              </div>
             )}
-          </Button>
+            
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={isLoadingData || benefitCountMismatch || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+              className="flex items-center"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {existingSubSectionId ? "Update Benefits" : "Save Benefits"}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
-        <DeleteSectionDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          serviceName={stepToDelete ? `Step ${stepToDelete.index + 1}` : ""}
-          onConfirm={removeProcessStep}
-          isDeleting={isDeleting}
-          title="Delete Process"
-          confirmText="Delete Process"
-        />
-
+        {/* Validation Dialog */}
         <ValidationDialog
           isOpen={isValidationDialogOpen}
           onOpenChange={(isOpen: any) =>

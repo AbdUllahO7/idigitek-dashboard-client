@@ -1,13 +1,13 @@
 "use client"
 
-import { forwardRef, useEffect, useState, useRef, memo, useMemo } from "react"
+import { forwardRef, useEffect, useState, useRef, memo, useMemo, useCallback } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { 
   Save, 
-
   AlertTriangle,
-  Loader2
+  Loader2,
+  Trash2
 } from "lucide-react"
 import { Form } from "@/src/components/ui/form"
 import { Button } from "@/src/components/ui/button"
@@ -28,9 +28,8 @@ import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations"
 import { createProcessStepsSchema } from "../../Utils/language-specific-schemas"
 import { ContentElement } from "@/src/api/types/hooks/content.types"
-
-
-
+import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager"
+import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog"
 
 const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
   (props, ref) => {
@@ -59,6 +58,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
     const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null);
     const [contentElements, setContentElements] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [isRefreshingAfterDelete, setIsRefreshingAfterDelete] = useState(false);
     const { toast } = useToast();
 
     // State for delete confirmation dialog
@@ -111,17 +111,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       refetch,
     } = useGetCompleteBySlug(slug || "", !slug);
 
-    // Check if all languages have the same number of steps
-    const validateStepCounts = () => {
-      const values = form.getValues();
-      const counts = Object.values(values).map((langSteps) => (Array.isArray(langSteps) ? langSteps.length : 0));
-      const allEqual = counts.every((count) => count === counts[0]);
-      setStepCountMismatch(!allEqual);
-      return allEqual;
-    };
-
     // Process data loading - extracted as a separate function
-    const processProcessStepsData = (subsectionData: SubSection | null) => {
+    const processProcessStepsData = useCallback((subsectionData: SubSection | null) => {
       processAndLoadData(
         subsectionData,
         form,
@@ -179,6 +170,64 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
           validateCounts: validateStepCounts
         }
       );
+    }, [form, languageIds, activeLanguages]);
+
+    // Delete manager for entire subsection
+    const deleteManager = useSubsectionDeleteManager({
+      subsectionId: existingSubSectionId,
+      websiteId,
+      slug,
+      sectionName: "process steps section",
+      contentElements,
+      customWarnings: [
+        "All process steps will be permanently removed",
+        "This action cannot be undone"
+      ],
+      shouldRefetch: !!slug,
+      refetchFn: refetch,
+      resetForm: () => {
+        form.reset(defaultValues);
+      },
+      resetState: () => {
+        setExistingSubSectionId(null);
+        setContentElements([]);
+        setHasUnsavedChanges(false);
+        setDataLoaded(!slug);
+        setStepCountMismatch(false);
+      },
+      onDataChange,
+      onDeleteSuccess: async () => {
+        setIsRefreshingAfterDelete(true);
+        
+        if (slug) {
+          try {
+            const result = await refetch();
+            if (result.data?.data) {
+              setIsLoadingData(true);
+              await processProcessStepsData(result.data.data);
+              setIsLoadingData(false);
+            } else {
+              setDataLoaded(true);
+              setIsLoadingData(false);
+            }
+          } catch (refetchError) {
+            console.log("Refetch after deletion resulted in expected error (subsection deleted)");
+            setDataLoaded(true);
+            setIsLoadingData(false);
+          }
+        }
+        
+        setIsRefreshingAfterDelete(false);
+      },
+    });
+
+    // Check if all languages have the same number of steps
+    const validateStepCounts = () => {
+      const values = form.getValues();
+      const counts = Object.values(values).map((langSteps) => (Array.isArray(langSteps) ? langSteps.length : 0));
+      const allEqual = counts.every((count) => count === counts[0]);
+      setStepCountMismatch(!allEqual);
+      return allEqual;
     };
 
     // Effect to populate form with existing data
@@ -189,7 +238,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
 
       setIsLoadingData(true);
       processProcessStepsData(completeSubsectionData.data);
-    }, [completeSubsectionData, isLoadingSubsection, dataLoaded, slug]);
+    }, [completeSubsectionData, isLoadingSubsection, dataLoaded, slug, processProcessStepsData]);
 
     // Track form changes with debounce for better performance
     useEffect(() => {
@@ -347,14 +396,14 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
     }, [form, stepCountMismatch]);
 
     // Save handler with optimizations
-    const handleSave = async () => {
+    const handleSave = useCallback(async () => {
       // First validate before doing any expensive operations
       const isValid = await form.trigger();
       const hasEqualStepCounts = validateStepCounts();
 
       if (!hasEqualStepCounts) {
         setIsValidationDialogOpen(true);
-        return;
+        return false;
       }
 
       if (!isValid) {
@@ -363,7 +412,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
           description: "Please fill all required fields correctly",
           variant: "destructive",
         });
-        return;
+        return false;
       }
 
       setIsSaving(true);
@@ -667,6 +716,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
         }
 
         setHasUnsavedChanges(false);
+        return true;
       } catch (error) {
         console.error("Operation failed:", error);
         toast({
@@ -675,11 +725,30 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
           description: error instanceof Error ? error.message : "Unknown error occurred",
           duration: 5000,
         });
+        return false;
       } finally {
         setIsLoadingData(false);
         setIsSaving(false);
       }
-    };
+    }, [
+      form,
+      validateStepCounts,
+      toast,
+      existingSubSectionId,
+      slug,
+      ParentSectionId,
+      languageIds,
+      websiteId,
+      createSubSection,
+      activeLanguages,
+      contentElements,
+      updateContentElement,
+      defaultLangCode,
+      createContentElement,
+      bulkUpsertTranslations,
+      refetch,
+      processProcessStepsData,
+    ]);
 
     // Create form ref for parent component access
     createFormRef(ref, {
@@ -688,7 +757,14 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       setHasUnsavedChanges,
       existingSubSectionId,
       contentElements,
-      componentName: 'Process steps'
+      componentName: 'Process steps',
+      extraMethods: {
+        saveData: handleSave,
+        deleteData: deleteManager.handleDelete,
+      },
+      extraData: {
+        existingSubSectionId,
+      },
     });
 
     // Get language codes for display
@@ -712,11 +788,30 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
 
     return (
       <div className="space-y-6">
-        {/* Loading Dialog */}
+        {/* Loading Dialogs */}
         <LoadingDialog 
           isOpen={isSaving} 
           title={existingSubSectionId ? "Updating Process Steps" : "Creating Process Steps"} 
           description="Please wait while we save your changes..."
+        />
+
+        <LoadingDialog
+          isOpen={deleteManager.isDeleting}
+          title="Deleting Process Steps"
+          description="Please wait while we delete the process steps section..."
+        />
+
+        <LoadingDialog
+          isOpen={isRefreshingAfterDelete}
+          title="Refreshing Data"
+          description="Updating the interface after deletion..."
+        />
+        
+        {/* Delete Confirmation Dialog for entire section */}
+        <DeleteConfirmationDialog
+          {...deleteManager.confirmationDialogProps}
+          title="Delete Process Steps Section"
+          description="Are you sure you want to delete this entire process steps section? This action cannot be undone."
         />
         
         {/* Main Form */}
@@ -741,32 +836,61 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
           </div>
         </Form>
 
-        {/* Save Button */}
-        <div className="flex justify-end mt-6">
-          {stepCountMismatch && (
-            <div className="flex items-center text-amber-500 mr-4">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              <span className="text-sm">Each language must have the same number of steps</span>
-            </div>
+        {/* Action Buttons */}
+        <div className="flex justify-between mt-6">
+          {/* Delete Button - Only show if there's an existing subsection */}
+          {existingSubSectionId && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={deleteManager.openDeleteDialog}
+              disabled={
+                isLoadingData || 
+                isSaving || 
+                deleteManager.isDeleting || 
+                isRefreshingAfterDelete ||
+                stepCountMismatch
+              }
+              className="flex items-center"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Process Steps
+            </Button>
           )}
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={isLoadingData || stepCountMismatch || isSaving}
-            className="flex items-center"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                {existingSubSectionId ? "Update Process Steps" : "Save Process Steps"}
-              </>
+
+          {/* Save Button */}
+          <div className={existingSubSectionId ? "" : "ml-auto"}>
+            {stepCountMismatch && (
+              <div className="flex items-center text-amber-500 mr-4 mb-2">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                <span className="text-sm">Each language must have the same number of steps</span>
+              </div>
             )}
-          </Button>
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={
+                isLoadingData || 
+                stepCountMismatch || 
+                isSaving || 
+                deleteManager.isDeleting || 
+                isRefreshingAfterDelete
+              }
+              className="flex items-center"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {existingSubSectionId ? "Update Process Steps" : "Save Process Steps"}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
         
         {/* Step Count Mismatch Dialog */}
@@ -796,7 +920,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
           </DialogContent>
         </Dialog>
         
-        {/* Delete Step Confirmation Dialog */}
+        {/* Delete Individual Step Confirmation Dialog */}
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
