@@ -652,48 +652,54 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
             }
 
             // URL fields - only save from primary language to avoid duplicates
-            const primaryLangCode = activeLanguages[0]?.languageID;
-            if (langCode === primaryLangCode) {
-              if (elements.exploreButtonType) {
-                translations.push({
-                  _id: "",
-                  content: hero.exploreButtonType || "default",
-                  language: langId,
-                  contentElement: elements.exploreButtonType._id,
-                  isActive: true,
-                });
-              }
-              
-              if (elements.exploreButtonUrl) {
-                translations.push({
-                  _id: "",
-                  content: hero.exploreButtonUrl || "",
-                  language: langId,
-                  contentElement: elements.exploreButtonUrl._id,
-                  isActive: true,
-                });
-              }
-              
-              if (elements.requestButtonType) {
-                translations.push({
-                  _id: "",
-                  content: hero.requestButtonType || "default",
-                  language: langId,
-                  contentElement: elements.requestButtonType._id,
-                  isActive: true,
-                });
-              }
-              
-              if (elements.requestButtonUrl) {
-                translations.push({
-                  _id: "",
-                  content: hero.requestButtonUrl || "",
-                  language: langId,
-                  contentElement: elements.requestButtonUrl._id,
-                  isActive: true,
-                });
-              }
-            }
+          // Replace this section in your handleSave function:
+  // URL fields - only save from primary language to avoid duplicates
+  const primaryLangCode = activeLanguages[0]?.languageID;
+  if (langCode === primaryLangCode) {
+    if (elements.exploreButtonType) {
+      const exploreButtonTypeContent = hero.exploreButtonType || "default";
+      translations.push({
+        _id: "",
+        content: exploreButtonTypeContent,
+        language: langId,
+        contentElement: elements.exploreButtonType._id,
+        isActive: true,
+      });
+    }
+    
+    // Only create translation if URL is not empty
+    if (elements.exploreButtonUrl && hero.exploreButtonUrl && hero.exploreButtonUrl.trim() !== "") {
+      translations.push({
+        _id: "",
+        content: hero.exploreButtonUrl.trim(),
+        language: langId,
+        contentElement: elements.exploreButtonUrl._id,
+        isActive: true,
+      });
+    }
+    
+    if (elements.requestButtonType) {
+      const requestButtonTypeContent = hero.requestButtonType || "default";
+      translations.push({
+        _id: "",
+        content: requestButtonTypeContent,
+        language: langId,
+        contentElement: elements.requestButtonType._id,
+        isActive: true,
+      });
+    }
+    
+    // Only create translation if URL is not empty
+    if (elements.requestButtonUrl && hero.requestButtonUrl && hero.requestButtonUrl.trim() !== "") {
+      translations.push({
+        _id: "",
+        content: hero.requestButtonUrl.trim(),
+        language: langId,
+        contentElement: elements.requestButtonUrl._id,
+        isActive: true,
+      });
+    }
+  }
           });
 
           const imageFile = heroImages[i];
