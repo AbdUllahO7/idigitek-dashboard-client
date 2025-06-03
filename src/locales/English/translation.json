@@ -1,4 +1,8 @@
 {
+  "Dashboard_Header" : {
+    "dark":"Dark",
+    "light":"Light"
+  },
   "Dashboard_sideBar": {
     "title": "Admin Dashboard",
     "menu": "Menu",
@@ -39,7 +43,7 @@
       "idigitekAdmin": "Idigitek Admin"
     }
   },
-   "Dashboard": {
+  "Dashboard": {
     "title": "Dashboard",
     "subtitle": "Monitor your website configuration and analytics",
     "noWebsiteSelected": {
@@ -361,6 +365,314 @@
       "showPassword": "Show password",
       "hidePassword": "Hide password"
     }
+  },
+  "ProfilePage": {
+    "title": "My Profile Settings",
+    "tabs": {
+      "account": "Account Information"
+    },
+    "fields": {
+      "role": "Role",
+      "status": "Status",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email Address",
+      "accountStatus": "Account Status"
+    },
+    "editProfile": {
+      "title": "Edit Profile",
+      "description": "Update your personal information"
+    },
+    "accountInfo": {
+      "title": "Account Information"
+    },
+    "buttons": {
+      "saveChanges": "Save changes",
+      "saving": "Saving..."
+    },
+    "messages": {
+      "savedSuccessfully": "Saved successfully"
+    },
+    "toasts": {
+      "updateSuccess": {
+        "title": "Profile updated",
+        "description": "Your profile information has been updated successfully."
+      },
+      "updateError": {
+        "title": "Update failed",
+        "description": "There was a problem updating your profile"
+      }
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Admin",
+      "superadmin": "Super Admin",
+      "owner": "Owner"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "pending": "Pending"
+    }
+  },
+  "adminManagement": {
+    "title": "Website Content Manager",
+    "subtitle": "Customize your website with languages, sections, and beautiful themes",
+    "loading": {
+      "content": "Loading content..."
+    },
+    "error": {
+      "title": "Error Loading Data",
+      "message": "Failed to load data. Please try refreshing the page.",
+      "refreshButton": "Refresh Page"
+    },
+    "tabs": {
+      "languages": "Languages",
+      "sections": "Sections",
+      "themes": "Themes"
+    },
+    "footer": {
+      "description": "Manage the languages, sections, and visual themes for your website.",
+      "note": "These settings will be used across your website building process."
+    }
+  },
+  "websiteList": {
+    "title": "My Websites",
+    "createWebsite": "Create Website",
+    "createNewWebsite": "Create New Website",
+    "editWebsite": "Edit Website",
+    "noWebsitesTitle": "No Websites Yet",
+    "noWebsitesDescription": "You don't have any websites yet. Create one to get started with your online presence.",
+    "errorLoadingTitle": "Error Loading Websites",
+    "form": {
+      "labels": {
+        "name": "Name",
+        "description": "Description",
+        "logo": "Logo",
+        "sector": "Sector",
+        "phoneNumber": "Phone Number",
+        "email": "Email",
+        "address": "Address"
+      },
+      "placeholders": {
+        "name": "Enter website name",
+        "description": "Describe your website",
+        "sector": "Enter sector title",
+        "phoneNumber": "Enter phone number",
+        "email": "Enter email address",
+        "address": "Enter physical address"
+      },
+      "helperText": {
+        "logoUpload": "Upload your website logo (max 2MB)",
+        "logoPlaceholder": "Click to upload logo"
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "createWebsite": "Create Website",
+      "saveChanges": "Save Changes",
+      "change": "Change",
+      "remove": "Remove",
+      "changeLogo": "Change Logo",
+      "removeLogo": "Remove Logo"
+    },
+    "loadingStates": {
+      "creating": "Creating...",
+      "saving": "Saving...",
+      "uploading": "Uploading...",
+      "deleting": "Deleting..."
+    },
+    "labels": {
+      "created": "Created",
+      "phone": "Phone",
+      "email": "Email", 
+      "address": "Address"
+    },
+    "validation": {
+      "invalidFile": "Invalid file",
+      "invalidImageType": "Please upload a PNG, JPEG, or SVG image",
+      "imageTooLarge": "Image must be less than 2MB"
+    },
+    "toastMessages": {
+      "websiteCreated": "Website Created",
+      "websiteCreatedDesc": "Your website has been created successfully",
+      "websiteUpdated": "Website Updated",
+      "websiteUpdatedDesc": "Your website has been updated successfully", 
+      "websiteDeleted": "Website Deleted",
+      "websiteDeletedDesc": "The website has been deleted successfully",
+      "logoUploaded": "Logo Uploaded",
+      "logoUploadedDesc": "The logo has been uploaded successfully",
+      "logoRemoved": "Logo Removed",
+      "logoRemovedDesc": "The logo has been removed successfully",
+      "uploadFailed": "Upload Failed",
+      "uploadFailedDesc": "There was a problem uploading the logo. Please try again.",
+      "deleteFailed": "Delete Failed",
+      "deleteFailedDesc": "There was a problem deleting the website. Please try again."
+    },
+    "deleteDialog": {
+      "title": "Delete Website",
+      "confirmButton": "Delete Website"
+    }
+  },
+  "languageManagement": {
+    "loading": "Loading languages...",
+    "errorTitle": "Error Loading Languages",
+    "errorDescription": "An unexpected error occurred",
+    "tryAgain": "Try Again",
+    "changesSaved": "Changes saved successfully!",
+    
+    "addNew": {
+      "title": "Add New Language",
+      "description": "Enter the details for a new language to support on your website",
+      "websiteRequired": {
+        "title": "Website Required",
+        "noWebsite": "Please create a website first before adding languages.",
+        "noSelected": "Please select a website before adding languages."
+      }
+    },
+
+    "form": {
+      "labels": {
+        "languageId": "Language ID (code)",
+        "languageName": "Language Name",
+        "activeLanguage": "Set as active language"
+      },
+      "placeholders": {
+        "languageId": "e.g. en, fr, es",
+        "languageName": "e.g. English, French"
+      },
+      "helpText": {
+        "languageId": "Use a standard language code (e.g., \"en\" for English)",
+        "languageIdTooltip": "Use a standard ISO language code (e.g., \"en\" for English, \"fr\" for French)",
+        "activeLanguage": "Active languages will be available for content creation"
+      },
+      "quickSelect": "Quick Select",
+      "buttons": {
+        "resetForm": "Reset Form",
+        "addLanguage": "Add Language",
+        "adding": "Adding...",
+        "cancel": "Cancel",
+        "saveChanges": "Save Changes",
+        "delete": "Delete"
+      }
+    },
+
+    "manage": {
+      "title": "Manage Languages",
+      "description": "Edit or remove existing languages ( total)",
+      "noWebsiteSelected": "Select a website to manage its languages",
+      "help": {
+        "button": "Help",
+        "title": "Language Management Tips",
+        "tips": [
+          "Use standard ISO language codes (e.g., \"en\" for English)",
+          "Active languages will be available for content creation",
+          "You can toggle language status without editing the language",
+          "Deleting a language will remove all content in that language"
+        ]
+      },
+      "search": {
+        "placeholder": "Search languages...",
+        "noResults": {
+          "title": "No Results Found",
+          "description": "No languages match your search \"{query}\". Try a different search term.",
+          "clearButton": "Clear Search"
+        }
+      },
+      "tabs": {
+        "all": "All ",
+        "active": "Active ",
+        "inactive": "Inactive "
+      },
+      "emptyState": {
+        "noWebsite": {
+          "title": "No Website Selected",
+          "description": "Please select a website to view and manage its languages."
+        },
+        "noLanguages": {
+          "title": "No Languages Found",
+          "description": "This website doesn't have any languages yet. Add your first language using the form above."
+        }
+      }
+    },
+
+    "languageCard": {
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "tooltips": {
+        "activate": "Activate language",
+        "deactivate": "Deactivate language",
+        "edit": "Edit language",
+        "delete": "Delete language"
+      }
+    },
+
+    "editDialog": {
+      "title": "Edit Language",
+      "description": "Make changes to the language details below.",
+      "labels": {
+        "languageId": "Language ID",
+        "languageName": "Language Name",
+        "active": "Active"
+      }
+    },
+
+    "deleteDialog": {
+      "title": "Delete Language",
+      "description": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "warning": {
+        "title": "Warning",
+        "description": "Deleting this language will remove all content associated with it."
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "delete": "Delete"
+      }
+    },
+
+    "validation": {
+      "invalidInput": "Invalid input",
+      "missingFields": "Please enter both ID and name for the language.",
+      "missingFieldsUpdate": "Missing required fields for update.",
+      "websiteRequired": "Website required",
+      "selectWebsite": "Please select a website first.",
+      "duplicateId": "Duplicate ID",
+      "duplicateIdDescription": "A language with this ID already exists for this website."
+    },
+
+    "toastMessages": {
+      "languageAdded": "Language added",
+      "languageAddedDesc": "{name} has been added successfully.",
+      "languageUpdated": "Language updated",
+      "languageUpdatedDesc": "The language has been updated successfully.",
+      "languageDeleted": "Language deleted",
+      "languageDeletedDesc": "The language has been deleted successfully.",
+      "languageActivated": "Language activated",
+      "languageActivatedDesc": "The language has been activated successfully.",
+      "languageDeactivated": "Language deactivated", 
+      "languageDeactivatedDesc": "The language has been deactivated successfully.",
+      "errorAdding": "Error adding language",
+      "errorUpdating": "Error updating language",
+      "errorDeleting": "Error deleting language",
+      "errorTogglingStatus": "Error updating language",
+      "errorGenericDesc": "An error occurred while processing your request."
+    },
+
+    "commonLanguages": [
+      { "id": "en", "name": "English" },
+      { "id": "es", "name": "Spanish" },
+      { "id": "fr", "name": "French" },
+      { "id": "de", "name": "German" },
+      { "id": "it", "name": "Italian" },
+      { "id": "pt", "name": "Portuguese" },
+      { "id": "zh", "name": "Chinese" },
+      { "id": "ja", "name": "Japanese" },
+      { "id": "ar", "name": "Arabic" },
+      { "id": "ru", "name": "Russian" }
+    ]
   },
   "common": {
     "welcome": "Welcome",

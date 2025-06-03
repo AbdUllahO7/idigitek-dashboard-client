@@ -16,12 +16,17 @@ import WebsiteList from "@/src/components/dashboard/WebSiteConfiguration/WebSite
 import { LanguageManagement } from "@/src/components/dashboard/WebSiteConfiguration/Languages"
 import { SectionManagement } from "@/src/components/dashboard/WebSiteConfiguration/Sections"
 import { ThemeManagement } from "@/src/components/dashboard/WebSiteConfiguration/ThemeManagement"
+import { useTranslation } from "react-i18next"
+import { useLanguage } from "@/src/context/LanguageContext"
 
 // Main Component
 export default function AdminManagementPage() {
   const { useGetMyWebsites } = useWebSite();
   const { data: websites = [], isLoading: isLoadingWebsites, error: websitesError } = useGetMyWebsites();
   const [activeTab, setActiveTab] = useState("languages");
+  const { t } = useTranslation();
+  const { isLoaded, language } = useLanguage();
+  const isRTL = language === 'ar';
 
   const fadeIn = {
     hidden: { opacity: 0 },
@@ -30,10 +35,12 @@ export default function AdminManagementPage() {
 
   if (isLoadingWebsites) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className={`min-h-screen flex items-center justify-center ${isRTL ? 'rtl' : ''}`}>
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-12 w-12 text-purple-600 animate-spin" />
-          <p className="text-lg font-medium text-slate-700 dark:text-slate-300">Loading content...</p>
+          <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
+            {t('adminManagement.loading.content')}
+          </p>
         </div>
       </div>
     );
@@ -41,21 +48,23 @@ export default function AdminManagementPage() {
 
   if (websitesError) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className={`min-h-screen flex items-center justify-center p-4 ${isRTL ? 'rtl' : ''}`}>
         <Card className="w-full max-w-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="h-6 w-6" />
-              Error Loading Data
+              {t('adminManagement.error.title')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-slate-700 dark:text-slate-300">
-              {(websitesError as Error)?.message || "Failed to load data. Please try refreshing the page."}
+              {(websitesError as Error)?.message || t('adminManagement.error.message')}
             </p>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+            <Button onClick={() => window.location.reload()}>
+              {t('adminManagement.error.refreshButton')}
+            </Button>
           </CardFooter>
         </Card>
       </div>
@@ -65,7 +74,7 @@ export default function AdminManagementPage() {
   const hasWebsite = websites.length > 0;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 py-12 px-4 sm:px-6">
+    <main className={`min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 py-12 px-4 sm:px-6 ${isRTL ? 'rtl' : ''}`}>
       <div className="absolute inset-0 overflow-hidden -z-10">
         <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-purple-500/10 to-transparent dark:from-purple-900/20" />
       </div>
@@ -78,7 +87,7 @@ export default function AdminManagementPage() {
             transition={{ delay: 0.1 }}
             className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl text-center"
           >
-            Website Content Manager
+            {t('adminManagement.title')}
           </motion.h1>
           <motion.p 
             initial={{ y: -10, opacity: 0 }}
@@ -86,7 +95,7 @@ export default function AdminManagementPage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl text-center"
           >
-            Customize your website with languages, sections, and beautiful themes
+            {t('adminManagement.subtitle')}
           </motion.p>
         </div>
         
@@ -97,6 +106,7 @@ export default function AdminManagementPage() {
           value={activeTab} 
           onValueChange={setActiveTab}
           className="w-full"
+          dir={isRTL ? 'rtl' : 'ltr'}
         >
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -105,17 +115,26 @@ export default function AdminManagementPage() {
             className="flex justify-center mb-6"
           >
             <TabsList className="grid grid-cols-3 w-full max-w-lg">
-              <TabsTrigger value="languages" className="flex items-center gap-2">
+              <TabsTrigger 
+                value="languages" 
+                className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+              >
                 <Globe className="h-4 w-4" />
-                Languages
+                {t('adminManagement.tabs.languages')}
               </TabsTrigger>
-              <TabsTrigger value="sections" className="flex items-center gap-2">
+              <TabsTrigger 
+                value="sections" 
+                className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+              >
                 <LayoutGrid className="h-4 w-4" />
-                Sections
+                {t('adminManagement.tabs.sections')}
               </TabsTrigger>
-              <TabsTrigger value="themes" className="flex items-center gap-2">
+              <TabsTrigger 
+                value="themes" 
+                className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+              >
                 <Palette className="h-4 w-4" />
-                Themes
+                {t('adminManagement.tabs.themes')}
               </TabsTrigger>
             </TabsList>
           </motion.div>
@@ -139,8 +158,8 @@ export default function AdminManagementPage() {
           animate="visible"
           className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8"
         >
-          <p>Manage the languages, sections, and visual themes for your website.</p>
-          <p className="mt-1">These settings will be used across your website building process.</p>
+          <p>{t('adminManagement.footer.description')}</p>
+          <p className="mt-1">{t('adminManagement.footer.note')}</p>
         </motion.div>
       </div>
     </main>

@@ -56,6 +56,8 @@ import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import { Badge } from "../../ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../ui/tooltip"
 import { Tabs, TabsList, TabsTrigger } from "../../ui/tabs"
+import { useTranslation } from "react-i18next"
+import { useLanguage } from "@/src/context/LanguageContext"
 
 interface ManagementProps {
   hasWebsite: boolean
@@ -63,6 +65,9 @@ interface ManagementProps {
 
 export function LanguageManagement({ hasWebsite }: ManagementProps) {
   const { websiteId } = useWebsiteContext()
+  const { t } = useTranslation()
+  const { language } = useLanguage()
+  const isRTL = language === 'ar'
 
   const {
     useGetByWebsite,
@@ -131,8 +136,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
   const handleAddLanguage = () => {
     if (!newLanguage.languageID || !newLanguage.language) {
       toast({
-        title: "Invalid input",
-        description: "Please enter both ID and name for the language.",
+        title: t('languageManagement.validation.invalidInput'),
+        description: t('languageManagement.validation.missingFields'),
         variant: "destructive",
       })
       return
@@ -140,8 +145,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
 
     if (!websiteId) {
       toast({
-        title: "Website required",
-        description: "Please select a website first.",
+        title: t('languageManagement.validation.websiteRequired'),
+        description: t('languageManagement.validation.selectWebsite'),
         variant: "destructive",
       })
       return
@@ -149,8 +154,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
 
     if (languageArray?.some((lang: Language) => lang.languageID === newLanguage.languageID)) {
       toast({
-        title: "Duplicate ID",
-        description: "A language with this ID already exists for this website.",
+        title: t('languageManagement.validation.duplicateId'),
+        description: t('languageManagement.validation.duplicateIdDescription'),
         variant: "destructive",
       })
       return
@@ -173,15 +178,15 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
           websiteId,
         })
         toast({
-          title: "Language added",
-          description: `${newLanguage.language} has been added successfully.`,
+          title: t('languageManagement.toastMessages.languageAdded'),
+          description: t('languageManagement.toastMessages.languageAddedDesc', { name: newLanguage.language }),
         })
         showSuccessMessage()
       },
       onError: (error: Error) => {
         toast({
-          title: "Error adding language",
-          description: error.message || "An error occurred while adding the language.",
+          title: t('languageManagement.toastMessages.errorAdding'),
+          description: error.message || t('languageManagement.toastMessages.errorGenericDesc'),
           variant: "destructive",
         })
       },
@@ -205,14 +210,18 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
       {
         onSuccess: () => {
           toast({
-            title: `Language ${!isActive ? "activated" : "deactivated"}`,
-            description: `The language has been ${!isActive ? "activated" : "deactivated"} successfully.`,
+            title: !isActive 
+              ? t('languageManagement.toastMessages.languageActivated')
+              : t('languageManagement.toastMessages.languageDeactivated'),
+            description: !isActive
+              ? t('languageManagement.toastMessages.languageActivatedDesc')
+              : t('languageManagement.toastMessages.languageDeactivatedDesc'),
           })
         },
         onError: (error: Error) => {
           toast({
-            title: "Error updating language",
-            description: error.message || "An error occurred while updating the language status.",
+            title: t('languageManagement.toastMessages.errorTogglingStatus'),
+            description: error.message || t('languageManagement.toastMessages.errorGenericDesc'),
             variant: "destructive",
           })
         },
@@ -223,8 +232,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
   const handleSaveEdit = () => {
     if (!editItem || !editItem._id || editItem.type !== "language") {
       toast({
-        title: "Invalid input",
-        description: "Missing required fields for update.",
+        title: t('languageManagement.validation.invalidInput'),
+        description: t('languageManagement.validation.missingFieldsUpdate'),
         variant: "destructive",
       })
       return
@@ -232,8 +241,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
 
     if (!editItem.languageID || !editItem.language) {
       toast({
-        title: "Invalid input",
-        description: "Please enter both ID and name for the language.",
+        title: t('languageManagement.validation.invalidInput'),
+        description: t('languageManagement.validation.missingFields'),
         variant: "destructive",
       })
       return
@@ -246,8 +255,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
       languageArray.some((item: Language) => item.languageID === editItem.languageID)
     ) {
       toast({
-        title: "Duplicate ID",
-        description: "A language with this ID already exists for this website.",
+        title: t('languageManagement.validation.duplicateId'),
+        description: t('languageManagement.validation.duplicateIdDescription'),
         variant: "destructive",
       })
       return
@@ -268,15 +277,15 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
       onSuccess: () => {
         setEditItem(null)
         toast({
-          title: "Language updated",
-          description: "The language has been updated successfully.",
+          title: t('languageManagement.toastMessages.languageUpdated'),
+          description: t('languageManagement.toastMessages.languageUpdatedDesc'),
         })
         showSuccessMessage()
       },
       onError: (error: Error) => {
         toast({
-          title: "Error updating language",
-          description: error.message || "An error occurred while updating the language.",
+          title: t('languageManagement.toastMessages.errorUpdating'),
+          description: error.message || t('languageManagement.toastMessages.errorGenericDesc'),
           variant: "destructive",
         })
       },
@@ -288,16 +297,16 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
       deleteLanguageMutation.mutate(itemToDelete._id, {
         onSuccess: () => {
           toast({
-            title: "Language deleted",
-            description: `The language has been deleted successfully.`,
+            title: t('languageManagement.toastMessages.languageDeleted'),
+            description: t('languageManagement.toastMessages.languageDeletedDesc'),
           })
           setItemToDelete(null)
           showSuccessMessage()
         },
         onError: (error: Error) => {
           toast({
-            title: "Error deleting language",
-            description: error.message || "An error occurred while deleting the language.",
+            title: t('languageManagement.toastMessages.errorDeleting'),
+            description: error.message || t('languageManagement.toastMessages.errorGenericDesc'),
             variant: "destructive",
           })
         },
@@ -330,19 +339,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
   // Display a message if no website is selected
   const noWebsiteSelected = !websiteId || websiteId === ""
 
-  // Common language codes for quick selection
-  const commonLanguages = [
-    { id: "en", name: "English" },
-    { id: "es", name: "Spanish" },
-    { id: "fr", name: "French" },
-    { id: "de", name: "German" },
-    { id: "it", name: "Italian" },
-    { id: "pt", name: "Portuguese" },
-    { id: "zh", name: "Chinese" },
-    { id: "ja", name: "Japanese" },
-    { id: "ar", name: "Arabic" },
-    { id: "ru", name: "Russian" },
-  ]
+  // Get common languages from translation
+  const commonLanguages = t('languageManagement.commonLanguages', { returnObjects: true }) as Array<{id: string, name: string}>
 
   if (isLoadingLanguages)
     return (
@@ -352,7 +350,7 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
             <div className="absolute inset-0 rounded-full animate-ping opacity-30 bg-purple-400 blur-sm"></div>
           </div>
-          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading languages...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">{t('languageManagement.loading')}</p>
         </div>
       </div>
     )
@@ -363,15 +361,17 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
         <div className="mb-4 bg-red-50 dark:bg-red-900/20 p-3 rounded-full inline-flex">
           <X className="h-8 w-8 text-red-500 dark:text-red-400" />
         </div>
-        <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-white">Error Loading Languages</h3>
+        <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-white">
+          {t('languageManagement.errorTitle')}
+        </h3>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          {(languagesError as Error).message || "An unexpected error occurred"}
+          {(languagesError as Error).message || t('languageManagement.errorDescription')}
         </p>
         <button
           onClick={() => refetchLanguages()}
           className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
         >
-          Try Again
+          {t('languageManagement.tryAgain')}
         </button>
       </div>
     )
@@ -396,41 +396,47 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <motion.div 
+      variants={containerVariants} 
+      initial="hidden" 
+      animate="visible" 
+      className={`space-y-6 ${isRTL ? 'rtl' : ''}`}
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
       <AnimatePresence>
         {showSavedSuccess && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 right-4 z-50 bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-700 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg shadow-md flex items-center gap-2"
+            className={`fixed top-4 z-50 bg-green-100 dark:bg-green-900 border border-green-200 dark:border-green-700 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg shadow-md flex items-center gap-2 ${isRTL ? 'left-4 flex-row-reverse' : 'right-4'}`}
           >
             <Check className="h-5 w-5" />
-            <span>Changes saved successfully!</span>
+            <span>{t('languageManagement.changesSaved')}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       <Card className="overflow-hidden border-slate-200/70 dark:border-slate-800/70 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm">
         <CardHeader className="pb-3 border-b border-slate-200 dark:border-slate-800">
-          <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+          <CardTitle className={`flex items-center gap-2 text-slate-800 dark:text-slate-200 ${isRTL ? 'text-left' : 'text-right'}`}>
             <div className="p-1.5 rounded-md bg-purple-100 dark:bg-purple-900/30">
               <Languages className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
-            Add New Language
+            {t('languageManagement.addNew.title')}
           </CardTitle>
-          <CardDescription>Enter the details for a new language to support on your website</CardDescription>
+          <CardDescription>{t('languageManagement.addNew.description')}</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {!hasWebsite || noWebsiteSelected ? (
-            <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 text-amber-800 dark:text-amber-200 rounded-lg flex items-start gap-3">
+            <div className={`mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 text-amber-800 dark:text-amber-200 rounded-lg flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="font-medium">Website Required</p>
+                <p className="font-medium">{t('languageManagement.addNew.websiteRequired.title')}</p>
                 <p className="text-sm mt-1">
                   {!hasWebsite
-                    ? "Please create a website first before adding languages."
-                    : "Please select a website before adding languages."}
+                    ? t('languageManagement.addNew.websiteRequired.noWebsite')
+                    : t('languageManagement.addNew.websiteRequired.noSelected')}
                 </p>
               </div>
             </div>
@@ -438,8 +444,8 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="new-language-id" className="flex items-center justify-between">
-                <span>Language ID (code)</span>
+              <Label htmlFor="new-language-id" className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <span>{t('languageManagement.form.labels.languageId')}</span>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -449,31 +455,31 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">
-                        Use a standard ISO language code (e.g., "en" for English, "fr" for French)
+                        {t('languageManagement.form.helpText.languageIdTooltip')}
                       </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </Label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <div className={`absolute inset-y-0 flex items-center pl-3 pointer-events-none ${isRTL ? 'right-0 pr-3' : 'left-0'}`}>
                   <Flag className="h-4 w-4 text-gray-400" />
                 </div>
                 <Input
                   id="new-language-id"
-                  placeholder="e.g. en, fr, es"
+                  placeholder={t('languageManagement.form.placeholders.languageId')}
                   value={newLanguage.languageID}
                   onChange={(e) => setNewLanguage({ ...newLanguage, languageID: e.target.value.toLowerCase() })}
-                  className="w-full pl-10"
+                  className={`w-full ${isRTL ? 'pr-10' : 'pl-10'}`}
                   disabled={!hasWebsite || noWebsiteSelected}
                 />
               </div>
-              <p className="text-xs text-slate-500">Use a standard language code (e.g., "en" for English)</p>
+              <p className="text-xs text-slate-500">{t('languageManagement.form.helpText.languageId')}</p>
 
               {/* Quick language selection */}
               {hasWebsite && !noWebsiteSelected && (
                 <div className="mt-2">
-                  <Label className="text-xs mb-1 block">Quick Select</Label>
+                  <Label className="text-xs mb-1 block">{t('languageManagement.form.quickSelect')}</Label>
                   <div className="flex flex-wrap gap-1.5">
                     {commonLanguages.map((lang) => (
                       <button
@@ -496,38 +502,38 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new-language-name">Language Name</Label>
+              <Label htmlFor="new-language-name">{t('languageManagement.form.labels.languageName')}</Label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <div className={`absolute inset-y-0 flex items-center pl-3 pointer-events-none ${isRTL ? 'right-0 pr-3' : 'left-0'}`}>
                   <Globe className="h-4 w-4 text-gray-400" />
                 </div>
                 <Input
                   id="new-language-name"
-                  placeholder="e.g. English, French"
+                  placeholder={t('languageManagement.form.placeholders.languageName')}
                   value={newLanguage.language}
                   onChange={(e) => setNewLanguage({ ...newLanguage, language: e.target.value })}
-                  className="w-full pl-10"
+                  className={`w-full ${isRTL ? 'pr-10' : 'pl-10'}`}
                   disabled={!hasWebsite || noWebsiteSelected}
                 />
               </div>
               <div className="mt-4">
-                <div className="flex items-center space-x-2">
+                <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
                   <Checkbox
                     id="new-language-active"
                     checked={newLanguage.isActive || false}
                     onCheckedChange={(checked) => setNewLanguage({ ...newLanguage, isActive: checked === true })}
                     disabled={!hasWebsite || noWebsiteSelected}
                   />
-                  <Label htmlFor="new-language-active">Set as active language</Label>
+                  <Label htmlFor="new-language-active">{t('languageManagement.form.labels.activeLanguage')}</Label>
                 </div>
-                <p className="text-xs text-slate-500 mt-1 ml-6">
-                  Active languages will be available for content creation
+                <p className={`text-xs text-slate-500 mt-1 ${isRTL ? 'mr-6' : 'ml-6'}`}>
+                  {t('languageManagement.form.helpText.activeLanguage')}
                 </p>
               </div>
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-4">
+        <CardFooter className={`flex justify-between border-t border-slate-200 dark:border-slate-800 pt-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <Button
             variant="outline"
             onClick={() =>
@@ -543,7 +549,7 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
             disabled={!hasWebsite || noWebsiteSelected}
             className="text-slate-600 dark:text-slate-300"
           >
-            Reset Form
+            {t('languageManagement.form.buttons.resetForm')}
           </Button>
           <Button
             onClick={handleAddLanguage}
@@ -552,13 +558,13 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
           >
             {createLanguageMutation.isPending ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Adding...
+                <Loader2 className={`h-4 w-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                {t('languageManagement.form.buttons.adding')}
               </>
             ) : (
               <>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Language
+                <Plus className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                {t('languageManagement.form.buttons.addLanguage')}
               </>
             )}
           </Button>
@@ -567,28 +573,28 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
 
       <Card className="overflow-hidden border-slate-200/70 dark:border-slate-800/70 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm">
         <CardHeader className="pb-3 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center justify-between">
+          <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
             <div>
-              <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+              <CardTitle className={`flex items-center gap-2 text-slate-800 dark:text-slate-200 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div className="p-1.5 rounded-md bg-indigo-100 dark:bg-indigo-900/30">
                   <Globe className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                Manage Languages
+                {t('languageManagement.manage.title')}
               </CardTitle>
               <CardDescription>
                 {websiteId
-                  ? `Edit or remove existing languages (${languageArray.length} total)`
-                  : "Select a website to manage its languages"}
+                  ? t('languageManagement.manage.description', { count: languageArray.length })
+                  : t('languageManagement.manage.noWebsiteSelected')}
               </CardDescription>
             </div>
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center gap-1.5"
+              className={`flex items-center gap-1.5 ${isRTL ? 'flex-row-reverse' : ''}`}
               onClick={() => setExpandedInfo(!expandedInfo)}
             >
               <Info className="h-4 w-4" />
-              <span>Help</span>
+              <span>{t('languageManagement.manage.help.button')}</span>
               {expandedInfo ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
             </Button>
           </div>
@@ -603,15 +609,14 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                 className="overflow-hidden"
               >
                 <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-lg text-sm text-blue-800 dark:text-blue-200">
-                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <h4 className={`font-medium mb-2 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <HelpCircle className="h-4 w-4" />
-                    Language Management Tips
+                    {t('languageManagement.manage.help.title')}
                   </h4>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Use standard ISO language codes (e.g., "en" for English)</li>
-                    <li>Active languages will be available for content creation</li>
-                    <li>You can toggle language status without editing the language</li>
-                    <li>Deleting a language will remove all content in that language</li>
+                  <ul className={`list-disc space-y-1 ${isRTL ? 'pr-5' : 'pl-5'}`}>
+                    {(t('languageManagement.manage.help.tips', { returnObjects: true }) as string[]).map((tip, index) => (
+                      <li key={index}>{tip}</li>
+                    ))}
                   </ul>
                 </div>
               </motion.div>
@@ -625,34 +630,41 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
               <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-full inline-flex mb-4">
                 <AlertTriangle className="h-8 w-8 text-amber-500 dark:text-amber-400" />
               </div>
-              <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">No Website Selected</p>
-              <p className="max-w-md mx-auto">Please select a website to view and manage its languages.</p>
+              <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('languageManagement.manage.emptyState.noWebsite.title')}
+              </p>
+              <p className="max-w-md mx-auto">
+                {t('languageManagement.manage.emptyState.noWebsite.description')}
+              </p>
             </div>
           ) : (
             <>
-              <div className="mb-6 flex flex-col sm:flex-row gap-4">
+              <div className={`mb-6 flex flex-col sm:flex-row gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
                 <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <div className={`absolute inset-y-0 flex items-center pl-3 pointer-events-none ${isRTL ? 'right-0 pr-3' : 'left-0'}`}>
                     <Search className="h-4 w-4 text-gray-400" />
                   </div>
                   <Input
-                    placeholder="Search languages..."
+                    placeholder={t('languageManagement.manage.search.placeholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className={`${isRTL ? 'pr-10' : 'pl-10'}`}
                   />
                 </div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
                   <TabsList className="grid grid-cols-3 w-full sm:w-auto">
                     <TabsTrigger value="all" className="text-xs px-3">
-                      All ({languageArray.length})
+                      {t('languageManagement.manage.tabs.all')}
+                      {languageArray.length}
                     </TabsTrigger>
                     <TabsTrigger value="active" className="text-xs px-3">
-                      Active ({languageArray.filter((l: Language) => l.isActive).length})
+                      {t('languageManagement.manage.tabs.active')}
+                      {languageArray.filter((l: Language) => l.isActive).length}
                     </TabsTrigger>
                     <TabsTrigger value="inactive" className="text-xs px-3">
-                      Inactive ({languageArray.filter((l: Language) => !l.isActive).length})
+                      {t('languageManagement.manage.tabs.inactive')}
+                      {languageArray.filter((l: Language) => !l.isActive).length }
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -677,9 +689,9 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                             }`}
                           ></div>
                           <div className="p-4">
-                            <div className="flex justify-between items-start">
+                            <div className={`flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
                               <div>
-                                <div className="flex items-center gap-2">
+                                <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                                   <p className="font-medium text-slate-800 dark:text-slate-200">{language.language}</p>
                                   <Badge
                                     variant="outline"
@@ -696,11 +708,14 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                                         : "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                                     } border-0`}
                                   >
-                                    {language.isActive ? "Active" : "Inactive"}
+                                    {language.isActive 
+                                      ? t('languageManagement.languageCard.status.active')
+                                      : t('languageManagement.languageCard.status.inactive')
+                                    }
                                   </Badge>
                                 </div>
                               </div>
-                              <div className="flex gap-1">
+                              <div className={`flex gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -725,7 +740,12 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>{language.isActive ? "Deactivate" : "Activate"} language</p>
+                                      <p>
+                                        {language.isActive 
+                                          ? t('languageManagement.languageCard.tooltips.deactivate')
+                                          : t('languageManagement.languageCard.tooltips.activate')
+                                        }
+                                      </p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
@@ -747,21 +767,25 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                                         </DialogTrigger>
                                       </TooltipTrigger>
                                       <TooltipContent>
-                                        <p>Edit language</p>
+                                        <p>{t('languageManagement.languageCard.tooltips.edit')}</p>
                                       </TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
                                   <DialogContent className="sm:max-w-md">
                                     <DialogHeader>
-                                      <DialogTitle>Edit Language</DialogTitle>
-                                      <DialogDescription>Make changes to the language details below.</DialogDescription>
+                                      <DialogTitle>{t('languageManagement.editDialog.title')}</DialogTitle>
+                                      <DialogDescription>
+                                        {t('languageManagement.editDialog.description')}
+                                      </DialogDescription>
                                     </DialogHeader>
                                     {editItem && editItem.type === "language" && (
                                       <div className="grid gap-4 py-4">
                                         <div className="space-y-2">
-                                          <Label htmlFor="edit-language-id">Language ID</Label>
+                                          <Label htmlFor="edit-language-id">
+                                            {t('languageManagement.editDialog.labels.languageId')}
+                                          </Label>
                                           <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <div className={`absolute inset-y-0 flex items-center pl-3 pointer-events-none ${isRTL ? 'right-0 pr-3' : 'left-0'}`}>
                                               <Flag className="h-4 w-4 text-gray-400" />
                                             </div>
                                             <Input
@@ -770,25 +794,27 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                                               onChange={(e) =>
                                                 setEditItem({ ...editItem, languageID: e.target.value.toLowerCase() })
                                               }
-                                              className="pl-10"
+                                              className={`${isRTL ? 'pr-10' : 'pl-10'}`}
                                             />
                                           </div>
                                         </div>
                                         <div className="space-y-2">
-                                          <Label htmlFor="edit-language-name">Language Name</Label>
+                                          <Label htmlFor="edit-language-name">
+                                            {t('languageManagement.editDialog.labels.languageName')}
+                                          </Label>
                                           <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <div className={`absolute inset-y-0 flex items-center pl-3 pointer-events-none ${isRTL ? 'right-0 pr-3' : 'left-0'}`}>
                                               <Globe className="h-4 w-4 text-gray-400" />
                                             </div>
                                             <Input
                                               id="edit-language-name"
                                               value={editItem.language}
                                               onChange={(e) => setEditItem({ ...editItem, language: e.target.value })}
-                                              className="pl-10"
+                                              className={`${isRTL ? 'pr-10' : 'pl-10'}`}
                                             />
                                           </div>
                                         </div>
-                                        <div className="flex items-center space-x-2">
+                                        <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
                                           <Checkbox
                                             id="edit-language-active"
                                             checked={editItem.isActive || false}
@@ -796,13 +822,17 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                                               setEditItem({ ...editItem, isActive: checked === true })
                                             }
                                           />
-                                          <Label htmlFor="edit-language-active">Active</Label>
+                                          <Label htmlFor="edit-language-active">
+                                            {t('languageManagement.editDialog.labels.active')}
+                                          </Label>
                                         </div>
                                       </div>
                                     )}
-                                    <DialogFooter className="sm:justify-between">
+                                    <DialogFooter className={`sm:justify-between ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
                                       <DialogClose asChild>
-                                        <Button variant="outline">Cancel</Button>
+                                        <Button variant="outline">
+                                          {t('languageManagement.form.buttons.cancel')}
+                                        </Button>
                                       </DialogClose>
                                       <DialogClose asChild>
                                         <Button
@@ -811,11 +841,11 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                                           className="bg-indigo-600 hover:bg-indigo-700"
                                         >
                                           {updateLanguageMutation.isPending ? (
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            <Loader2 className={`h-4 w-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
                                           ) : (
-                                            <Save className="h-4 w-4 mr-2" />
+                                            <Save className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                                           )}
-                                          Save Changes
+                                          {t('languageManagement.form.buttons.saveChanges')}
                                         </Button>
                                       </DialogClose>
                                     </DialogFooter>
@@ -839,40 +869,43 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                                         </AlertDialogTrigger>
                                       </TooltipTrigger>
                                       <TooltipContent>
-                                        <p>Delete language</p>
+                                        <p>{t('languageManagement.languageCard.tooltips.delete')}</p>
                                       </TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete Language</AlertDialogTitle>
+                                      <AlertDialogTitle>
+                                        {t('languageManagement.deleteDialog.title')}
+                                      </AlertDialogTitle>
                                       <AlertDialogDescription>
                                         <p className="mb-2">
-                                          Are you sure you want to delete "{language.language}"? This action cannot be
-                                          undone.
+                                          {t('languageManagement.deleteDialog.description', { name: language.language })}
                                         </p>
                                         <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-md text-amber-800 dark:text-amber-200 text-sm mt-2">
-                                          <p className="font-medium flex items-center gap-1.5">
+                                          <p className={`font-medium flex items-center gap-1.5 ${isRTL ? 'flex-row-reverse' : ''}`}>
                                             <AlertTriangle className="h-4 w-4" />
-                                            Warning
+                                            {t('languageManagement.deleteDialog.warning.title')}
                                           </p>
                                           <p className="mt-1">
-                                            Deleting this language will remove all content associated with it.
+                                            {t('languageManagement.deleteDialog.warning.description')}
                                           </p>
                                         </div>
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogFooter className={`${isRTL ? 'flex-row-reverse' : ''}`}>
+                                      <AlertDialogCancel>
+                                        {t('languageManagement.deleteDialog.buttons.cancel')}
+                                      </AlertDialogCancel>
                                       <AlertDialogAction
                                         onClick={confirmDelete}
                                         className="bg-red-500 hover:bg-red-600"
                                         disabled={deleteLanguageMutation.isPending}
                                       >
                                         {deleteLanguageMutation.isPending ? (
-                                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                          <Loader2 className={`h-4 w-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
                                         ) : null}
-                                        Delete
+                                        {t('languageManagement.deleteDialog.buttons.delete')}
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -892,12 +925,14 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                       <div className="bg-slate-100 dark:bg-slate-700 p-4 rounded-full inline-flex mb-4">
                         <Search className="h-6 w-6 text-slate-500 dark:text-slate-400" />
                       </div>
-                      <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">No Results Found</p>
+                      <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        {t('languageManagement.manage.search.noResults.title')}
+                      </p>
                       <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                        No languages match your search "{searchQuery}". Try a different search term.
+                        {t('languageManagement.manage.search.noResults.description', { query: searchQuery })}
                       </p>
                       <Button variant="outline" className="mt-4" onClick={() => setSearchQuery("")}>
-                        Clear Search
+                        {t('languageManagement.manage.search.noResults.clearButton')}
                       </Button>
                     </>
                   ) : (
@@ -905,9 +940,11 @@ export function LanguageManagement({ hasWebsite }: ManagementProps) {
                       <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-full inline-flex mb-4">
                         <Languages className="h-6 w-6 text-purple-500 dark:text-purple-400" />
                       </div>
-                      <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">No Languages Found</p>
+                      <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        {t('languageManagement.manage.emptyState.noLanguages.title')}
+                      </p>
                       <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                        This website doesn't have any languages yet. Add your first language using the form above.
+                        {t('languageManagement.manage.emptyState.noLanguages.description')}
                       </p>
                     </>
                   )}

@@ -1,4 +1,8 @@
 {
+   "Dashboard_Header" : {
+    "dark":"داكن",
+    "light":"فاتح"
+  },
   "Dashboard_sideBar": {
     "title": "لوحة التحكم الإدارية",
     "menu": "القائمة",
@@ -365,6 +369,314 @@
       "showPassword": "إظهار كلمة المرور",
       "hidePassword": "إخفاء كلمة المرور"
     }
+  },
+    "ProfilePage": {
+    "title": "إعدادات ملفي الشخصي",
+    "tabs": {
+      "account": "معلومات الحساب"
+    },
+    "fields": {
+      "role": "الدور",
+      "status": "الحالة",
+      "firstName": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "email": "عنوان البريد الإلكتروني",
+      "accountStatus": "حالة الحساب"
+    },
+    "editProfile": {
+      "title": "تعديل الملف الشخصي",
+      "description": "قم بتحديث معلوماتك الشخصية"
+    },
+    "accountInfo": {
+      "title": "معلومات الحساب"
+    },
+    "buttons": {
+      "saveChanges": "حفظ التغييرات",
+      "saving": "جاري الحفظ..."
+    },
+    "messages": {
+      "savedSuccessfully": "تم الحفظ بنجاح"
+    },
+    "toasts": {
+      "updateSuccess": {
+        "title": "تم تحديث الملف الشخصي",
+        "description": "تم تحديث معلومات ملفك الشخصي بنجاح."
+      },
+      "updateError": {
+        "title": "فشل التحديث",
+        "description": "حدثت مشكلة أثناء تحديث ملفك الشخصي"
+      }
+    },
+    "roles": {
+      "user": "مستخدم",
+      "admin": "مدير",
+      "superadmin": "مدير عام",
+      "owner": "مالك"
+    },
+    "statuses": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "معلق",
+      "pending": "في الانتظار"
+    }
+  },
+    "adminManagement": {
+    "title": "مدير محتوى الموقع",
+    "subtitle": "خصص موقعك الإلكتروني باللغات والأقسام والقوالب الجميلة",
+    "loading": {
+      "content": "جاري تحميل المحتوى..."
+    },
+    "error": {
+      "title": "خطأ في تحميل البيانات",
+      "message": "فشل في تحميل البيانات. يرجى محاولة تحديث الصفحة.",
+      "refreshButton": "تحديث الصفحة"
+    },
+    "tabs": {
+      "languages": "اللغات",
+      "sections": "الأقسام",
+      "themes": "القوالب"
+    },
+    "footer": {
+      "description": "إدارة اللغات والأقسام والقوالب المرئية لموقعك الإلكتروني.",
+      "note": "سيتم استخدام هذه الإعدادات في جميع أنحاء عملية بناء موقعك الإلكتروني."
+    }
+  },
+  "websiteList": {
+    "title": "مواقعي الإلكترونية",
+    "createWebsite": "إنشاء موقع",
+    "createNewWebsite": "إنشاء موقع جديد",
+    "editWebsite": "تعديل الموقع",
+    "noWebsitesTitle": "لا توجد مواقع بعد",
+    "noWebsitesDescription": "ليس لديك أي مواقع إلكترونية بعد. أنشئ موقعاً للبدء في حضورك الرقمي.",
+    "errorLoadingTitle": "خطأ في تحميل المواقع",
+    "form": {
+      "labels": {
+        "name": "الاسم",
+        "description": "الوصف",
+        "logo": "الشعار",
+        "sector": "القطاع",
+        "phoneNumber": "رقم الهاتف",
+        "email": "البريد الإلكتروني",
+        "address": "العنوان"
+      },
+      "placeholders": {
+        "name": "أدخل اسم الموقع",
+        "description": "اوصف موقعك الإلكتروني",
+        "sector": "أدخل عنوان القطاع",
+        "phoneNumber": "أدخل رقم الهاتف",
+        "email": "أدخل عنوان البريد الإلكتروني",
+        "address": "أدخل العنوان الفعلي"
+      },
+      "helperText": {
+        "logoUpload": "ارفع شعار موقعك الإلكتروني (حد أقصى 2 ميجابايت)",
+        "logoPlaceholder": "انقر لرفع الشعار"
+      }
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "createWebsite": "إنشاء موقع",
+      "saveChanges": "حفظ التغييرات",
+      "change": "تغيير",
+      "remove": "إزالة",
+      "changeLogo": "تغيير الشعار",
+      "removeLogo": "إزالة الشعار"
+    },
+    "loadingStates": {
+      "creating": "جاري الإنشاء...",
+      "saving": "جاري الحفظ...",
+      "uploading": "جاري الرفع...",
+      "deleting": "جاري الحذف..."
+    },
+    "labels": {
+      "created": "تم الإنشاء",
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "address": "العنوان"
+    },
+    "validation": {
+      "invalidFile": "ملف غير صالح",
+      "invalidImageType": "يرجى رفع صورة بصيغة PNG أو JPEG أو SVG",
+      "imageTooLarge": "يجب أن تكون الصورة أقل من 2 ميجابايت"
+    },
+    "toastMessages": {
+      "websiteCreated": "تم إنشاء الموقع",
+      "websiteCreatedDesc": "تم إنشاء موقعك الإلكتروني بنجاح",
+      "websiteUpdated": "تم تحديث الموقع",
+      "websiteUpdatedDesc": "تم تحديث موقعك الإلكتروني بنجاح",
+      "websiteDeleted": "تم حذف الموقع",
+      "websiteDeletedDesc": "تم حذف الموقع الإلكتروني بنجاح",
+      "logoUploaded": "تم رفع الشعار",
+      "logoUploadedDesc": "تم رفع الشعار بنجاح",
+      "logoRemoved": "تم إزالة الشعار",
+      "logoRemovedDesc": "تم إزالة الشعار بنجاح",
+      "uploadFailed": "فشل الرفع",
+      "uploadFailedDesc": "حدثت مشكلة في رفع الشعار. يرجى المحاولة مرة أخرى.",
+      "deleteFailed": "فشل الحذف",
+      "deleteFailedDesc": "حدثت مشكلة في حذف الموقع. يرجى المحاولة مرة أخرى."
+    },
+    "deleteDialog": {
+      "title": "حذف الموقع",
+      "confirmButton": "حذف الموقع"
+    }
+  },
+  "languageManagement": {
+    "loading": "جاري تحميل اللغات...",
+    "errorTitle": "خطأ في تحميل اللغات",
+    "errorDescription": "حدث خطأ غير متوقع",
+    "tryAgain": "حاول مرة أخرى",
+    "changesSaved": "تم حفظ التغييرات بنجاح!",
+    
+    "addNew": {
+      "title": "إضافة لغة جديدة",
+      "description": "أدخل تفاصيل لغة جديدة لدعمها على موقعك الإلكتروني",
+      "websiteRequired": {
+        "title": "مطلوب موقع إلكتروني",
+        "noWebsite": "يرجى إنشاء موقع إلكتروني أولاً قبل إضافة اللغات.",
+        "noSelected": "يرجى اختيار موقع إلكتروني قبل إضافة اللغات."
+      }
+    },
+
+    "form": {
+      "labels": {
+        "languageId": "معرف اللغة (الرمز)",
+        "languageName": "اسم اللغة",
+        "activeLanguage": "تعيين كلغة نشطة"
+      },
+      "placeholders": {
+        "languageId": "مثال: en, fr, es",
+        "languageName": "مثال: الإنجليزية، الفرنسية"
+      },
+      "helpText": {
+        "languageId": "استخدم رمز لغة قياسي (مثل \"en\" للإنجليزية)",
+        "languageIdTooltip": "استخدم رمز لغة ISO قياسي (مثل \"en\" للإنجليزية، \"fr\" للفرنسية)",
+        "activeLanguage": "ستكون اللغات النشطة متاحة لإنشاء المحتوى"
+      },
+      "quickSelect": "اختيار سريع",
+      "buttons": {
+        "resetForm": "إعادة تعيين النموذج",
+        "addLanguage": "إضافة لغة",
+        "adding": "جاري الإضافة...",
+        "cancel": "إلغاء",
+        "saveChanges": "حفظ التغييرات",
+        "delete": "حذف"
+      }
+    },
+
+    "manage": {
+      "title": "إدارة اللغات",
+      "description": "تعديل أو إزالة اللغات الموجودة (إجمالي )",
+      "noWebsiteSelected": "اختر موقعاً إلكترونياً لإدارة لغاته",
+      "help": {
+        "button": "مساعدة",
+        "title": "نصائح إدارة اللغات",
+        "tips": [
+          "استخدم رموز اللغات القياسية ISO (مثل \"en\" للإنجليزية)",
+          "ستكون اللغات النشطة متاحة لإنشاء المحتوى",
+          "يمكنك تبديل حالة اللغة دون تعديل اللغة",
+          "حذف لغة سيؤدي إلى إزالة جميع المحتوى المرتبط بها"
+        ]
+      },
+      "search": {
+        "placeholder": "البحث في اللغات...",
+        "noResults": {
+          "title": "لم يتم العثور على نتائج",
+          "description": "لا توجد لغات تطابق بحثك \"{query}\". جرب مصطلح بحث مختلف.",
+          "clearButton": "مسح البحث"
+        }
+      },
+      "tabs": {
+        "all": "الكل ",
+        "active": "نشط",
+        "inactive": "غير نشط "
+      },
+      "emptyState": {
+        "noWebsite": {
+          "title": "لم يتم اختيار موقع إلكتروني",
+          "description": "يرجى اختيار موقع إلكتروني لعرض وإدارة لغاته."
+        },
+        "noLanguages": {
+          "title": "لم يتم العثور على لغات",
+          "description": "لا يحتوي هذا الموقع على أي لغات بعد. أضف لغتك الأولى باستخدام النموذج أعلاه."
+        }
+      }
+    },
+
+    "languageCard": {
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "tooltips": {
+        "activate": "تفعيل اللغة",
+        "deactivate": "إلغاء تفعيل اللغة",
+        "edit": "تعديل اللغة",
+        "delete": "حذف اللغة"
+      }
+    },
+
+    "editDialog": {
+      "title": "تعديل اللغة",
+      "description": "قم بإجراء تغييرات على تفاصيل اللغة أدناه.",
+      "labels": {
+        "languageId": "معرف اللغة",
+        "languageName": "اسم اللغة",
+        "active": "نشط"
+      }
+    },
+
+    "deleteDialog": {
+      "title": "حذف اللغة",
+      "description": "هل أنت متأكد من أنك تريد حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "warning": {
+        "title": "تحذير",
+        "description": "حذف هذه اللغة سيؤدي إلى إزالة جميع المحتوى المرتبط بها."
+      },
+      "buttons": {
+        "cancel": "إلغاء",
+        "delete": "حذف"
+      }
+    },
+
+    "validation": {
+      "invalidInput": "إدخال غير صحيح",
+      "missingFields": "يرجى إدخال معرف اللغة واسمها.",
+      "missingFieldsUpdate": "الحقول المطلوبة للتحديث مفقودة.",
+      "websiteRequired": "مطلوب موقع إلكتروني",
+      "selectWebsite": "يرجى اختيار موقع إلكتروني أولاً.",
+      "duplicateId": "معرف مكرر",
+      "duplicateIdDescription": "توجد لغة بهذا المعرف بالفعل لهذا الموقع."
+    },
+
+    "toastMessages": {
+      "languageAdded": "تم إضافة اللغة",
+      "languageAddedDesc": "تم إضافة {name} بنجاح.",
+      "languageUpdated": "تم تحديث اللغة",
+      "languageUpdatedDesc": "تم تحديث اللغة بنجاح.",
+      "languageDeleted": "تم حذف اللغة",
+      "languageDeletedDesc": "تم حذف اللغة بنجاح.",
+      "languageActivated": "تم تفعيل اللغة",
+      "languageActivatedDesc": "تم تفعيل اللغة بنجاح.",
+      "languageDeactivated": "تم إلغاء تفعيل اللغة",
+      "languageDeactivatedDesc": "تم إلغاء تفعيل اللغة بنجاح.",
+      "errorAdding": "خطأ في إضافة اللغة",
+      "errorUpdating": "خطأ في تحديث اللغة",
+      "errorDeleting": "خطأ في حذف اللغة",
+      "errorTogglingStatus": "خطأ في تحديث اللغة",
+      "errorGenericDesc": "حدث خطأ أثناء معالجة طلبك."
+    },
+
+    "commonLanguages": [
+      { "id": "en", "name": "الإنجليزية" },
+      { "id": "es", "name": "الإسبانية" },
+      { "id": "fr", "name": "الفرنسية" },
+      { "id": "de", "name": "الألمانية" },
+      { "id": "it", "name": "الإيطالية" },
+      { "id": "pt", "name": "البرتغالية" },
+      { "id": "zh", "name": "الصينية" },
+      { "id": "ja", "name": "اليابانية" },
+      { "id": "ar", "name": "العربية" },
+      { "id": "ru", "name": "الروسية" }
+    ]
   },
   "common": {
     "welcome": "مرحبا",
