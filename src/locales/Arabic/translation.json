@@ -39,6 +39,333 @@
       "idigitekAdmin": "مدير إيديجيتك"
     }
   },
+    "Dashboard": {
+    "title": "لوحة التحكم",
+    "subtitle": "راقب إعدادات موقعك والتحليلات",
+    "noWebsiteSelected": {
+      "title": "لم يتم اختيار موقع ويب",
+      "description": "يرجى اختيار موقع ويب لعرض بيانات لوحة التحكم الخاصة به."
+    },
+    "metrics": {
+      "totalSections": "إجمالي الأقسام",
+      "activeSections": "الأقسام النشطة",
+      "totalLanguages": "إجمالي اللغات",
+      "activeLanguages": "اللغات النشطة",
+      "websiteUsers": "مستخدمو الموقع"
+    },
+    "charts": {
+      "sectionDistribution": "توزيع الأقسام",
+      "languageDistribution": "توزيع اللغات",
+      "userRoleDistribution": "توزيع أدوار المستخدمين",
+      "activityOverview": "نظرة عامة على النشاط",
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "descriptions": {
+      "userRoleDistribution": "توزيع أدوار المستخدمين",
+      "activeVsInactiveSections": "الأقسام النشطة مقابل غير النشطة",
+      "activeVsInactiveLanguages": "اللغات النشطة مقابل غير النشطة",
+      "websiteUserTypes": "أنواع مستخدمي الموقع",
+      "weeklyContentActivity": "نشاط المحتوى الأسبوعي"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "more": "المزيد",
+      "total": "المجموع",
+      "lastUpdated": "آخر تحديث",
+      "realTimeData": "بيانات فورية",
+      "increaseThisWeek": "زيادة هذا الأسبوع",
+      "updatedRealTime": "محدث في الوقت الفعلي"
+    },
+    "labels": {
+      "sections": "أقسام",
+      "languages": "لغات",
+      "users": "مستخدمون",
+      "roles": "أدوار"
+    },
+    "buttons": {
+      "manageUsers": "إدارة المستخدمين"
+    },
+    "userRoles": {
+      "owner": "المالك",
+      "superAdmin": "المدير العام",
+      "admin": "المدير",
+      "user": "المستخدم"
+    },
+    "weekDays": {
+      "monday": "الاثنين",
+      "tuesday": "الثلاثاء",
+      "wednesday": "الأربعاء",
+      "thursday": "الخميس",
+      "friday": "الجمعة",
+      "saturday": "السبت",
+      "sunday": "الأحد"
+    }
+  },
+  "Users": {
+    "title": "إدارة المستخدمين",
+    "subtitle": "إدارة حسابات المستخدمين والأدوار والصلاحيات",
+    "search": {
+      "placeholder": "البحث عن المستخدمين...",
+      "noResults": "لم يتم العثور على مستخدمين يطابقون بحثك."
+    },
+    "buttons": {
+      "addUser": "إضافة مستخدم",
+      "refresh": "تحديث",
+      "edit": "تعديل",
+      "view": "عرض",
+      "delete": "حذف",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "close": "إغلاق"
+    },
+    "stats": {
+      "totalUsers": "إجمالي المستخدمين",
+      "activeUsers": "المستخدمون النشطون",
+      "inactiveUsers": "المستخدمون غير النشطين",
+      "adminUsers": "المديرون",
+      "ownerUsers": "الملاك",
+      "superAdminUsers": "المديرون العامون",
+      "regularUsers": "المستخدمون العاديون"
+    },
+    "table": {
+      "title" : "المستخدمون",
+      "showingAll":"عرض جميع المستخدمين",
+      "user":"مستخدم",
+      "users":"مستخدمون",
+      "headers": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "role": "الدور",
+        "status": "الحالة",
+        "createdAt": "تاريخ الإنشاء",
+        "lastLogin": "آخر تسجيل دخول",
+        "actions": "الإجراءات"
+      },
+      "filters": {
+        "all": "جميع المستخدمين",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "owner": "الملاك",
+        "admin": "المديرون",
+        "user": "المستخدمون"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "suspended": "معلق",
+        "pending": "في الانتظار"
+      },
+      "noData": "لم يتم العثور على مستخدمين",
+      "loading": "جاري تحميل المستخدمين..."
+    },
+    "forms": {
+      "addUser": {
+        "title": "إضافة مستخدم جديد",
+        "description": "إنشاء حساب مستخدم جديد مع دور وصلاحيات محددة."
+      },
+      "editUser": {
+        "title": "تعديل المستخدم",
+        "description": "تحديث معلومات المستخدم والدور والصلاحيات."
+      },
+      "deleteUser": {
+        "title": "حذف المستخدم",
+        "description": "هل أنت متأكد من أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.",
+        "confirmMessage": "سيؤدي هذا إلى حذف حساب المستخدم وجميع البيانات المرتبطة به نهائياً."
+      },
+      "viewUser": {
+        "title": "تفاصيل المستخدم",
+        "description": "عرض معلومات مفصلة حول هذا المستخدم."
+      },
+      "fields": {
+        "name": "الاسم الكامل",
+        "email": "عنوان البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "confirmPassword": "تأكيد كلمة المرور",
+        "role": "دور المستخدم",
+        "status": "الحالة",
+        "avatar": "صورة الملف الشخصي",
+        "phoneNumber": "رقم الهاتف",
+        "department": "القسم",
+        "position": "المنصب",
+        "bio": "السيرة الذاتية",
+        "lastLogin": "آخر تسجيل دخول",
+        "createdAt": "تاريخ الإنشاء",
+        "updatedAt": "آخر تحديث"
+      },
+      "placeholders": {
+        "name": "أدخل الاسم الكامل",
+        "email": "أدخل عنوان البريد الإلكتروني",
+        "password": "أدخل كلمة المرور",
+        "confirmPassword": "أكد كلمة المرور",
+        "phoneNumber": "أدخل رقم الهاتف",
+        "department": "أدخل القسم",
+        "position": "أدخل المنصب",
+        "bio": "أدخل السيرة الذاتية للمستخدم"
+      },
+      "validation": {
+        "nameRequired": "الاسم مطلوب",
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "emailInvalid": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+        "passwordRequired": "كلمة المرور مطلوبة",
+        "passwordMinLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "passwordMismatch": "كلمات المرور غير متطابقة",
+        "roleRequired": "يرجى اختيار دور المستخدم",
+        "statusRequired": "يرجى اختيار الحالة"
+      },
+      "success": {
+        "userAdded": "تم إضافة المستخدم بنجاح",
+        "userUpdated": "تم تحديث المستخدم بنجاح",
+        "userDeleted": "تم حذف المستخدم بنجاح"
+      },
+      "errors": {
+        "addFailed": "فشل في إضافة المستخدم",
+        "updateFailed": "فشل في تحديث المستخدم",
+        "deleteFailed": "فشل في حذف المستخدم",
+        "loadFailed": "فشل في تحميل المستخدمين",
+        "emailExists": "عنوان البريد الإلكتروني موجود بالفعل",
+        "insufficientPermissions": "صلاحيات غير كافية لتنفيذ هذا الإجراء"
+      }
+    },
+    "roles": {
+      "owner": "المالك",
+      "superAdmin": "المدير العام",
+      "admin": "المدير",
+      "user": "المستخدم",
+      "moderator": "المشرف",
+      "editor": "المحرر",
+      "viewer": "المشاهد"
+    },
+    "permissions": {
+      "canEdit": "يمكن تعديل المستخدمين",
+      "canDelete": "يمكن حذف المستخدمين",
+      "canView": "يمكن عرض المستخدمين",
+      "canCreate": "يمكن إنشاء المستخدمين",
+      "fullAccess": "وصول كامل",
+      "limitedAccess": "وصول محدود",
+      "readOnly": "قراءة فقط"
+    },
+    "tooltips": {
+      "editUser": "تعديل تفاصيل المستخدم",
+      "deleteUser": "حذف هذا المستخدم",
+      "viewUser": "عرض تفاصيل المستخدم",
+      "refreshUsers": "تحديث قائمة المستخدمين",
+      "addUser": "إضافة مستخدم جديد",
+      "togglePassword": "إظهار/إخفاء كلمة المرور",
+      "userStatus": "حالة حساب المستخدم",
+      "userRole": "دور المستخدم والصلاحيات"
+    }
+  },
+  "UserStats": {
+    "totalUsers": "إجمالي المستخدمين",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "pending": "في الانتظار",
+    "suspended": "معلق"
+    },
+  "EditUserDialog": {
+    "title": "تعديل المستخدم",
+    "description": "قم بإجراء تغييرات على معلومات المستخدم أدناه.",
+    "ownerWarning": "هذا المستخدم حالياً هو مالك",
+    "fields": {
+      "firstName": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "status": "الحالة",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة"
+    },
+    "placeholders": {
+      "firstName": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "email": "user@example.com",
+      "role": "اختر دوراً",
+      "status": "اختر الحالة",
+      "newPassword": "أدخل كلمة المرور الجديدة",
+      "confirmPassword": "أكد كلمة المرور الجديدة"
+    },
+    "roles": {
+      "user": "مستخدم",
+      "admin": "مدير",
+      "superAdmin": "مدير عام",
+      "owner": "مالك"
+    },
+    "statuses": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "معلق",
+      "pending": "في الانتظار"
+    },
+    "passwordSection": {
+      "title": "إعادة تعيين كلمة المرور",
+      "description": "اترك هذه الحقول فارغة إذا كنت لا تريد تغيير كلمة المرور"
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "saveChanges": "حفظ التغييرات",
+      "updating": "جاري التحديث..."
+    },
+    "accessibility": {
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور"
+    }
+  },
+  "DeleteUserDialog": {
+    "title": "حذف المستخدم",
+    "description": "هل أنت متأكد من أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.",
+    "buttons": {
+      "cancel": "إلغاء",
+      "deleteUser": "حذف المستخدم",
+      "deleting": "جاري الحذف..."
+    }
+  },
+  "AddUserDialog": {
+    "title": "إضافة مستخدم جديد",
+    "description": "قم بإنشاء حساب مستخدم جديد عن طريق ملء النموذج أدناه.",
+    "ownerWarning": "يوجد مالك بالفعل في النظام",
+    "fields": {
+      "firstName": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "email": "عنوان البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "role": "دور المستخدم",
+      "status": "حالة الحساب"
+    },
+    "placeholders": {
+      "firstName": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "email": "user@example.com",
+      "password": "أدخل كلمة المرور",
+      "confirmPassword": "أكد كلمة المرور",
+      "role": "اختر دوراً",
+      "status": "اختر الحالة"
+    },
+    "roles": {
+      "user": "مستخدم",
+      "admin": "مدير",
+      "superAdmin": "مدير عام",
+      "owner": "مالك"
+    },
+    "statuses": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "معلق",
+      "pending": "في الانتظار"
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "createUser": "إنشاء مستخدم",
+      "creating": "جاري الإنشاء..."
+    },
+    "accessibility": {
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور"
+    }
+  },
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

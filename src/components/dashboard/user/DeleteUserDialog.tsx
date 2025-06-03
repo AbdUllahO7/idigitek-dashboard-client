@@ -12,6 +12,8 @@ import { UserAvatar } from "./UserAvatar";
 import { AlertTriangle, Loader2, Mail, Trash2 } from "lucide-react";
 import { getAvatarColor, getFullName, getInitials } from "@/src/utils/user-helpers";
 import { cn } from "@/src/lib/utils";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/src/context/LanguageContext";
 
 interface DeleteUserDialogProps {
   user: any | null;
@@ -28,7 +30,37 @@ export function DeleteUserDialog({
   onConfirm,
   isDeleting
 }: DeleteUserDialogProps) {
+  const { t, ready } = useTranslation();
+  const { isLoaded } = useLanguage();
+
   if (!user) return null;
+
+  // Show loading state if translations aren't ready
+  if (!ready || !isLoaded) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2" />
+            <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          </DialogHeader>
+          <div className="py-4">
+            <div className="flex items-center p-4 border rounded-lg bg-slate-50 dark:bg-slate-900">
+              <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+              <div className="ml-4 space-y-2">
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-3 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <div className="h-9 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -36,10 +68,10 @@ export function DeleteUserDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center text-red-600 dark:text-red-500">
             <AlertTriangle className="h-5 w-5 mr-2" />
-            Delete User
+            {t('DeleteUserDialog.title', 'Delete User')}
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this user? This action cannot be undone.
+            {t('DeleteUserDialog.description', 'Are you sure you want to delete this user? This action cannot be undone.')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -60,7 +92,7 @@ export function DeleteUserDialog({
             onClick={onClose}
             disabled={isDeleting}
           >
-            Cancel
+            {t('DeleteUserDialog.buttons.cancel', 'Cancel')}
           </Button>
           <Button 
             variant="destructive"
@@ -70,12 +102,12 @@ export function DeleteUserDialog({
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
+                {t('DeleteUserDialog.buttons.deleting', 'Deleting...')}
               </>
             ) : (
               <>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete User
+                {t('DeleteUserDialog.buttons.deleteUser', 'Delete User')}
               </>
             )}
           </Button>

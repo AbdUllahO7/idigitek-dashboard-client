@@ -43,9 +43,11 @@ import { useWebSite } from "@/src/hooks/webConfiguration/use-WebSite"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
+import { useLanguage } from "@/src/context/LanguageContext"
 
 // Custom tooltip for charts
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, t }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-3 rounded-lg border shadow-lg">
@@ -64,6 +66,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const { websiteId } = useWebsiteContext()
   const router = useRouter()
+  const { t, ready } = useTranslation()
+  const { isLoaded } = useLanguage()
 
   // Get website data
   const { useGetMyWebsites, useGetWebsiteUsers } = useWebSite()
@@ -96,33 +100,33 @@ export default function DashboardPage() {
     return acc
   }, {})
 
-  // Create user role chart data
+  // Create user role chart data with translated labels
   const userRoleChartData = Object.entries(userRoleCounts).map(([name, value]) => ({
-    name,
+    name: ready ? t(`Dashboard.userRoles.${name}`, name) : name,
     value,
   }))
 
   // Create data for sections visualization
   const sectionChartData = [
-    { name: "", value: activeSections.length },
-    { name: "", value: sectionsData.length - activeSections.length },
+    { name: ready ? t('Dashboard.charts.active', 'Active') : 'Active', value: activeSections.length },
+    { name: ready ? t('Dashboard.charts.inactive', 'Inactive') : 'Inactive', value: sectionsData.length - activeSections.length },
   ]
 
   // Create data for languages visualization
   const languageChartData = [
-    { name: "", value: activeLanguages.length },
-    { name: "", value: languagesData.length - activeLanguages.length },
+    { name: ready ? t('Dashboard.charts.active', 'Active') : 'Active', value: activeLanguages.length },
+    { name: ready ? t('Dashboard.charts.inactive', 'Inactive') : 'Inactive', value: languagesData.length - activeLanguages.length },
   ]
 
   // Activity data for area chart
   const activityData = [
-    { name: "Mon", value: 20 },
-    { name: "Tue", value: 35 },
-    { name: "Wed", value: 25 },
-    { name: "Thu", value: 40 },
-    { name: "Fri", value: 30 },
-    { name: "Sat", value: 15 },
-    { name: "Sun", value: 10 },
+    { name: ready ? t('Dashboard.weekDays.monday', 'Mon') : 'Mon', value: 20 },
+    { name: ready ? t('Dashboard.weekDays.tuesday', 'Tue') : 'Tue', value: 35 },
+    { name: ready ? t('Dashboard.weekDays.wednesday', 'Wed') : 'Wed', value: 25 },
+    { name: ready ? t('Dashboard.weekDays.thursday', 'Thu') : 'Thu', value: 40 },
+    { name: ready ? t('Dashboard.weekDays.friday', 'Fri') : 'Fri', value: 30 },
+    { name: ready ? t('Dashboard.weekDays.saturday', 'Sat') : 'Sat', value: 15 },
+    { name: ready ? t('Dashboard.weekDays.sunday', 'Sun') : 'Sun', value: 10 },
   ]
 
   // Colors for charts - using a more cohesive color palette
@@ -136,13 +140,13 @@ export default function DashboardPage() {
 
   // Set loading state based on API data loading
   useEffect(() => {
-    if (!isLoadingSections && !isLoadingLanguages && !isLoadingWebsiteUsers && !isLoadingWebsites) {
+    if (!isLoadingSections && !isLoadingLanguages && !isLoadingWebsiteUsers && !isLoadingWebsites && ready && isLoaded) {
       const timer = setTimeout(() => {
         setLoading(false)
       }, 1000)
       return () => clearTimeout(timer)
     }
-  }, [isLoadingSections, isLoadingLanguages, isLoadingWebsiteUsers, isLoadingWebsites])
+  }, [isLoadingSections, isLoadingLanguages, isLoadingWebsiteUsers, isLoadingWebsites, ready, isLoaded])
 
   // Check if website is selected
   const noWebsiteSelected = !websiteId || websiteId === ""
@@ -163,6 +167,20 @@ export default function DashboardPage() {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
   }
 
+  // Show loading if translations aren't ready
+  if (!ready || !isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-6 rounded-xl">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <CardLoader />
+          <CardLoader />
+          <CardLoader />
+          <CardLoader />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-6 rounded-xl">
       {/* Page header */}
@@ -178,12 +196,13 @@ export default function DashboardPage() {
               <LayoutDashboard className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Dashboard
+              {t('Dashboard.title', 'Dashboard')}
             </h1>
           </div>
-          <p className="text-muted-foreground mt-2">Monitor your website configuration and analytics</p>
+          <p className="text-muted-foreground mt-2">
+            {t('Dashboard.subtitle', 'Monitor your website configuration and analytics')}
+          </p>
         </div>
-        
       </motion.div>
 
       {/* Website selection notice */}
@@ -200,9 +219,11 @@ export default function DashboardPage() {
                   <AlertTriangle className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="font-semibold text-lg">No Website Selected</p>
+                  <p className="font-semibold text-lg">
+                    {t('Dashboard.noWebsiteSelected.title', 'No Website Selected')}
+                  </p>
                   <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                    Please select a website to view its dashboard data.
+                    {t('Dashboard.noWebsiteSelected.description', 'Please select a website to view its dashboard data.')}
                   </p>
                 </div>
               </div>
@@ -231,7 +252,9 @@ export default function DashboardPage() {
             <motion.div variants={itemVariants}>
               <Card className="overflow-hidden bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/20 dark:border-slate-700/20 hover:shadow-2xl transition-all duration-500 hover:translate-y-[-5px] group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Sections</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('Dashboard.metrics.totalSections', 'Total Sections')}
+                  </CardTitle>
                   <div className="rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 p-2.5 text-white shadow-lg group-hover:shadow-cyan-500/20 dark:group-hover:shadow-purple-500/20 transition-all duration-500 group-hover:scale-110">
                     <Layers className="h-5 w-5" />
                   </div>
@@ -242,7 +265,7 @@ export default function DashboardPage() {
                   </div>
                   <p className="flex items-center text-xs text-cyan-600 dark:text-cyan-400 font-medium mt-1">
                     <ArrowUpRight className="mr-1 h-3 w-3" />
-                    {Math.round((activeSections.length / Math.max(sectionsData.length, 1)) * 100)}% active
+                    {Math.round((activeSections.length / Math.max(sectionsData.length, 1)) * 100)}% {t('Dashboard.status.active', 'active')}
                   </p>
                 </CardContent>
                 <div className="h-16 bg-gradient-to-r from-cyan-50 to-purple-50 dark:from-cyan-950/20 dark:to-purple-950/20">
@@ -262,7 +285,7 @@ export default function DashboardPage() {
                         fillOpacity={1}
                         fill="url(#colorSections)"
                       />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -273,7 +296,9 @@ export default function DashboardPage() {
             <motion.div variants={itemVariants}>
               <Card className="overflow-hidden bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/20 dark:border-slate-700/20 hover:shadow-2xl transition-all duration-500 hover:translate-y-[-5px] group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Sections</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('Dashboard.metrics.activeSections', 'Active Sections')}
+                  </CardTitle>
                   <div className="rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 p-2.5 text-white shadow-lg group-hover:shadow-purple-500/20 dark:group-hover:shadow-pink-500/20 transition-all duration-500 group-hover:scale-110">
                     <FileText className="h-5 w-5" />
                   </div>
@@ -284,7 +309,7 @@ export default function DashboardPage() {
                   </div>
                   <p className="flex items-center text-xs text-muted-foreground mt-1">
                     <span className="text-gray-500 dark:text-gray-400">
-                      {sectionsData.length - activeSections.length} inactive
+                      {sectionsData.length - activeSections.length} {t('Dashboard.status.inactive', 'inactive')}
                     </span>
                   </p>
                 </CardContent>
@@ -292,7 +317,7 @@ export default function DashboardPage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={sectionChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                       <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -303,7 +328,9 @@ export default function DashboardPage() {
             <motion.div variants={itemVariants}>
               <Card className="overflow-hidden bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/20 dark:border-slate-700/20 hover:shadow-2xl transition-all duration-500 hover:translate-y-[-5px] group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Languages</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('Dashboard.metrics.totalLanguages', 'Total Languages')}
+                  </CardTitle>
                   <div className="rounded-xl bg-gradient-to-br from-pink-500 to-orange-600 p-2.5 text-white shadow-lg group-hover:shadow-pink-500/20 dark:group-hover:shadow-orange-500/20 transition-all duration-500 group-hover:scale-110">
                     <Globe className="h-5 w-5" />
                   </div>
@@ -314,14 +341,14 @@ export default function DashboardPage() {
                   </div>
                   <p className="flex items-center text-xs text-pink-600 dark:text-pink-400 font-medium mt-1">
                     <ArrowUpRight className="mr-1 h-3 w-3" />
-                    {Math.round((activeLanguages.length / Math.max(languagesData.length, 1)) * 100)}% active
+                    {Math.round((activeLanguages.length / Math.max(languagesData.length, 1)) * 100)}% {t('Dashboard.status.active', 'active')}
                   </p>
                 </CardContent>
                 <div className="h-16 bg-gradient-to-r from-pink-50 to-orange-50 dark:from-pink-950/20 dark:to-orange-950/20">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={languageChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                       <Line type="monotone" dataKey="value" stroke="#ec4899" strokeWidth={2} dot={false} />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -332,7 +359,9 @@ export default function DashboardPage() {
             <motion.div variants={itemVariants}>
               <Card className="overflow-hidden bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border border-white/20 dark:border-slate-700/20 hover:shadow-2xl transition-all duration-500 hover:translate-y-[-5px] group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Languages</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('Dashboard.metrics.activeLanguages', 'Active Languages')}
+                  </CardTitle>
                   <div className="rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 p-2.5 text-white shadow-lg group-hover:shadow-orange-500/20 dark:group-hover:shadow-amber-500/20 transition-all duration-500 group-hover:scale-110">
                     <Activity className="h-5 w-5" />
                   </div>
@@ -344,13 +373,13 @@ export default function DashboardPage() {
                   <div className="flex flex-wrap gap-1 mt-1">
                     {activeLanguages.length > 3 && (
                       <div className="bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 px-2 py-1 rounded-md text-xs font-medium">
-                        +{activeLanguages.length - 3} more
+                        +{activeLanguages.length - 3} {t('Dashboard.status.more', 'more')}
                       </div>
                     )}
                   </div>
                   <p className="mt-1 flex items-center text-xs text-muted-foreground">
                     <span className="text-gray-500 dark:text-gray-400">
-                      {languagesData.length - activeLanguages.length} inactive
+                      {languagesData.length - activeLanguages.length} {t('Dashboard.status.inactive', 'inactive')}
                     </span>
                   </p>
                 </CardContent>
@@ -358,7 +387,7 @@ export default function DashboardPage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={languageChartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                       <Bar dataKey="value" fill="#f97316" radius={[4, 4, 0, 0]} />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -381,9 +410,11 @@ export default function DashboardPage() {
               <div>
                 <CardTitle className="text-xl font-bold bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center">
                   <Users className="h-5 w-5 mr-2 text-purple-500" />
-                  Website Users
+                  {t('Dashboard.metrics.websiteUsers', 'Website Users')}
                 </CardTitle>
-                <CardDescription>User role distribution</CardDescription>
+                <CardDescription>
+                  {t('Dashboard.descriptions.userRoleDistribution', 'User role distribution')}
+                </CardDescription>
               </div>
               <Button
                 variant="outline"
@@ -393,7 +424,7 @@ export default function DashboardPage() {
                   router.push("dashboard/users")
                 }}
               >
-                Manage Users <ChevronRight className="ml-1 h-3 w-3" />
+                {t('Dashboard.buttons.manageUsers', 'Manage Users')} <ChevronRight className="ml-1 h-3 w-3" />
               </Button>
             </CardHeader>
             <CardContent className="py-6">
@@ -417,7 +448,9 @@ export default function DashboardPage() {
                         }`}
                       >
                         <UserCircle className="h-3.5 w-3.5" />
-                        <span className="capitalize">{`${role}: ${count}`}</span>
+                        <span className="capitalize">
+                          {t(`Dashboard.userRoles.${String(role)}`, String(role))}: {count}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -446,7 +479,7 @@ export default function DashboardPage() {
                           />
                         ))}
                       </Pie>
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
@@ -455,12 +488,14 @@ export default function DashboardPage() {
             </CardContent>
             <CardFooter className="flex justify-between items-center p-4 border-t border-slate-100 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
               <div className="text-xs text-muted-foreground">
-                <span className="font-medium text-purple-600 dark:text-purple-400">Last updated:</span>{" "}
+                <span className="font-medium text-purple-600 dark:text-purple-400">
+                  {t('Dashboard.status.lastUpdated', 'Last updated')}:
+                </span>{" "}
                 {new Date().toLocaleDateString()}
               </div>
               <div className="flex items-center text-xs text-purple-600 dark:text-purple-400">
                 <Zap className="h-3.5 w-3.5 mr-1" />
-                Real-time data
+                {t('Dashboard.status.realTimeData', 'Real-time data')}
               </div>
             </CardFooter>
           </Card>
@@ -484,10 +519,12 @@ export default function DashboardPage() {
                     <Layers className="h-5 w-5 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">
-                    Section Distribution
+                    {t('Dashboard.charts.sectionDistribution', 'Section Distribution')}
                   </span>
                 </CardTitle>
-                <CardDescription>Active vs. Inactive Sections</CardDescription>
+                <CardDescription>
+                  {t('Dashboard.descriptions.activeVsInactiveSections', 'Active vs. Inactive Sections')}
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="h-[280px] w-full relative">
@@ -512,7 +549,7 @@ export default function DashboardPage() {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
@@ -520,12 +557,13 @@ export default function DashboardPage() {
               </CardContent>
               <CardFooter className="flex justify-between items-center p-4 border-t border-slate-100 dark:border-slate-800 bg-gradient-to-r from-cyan-50 to-purple-50 dark:from-cyan-950/20 dark:to-purple-950/20">
                 <div className="text-xs text-muted-foreground">
-                  <span className="font-medium text-cyan-600 dark:text-cyan-400">Total:</span> {sectionsData.length}{" "}
-                  sections
+                  <span className="font-medium text-cyan-600 dark:text-cyan-400">
+                    {t('Dashboard.status.total', 'Total')}:
+                  </span> {sectionsData.length} {t('Dashboard.labels.sections', 'sections')}
                 </div>
                 <div className="flex items-center text-xs text-purple-600 dark:text-purple-400">
                   <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                  {activeSections.length} active
+                  {activeSections.length} {t('Dashboard.status.active', 'active')}
                 </div>
               </CardFooter>
             </Card>
@@ -540,10 +578,12 @@ export default function DashboardPage() {
                     <Globe className="h-5 w-5 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-pink-600 to-orange-600 bg-clip-text text-transparent">
-                    Language Distribution
+                    {t('Dashboard.charts.languageDistribution', 'Language Distribution')}
                   </span>
                 </CardTitle>
-                <CardDescription>Active vs. Inactive Languages</CardDescription>
+                <CardDescription>
+                  {t('Dashboard.descriptions.activeVsInactiveLanguages', 'Active vs. Inactive Languages')}
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="h-[280px] w-full relative">
@@ -568,7 +608,7 @@ export default function DashboardPage() {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
@@ -576,12 +616,13 @@ export default function DashboardPage() {
               </CardContent>
               <CardFooter className="flex justify-between items-center p-4 border-t border-slate-100 dark:border-slate-800 bg-gradient-to-r from-pink-50 to-orange-50 dark:from-pink-950/20 dark:to-orange-950/20">
                 <div className="text-xs text-muted-foreground">
-                  <span className="font-medium text-pink-600 dark:text-pink-400">Total:</span> {languagesData.length}{" "}
-                  languages
+                  <span className="font-medium text-pink-600 dark:text-pink-400">
+                    {t('Dashboard.status.total', 'Total')}:
+                  </span> {languagesData.length} {t('Dashboard.labels.languages', 'languages')}
                 </div>
                 <div className="flex items-center text-xs text-orange-600 dark:text-orange-400">
                   <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                  {activeLanguages.length} active
+                  {activeLanguages.length} {t('Dashboard.status.active', 'active')}
                 </div>
               </CardFooter>
             </Card>
@@ -596,10 +637,12 @@ export default function DashboardPage() {
                     <UserCircle className="h-5 w-5 text-white" />
                   </div>
                   <span className="bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
-                    User Role Distribution
+                    {t('Dashboard.charts.userRoleDistribution', 'User Role Distribution')}
                   </span>
                 </CardTitle>
-                <CardDescription>Website User Types</CardDescription>
+                <CardDescription>
+                  {t('Dashboard.descriptions.websiteUserTypes', 'Website User Types')}
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="h-[280px] w-full relative">
@@ -627,7 +670,7 @@ export default function DashboardPage() {
                           />
                         ))}
                       </Pie>
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
@@ -635,12 +678,13 @@ export default function DashboardPage() {
               </CardContent>
               <CardFooter className="flex justify-between items-center p-4 border-t border-slate-100 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-cyan-50 dark:from-purple-950/20 dark:to-cyan-950/20">
                 <div className="text-xs text-muted-foreground">
-                  <span className="font-medium text-purple-600 dark:text-purple-400">Total:</span> {usersData.length}{" "}
-                  users
+                  <span className="font-medium text-purple-600 dark:text-purple-400">
+                    {t('Dashboard.status.total', 'Total')}:
+                  </span> {usersData.length} {t('Dashboard.labels.users', 'users')}
                 </div>
                 <div className="flex items-center text-xs text-cyan-600 dark:text-cyan-400">
                   <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                  {Object.keys(userRoleCounts).length} roles
+                  {Object.keys(userRoleCounts).length} {t('Dashboard.labels.roles', 'roles')}
                 </div>
               </CardFooter>
             </Card>
@@ -662,10 +706,12 @@ export default function DashboardPage() {
                   <BarChart3 className="h-5 w-5 text-white" />
                 </div>
                 <span className="bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Activity Overview
+                  {t('Dashboard.charts.activityOverview', 'Activity Overview')}
                 </span>
               </CardTitle>
-              <CardDescription>Weekly content activity</CardDescription>
+              <CardDescription>
+                {t('Dashboard.descriptions.weeklyContentActivity', 'Weekly content activity')}
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-0 h-[300px]">
               <div className="h-full w-full bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6">
@@ -695,7 +741,7 @@ export default function DashboardPage() {
                         fillOpacity={1}
                         fill="url(#colorActivity)"
                       />
-                      <Tooltip content={<CustomTooltip />} />
+                      <Tooltip content={<CustomTooltip t={t} />} />
                       <Legend />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -704,11 +750,11 @@ export default function DashboardPage() {
             </CardContent>
             <CardFooter className="flex justify-between items-center p-4 border-t border-slate-100 dark:border-slate-800 bg-gradient-to-r from-cyan-50 via-purple-50 to-pink-50 dark:from-cyan-950/20 dark:via-purple-950/20 dark:to-pink-950/20">
               <div className="text-xs text-muted-foreground">
-                <span className="font-medium text-purple-600 dark:text-purple-400">40%</span> increase this week
+                <span className="font-medium text-purple-600 dark:text-purple-400">40%</span> {t('Dashboard.status.increaseThisWeek', 'increase this week')}
               </div>
               <div className="flex items-center text-xs text-cyan-600 dark:text-cyan-400">
                 <Zap className="h-3.5 w-3.5 mr-1" />
-                Updated in real-time
+                {t('Dashboard.status.updatedRealTime', 'Updated in real-time')}
               </div>
             </CardFooter>
           </Card>

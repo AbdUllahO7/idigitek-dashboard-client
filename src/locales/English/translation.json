@@ -39,6 +39,329 @@
       "idigitekAdmin": "Idigitek Admin"
     }
   },
+   "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Monitor your website configuration and analytics",
+    "noWebsiteSelected": {
+      "title": "No Website Selected",
+      "description": "Please select a website to view its dashboard data."
+    },
+    "metrics": {
+      "totalSections": "Total Sections",
+      "activeSections": "Active Sections",
+      "totalLanguages": "Total Languages",
+      "activeLanguages": "Active Languages",
+      "websiteUsers": "Website Users"
+    },
+    "charts": {
+      "sectionDistribution": "Section Distribution",
+      "languageDistribution": "Language Distribution",
+      "userRoleDistribution": "User Role Distribution",
+      "activityOverview": "Activity Overview",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "descriptions": {
+      "userRoleDistribution": "User role distribution",
+      "activeVsInactiveSections": "Active vs. Inactive Sections",
+      "activeVsInactiveLanguages": "Active vs. Inactive Languages",
+      "websiteUserTypes": "Website User Types",
+      "weeklyContentActivity": "Weekly content activity"
+    },
+    "status": {
+      "active": "active",
+      "inactive": "inactive",
+      "more": "more",
+      "total": "Total",
+      "lastUpdated": "Last updated",
+      "realTimeData": "Real-time data",
+      "increaseThisWeek": "increase this week",
+      "updatedRealTime": "Updated in real-time"
+    },
+    "labels": {
+      "sections": "sections",
+      "languages": "languages",
+      "users": "users",
+      "roles": "roles"
+    },
+    "buttons": {
+      "manageUsers": "Manage Users"
+    },
+    "userRoles": {
+      "owner": "Owner",
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "user": "User"
+    },
+    "weekDays": {
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
+    }
+  },
+  "Users": {
+    "title": "User Management",
+    "subtitle": "Manage user accounts, roles and permissions",
+    "search": {
+      "placeholder": "Search users...",
+      "noResults": "No users found matching your search."
+    },
+    "buttons": {
+      "addUser": "Add User",
+      "refresh": "Refresh",
+      "edit": "Edit",
+      "view": "View",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "close": "Close"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "inactiveUsers": "Inactive Users",
+      "adminUsers": "Admin Users",
+      "ownerUsers": "Owner Users",
+      "superAdminUsers": "Super Admin Users",
+      "regularUsers": "Regular Users"
+    },
+    "table": {
+      "headers": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "createdAt": "Created At",
+        "lastLogin": "Last Login",
+        "actions": "Actions"
+      },
+      "filters": {
+        "all": "All Users",
+        "active": "Active",
+        "inactive": "Inactive",
+        "owner": "Owners",
+        "admin": "Admins",
+        "user": "Users"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "suspended": "Suspended",
+        "pending": "Pending"
+      },
+      "noData": "No users found",
+      "loading": "Loading users..."
+    },
+    "forms": {
+      "addUser": {
+        "title": "Add New User",
+        "description": "Create a new user account with specified role and permissions."
+      },
+      "editUser": {
+        "title": "Edit User",
+        "description": "Update user information, role and permissions."
+      },
+      "deleteUser": {
+        "title": "Delete User",
+        "description": "Are you sure you want to delete this user? This action cannot be undone.",
+        "confirmMessage": "This will permanently delete the user account and all associated data."
+      },
+      "viewUser": {
+        "title": "User Details",
+        "description": "View detailed information about this user."
+      },
+      "fields": {
+        "name": "Full Name",
+        "email": "Email Address",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "role": "User Role",
+        "status": "Status",
+        "avatar": "Profile Picture",
+        "phoneNumber": "Phone Number",
+        "department": "Department",
+        "position": "Position",
+        "bio": "Biography",
+        "lastLogin": "Last Login",
+        "createdAt": "Created Date",
+        "updatedAt": "Last Updated"
+      },
+      "placeholders": {
+        "name": "Enter full name",
+        "email": "Enter email address",
+        "password": "Enter password",
+        "confirmPassword": "Confirm your password",
+        "phoneNumber": "Enter phone number",
+        "department": "Enter department",
+        "position": "Enter position",
+        "bio": "Enter user biography"
+      },
+      "validation": {
+        "nameRequired": "Name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordMismatch": "Passwords do not match",
+        "roleRequired": "Please select a user role",
+        "statusRequired": "Please select a status"
+      },
+      "success": {
+        "userAdded": "User added successfully",
+        "userUpdated": "User updated successfully",
+        "userDeleted": "User deleted successfully"
+      },
+      "errors": {
+        "addFailed": "Failed to add user",
+        "updateFailed": "Failed to update user",
+        "deleteFailed": "Failed to delete user",
+        "loadFailed": "Failed to load users",
+        "emailExists": "Email address already exists",
+        "insufficientPermissions": "Insufficient permissions to perform this action"
+      }
+    },
+    "roles": {
+      "owner": "Owner",
+      "superAdmin": "Super Admin",
+      "admin": "Administrator",
+      "user": "User",
+      "moderator": "Moderator",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    },
+    "permissions": {
+      "canEdit": "Can edit users",
+      "canDelete": "Can delete users",
+      "canView": "Can view users",
+      "canCreate": "Can create users",
+      "fullAccess": "Full access",
+      "limitedAccess": "Limited access",
+      "readOnly": "Read only"
+    },
+    "tooltips": {
+      "editUser": "Edit user details",
+      "deleteUser": "Delete this user",
+      "viewUser": "View user details",
+      "refreshUsers": "Refresh user list",
+      "addUser": "Add new user",
+      "togglePassword": "Show/hide password",
+      "userStatus": "User account status",
+      "userRole": "User role and permissions"
+    }
+  },
+  "UserStats": {
+    "totalUsers": "Total Users",
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "suspended": "Suspended"
+  },
+  "EditUserDialog": {
+    "title": "Edit User",
+    "description": "Make changes to the user's information below.",
+    "ownerWarning": "This user is currently an owner",
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password"
+    },
+    "placeholders": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "user@example.com",
+      "role": "Select a role",
+      "status": "Select status",
+      "newPassword": "Enter new password",
+      "confirmPassword": "Confirm new password"
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Admin",
+      "superAdmin": "Super Admin",
+      "owner": "Owner"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "pending": "Pending"
+    },
+    "passwordSection": {
+      "title": "Reset Password",
+      "description": "Leave these fields empty if you don't want to change the password"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "updating": "Updating..."
+    },
+    "accessibility": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    }
+  },
+  "DeleteUserDialog": {
+    "title": "Delete User",
+    "description": "Are you sure you want to delete this user? This action cannot be undone.",
+    "buttons": {
+      "cancel": "Cancel",
+      "deleteUser": "Delete User",
+      "deleting": "Deleting..."
+    }
+  },
+  "AddUserDialog": {
+    "title": "Add New User",
+    "description": "Create a new user account by filling out the form below.",
+    "ownerWarning": "An owner already exists in the system",
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "role": "User Role",
+      "status": "Account Status"
+    },
+    "placeholders": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "user@example.com",
+      "password": "Enter password",
+      "confirmPassword": "Confirm password",
+      "role": "Select a role",
+      "status": "Select status"
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Admin",
+      "superAdmin": "Super Admin",
+      "owner": "Owner"
+    },
+    "statuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended",
+      "pending": "Pending"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "createUser": "Create User",
+      "creating": "Creating..."
+    },
+    "accessibility": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    }
+  },
   "common": {
     "welcome": "Welcome",
     "logout": "Log out",

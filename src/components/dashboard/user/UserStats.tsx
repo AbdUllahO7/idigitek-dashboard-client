@@ -2,6 +2,8 @@
 import { Card, CardContent } from "@/src/components/ui/card";
 import { cn } from "@/src/lib/utils";
 import { AlertCircle, CheckCircle2, Clock, ShieldAlert, UsersIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/src/context/LanguageContext";
 
 interface UserStatsProps {
   stats: {
@@ -16,12 +18,36 @@ interface UserStatsProps {
 }
 
 export function UserStats({ stats, activeTab, setActiveTab }: UserStatsProps) {
+  const { t, ready } = useTranslation();
+  const { isLoaded } = useLanguage();
+
+  // Show loading state if translations aren't ready
+  if (!ready || !isLoaded) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <Card key={index} className="bg-white dark:bg-slate-950 shadow-sm">
+            <CardContent className="p-4 flex justify-between items-center">
+              <div>
+                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2" />
+                <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              </div>
+              <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <Card className="bg-white dark:bg-slate-950 shadow-sm hover:shadow-md transition-shadow">
         <CardContent className="p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Total Users</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">
+              {t('UserStats.totalUsers', 'Total Users')}
+            </p>
             <p className="text-2xl font-bold">{stats.total}</p>
           </div>
           <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -39,7 +65,9 @@ export function UserStats({ stats, activeTab, setActiveTab }: UserStatsProps) {
       >
         <CardContent className="p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Active</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">
+              {t('UserStats.active', 'Active')}
+            </p>
             <p className="text-2xl font-bold text-green-700 dark:text-green-400">{stats.active}</p>
           </div>
           <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
@@ -57,7 +85,9 @@ export function UserStats({ stats, activeTab, setActiveTab }: UserStatsProps) {
       >
         <CardContent className="p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Inactive</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">
+              {t('UserStats.inactive', 'Inactive')}
+            </p>
             <p className="text-2xl font-bold text-gray-700 dark:text-gray-400">{stats.inactive}</p>
           </div>
           <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -75,7 +105,9 @@ export function UserStats({ stats, activeTab, setActiveTab }: UserStatsProps) {
       >
         <CardContent className="p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Pending</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">
+              {t('UserStats.pending', 'Pending')}
+            </p>
             <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">{stats.pending}</p>
           </div>
           <div className="h-10 w-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
@@ -93,7 +125,9 @@ export function UserStats({ stats, activeTab, setActiveTab }: UserStatsProps) {
       >
         <CardContent className="p-4 flex justify-between items-center">
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Suspended</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">
+              {t('UserStats.suspended', 'Suspended')}
+            </p>
             <p className="text-2xl font-bold text-red-700 dark:text-red-400">{stats.suspended}</p>
           </div>
           <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">

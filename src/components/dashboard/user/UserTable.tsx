@@ -43,6 +43,7 @@ interface UserTableProps {
   onEditUser: (user: any) => void;
   onDeleteUser: (user: any) => void;
   currentUserRole: string;
+  t: (key: string, fallback?: string) => string; // Add translation function
 }
 
 export function UserTable({
@@ -55,8 +56,45 @@ export function UserTable({
   onViewUser,
   onEditUser,
   onDeleteUser,
-  currentUserRole
+  currentUserRole,
+  t
 }: UserTableProps) {
+  // Helper function for pluralization
+  const getUserCountText = (count: number) => {
+    if (count === 1) {
+      return t('Users.table.user', 'user')
+    }
+    return t('Users.table.users', 'users')
+  }
+
+  // Helper function for translated filter names
+  const getFilterDisplayName = (filter: string) => {
+    const filterMap: Record<string, string> = {
+      'all': t('Users.table.filters.all', 'All Users'),
+      'active': t('Users.table.filters.active', 'Active'),
+      'inactive': t('Users.table.filters.inactive', 'Inactive'),
+      'owner': t('Users.table.filters.owner', 'Owners'),
+      'admin': t('Users.table.filters.admin', 'Admins'),
+      'user': t('Users.table.filters.user', 'Users'),
+      'superAdmin': t('Users.table.filters.superAdmin', 'Super Admins')
+    }
+    return filterMap[filter] || filter
+  }
+
+  // Helper function for translated role names
+  const getTranslatedRole = (role: string) => {
+    const roleMap: Record<string, string> = {
+      'owner': t('Users.roles.owner', 'Owner'),
+      'superAdmin': t('Users.roles.superAdmin', 'Super Admin'),
+      'admin': t('Users.roles.admin', 'Admin'),
+      'user': t('Users.roles.user', 'User'),
+      'moderator': t('Users.roles.moderator', 'Moderator'),
+      'editor': t('Users.roles.editor', 'Editor'),
+      'viewer': t('Users.roles.viewer', 'Viewer')
+    }
+    return roleMap[role] || role
+  }
+
   return (
     <Card className="border-none shadow-lg">
       <CardHeader className="bg-slate-50 dark:bg-slate-900 rounded-t-lg border-b px-6">
@@ -64,21 +102,26 @@ export function UserTable({
           <div>
             <CardTitle className="text-xl flex items-center">
               <UsersIcon className="mr-2 h-5 w-5 text-muted-foreground" />
-              Users
+              {t('Users.table.title', 'Users')}
               {activeTab !== "all" && (
                 <Badge className="ml-2 capitalize">
-                  {activeTab}
+                  {getFilterDisplayName(activeTab)}
                 </Badge>
               )}
             </CardTitle>
             <CardDescription className="mt-1.5">
-              {searchTerm ? `Search results for "${searchTerm}"` : "Showing all users"}
-              {filteredUsers.length > 0 && ` (${filteredUsers.length} ${filteredUsers.length === 1 ? 'user' : 'users'})`}
+              {searchTerm ? 
+                t('Users.table.searchResults', 'Search results for "{{term}}"') : 
+                t('Users.table.showingAll', 'Showing all users')
+              }
+              {filteredUsers.length > 0 && (
+                ` (${filteredUsers.length} ${getUserCountText(filteredUsers.length)})`
+              )}
             </CardDescription>
           </div>
           {activeTab !== "all" && (
             <Button variant="ghost" size="sm" onClick={() => setActiveTab("all")}>
-              Clear filter
+              {t('Users.buttons.clearFilter', 'Clear filter')}
             </Button>
           )}
         </div>
@@ -93,12 +136,24 @@ export function UserTable({
             <Table className="border-collapse">
               <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50">
                 <TableRow>
-                  <TableHead className="w-[250px] font-medium">Name</TableHead>
-                  <TableHead className="w-[250px] font-medium">Email</TableHead>
-                  <TableHead className="font-medium">Role</TableHead>
-                  <TableHead className="font-medium">Status</TableHead>
-                  <TableHead className="font-medium">Created</TableHead>
-                  <TableHead className="text-right font-medium">Actions</TableHead>
+                  <TableHead className="w-[250px] font-medium">
+                    {t('Users.table.headers.name', 'Name')}
+                  </TableHead>
+                  <TableHead className="w-[250px] font-medium">
+                    {t('Users.table.headers.email', 'Email')}
+                  </TableHead>
+                  <TableHead className="font-medium">
+                    {t('Users.table.headers.role', 'Role')}
+                  </TableHead>
+                  <TableHead className="font-medium">
+                    {t('Users.table.headers.status', 'Status')}
+                  </TableHead>
+                  <TableHead className="font-medium">
+                    {t('Users.table.headers.createdAt', 'Created')}
+                  </TableHead>
+                  <TableHead className="text-right font-medium">
+                    {t('Users.table.headers.actions', 'Actions')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -108,20 +163,27 @@ export function UserTable({
                       {searchTerm || activeTab !== "all" ? (
                         <div className="flex flex-col items-center justify-center text-muted-foreground py-8">
                           <Search className="h-10 w-10 mb-3 text-muted-foreground/50" />
-                          <p className="text-lg mb-1">No users found</p>
+                          <p className="text-lg mb-1">
+                            {t('Users.table.noUsersFound', 'No users found')}
+                          </p>
                           <p className="text-sm text-muted-foreground/70">
                             {searchTerm && activeTab !== "all" 
-                              ? `No ${activeTab} users match "${searchTerm}"` 
+                              ? t('Users.table.noFilteredSearchResults', `No ${getFilterDisplayName(activeTab).toLowerCase()} users match "${searchTerm}"`)
                               : searchTerm 
-                                ? `No users match "${searchTerm}"`
-                                : `No users with status: ${activeTab}`}
+                                ? t('Users.table.noSearchResults', `No users match "${searchTerm}"`)
+                                : t('Users.table.noFilterResults', `No users with status: ${getFilterDisplayName(activeTab)}`)
+                            }
                           </p>
                         </div>
                       ) : (
                         <div className="flex flex-col items-center justify-center text-muted-foreground py-8">
                           <UsersIcon className="h-10 w-10 mb-3 text-muted-foreground/50" />
-                          <p className="text-lg mb-1">No users yet</p>
-                          <p className="text-sm text-muted-foreground/70">Create your first user to get started</p>
+                          <p className="text-lg mb-1">
+                            {t('Users.table.noUsersYet', 'No users yet')}
+                          </p>
+                          <p className="text-sm text-muted-foreground/70">
+                            {t('Users.table.createFirstUser', 'Create your first user to get started')}
+                          </p>
                         </div>
                       )}
                     </TableCell>
@@ -148,7 +210,9 @@ export function UserTable({
                       <TableCell>
                         <div className="flex items-center">
                           {getRoleIcon(user.role || "")}
-                          <span className="capitalize">{user.role || "user"}</span>
+                          <span className="capitalize">
+                            {getTranslatedRole(user.role || "user")}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -164,12 +228,16 @@ export function UserTable({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
+                              <span className="sr-only">
+                                {t('Users.table.openMenu', 'Open menu')}
+                              </span>
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel>
+                              {t('Users.table.actions', 'Actions')}
+                            </DropdownMenuLabel>
                             
                             {/* Edit option - only if current user can edit */}
                             {(user.role?.toLowerCase() !== 'owner' || currentUserRole?.toLowerCase() === 'owner') && (
@@ -178,7 +246,7 @@ export function UserTable({
                                 className="cursor-pointer"
                               >
                                 <Edit className="mr-2 h-4 w-4" />
-                                Edit
+                                {t('Users.buttons.edit', 'Edit')}
                               </DropdownMenuItem>
                             )}
 
@@ -191,7 +259,7 @@ export function UserTable({
                                   className="cursor-pointer text-red-600 focus:text-red-600 dark:focus:text-red-400 dark:text-red-400"
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
+                                  {t('Users.buttons.delete', 'Delete')}
                                 </DropdownMenuItem>
                               </>
                             )}
