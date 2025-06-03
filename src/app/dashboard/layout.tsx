@@ -9,6 +9,7 @@ import DashboardHeader from "@/src/components/dashboard/dashboard-header"
 import { useAuth } from "@/src/context/AuthContext"
 import { RouteGuard } from "@/src/components/dashboard/RouteGuard"
 import { Toaster } from "@/src/components/ui/toaster"
+import { LanguageProvider } from "@/src/context/LanguageContext"
 
 /**
  * Dashboard layout component
@@ -53,7 +54,11 @@ export default function DashboardLayout({
   // Use the ProtectedRoute component to secure the dashboard
   return (
     <RouteGuard>
+    <LanguageProvider>
+      
       <div className="flex h-screen overflow-hidden bg-background">
+
+
         {/* Animated sidebar */}
         <AnimatePresence mode="wait">
           {isSidebarOpen && (
@@ -89,6 +94,7 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
+      </LanguageProvider>
     </RouteGuard>
   )
 }

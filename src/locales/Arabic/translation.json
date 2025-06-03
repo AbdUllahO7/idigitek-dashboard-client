@@ -1,0 +1,51 @@
+{
+  "Dashboard_sideBar": {
+    "title": "لوحة التحكم الإدارية",
+    "menu": "القائمة",
+    "unknownUser": "مستخدم غير معروف",
+    "unknownRole": "غير معروف",
+    "notRefreshed": "غير محدث",
+    "refreshSections": "تحديث الأقسام",
+    "noActiveSections": "لم يتم العثور على أقسام نشطة",
+    "configureSections": "إعداد الأقسام",
+    "helpSupport": "المساعدة والدعم",
+    "noWebsiteSelected": "لم يتم اختيار موقع ويب",
+    "selectWebsiteMessage": "يرجى اختيار موقع ويب لعرض الأقسام المتاحة وإدارة المحتوى.",
+    "configureWebsite": "إعداد الموقع",
+    "errorLoadingSections": "خطأ في تحميل الأقسام",
+    "unknownError": "حدث خطأ غير معروف أثناء تحميل الأقسام.",
+    "retry": "إعادة المحاولة",
+    "settings": "الإعدادات",
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "users": "المستخدمون",
+      "services": "الخدمات",
+      "header": "شريط التنقل",
+      "news": "الأخبار",
+      "industrySolutions": "الحلول الصناعية",
+      "whyChooseUs": "لماذا تختارنا",
+      "projects": "المشاريع",
+      "ourProcess": "عمليتنا",
+      "team": "الفريق",
+      "clientComments": "تعليقات العملاء",
+      "partners": "الشركاء",
+      "faq": "الأسئلة الشائعة",
+      "blog": "المدونة",
+      "contact": "اتصل بنا",
+      "hero": "اللوح الرئيسي",
+      "footer": "شريط الاسفل",
+      "profile": "الملف الشخصي",
+      "webConfigurations": "إعدادات الويب",
+      "idigitekAdmin": "مدير إيديجيتك"
+    }
+  },
+  "common": {
+    "welcome": "مرحبا",
+    "logout": "تسجيل الخروج",
+    "profile": "الملف الشخصي",
+    "myAccount": "حسابي",
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء"
+  }
+}

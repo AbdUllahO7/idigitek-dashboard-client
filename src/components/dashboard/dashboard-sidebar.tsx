@@ -44,12 +44,14 @@ import { useMediaQuery } from "@/src/hooks/useMediaQuery"
 import { Badge } from "../ui/badge"
 import { Separator } from "../ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { useTranslation } from "react-i18next"
+import { useLanguage } from "@/src/context/LanguageContext"
 
 /**
  * Navigation item interface
  */
 interface NavItem {
-  title: string
+  titleKey: string // Changed from title to titleKey for translation
   href: string
   icon: React.ElementType
   sectionId?: string
@@ -70,121 +72,121 @@ interface SectionOrder {
  */
 const allNavItems: NavItem[] = [
   {
-    title: "Dashboard",
+    titleKey: "Dashboard_sideBar.nav.dashboard",
     href: "/dashboard",
     roles: ["superAdmin", "owner"],
     icon: LayoutDashboard,
   },
   {
-    title: "Users",
+    titleKey: "Dashboard_sideBar.nav.users",
     href: "/dashboard/users",
     roles: ["superAdmin", "owner"],
     icon: Users,
   },
   {
-    title: "Services",
+    titleKey: "Dashboard_sideBar.nav.services",
     href: "/dashboard/services",
     icon: FolderKanban,
     sectionId: "services",
   },
   {
-    title: "Header",
+    titleKey: "Dashboard_sideBar.nav.header",
     href: "/dashboard/header",
     icon: Package,
     sectionId: "header",
   },
   {
-    title: "News",
+    titleKey: "Dashboard_sideBar.nav.news",
     href: "/dashboard/News",
     icon: Megaphone,
     sectionId: "news",
   },
   {
-    title: "Industry Solutions",
+    titleKey: "Dashboard_sideBar.nav.industrySolutions",
     href: "/dashboard/IndustrySolutions",
     icon: Building,
     sectionId: "industrysolutions",
   },
   {
-    title: "Why Choose Us",
+    titleKey: "Dashboard_sideBar.nav.whyChooseUs",
     href: "/dashboard/WhyChooseUs",
     icon: Briefcase,
     sectionId: "whychooseus",
   },
   {
-    title: "Projects",
+    titleKey: "Dashboard_sideBar.nav.projects",
     href: "/dashboard/projects",
     icon: Handshake,
     sectionId: "projects",
   },
   {
-    title: "Our Process",
+    titleKey: "Dashboard_sideBar.nav.ourProcess",
     href: "/dashboard/ourProcess",
     icon: HelpCircle,
     sectionId: "ourprocess",
   },
   {
-    title: "Team",
+    titleKey: "Dashboard_sideBar.nav.team",
     href: "/dashboard/team",
     icon: Component,
     sectionId: "team",
   },
   {
-    title: "Client Comments",
+    titleKey: "Dashboard_sideBar.nav.clientComments",
     href: "/dashboard/clientComments",
     icon: MessageCircle,
     sectionId: "clientcomments",
   },
   {
-    title: "Partners",
+    titleKey: "Dashboard_sideBar.nav.partners",
     href: "/dashboard/partners",
     icon: HeartHandshake,
     sectionId: "partners",
   },
   {
-    title: "FAQ",
+    titleKey: "Dashboard_sideBar.nav.faq",
     href: "/dashboard/FAQ",
     icon: ShieldQuestion,
     sectionId: "faq",
   },
   {
-    title: "Blog",
+    titleKey: "Dashboard_sideBar.nav.blog",
     href: "/dashboard/blog",
     icon: PenBoxIcon,
     sectionId: "blog",
   },
   {
-    title: "Contact",
+    titleKey: "Dashboard_sideBar.nav.contact",
     href: "/dashboard/contact",
     icon: Contact,
     sectionId: "contact",
   },
   {
-    title: "Hero",
+    titleKey: "Dashboard_sideBar.nav.hero",
     href: "/dashboard/heroSection",
     icon: TouchpadOff,
     sectionId: "hero",
   },
   {
-    title: "Footer",
+    titleKey: "Dashboard_sideBar.nav.footer",
     href: "/dashboard/footer",
     icon: TouchpadOff,
     sectionId: "footer",
   },
   {
-    title: "Profile",
+    titleKey: "Dashboard_sideBar.nav.profile",
     href: "/dashboard/profile",
     icon: Settings,
     roles: ["superAdmin", "owner", "admin", "user"],
   },
   {
-    title: "Web Configurations",
+    titleKey: "Dashboard_sideBar.nav.webConfigurations",
     href: "/dashboard/addWebSiteConfiguration",
     icon: Workflow,
     roles: ["superAdmin", "owner"],
   },
   {
-    title: "Idigitek Admin",
+    titleKey: "Dashboard_sideBar.nav.idigitekAdmin",
     href: "/dashboard/idigitekAdmin",
     icon: Settings,
     roles: ["idigitekAdmin"],
@@ -206,6 +208,8 @@ export default function DashboardSidebar() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { t, ready } = useTranslation()
+  const { isLoaded } = useLanguage()
 
   // Check if screen is mobile
   const isMobile = useMediaQuery("(max-width: 768px)")
@@ -329,10 +333,6 @@ export default function DashboardSidebar() {
         .map((item) => {
           // Create a copy to modify
           const newItem = { ...item }
-          // Update title if we have it in our mapping
-          if (item.sectionId && sectionNameMap.has(item.sectionId)) {
-            newItem.title = sectionNameMap.get(item.sectionId) || item.title
-          }
           return newItem
         })
         // Sort section-specific items based on order from sectionOrderMap
@@ -475,9 +475,9 @@ export default function DashboardSidebar() {
             <UserCircle className="h-6 w-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">{user?.name || user?.email || "Unknown user"}</p>
+            <p className="font-medium truncate">{user?.name || user?.email || t('Dashboard_sideBar.unknownUser', 'Unknown user')}</p>
             <Badge variant="outline" className="mt-1 text-xs">
-              {user?.role || "Unknown"}
+              {user?.role || t('Dashboard_sideBar.unknownRole', 'Unknown')}
             </Badge>
           </div>
         </div>
@@ -489,7 +489,7 @@ export default function DashboardSidebar() {
                 {lastRefreshTime.toLocaleTimeString()}
               </span>
             ) : (
-              "Not refreshed"
+              t('Dashboard_sideBar.notRefreshed', 'Not refreshed')
             )}
           </span>
           <Button
@@ -497,7 +497,7 @@ export default function DashboardSidebar() {
             size="sm"
             onClick={handleManualRefresh}
             disabled={isRefreshing}
-            title="Refresh sections"
+            title={t('Dashboard_sideBar.refreshSections', 'Refresh sections')}
             className="h-6 w-6 p-0"
           >
             <RefreshCw className={cn("h-3 w-3", isRefreshing && "animate-spin")} />
@@ -512,13 +512,15 @@ export default function DashboardSidebar() {
         {websiteSections?.data?.length === 0 && websiteId ? (
           <div className="p-3 mb-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-center">
             <AlertTriangle className="h-5 w-5 text-amber-500 mx-auto mb-1" />
-            <p className="text-amber-800 dark:text-amber-200 text-sm">No active sections found</p>
+            <p className="text-amber-800 dark:text-amber-200 text-sm">
+              {t('Dashboard_sideBar.noActiveSections', 'No active sections found')}
+            </p>
             <Button
               variant="link"
               className="p-0 h-auto text-xs mt-1 text-amber-700 dark:text-amber-300"
               onClick={() => handleNavigation("/dashboard/addWebSiteConfiguration")}
             >
-              Configure Sections
+              {t('Dashboard_sideBar.configureSections', 'Configure Sections')}
             </Button>
           </div>
         ) : null}
@@ -529,6 +531,7 @@ export default function DashboardSidebar() {
               {navItems.map((item, index) => {
                 const isActive = pathname === item.href
                 const isNavigating = navigatingTo === item.href
+                const translatedTitle = ready ? t(item.titleKey, item.titleKey.split('.').pop() || '') : item.titleKey.split('.').pop() || ''
 
                 return (
                   <motion.div
@@ -566,12 +569,12 @@ export default function DashboardSidebar() {
                               )}
                             />
                           )}
-                          <span className="truncate">{item.title}</span>
+                          <span className="truncate">{translatedTitle}</span>
                           {isActive && <ChevronRight className="ml-auto h-4 w-4 flex-shrink-0" />}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="right" className="hidden md:block">
-                        {item.title}
+                        {translatedTitle}
                       </TooltipContent>
                     </Tooltip>
                   </motion.div>
@@ -591,20 +594,20 @@ export default function DashboardSidebar() {
           className="flex items-center justify-center gap-2 mx-3 p-3 rounded-lg bg-primary text-primary-foreground font-medium shadow-sm hover:bg-primary/90 transition-all"
         >
           <LifeBuoy className="h-5 w-5" />
-          <span>Help & Support</span>
+          <span>{t('Dashboard_sideBar.helpSupport', 'Help & Support')}</span>
         </Link>
       </div>
     </>
   )
 
   // Show loading state while fetching sections or user
-  if (isLoading || userIsLoading || (websiteId && isLoadingSections)) {
+  if (isLoading || userIsLoading || (websiteId && isLoadingSections) || !isLoaded || !ready) {
     return (
       <div className="flex h-full flex-col border-r dark:border-slate-700 bg-background dark:bg-slate-900">
         <div className="flex h-16 items-center border-b dark:border-slate-700 px-6">
           <div className="flex items-center gap-2 font-semibold">
             <Home className="h-6 w-6" />
-            <span>Admin Dashboard</span>
+            <span>{t('Dashboard_sideBar.title', 'Admin Dashboard')}</span>
           </div>
         </div>
         <div className="flex-1 overflow-auto p-4">
@@ -636,7 +639,7 @@ export default function DashboardSidebar() {
             ) : (
               <Home className="h-6 w-6" />
             )}
-            <span>Admin Dashboard</span>
+            <span>{t('Dashboard_sideBar.title', 'Admin Dashboard')}</span>
           </button>
 
           <Button variant="ghost" size="icon" onClick={toggleMobileMenu} className="ml-auto">
@@ -668,7 +671,7 @@ export default function DashboardSidebar() {
                 <div className="flex h-16 items-center justify-between border-b dark:border-slate-700 px-4">
                   <div className="flex items-center gap-2 font-semibold">
                     <Home className="h-6 w-6" />
-                    <span>Menu</span>
+                    <span>{t('Dashboard_sideBar.menu', 'Menu')}</span>
                   </div>
                   <Button variant="ghost" size="icon" onClick={toggleMobileMenu} className="ml-auto">
                     <X className="h-6 w-6" />
@@ -696,19 +699,19 @@ export default function DashboardSidebar() {
         <div className="flex h-16 items-center border-b dark:border-slate-700 px-6">
           <div className="flex items-center gap-2 font-semibold">
             <Home className="h-6 w-6" />
-            <span>Admin Dashboard</span>
+            <span>{t('Dashboard_sideBar.title', 'Admin Dashboard')}</span>
           </div>
         </div>
         <div className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center">
           <div className="text-center max-w-xs">
             <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-xl mb-6">
               <AlertTriangle className="mx-auto h-12 w-12 text-amber-500 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Website Selected</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('Dashboard_sideBar.noWebsiteSelected', 'No Website Selected')}</h3>
               <p className="text-slate-600 dark:text-slate-300 mb-4">
-                Please select a website to view available sections and manage content.
+                {t('Dashboard_sideBar.selectWebsiteMessage', 'Please select a website to view available sections and manage content.')}
               </p>
               <Button className="w-full" onClick={() => handleNavigation("/dashboard/addWebSiteConfiguration")}>
-                Configure Website
+                {t('Dashboard_sideBar.configureWebsite', 'Configure Website')}
               </Button>
             </div>
 
@@ -718,6 +721,7 @@ export default function DashboardSidebar() {
                 .map((item, index) => {
                   const isActive = pathname === item.href
                   const isNavigating = navigatingTo === item.href
+                  const translatedTitle = ready ? t(item.titleKey, item.titleKey.split('.').pop() || '') : item.titleKey.split('.').pop() || ''
 
                   return (
                     <motion.div
@@ -737,7 +741,7 @@ export default function DashboardSidebar() {
                         ) : (
                           <item.icon className="mr-2 h-5 w-5" />
                         )}
-                        {item.title}
+                        {translatedTitle}
                       </Button>
                     </motion.div>
                   )
@@ -756,24 +760,24 @@ export default function DashboardSidebar() {
         <div className="flex h-16 items-center border-b dark:border-slate-700 px-6">
           <div className="flex items-center gap-2 font-semibold">
             <Home className="h-6 w-6" />
-            <span>Admin Dashboard</span>
+            <span>{t('Dashboard_sideBar.title', 'Admin Dashboard')}</span>
           </div>
         </div>
         <div className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center">
           <div className="text-center max-w-xs">
             <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl mb-6">
               <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Error Loading Sections</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('Dashboard_sideBar.errorLoadingSections', 'Error Loading Sections')}</h3>
               <p className="text-red-600 dark:text-red-300 mb-4">
-                {(sectionsError as Error)?.message || "Unknown error occurred while loading sections."}
+                {(sectionsError as Error)?.message || t('Dashboard_sideBar.unknownError', 'Unknown error occurred while loading sections.')}
               </p>
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1" onClick={handleManualRefresh}>
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Retry
+                  {t('Dashboard_sideBar.retry', 'Retry')}
                 </Button>
                 <Button className="flex-1" onClick={() => handleNavigation("/dashboard/settings")}>
-                  Settings
+                  {t('Dashboard_sideBar.settings', 'Settings')}
                 </Button>
               </div>
             </div>
@@ -784,6 +788,7 @@ export default function DashboardSidebar() {
                 .map((item, index) => {
                   const isActive = pathname === item.href
                   const isNavigating = navigatingTo === item.href
+                  const translatedTitle = ready ? t(item.titleKey, item.titleKey.split('.').pop() || '') : item.titleKey.split('.').pop() || ''
 
                   return (
                     <motion.div
@@ -803,7 +808,7 @@ export default function DashboardSidebar() {
                         ) : (
                           <item.icon className="mr-2 h-5 w-5" />
                         )}
-                        {item.title}
+                        {translatedTitle}
                       </Button>
                     </motion.div>
                   )
@@ -819,6 +824,7 @@ export default function DashboardSidebar() {
   return (
     <div className="flex h-full flex-col border-r dark:border-slate-700 bg-background dark:bg-slate-900 shadow-sm">
       {/* Sidebar header */}
+      
       <div className="flex h-16 items-center border-b dark:border-slate-700 px-4">
         <button
           onClick={() => handleNavigation("/dashboard")}
@@ -830,7 +836,7 @@ export default function DashboardSidebar() {
           ) : (
             <Home className="h-6 w-6 text-primary" />
           )}
-          <span className="text-lg">Admin Dashboard</span>
+          <span className="text-lg">{t('Dashboard_sideBar.title', 'Admin Dashboard')}</span>
         </button>
       </div>
 

@@ -7,8 +7,8 @@ import { NavigationEvents } from "../components/navigation-events"
 import { NavigationProgress } from "../components/navigation-progress"
 import { AuthProvider } from "../context/AuthContext"
 import QueryProvider from "../providers/QueryProvider"
-import { Toaster } from "../components/ui/toaster"
 import { WebsiteProvider } from "../providers/WebsiteContext"
+import { LanguageProvider } from "../context/LanguageContext"
 
 // Load Inter font
 const inter = Inter({ subsets: ["latin"] })
@@ -36,12 +36,14 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <QueryProvider>
             <AuthProvider>
-              <WebsiteProvider>
+              <LanguageProvider>
+                <WebsiteProvider>
                   {/* Navigation event handlers */}
                   <NavigationEvents />
                   <NavigationProgress />
                   {children}
-              </WebsiteProvider>
+                </WebsiteProvider>
+              </LanguageProvider>
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>

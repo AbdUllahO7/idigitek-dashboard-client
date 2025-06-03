@@ -1,0 +1,51 @@
+{
+  "Dashboard_sideBar": {
+    "title": "Admin Dashboard",
+    "menu": "Menu",
+    "unknownUser": "Unknown user",
+    "unknownRole": "Unknown",
+    "notRefreshed": "Not refreshed",
+    "refreshSections": "Refresh sections",
+    "noActiveSections": "No active sections found",
+    "configureSections": "Configure Sections",
+    "helpSupport": "Help & Support",
+    "noWebsiteSelected": "No Website Selected",
+    "selectWebsiteMessage": "Please select a website to view available sections and manage content.",
+    "configureWebsite": "Configure Website",
+    "errorLoadingSections": "Error Loading Sections",
+    "unknownError": "Unknown error occurred while loading sections.",
+    "retry": "Retry",
+    "settings": "Settings",
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "services": "Services",
+      "header": "Header",
+      "news": "News",
+      "industrySolutions": "Industry Solutions",
+      "whyChooseUs": "Why Choose Us",
+      "projects": "Projects",
+      "ourProcess": "Our Process",
+      "team": "Team",
+      "clientComments": "Client Comments",
+      "partners": "Partners",
+      "faq": "FAQ",
+      "blog": "Blog",
+      "contact": "Contact",
+      "hero": "Main Panner",
+      "footer": "Footer",
+      "profile": "Profile",
+      "webConfigurations": "Web Configurations",
+      "idigitekAdmin": "Idigitek Admin"
+    }
+  },
+  "common": {
+    "welcome": "Welcome",
+    "logout": "Log out",
+    "profile": "Profile",
+    "myAccount": "My Account",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}
