@@ -79,12 +79,14 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
         {/* Theme toggle */}
         <ThemeToggle />
 
-    <DropdownMenu>
+      <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="/placeholder-user.jpg" alt="User" />
-                <AvatarFallback>{getInitials(currentUserData.data)}</AvatarFallback>
+                <AvatarFallback>{
+                  currentUserData?.data ? getInitials(currentUserData?.data) : ''
+                  }</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

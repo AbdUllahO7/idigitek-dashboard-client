@@ -682,7 +682,7 @@ export default function SignIn() {
                   </form>
                 </CardContent>
 
-                <CardFooter className="mt-6 flex justify-center p-0">
+                {/* <CardFooter className="mt-6 flex justify-center p-0">
                   <motion.div variants={itemVariants} className="text-sm text-slate-500 dark:text-slate-400">
                     {t("login.auth.noAccount")}{" "}
                     <Link
@@ -692,7 +692,7 @@ export default function SignIn() {
                       {t("login.auth.signUp")}
                     </Link>
                   </motion.div>
-                </CardFooter>
+                </CardFooter> */}
               </motion.div>
             </div>
           </Card>
