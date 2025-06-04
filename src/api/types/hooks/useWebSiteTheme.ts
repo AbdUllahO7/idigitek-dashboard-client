@@ -106,6 +106,7 @@ export interface PaginatedWebSiteThemesResponse {
 // Color preset types for easy theme creation
 export interface ColorPreset {
   name: string;
+  translationKey: string;
   colors: {
     light: WebSiteThemeColors;
     dark: WebSiteThemeColors;
@@ -114,6 +115,7 @@ export interface ColorPreset {
 
 export interface FontPreset {
   name: string;
+  translationKey: string;
   fonts: WebSiteTheme['fonts'];
 }
 
@@ -121,6 +123,7 @@ export interface FontPreset {
 export const COLOR_PRESETS: ColorPreset[] = [
   {
     name: 'Corporate Blue',
+    translationKey: 'themeManagement.colorPresets.corporateBlue',
     colors: {
       light: {
         primary: '#007bff',
@@ -150,6 +153,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
   },
   {
     name: 'Emerald Nature',
+    translationKey: 'themeManagement.colorPresets.emeraldNature',
     colors: {
       light: {
         primary: '#10b981',
@@ -179,6 +183,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
   },
   {
     name: 'Purple Creative',
+    translationKey: 'themeManagement.colorPresets.purpleCreative',
     colors: {
       light: {
         primary: '#8b5cf6',
@@ -208,6 +213,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
   },
   {
     name: 'Rose Elegant',
+    translationKey: 'themeManagement.colorPresets.roseElegant',
     colors: {
       light: {
         primary: '#e11d48',
@@ -241,6 +247,7 @@ export const COLOR_PRESETS: ColorPreset[] = [
 export const FONT_PRESETS: FontPreset[] = [
   {
     name: 'Modern Sans',
+    translationKey: 'themeManagement.fontPresets.modernSans',
     fonts: {
       heading: {
         family: 'Inter, sans-serif',
@@ -261,6 +268,7 @@ export const FONT_PRESETS: FontPreset[] = [
   },
   {
     name: 'Classic Serif',
+    translationKey: 'themeManagement.fontPresets.classicSerif',
     fonts: {
       heading: {
         family: 'Playfair Display, serif',
@@ -281,6 +289,7 @@ export const FONT_PRESETS: FontPreset[] = [
   },
   {
     name: 'Tech Stack',
+    translationKey: 'themeManagement.fontPresets.techStack',
     fonts: {
       heading: {
         family: 'Roboto, sans-serif',
@@ -301,6 +310,7 @@ export const FONT_PRESETS: FontPreset[] = [
   },
   {
     name: 'Editorial',
+    translationKey: 'themeManagement.fontPresets.editorial',
     fonts: {
       heading: {
         family: 'Merriweather, serif',
@@ -375,95 +385,143 @@ export const generateThemeCSS = (theme: WebSiteTheme, mode: 'light' | 'dark' = '
   `;
 };
 
+// Labels for colors - now with translation keys
 export const COLOR_LABELS = {
   primary: {
-    label: "Main Brand Color",
-    description: "Your primary brand color used for buttons and highlights",
-    icon: "🎨"
+    labelKey: "themeManagement.colorLabels.primary.label",
+    descriptionKey: "themeManagement.colorLabels.primary.description",
+    iconKey: "themeManagement.colorLabels.primary.icon"
   },
   secondary: {
-    label: "Secondary Color", 
-    description: "Supporting color that complements your main brand",
-    icon: "✨"
+    labelKey: "themeManagement.colorLabels.secondary.label",
+    descriptionKey: "themeManagement.colorLabels.secondary.description", 
+    iconKey: "themeManagement.colorLabels.secondary.icon"
   },
   background: {
-    label: "Background Color",
-    description: "The main background color of your website",
-    icon: "📄"
+    labelKey: "themeManagement.colorLabels.background.label",
+    descriptionKey: "themeManagement.colorLabels.background.description",
+    iconKey: "themeManagement.colorLabels.background.icon"
   },
   text: {
-    label: "Text Color",
-    description: "Color for regular text content",
-    icon: "📝"
+    labelKey: "themeManagement.colorLabels.text.label",
+    descriptionKey: "themeManagement.colorLabels.text.description",
+    iconKey: "themeManagement.colorLabels.text.icon"
   },
   accent: {
-    label: "Highlight Color",
-    description: "Color for special highlights and call-to-actions",
-    icon: "⭐"
+    labelKey: "themeManagement.colorLabels.accent.label",
+    descriptionKey: "themeManagement.colorLabels.accent.description",
+    iconKey: "themeManagement.colorLabels.accent.icon"
   },
   border: {
-    label: "Border Color",
-    description: "Color for lines and borders around elements",
-    icon: "🔲"
+    labelKey: "themeManagement.colorLabels.border.label",
+    descriptionKey: "themeManagement.colorLabels.border.description",
+    iconKey: "themeManagement.colorLabels.border.icon"
   },
   hover: {
-    label: "Hover Effect Color",
-    description: "Color that appears when hovering over buttons",
-    icon: "👆"
+    labelKey: "themeManagement.colorLabels.hover.label",
+    descriptionKey: "themeManagement.colorLabels.hover.description",
+    iconKey: "themeManagement.colorLabels.hover.icon"
   },
   error: {
-    label: "Error/Warning Color",
-    description: "Color for error messages and warnings",
-    icon: "⚠️"
+    labelKey: "themeManagement.colorLabels.error.label",
+    descriptionKey: "themeManagement.colorLabels.error.description",
+    iconKey: "themeManagement.colorLabels.error.icon"
   },
   success: {
-    label: "Success Color",
-    description: "Color for success messages and confirmations",
-    icon: "✅"
+    labelKey: "themeManagement.colorLabels.success.label",
+    descriptionKey: "themeManagement.colorLabels.success.description",
+    iconKey: "themeManagement.colorLabels.success.icon"
   },
   warning: {
-    label: "Alert Color",
-    description: "Color for important notices and alerts",
-    icon: "🚨"
+    labelKey: "themeManagement.colorLabels.warning.label",
+    descriptionKey: "themeManagement.colorLabels.warning.description",
+    iconKey: "themeManagement.colorLabels.warning.icon"
   }
 };
 
-// User-friendly font type mapping
+// User-friendly font type mapping - now with translation keys
 export const FONT_TYPE_LABELS = {
   heading: {
-    label: "Headings & Titles",
-    description: "Font used for page titles and section headings",
-    icon: "📰"
+    labelKey: "themeManagement.fontTypeLabels.heading.label",
+    descriptionKey: "themeManagement.fontTypeLabels.heading.description",
+    iconKey: "themeManagement.fontTypeLabels.heading.icon"
   },
   body: {
-    label: "Body Text",
-    description: "Font used for paragraphs and regular content",
-    icon: "📖"
+    labelKey: "themeManagement.fontTypeLabels.body.label",
+    descriptionKey: "themeManagement.fontTypeLabels.body.description",
+    iconKey: "themeManagement.fontTypeLabels.body.icon"
   },
   accent: {
-    label: "Special Text",
-    description: "Font used for quotes, captions, and special elements",
-    icon: "💬"
+    labelKey: "themeManagement.fontTypeLabels.accent.label",
+    descriptionKey: "themeManagement.fontTypeLabels.accent.description",
+    iconKey: "themeManagement.fontTypeLabels.accent.icon"
   }
 };
 
-// Font property labels
+// Font property labels - now with translation keys
 export const FONT_PROPERTY_LABELS = {
-  family: "Font Style",
-  weight: "Font Thickness", 
-  size: "Font Size"
+  family: "themeManagement.fontPropertyLabels.family",
+  weight: "themeManagement.fontPropertyLabels.weight", 
+  size: "themeManagement.fontPropertyLabels.size"
 };
 
-// Color mode labels
+// Color mode labels - now with translation keys
 export const COLOR_MODE_LABELS = {
   light: {
-    label: "Light Mode",
-    description: "Colors for light theme (default daytime appearance)",
-    icon: "☀️"
+    labelKey: "themeManagement.colorModeLabels.light.label",
+    descriptionKey: "themeManagement.colorModeLabels.light.description",
+    iconKey: "themeManagement.colorModeLabels.light.icon"
   },
   dark: {
-    label: "Dark Mode", 
-    description: "Colors for dark theme (nighttime/low-light appearance)",
-    icon: "🌙"
+    labelKey: "themeManagement.colorModeLabels.dark.label", 
+    descriptionKey: "themeManagement.colorModeLabels.dark.description",
+    iconKey: "themeManagement.colorModeLabels.dark.icon"
   }
+};
+
+// Helper functions to get translated values
+export const getColorPresetName = (preset: ColorPreset, t: (key: string) => string): string => {
+  return t(preset.translationKey);
+};
+
+export const getFontPresetName = (preset: FontPreset, t: (key: string) => string): string => {
+  return t(preset.translationKey);
+};
+
+export const getColorLabel = (colorKey: string, t: (key: string) => string) => {
+  const colorInfo = COLOR_LABELS[colorKey as keyof typeof COLOR_LABELS];
+  if (!colorInfo) return { label: colorKey, description: '', icon: '' };
+  
+  return {
+    label: t(colorInfo.labelKey),
+    description: t(colorInfo.descriptionKey),
+    icon: t(colorInfo.iconKey)
+  };
+};
+
+export const getFontTypeLabel = (fontType: string, t: (key: string) => string) => {
+  const fontInfo = FONT_TYPE_LABELS[fontType as keyof typeof FONT_TYPE_LABELS];
+  if (!fontInfo) return { label: fontType, description: '', icon: '' };
+  
+  return {
+    label: t(fontInfo.labelKey),
+    description: t(fontInfo.descriptionKey),
+    icon: t(fontInfo.iconKey)
+  };
+};
+
+export const getFontPropertyLabel = (property: string, t: (key: string) => string): string => {
+  const propertyKey = FONT_PROPERTY_LABELS[property as keyof typeof FONT_PROPERTY_LABELS];
+  return propertyKey ? t(propertyKey) : property;
+};
+
+export const getColorModeLabel = (mode: string, t: (key: string) => string) => {
+  const modeInfo = COLOR_MODE_LABELS[mode as keyof typeof COLOR_MODE_LABELS];
+  if (!modeInfo) return { label: mode, description: '', icon: '' };
+  
+  return {
+    label: t(modeInfo.labelKey),
+    description: t(modeInfo.descriptionKey),
+    icon: t(modeInfo.iconKey)
+  };
 };

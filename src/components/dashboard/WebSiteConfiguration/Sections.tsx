@@ -19,7 +19,6 @@ import {
   Eye,
   EyeOff,
   Filter,
-  ChevronRight,
   Settings,
   Zap,
   LayoutTemplate,
@@ -59,147 +58,141 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/ta
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
 import { sub } from "date-fns"
 import useUpdateOrder from "@/src/hooks/webConfiguration/useUpdateOrder"
-
+import { useTranslation } from "react-i18next"
 
 interface ManagementProps {
   hasWebsite: boolean
 }
 
-// Improved predefined sections data with better icons and structure
+// Improved predefined sections data with translation keys
 const PREDEFINED_SECTIONS = [
   {
-    name: "Header",
-    subName : "Header",
-    description: "Main navigation and brand identity",
+    nameKey: "Dashboard_sideBar.nav.header", 
+    subName: "Header",
+    descriptionKey: "sectionManagement.description1",
     image: "/sections/header.jpg",
     icon: <LayoutTemplate className="h-10 w-10" />,
     category: "layout",
   },
   {
-    name: "Hero",
-    subName: "Hero",
-    description: "Eye-catching banner with key messaging",
+    nameKey: "Dashboard_sideBar.nav.hero",
+    subName: "Hero", 
+    descriptionKey: "sectionManagement.sections.hero.description",
     image: "/sections/hero.jpg",
     icon: <Zap className="h-10 w-10" />,
     category: "layout",
   },
   {
-    name: "Services",
+    nameKey: "Dashboard_sideBar.nav.services",
     subName: "Services",
-    description: "Showcase your service offerings",
+    descriptionKey: "sectionManagement.sections.services.description",
     image: "/sections/services.jpg",
     icon: <Settings className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "News",
+    nameKey: "Dashboard_sideBar.nav.news",
     subName: "News",
-    description: "Latest company updates and news",
+    descriptionKey: "sectionManagement.sections.news.description",
     image: "/sections/news.jpg",
     icon: <MessageSquare className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Industry Solutions",
+    nameKey: "Dashboard_sideBar.nav.industrySolutions",
     subName: "IndustrySolutions",
-    description: "Industry-specific solutions your company offers",
+    descriptionKey: "sectionManagement.sections.industrySolutions.description",
     image: "/sections/solutions.jpg",
     icon: <Bookmark className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "why Choose Us",
+    nameKey: "Dashboard_sideBar.nav.whyChooseUs",
     subName: "whyChooseUs",
-    description: "Highlight your competitive advantages",
+    descriptionKey: "sectionManagement.sections.whyChooseUs.description",
     image: "/sections/choose-us.jpg",
     icon: <Zap className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Projects",
+    nameKey: "Dashboard_sideBar.nav.projects",
     subName: "Projects",
-    description: "Showcase your portfolio work",
+    descriptionKey: "sectionManagement.sections.projects.description",
     image: "/sections/projects.jpg",
     icon: <LayoutGrid className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Our Process",
+    nameKey: "Dashboard_sideBar.nav.ourProcess",
     subName: "OurProcess",
-    description: "Step-by-step explanation of your workflow",
+    descriptionKey: "sectionManagement.sections.ourProcess.description",
     image: "/sections/process.jpg",
     icon: <RefreshCw className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Team",
+    nameKey: "Dashboard_sideBar.nav.team",
     subName: "Team",
-    description: "Introduce your key team members",
+    descriptionKey: "sectionManagement.sections.team.description",
     image: "/sections/team.jpg",
     icon: <Users className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Client Comments",
+    nameKey: "Dashboard_sideBar.nav.clientComments",
     subName: "ClientComments",
-    description: "Customer testimonials and reviews",
+    descriptionKey: "sectionManagement.sections.clientComments.description",
     image: "/sections/testimonials.jpg",
     icon: <MessageSquare className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Partners",
+    nameKey: "Dashboard_sideBar.nav.partners",
     subName: "Partners",
-    description: "Strategic partners and collaborators",
+    descriptionKey: "sectionManagement.sections.partners.description",
     image: "/sections/partners.jpg",
     icon: <Users className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "FAQ",
+    nameKey: "Dashboard_sideBar.nav.faq",
     subName: "FAQ",
-    description: "Answer common customer questions",
+    descriptionKey: "sectionManagement.sections.faq.description",
     image: "/sections/faq.jpg", 
     icon: <MessageSquare className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Blog",
+    nameKey: "Dashboard_sideBar.nav.blog",
     subName: "Blog",
-    description: "Recent articles and thought leadership",
+    descriptionKey: "sectionManagement.sections.blog.description",
     image: "/sections/blog.jpg",
     icon: <MessageSquare className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Contact",
+    nameKey: "Dashboard_sideBar.nav.contact",
     subName: "Contact",
-    description: "Contact information and form",
+    descriptionKey: "sectionManagement.sections.contact.description",
     image: "/sections/contact.jpg",
     icon: <MessageSquare className="h-10 w-10" />,
     category: "content",
   },
   {
-    name: "Footer",
+    nameKey: "Dashboard_sideBar.nav.footer",
     subName: "Footer",
-    description: "Site links, social media, and legal info",
+    descriptionKey: "sectionManagement.sections.footer.description",
     image: "/sections/footer.jpg",
     icon: <LayoutTemplate className="h-10 w-10" />,
     category: "layout",
   },
 ]
 
-// Categories for filtering
-const SECTION_CATEGORIES = [
-  { value: "all", label: "All Sections" },
-  { value: "layout", label: "Layout" },
-  { value: "content", label: "Content" },
-]
-
 export function SectionManagement({ hasWebsite }: ManagementProps) {
   const { websiteId } = useWebsiteContext()
-  const { user } = useAuth() // Get the current user
-  const userId = user?.id || user?.id // Get the user ID
+  const { user } = useAuth()
+  const userId = user?.id || user?.id
+  const { t, ready } = useTranslation() 
 
   // Get section hooks
   const {
@@ -208,9 +201,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     useDelete: useDeleteSection,
     useToggleActive: useToggleSectionActive,
   } = useSections()
-  
 
- 
   // Get user-section hooks
   const { useActivateSection, useCreateUserSection } = useUserSections()
 
@@ -240,6 +231,14 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
   const [activeTab, setActiveTab] = useState("current")
   const [orderedSections, setOrderedSections] = useState<Section[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  
+
+  // Categories for filtering with translation
+  const SECTION_CATEGORIES = [
+    { value: "all", labelKey: "sectionManagement.categories.all" },
+    { value: "layout", labelKey: "sectionManagement.categories.layout" },
+    { value: "content", labelKey: "sectionManagement.categories.content" },
+  ]
 
   useEffect(() => {
     if (
@@ -283,24 +282,29 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
   }
 
   const handleAddPredefinedSection = (predefinedSection: (typeof PREDEFINED_SECTIONS)[0]) => {
+    // Always use English subName for storage and comparison consistency
+    const englishName = predefinedSection.subName
+    const translatedName = ready ? t(predefinedSection.nameKey, predefinedSection.nameKey.split('.').pop() || '') : predefinedSection.nameKey.split('.').pop() || ''
+    const translatedDescription = ready ? t(predefinedSection.descriptionKey, '') : ''
+    
     const newSectionData = {
-      name: predefinedSection.name,
-      description: predefinedSection.description,
+      name: englishName, // Use English subName for consistency
+      description: translatedDescription, // Use translated description
       subName: predefinedSection.subName,
       image: predefinedSection.image,
-      order: orderedSections.length, // Add to end of current sections
+      order: orderedSections.length,
       subSections: [],
-      isActive: true, // Default to active
+      isActive: true,
       WebSiteId: websiteId,
     }
     
     console.log(newSectionData)
 
-    // Check if section with this name already exists
-    if (orderedSections?.some((section: Section) => section.name === predefinedSection.name)) {
+    // Check if section with this subName already exists (use subName for consistency)
+    if (orderedSections?.some((section: Section) => section.name === englishName || section.subName === predefinedSection.subName)) {
       toast({
         title: "Duplicate section",
-        description: `A section named "${predefinedSection.name}" already exists.`,
+        description: `A section named "${translatedName}" already exists.`,
         variant: "destructive",
       })
       return
@@ -312,10 +316,10 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
         onSuccess: () => {
           toast({
             title: "Section added",
-            description: `${predefinedSection.name} section has been added successfully.`,
+            description: `${translatedName} section has been added successfully.`,
           })
           showSuccessMessage()
-          setActiveTab("current") // Switch to current sections tab after adding
+          setActiveTab("current")
         },
         onError: (error: any) => {
           toast({
@@ -331,10 +335,10 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
         onSuccess: (createdSection) => {
           toast({
             title: "Section added",
-            description: `${predefinedSection.name} section has been added successfully.`,
+            description: `${translatedName} section has been added successfully.`,
           })
           showSuccessMessage()
-          setActiveTab("current") // Switch to current sections tab after adding
+          setActiveTab("current")
 
           // Create user-section relationship
           if (createdSection._id) {
@@ -353,9 +357,10 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
   }
 
   const handleOpenDelete = (section: Section) => {
+    const translatedName = getTranslatedSectionName(section)
     setItemToDelete({
       _id: section._id,
-      name: section.name,
+      name: translatedName, // Use translated name for display
       type: "section",
     })
   }
@@ -386,7 +391,6 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     }
   }
 
-  // Handle toggle active status
   const handleToggleActive = (section: Section) => {
     if (!section._id) {
       toast({
@@ -398,6 +402,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     }
 
     const newActiveStatus = !section.isActive
+    const translatedName = getTranslatedSectionName(section)
 
     toggleSectionActiveMutation.mutate(
       { id: section._id, isActive: newActiveStatus },
@@ -405,7 +410,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
         onSuccess: () => {
           toast({
             title: `Section ${newActiveStatus ? 'activated' : 'deactivated'}`,
-            description: `${section.name} is now ${newActiveStatus ? 'visible' : 'hidden'} on your website.`,
+            description: `${translatedName} is now ${newActiveStatus ? 'visible' : 'hidden'} on your website.`,
           })
           showSuccessMessage()
 
@@ -429,7 +434,6 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     )
   }
 
-  // Handle reordering sections
   // Handle reordering sections
   const handleReorder = (reorderedSections: Section[]) => {
     // Update local state with the new order
@@ -498,19 +502,44 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     }, 3000)
   }
 
+  // Helper function to get translated name for existing sections
+  const getTranslatedSectionName = (section: Section) => {
+    // Find the predefined section that matches this section's name or subName
+    const predefinedSection = PREDEFINED_SECTIONS.find(
+      ps => ps.subName === section.name || ps.subName === section.subName
+    )
+    
+    if (predefinedSection && ready) {
+      return t(predefinedSection.nameKey, predefinedSection.nameKey.split('.').pop() || '')
+    }
+    
+    // Fallback to the stored name
+    return section.name
+  }
+
   // Filter sections based on search query and category
-  const filteredPredefinedSections = PREDEFINED_SECTIONS.filter(
-    (predefinedSection) =>
-      !orderedSections.some((section: Section) => section.name === predefinedSection.name) &&
-      (predefinedSection.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        predefinedSection.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (categoryFilter === "all" || predefinedSection.category === categoryFilter),
-  )
+  const filteredPredefinedSections = PREDEFINED_SECTIONS.filter((predefinedSection) => {
+    const translatedName = ready ? t(predefinedSection.nameKey, predefinedSection.nameKey.split('.').pop() || '') : predefinedSection.nameKey.split('.').pop() || ''
+    const translatedDescription = ready ? t(predefinedSection.descriptionKey, '') : ''
+    
+    // Use subName for comparison to avoid language-dependent duplicates
+    const sectionExists = orderedSections.some((section: Section) => 
+      section.name === predefinedSection.subName || 
+      section.subName === predefinedSection.subName
+    )
+    
+    return !sectionExists &&
+      (translatedName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        translatedDescription.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (categoryFilter === "all" || predefinedSection.category === categoryFilter)
+  })
 
   const filteredCurrentSections = orderedSections.filter(
-    (section: Section) =>
-      section.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (section.description && section.description.toLowerCase().includes(searchQuery.toLowerCase())),
+    (section: Section) => {
+      const translatedName = getTranslatedSectionName(section)
+      return translatedName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (section.description && section.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    }
   )
 
   // Show loading state when fetching sections for this website
@@ -570,15 +599,17 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
         <div className="md:col-span-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Website Sections</h2>
+              <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+                {ready ? t("sectionManagement.title", "Website Sections") : "Website Sections"}
+              </h2>
               <TabsList className="grid w-64 grid-cols-2">
                 <TabsTrigger value="current" className="text-base py-3 flex items-center gap-1.5">
                   <Menu className="h-4 w-4" />
-                  Current
+                    {t('sectionManagement.current')}
                 </TabsTrigger>
                 <TabsTrigger value="available" className="text-base py-3 flex items-center gap-1.5">
                   <Plus className="h-4 w-4" />
-                  Add New
+                  {ready ? t("sectionManagement.addNew") : "Add New"}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -588,7 +619,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
                   <h3 className="text-xl font-semibold flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5 text-primary" />
-                    Current Website Sections
+                    {ready ? t("sectionManagement.currentSections") : "Current Website Sections"}
                     {orderedSections.length > 0 && (
                       <Badge variant="secondary" className="ml-2">
                         {orderedSections.length}
@@ -604,7 +635,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                       </div>
                       <Input
                         type="search"
-                        placeholder="Search sections..."
+                        placeholder={ready ? t("sectionManagement.searchPlaceholder", "Search sections...") : "Search sections..."}
                         className="pl-10"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -618,7 +649,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                       className="border-primary/30 text-primary hover:text-primary/90 hover:bg-primary/5"
                     >
                       <PlusCircle className="h-4 w-4 mr-2" />
-                      Add New
+                      {ready ? t("sectionManagement.addNew", "Add New") : "Add New"}
                     </Button>
                   </div>
                 </div>
@@ -633,101 +664,104 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                     {orderedSections.length > 1 && (
                       <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
                         <ArrowUpDown className="h-4 w-4" />
-                        <span>Drag sections to reorder them on your website</span>
+                        <span>{t('sectionManagement.dragToReorder')}</span>
                       </div>
                     )}
                     
-                <Reorder.Group 
-                    axis="y" 
-                    values={orderedSections} 
-                    onReorder={handleReorder} // Directly call handleReorder
-                    className="space-y-3"
-                  >
-                    {filteredCurrentSections.map((section: Section) => (
-                      <Reorder.Item
-                        key={section._id || `section-${section.name}`}
-                        value={section}
-                        className="cursor-move"
-                      >
-                        <Card className="border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-300 overflow-hidden bg-white dark:bg-slate-900">
-                          <div className="p-4 flex items-center gap-4">
-                            <div className="text-muted-foreground border border-dashed border-slate-200 dark:border-slate-700 p-1.5 rounded-md cursor-grab">
-                              <GripVertical className="h-5 w-5" />
-                            </div>
-
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-base">{section.name}</h3>
-                                <Badge
-                                  variant={section.isActive ? "default" : "secondary"}
-                                  className={section.isActive ? 
-                                    "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800" : 
-                                    "bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400"
-                                  }
-                                >
-                                  {section.isActive ? "Active" : "Hidden"}
-                                </Badge>
+                    <Reorder.Group 
+                      axis="y" 
+                      values={orderedSections} 
+                      onReorder={handleReorder}
+                      className="space-y-3"
+                    >
+                      {filteredCurrentSections.map((section: Section) => (
+                        <Reorder.Item
+                          key={section._id || `section-${section.name}`}
+                          value={section}
+                          className="cursor-move"
+                        >
+                          <Card className="border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-300 overflow-hidden bg-white dark:bg-slate-900">
+                            <div className="p-4 flex items-center gap-4">
+                              <div className="text-muted-foreground border border-dashed border-slate-200 dark:border-slate-700 p-1.5 rounded-md cursor-grab">
+                                <GripVertical className="h-5 w-5" />
                               </div>
-                              {section.description && (
-                                <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
-                              )}
-                            </div>
 
-                            <div className="flex items-center gap-2">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleToggleActive(section);
-                                      }}
-                                      disabled={toggleSectionActiveMutation.isPending}
-                                      className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
-                                    >
-                                      {toggleSectionActiveMutation.isPending && toggleSectionActiveMutation.variables?.id === section._id ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                      ) : section.isActive ? (
-                                        <Eye className="h-4 w-4" />
-                                      ) : (
-                                        <EyeOff className="h-4 w-4" />
-                                      )}
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{section.isActive ? "Hide section" : "Show section"}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-base">{getTranslatedSectionName(section)}</h3>
+                                  <Badge
+                                    variant={section.isActive ? "default" : "secondary"}
+                                    className={section.isActive ? 
+                                      "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800" : 
+                                      "bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400"
+                                    }
+                                  >
+                                    {section.isActive ? 
+                                      (ready ? t("sectionManagement.active", "Active") : "Active") : 
+                                      (ready ? t("sectionManagement.hidden", "Hidden") : "Hidden")
+                                    }
+                                  </Badge>
+                                </div>
+                                {section.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
+                                )}
+                              </div>
 
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleOpenDelete(section);
-                                      }}
-                                      className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                                    >
-                                      <Trash className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Delete section</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                              <div className="flex items-center gap-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleToggleActive(section);
+                                        }}
+                                        disabled={toggleSectionActiveMutation.isPending}
+                                        className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
+                                      >
+                                        {toggleSectionActiveMutation.isPending && toggleSectionActiveMutation.variables?.id === section._id ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : section.isActive ? (
+                                          <Eye className="h-4 w-4" />
+                                        ) : (
+                                          <EyeOff className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{section.isActive ? "Hide section" : "Show section"}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleOpenDelete(section);
+                                        }}
+                                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                      >
+                                        <Trash className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Delete section</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                             </div>
-                          </div>
-                        </Card>
-                      </Reorder.Item>
-                    ))}
-                </Reorder.Group>
+                          </Card>
+                        </Reorder.Item>
+                      ))}
+                    </Reorder.Group>
                   </div>
                 ) : searchQuery ? (
                   <div className="text-center py-12 text-muted-foreground">
@@ -742,13 +776,15 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                     <div className="bg-slate-50 dark:bg-slate-800/50 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                       <LayoutGrid className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                     </div>
-                    <h3 className="text-lg font-medium mb-2">No sections yet</h3>
+                    <h3 className="text-lg font-medium mb-2">
+                      {ready ? t("sectionManagement.noSectionsYet", "No sections yet") : "No sections yet"}
+                    </h3>
                     <p className="text-muted-foreground max-w-md mb-6">
-                      Add pre-designed sections to create your website structure. Sections can be arranged in any order.
+                      {ready ? t("sectionManagement.noSectionsDescription", "Add pre-designed sections to create your website structure. Sections can be arranged in any order.") : "Add pre-designed sections to create your website structure. Sections can be arranged in any order."}
                     </p>
                     <Button onClick={() => setActiveTab("available")} className="gap-2">
                       <Plus className="h-4 w-4" />
-                      Browse Available Sections
+                      {ready ? t("sectionManagement.browseSections", "Browse Available Sections") : "Browse Available Sections"}
                     </Button>
                   </div>
                 )}
@@ -760,7 +796,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
                   <h3 className="text-xl font-semibold flex items-center gap-2">
                     <Plus className="h-5 w-5 text-primary" />
-                    Add Pre-designed Sections
+                    {ready ? t("sectionManagement.addNewSections", "Add Pre-designed Sections") : "Add Pre-designed Sections"}
                   </h3>
 
                   <div className="flex items-center gap-2">
@@ -771,7 +807,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                       </div>
                       <Input
                         type="search"
-                        placeholder="Search sections..."
+                        placeholder={ready ? t("sectionManagement.searchPlaceholder", "Search sections...") : "Search sections..."}
                         className="pl-10"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -782,7 +818,12 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="flex items-center gap-2 min-w-32 justify-between">
-                          <span>{SECTION_CATEGORIES.find((cat) => cat.value === categoryFilter)?.label || "All Sections"}</span>
+                          <span>
+                            {ready ? 
+                              t(SECTION_CATEGORIES.find((cat) => cat.value === categoryFilter)?.labelKey || "sectionManagement.categories.all", "All Sections") : 
+                              "All Sections"
+                            }
+                          </span>
                           <Filter className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -796,7 +837,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                             className={categoryFilter === category.value ? "bg-primary/10 text-primary font-medium" : ""}
                           >
                             {categoryFilter === category.value && <Check className="h-4 w-4 mr-2" />}
-                            {category.label}
+                            {ready ? t(category.labelKey, category.labelKey.split('.').pop() || '') : category.labelKey.split('.').pop() || ''}
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
@@ -812,48 +853,56 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                 )}
 
                 <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredPredefinedSections.map((section) => (
-                    <motion.div key={section.name} variants={itemVariants} className="group">
-                      <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-800 group-hover:border-primary/50">
-                        <div className="relative h-32 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-                          <div className="text-primary group-hover:scale-110 transition-transform duration-300">
-                            {section.icon}
+                  {filteredPredefinedSections.map((section) => {
+                    const translatedName = ready ? t(section.nameKey, section.nameKey.split('.').pop() || '') : section.nameKey.split('.').pop() || ''
+                    const translatedDescription = ready ? t(section.descriptionKey, '') : ''
+                    
+                    return (
+                      <motion.div key={section.nameKey} variants={itemVariants} className="group">
+                        <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-800 group-hover:border-primary/50">
+                          <div className="relative h-32 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+                            <div className="text-primary group-hover:scale-110 transition-transform duration-300">
+                              {section.icon}
+                            </div>
+                            <Badge 
+                              className={`absolute top-2 right-2 ${
+                                section.category === "layout" 
+                                  ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50" 
+                                  : "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50"
+                              }`}
+                            >
+                              {section.category === "layout" ? 
+                                (ready ? t("sectionManagement.categories.layout", "Layout") : "Layout") : 
+                                (ready ? t("sectionManagement.categories.content", "Content") : "Content")
+                              }
+                            </Badge>
                           </div>
-                          <Badge 
-                            className={`absolute top-2 right-2 ${
-                              section.category === "layout" 
-                                ? "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50" 
-                                : "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50"
-                            }`}
-                          >
-                            {section.category === "layout" ? "Layout" : "Content"}
-                          </Badge>
-                        </div>
-                        <CardContent className="p-5">
-                          <h3 className="font-semibold text-lg">{section.name}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
-                        </CardContent>
-                        <CardFooter className="p-5 pt-0 flex justify-end">
-                          <Button
-                            onClick={() => handleAddPredefinedSection(section)}
-                            disabled={
-                              createSectionMutation.isPending ||
-                              (createUserSectionMutation && createUserSectionMutation.isPending) ||
-                              !hasWebsite
-                            }
-                            className="w-full transition-all duration-300 flex items-center justify-center gap-2 group-hover:bg-primary"
-                          >
-                            {(createSectionMutation.isPending || (createUserSectionMutation && createUserSectionMutation.isPending)) ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <PlusCircle className="h-4 w-4" />
-                            )}
-                            Add to Website
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    </motion.div>
-                  ))}
+                          <CardContent className="p-5">
+                            <h3 className="font-semibold text-lg">{translatedName}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">{translatedDescription}</p>
+                          </CardContent>
+                          <CardFooter className="p-5 pt-0 flex justify-end">
+                            <Button
+                              onClick={() => handleAddPredefinedSection(section)}
+                              disabled={
+                                createSectionMutation.isPending ||
+                                (createUserSectionMutation && createUserSectionMutation.isPending) ||
+                                !hasWebsite
+                              }
+                              className="w-full transition-all duration-300 flex items-center justify-center gap-2 group-hover:bg-primary"
+                            >
+                              {(createSectionMutation.isPending || (createUserSectionMutation && createUserSectionMutation.isPending)) ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <PlusCircle className="h-4 w-4" />
+                              )}
+                              {ready ? t("sectionManagement.addToWebsite", "Add to Website") : "Add to Website"}
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      </motion.div>
+                    )
+                  })}
                 </div>
 
                 {filteredPredefinedSections.length === 0 && (
@@ -878,20 +927,29 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
       <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && handleCancelDelete()}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">Delete Section</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl">
+              {ready ? t("sectionManagement.deleteSection", "Delete Section") : "Delete Section"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the <span className="font-medium text-foreground">"{itemToDelete?.name}"</span> section. 
-              This action cannot be undone, and any content in this section will be lost.
+              {ready ? 
+                t("sectionManagement.deleteConfirmation", "This will permanently delete the section. This action cannot be undone, and any content in this section will be lost.") :
+                "This will permanently delete the section. This action cannot be undone, and any content in this section will be lost."
+              }
+              {itemToDelete && (
+                <span className="font-medium text-foreground"> "{itemToDelete.name}"</span>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 mt-2">
-            <AlertDialogCancel onClick={handleCancelDelete} className="mt-0">Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCancelDelete} className="mt-0">
+              {ready ? t("sectionManagement.cancel", "Cancel") : "Cancel"}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700 text-white hover:text-white flex items-center gap-2"
             >
               {deleteSectionMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              Delete Section
+              {ready ? t("sectionManagement.delete", "Delete Section") : "Delete Section"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

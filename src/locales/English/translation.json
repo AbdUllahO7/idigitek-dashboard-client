@@ -701,6 +701,295 @@
     "errors.networkError.resolution": "Please check your internet connection and try again",
     "errors.unknown.resolution": "Please try again or contact support if the problem persists"
   },
+  "sectionManagement" : {
+    "description1": "Top navigation bar with logo, menu items and contact information for your website",
+    "sections.hero.description": "Eye-catching main banner with compelling headlines and call-to-action buttons",
+    "sections.services.description": "Showcase your core services and offerings with detailed descriptions",
+    "sections.news.description": "Display latest news, updates and announcements for your audience",
+    "sections.industrySolutions.description": "Present tailored solutions for different industries you serve",
+    "sections.whyChooseUs.description": "Highlight your unique value propositions and competitive advantages",
+    "sections.projects.description": "Portfolio showcase of your completed projects and case studies",
+    "sections.ourProcess.description": "Step-by-step breakdown of your workflow and methodology",
+    "sections.team.description": "Meet the team section with staff profiles and expertise",
+    "sections.clientComments.description": "Customer testimonials and reviews to build trust and credibility",
+    "sections.partners.description": "Display logos and information about your business partners",
+    "sections.faq.description": "Frequently asked questions to address common customer inquiries",
+    "sections.blog.description": "Blog section for articles, insights and thought leadership content",
+    "sections.contact.description": "Contact information, forms and location details for customer inquiries",
+    "sections.footer.description": "Bottom section with links, social media and additional company information",
+    "title": "Website Sections",
+    "currentSections": "Current Website Sections",
+    "addNewSections": "Add Pre-designed Sections",
+    "searchPlaceholder": "Search sections...",
+    "addNew": "Add New",
+    "categories.all": "All Sections",
+    "categories.layout": "Layout",
+    "categories.content": "Content",
+    "noSectionsYet": "No sections yet",
+    "noSectionsDescription": "Add pre-designed sections to create your website structure. Sections can be arranged in any order.",
+    "browseSections": "Browse Available Sections",
+    "addToWebsite": "Add to Website",
+    "active": "Active",
+    "hidden": "Hidden",
+    "deleteSection": "Delete Section",
+    "deleteConfirmation": "This will permanently delete the section. This action cannot be undone, and any content in this section will be lost.",
+    "cancel": "Cancel",
+    "delete": "Delete Section",
+    "dragToReorder": "Drag sections to reorder them on your website",
+    "noSectionsFound": "No sections found",
+    "noSectionsFoundDescription": "No sections found matching your search",
+    "clearSearch": "Clear Search",
+    "clearSearchLink": "Clear search",
+    "filterByCategory": "Filter by Category",
+    "createWebsiteFirst": "Please create a website first to see its sections.",
+    "createWebsiteBeforeAdding": "Please create a website first before adding sections.",
+    "sectionCount": "sections",
+    "duplicateSection": "Duplicate section",
+    "duplicateSectionMessage": "A section with this name already exists.",
+    "sectionAdded": "Section added",
+    "sectionAddedSuccessfully": "section has been added successfully.",
+    "errorAddingSection": "Error adding section",
+    "errorAddingSectionMessage": "An error occurred while adding the section.",
+    "sectionDeleted": "Section deleted",
+    "sectionDeletedSuccessfully": "The section has been deleted successfully.",
+    "errorDeletingSection": "Error deleting section",
+    "errorDeletingSectionMessage": "An error occurred while deleting the section.",
+    "sectionActivated": "Section activated",
+    "sectionDeactivated": "Section deactivated",
+    "sectionVisibilityChanged": "is now visible on your website.",
+    "sectionVisibilityHidden": "is now hidden on your website.",
+    "errorUpdatingSection": "Error updating section",
+    "errorUpdatingSectionMessage": "An error occurred while updating the section status.",
+    "orderUpdated": "Order updated",
+    "orderUpdatedSuccessfully": "Section order has been updated successfully.",
+    "errorUpdatingOrder": "Error updating order",
+    "errorUpdatingOrderMessage": "An error occurred while updating section order.",
+    "noValidSections": "No valid sections to reorder.",
+    "sectionIdMissing": "Section ID is missing.",
+    "changesSaved": "Changes saved successfully!",
+    "hideSection": "Hide section",
+    "showSection": "Show section",
+    "deleteSectionTooltip": "Delete section",
+    "loadingSections": "Loading sections...",
+    "errorLoadingSections": "Error loading sections",
+    "failedToFetchSections": "Failed to fetch sections",
+    "tryAgain": "Try Again",
+    "current": "Current",
+    "available": "Available"
+  },
+  "themeManagement": {
+    "pageTitle": "Website Appearance Settings",
+    "websiteSelection": {
+      "title": "Choose Website to Customize",
+      "placeholder": "Select your website"
+    },
+    "activeTheme": {
+      "title": "Currently Active Look",
+      "badge": "Live on Website",
+      "colorSchemes": "🎨 Color Schemes",
+      "typography": "📝 Typography Style",
+      "lightMode": "Light Mode",
+      "darkMode": "Dark Mode"
+    },
+    "createTheme": {
+      "title": "Create New Look & Feel",
+      "buttonCreate": "Design New Look",
+      "buttonCancel": "Cancel",
+      "nameLabel": "Give Your Design a Name",
+      "namePlaceholder": "e.g., Summer Vibes, Professional Blue, etc.",
+      "quickColors": {
+        "title": "🎨 Quick Color Themes",
+        "tooltip": "Choose a pre-made color scheme for both light and dark modes"
+      },
+      "fontCombinations": {
+        "title": "📝 Font Combinations",
+        "tooltip": "Choose fonts that work well together",
+        "headlines": "Headlines:",
+        "bodyText": "Body text:"
+      },
+      "customizeColors": {
+        "title": "🎨 Customize Colors",
+        "lightMode": "Light Mode",
+        "darkMode": "Dark Mode"
+      },
+      "customizeFonts": {
+        "title": "📝 Customize Fonts",
+        "fontStyle": "Font Style",
+        "fontWeight": "Font Thickness",
+        "fontSize": "Font Size"
+      },
+      "fontWeights": {
+        "300": "Light & Thin",
+        "400": "Normal",
+        "500": "Medium",
+        "600": "Semibold",
+        "700": "Bold",
+        "800": "Extra Bold"
+      },
+      "fontSizes": {
+        "small": "Small (14px)",
+        "normal": "Normal (16px)",
+        "large": "Large (18px)",
+        "extraLarge": "Extra Large (20px)",
+        "huge": "Huge (24px)",
+        "massive": "Massive (32px)"
+      },
+      "createButton": "🎨 Create My Design",
+      "creating": "Creating..."
+    },
+    "savedThemes": {
+      "title": "Your Saved Designs",
+      "active": "Active",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "colors": "🎨 Colors",
+      "typography": "📝 Typography",
+      "actions": {
+        "useThis": "Use This",
+        "copy": "Copy",
+        "delete": "Delete"
+      }
+    },
+    "fontPresets": {
+      "modern": "Modern & Professional",
+      "elegant": "Elegant & Refined",
+      "creative": "Creative & Bold",
+      "minimal": "Clean & Minimal",
+      "classic": "Classic & Timeless"
+    },
+    "fontFamilies": {
+      "inter": "Inter (Modern & Clean)",
+      "roboto": "Roboto (Google's Choice)",
+      "openSans": "Open Sans (Friendly & Open)",
+      "lato": "Lato (Elegant)",
+      "montserrat": "Montserrat (Geometric)",
+      "playfair": "Playfair Display (Elegant Headlines)",
+      "merriweather": "Merriweather (Reading-friendly)",
+      "sourceSerif": "Source Serif Pro (Professional)",
+      "robotoMono": "Roboto Mono (Code Style)",
+      "firaCode": "Fira Code (Developer Style)"
+    },
+    "states": {
+      "noWebsite": {
+        "title": "No Website Available",
+        "description": "Create a website first to start customizing your visual appearance with colors and fonts."
+      },
+      "error": {
+        "title": "Error Loading Themes",
+        "description": "An error occurred while fetching themes. Please try again later.",
+        "retry": "Retry"
+      },
+      "loading": {
+        "title": "Loading Themes..."
+      }
+    },
+    "tooltips": {
+      "colorPresets": "Choose a pre-made color scheme for both light and dark modes",
+      "fontPresets": "Choose fonts that work well together",
+      "colorCustomization": "Customize individual colors for your theme",
+      "fontCustomization": "Customize typography settings for different text elements"
+    },
+    "colorPresets": {
+      "corporateBlue": "Corporate Blue",
+      "emeraldNature": "Emerald Nature",
+      "purpleCreative": "Purple Creative",
+      "roseElegant": "Rose Elegant"
+    },
+    "fontPresets": {
+      "modernSans": "Modern Sans",
+      "classicSerif": "Classic Serif",
+      "techStack": "Tech Stack",
+      "editorial": "Editorial"
+    },
+    "colorLabels": {
+      "primary": {
+        "label": "Main Brand Color",
+        "description": "Your primary brand color used for buttons and highlights",
+        "icon": "🎨"
+      },
+      "secondary": {
+        "label": "Secondary Color",
+        "description": "Supporting color that complements your main brand",
+        "icon": "✨"
+      },
+      "background": {
+        "label": "Background Color",
+        "description": "The main background color of your website",
+        "icon": "📄"
+      },
+      "text": {
+        "label": "Text Color",
+        "description": "Color for regular text content",
+        "icon": "📝"
+      },
+      "accent": {
+        "label": "Highlight Color",
+        "description": "Color for special highlights and call-to-actions",
+        "icon": "⭐"
+      },
+      "border": {
+        "label": "Border Color",
+        "description": "Color for lines and borders around elements",
+        "icon": "🔲"
+      },
+      "hover": {
+        "label": "Hover Effect Color",
+        "description": "Color that appears when hovering over buttons",
+        "icon": "👆"
+      },
+      "error": {
+        "label": "Error/Warning Color",
+        "description": "Color for error messages and warnings",
+        "icon": "⚠️"
+      },
+      "success": {
+        "label": "Success Color",
+        "description": "Color for success messages and confirmations",
+        "icon": "✅"
+      },
+      "warning": {
+        "label": "Alert Color",
+        "description": "Color for important notices and alerts",
+        "icon": "🚨"
+      }
+    },
+    "fontTypeLabels": {
+      "heading": {
+        "label": "Headings & Titles",
+        "description": "Font used for page titles and section headings",
+        "icon": "📰"
+      },
+      "body": {
+        "label": "Body Text",
+        "description": "Font used for paragraphs and regular content",
+        "icon": "📖"
+      },
+      "accent": {
+        "label": "Special Text",
+        "description": "Font used for quotes, captions, and special elements",
+        "icon": "💬"
+      }
+    },
+    "fontPropertyLabels": {
+      "family": "Font Style",
+      "weight": "Font Thickness",
+      "size": "Font Size"
+    },
+    "colorModeLabels": {
+      "light": {
+        "label": "Light Mode",
+        "description": "Colors for light theme (default daytime appearance)",
+        "icon": "☀️"
+      },
+      "dark": {
+        "label": "Dark Mode",
+        "description": "Colors for dark theme (nighttime/low-light appearance)",
+        "icon": "🌙"
+      }
+    }
+  },
+  
   "common": {
     "welcome": "Welcome",
     "logout": "Log out",

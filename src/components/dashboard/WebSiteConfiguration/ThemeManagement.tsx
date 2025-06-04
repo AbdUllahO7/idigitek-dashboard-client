@@ -45,13 +45,16 @@ import {
 import { Toggle } from "@/src/components/ui/toggle";
 import { useWebSiteThemes } from "@/src/hooks/webConfiguration/use-WebSiteTheme";
 import {
-  COLOR_LABELS,
   COLOR_PRESETS,
   CreateWebSiteThemeDto,
   FONT_PRESETS,
-  FONT_TYPE_LABELS,
   WebSiteTheme,
+  getColorPresetName,
+  getFontPresetName,
+  getColorLabel,
+  getFontTypeLabel,
 } from "@/src/api/types/hooks/useWebSiteTheme";
+import { useTranslation } from "react-i18next";
 
 interface ThemeManagementProps {
   hasWebsite: boolean;
@@ -62,6 +65,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
   const [selectedWebsiteId, setSelectedWebsiteId] = useState<string>("");
   const [isCreatingTheme, setIsCreatingTheme] = useState(false);
   const [editingThemes, setEditingThemes] = useState<Record<string, WebSiteTheme>>({});
+  const {t} = useTranslation()
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     colors: true,
     fonts: true,
@@ -102,11 +106,6 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
   // Extract themes and active theme from response
   const themes = themesResponse?.data || [];
   const activeTheme = activeThemeResponse?.data;
-
-  console.log("Themes Response:", themesResponse);
-  console.log("Active Theme Response:", activeThemeResponse);
-  console.log("Themes Error:", themesError);
-  console.log("Active Theme Error:", activeThemeError);
 
   const createTheme = useCreate();
   const setActiveTheme = useSetActiveTheme();
@@ -308,16 +307,16 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
   };
 
   const commonFonts = [
-    { name: "Inter (Modern & Clean)", value: "Inter, sans-serif" },
-    { name: "Roboto (Google's Choice)", value: "Roboto, sans-serif" },
-    { name: "Open Sans (Friendly & Open)", value: "Open Sans, sans-serif" },
-    { name: "Lato (Elegant)", value: "Lato, sans-serif" },
-    { name: "Montserrat (Geometric)", value: "Montserrat, sans-serif" },
-    { name: "Playfair Display (Elegant Headlines)", value: "Playfair Display, serif" },
-    { name: "Merriweather (Reading-friendly)", value: "Merriweather, serif" },
-    { name: "Source Serif Pro (Professional)", value: "Source Serif Pro, serif" },
-    { name: "Roboto Mono (Code Style)", value: "Roboto Mono, monospace" },
-    { name: "Fira Code (Developer Style)", value: "Fira Code, monospace" },
+    { name: t('themeManagement.fontFamilies.inter'), value: "Inter, sans-serif" },
+    { name: t('themeManagement.fontFamilies.roboto'), value: "Roboto, sans-serif" },
+    { name: t('themeManagement.fontFamilies.openSans'), value: "Open Sans, sans-serif" },
+    { name: t('themeManagement.fontFamilies.lato'), value: "Lato, sans-serif" },
+    { name: t('themeManagement.fontFamilies.montserrat'), value: "Montserrat, sans-serif" },
+    { name: t('themeManagement.fontFamilies.playfair'), value: "Playfair Display, serif" },
+    { name: t('themeManagement.fontFamilies.merriweather'), value: "Merriweather, serif" },
+    { name: t('themeManagement.fontFamilies.sourceSerif'), value: "Source Serif Pro, serif" },
+    { name: t('themeManagement.fontFamilies.robotoMono'), value: "Roboto Mono, monospace" },
+    { name: t('themeManagement.fontFamilies.firaCode'), value: "Fira Code, monospace" },
   ];
 
   if (!hasWebsite) {
@@ -326,10 +325,10 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Palette className="h-16 w-16 text-slate-400 mb-4" />
           <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            No Website Available
+            {t('themeManagement.states.noWebsite.title')}
           </h3>
           <p className="text-slate-500 dark:text-slate-400 text-center max-w-md">
-            Create a website first to start customizing your visual appearance with colors and fonts.
+            {t('themeManagement.states.noWebsite.description')}
           </p>
         </CardContent>
       </Card>
@@ -342,10 +341,10 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
         <CardContent className="flex flex-col items-center justify-center py-12">
           <AlertCircle className="h-16 w-16 text-red-400 mb-4" />
           <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Error Loading Themes
+            {t('themeManagement.states.error.title')}
           </h3>
           <p className="text-slate-500 dark:text-slate-400 text-center max-w-md">
-            {themesError?.message || activeThemeError?.message || "An error occurred while fetching themes. Please try again later."}
+            {themesError?.message || activeThemeError?.message || t('themeManagement.states.error.description')}
           </p>
           <Button
             onClick={() => {
@@ -354,7 +353,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
             }}
             className="mt-4"
           >
-            Retry
+            {t('themeManagement.states.error.retry')}
           </Button>
         </CardContent>
       </Card>
@@ -373,7 +372,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
             <Palette />
           </motion.div>
           <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Loading Themes...
+            {t('themeManagement.states.loading.title')}
           </h3>
         </CardContent>
       </Card>
@@ -388,16 +387,16 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
-              Website Appearance Settings
+              {t('themeManagement.pageTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="website-select">Choose Website to Customize</Label>
+                <Label htmlFor="website-select">{t('themeManagement.websiteSelection.title')}</Label>
                 <Select value={selectedWebsiteId} onValueChange={setSelectedWebsiteId}>
                   <SelectTrigger id="website-select">
-                    <SelectValue placeholder="Select your website" />
+                    <SelectValue placeholder={t('themeManagement.websiteSelection.placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {websites.map((website) => (
@@ -423,9 +422,9 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
                   <Check className="h-5 w-5" />
-                  Currently Active Look
+                  {t('themeManagement.activeTheme.title')}
                   <Badge variant="secondary" className="ml-auto bg-green-100 text-green-800">
-                    Live on Website
+                    {t('themeManagement.activeTheme.badge')}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -435,16 +434,18 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
 
                   {/* Color Preview */}
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">🎨 Color Schemes</Label>
+                    <Label className="text-sm font-medium mb-2 block">{t('themeManagement.activeTheme.colorSchemes')}</Label>
                     <div className="space-y-4">
                       {(["light", "dark"] as const).map((mode) => (
                         <div key={mode}>
-                          <h4 className="font-medium capitalize mb-2">{mode} Mode</h4>
+                          <h4 className="font-medium capitalize mb-2">
+                            {t(`themeManagement.activeTheme.${mode}Mode`)}
+                          </h4>
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                             {activeTheme.colors[mode] &&
                               Object.entries(activeTheme.colors[mode]).map(([key, color]) => {
-                                const colorInfo = COLOR_LABELS[key as keyof typeof COLOR_LABELS];
-                                if (!colorInfo) return null;
+                                const colorInfo = getColorLabel(key, t);
+                                if (!colorInfo.label) return null;
 
                                 return (
                                   <Tooltip key={key}>
@@ -473,11 +474,11 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
 
                   {/* Font Preview */}
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">📝 Typography Style</Label>
+                    <Label className="text-sm font-medium mb-2 block">{t('themeManagement.activeTheme.typography')}</Label>
                     <div className="space-y-3">
                       {Object.entries(activeTheme.fonts).map(([fontType, fontConfig]) => {
-                        const fontInfo = FONT_TYPE_LABELS[fontType as keyof typeof FONT_TYPE_LABELS];
-                        if (!fontInfo) return null;
+                        const fontInfo = getFontTypeLabel(fontType, t);
+                        if (!fontInfo.label) return null;
 
                         return (
                           <div key={fontType} className="flex items-center gap-3">
@@ -503,14 +504,14 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5" />
-                Create New Look & Feel
+                {t('themeManagement.createTheme.title')}
               </CardTitle>
               <Button
                 onClick={() => setIsCreatingTheme(!isCreatingTheme)}
                 variant={isCreatingTheme ? "secondary" : "default"}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                {isCreatingTheme ? "Cancel" : "Design New Look"}
+                {isCreatingTheme ? t('themeManagement.createTheme.buttonCancel') : t('themeManagement.createTheme.buttonCreate')}
               </Button>
             </div>
           </CardHeader>
@@ -526,14 +527,14 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                 <CardContent className="space-y-6">
                   {/* Theme Name */}
                   <div>
-                    <Label htmlFor="theme-name">Give Your Design a Name</Label>
+                    <Label htmlFor="theme-name">{t('themeManagement.createTheme.nameLabel')}</Label>
                     <Input
                       id="theme-name"
                       value={newTheme.themeName}
                       onChange={(e) =>
                         setNewTheme((prev) => ({ ...prev, themeName: e.target.value }))
                       }
-                      placeholder="e.g., Summer Vibes, Professional Blue, etc."
+                      placeholder={t('themeManagement.createTheme.namePlaceholder')}
                     />
                   </div>
 
@@ -541,13 +542,13 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label className="flex items-center gap-2 mb-3">
-                        🎨 Quick Color Themes
+                        {t('themeManagement.createTheme.quickColors.title')}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <HelpCircle className="h-4 w-4 text-slate-400" />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Choose a pre-made color scheme for both light and dark modes</p>
+                            <p>{t('themeManagement.createTheme.quickColors.tooltip')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </Label>
@@ -572,7 +573,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                     />
                                   ))}
                               </div>
-                              <span className="font-medium">{preset.name}</span>
+                              <span className="font-medium">{getColorPresetName(preset, t)}</span>
                             </div>
                           </button>
                         ))}
@@ -581,13 +582,13 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
 
                     <div>
                       <Label className="flex items-center gap-2 mb-3">
-                        📝 Font Combinations
+                        {t('themeManagement.createTheme.fontCombinations.title')}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <HelpCircle className="h-4 w-4 text-slate-400" />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Choose fonts that work well together</p>
+                            <p>{t('themeManagement.createTheme.fontCombinations.tooltip')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </Label>
@@ -601,13 +602,13 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                             className="p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
                           >
                             <div className="space-y-2">
-                              <div className="font-semibold">{preset.name}</div>
+                              <div className="font-semibold">{getFontPresetName(preset, t)}</div>
                               <div className="text-sm text-slate-600 dark:text-slate-400">
                                 <div style={{ fontFamily: preset.fonts.heading.family }}>
-                                  Headlines: {preset.fonts.heading.family.split(",")[0]}
+                                  {t('themeManagement.createTheme.fontCombinations.headlines')} {preset.fonts.heading.family.split(",")[0]}
                                 </div>
                                 <div style={{ fontFamily: preset.fonts.body.family }}>
-                                  Body text: {preset.fonts.body.family.split(",")[0]}
+                                  {t('themeManagement.createTheme.fontCombinations.bodyText')} {preset.fonts.body.family.split(",")[0]}
                                 </div>
                               </div>
                             </div>
@@ -625,7 +626,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                         className="flex items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-1"
                       >
                         <Palette className="h-5 w-5" />
-                        <span className="font-medium">🎨 Customize Colors</span>
+                        <span className="font-medium">{t('themeManagement.createTheme.customizeColors.title')}</span>
                         {expandedSections.colors ? (
                           <ChevronUp className="h-4 w-4" />
                         ) : (
@@ -645,7 +646,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                           <Moon className="h-4 w-4" />
                         )}
                         <span className="ml-2">
-                          {colorMode === "light" ? "Light Mode" : "Dark Mode"}
+                          {colorMode === "light" ? t('themeManagement.createTheme.customizeColors.lightMode') : t('themeManagement.createTheme.customizeColors.darkMode')}
                         </span>
                       </Toggle>
                     </div>
@@ -659,8 +660,8 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                           className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                         >
                           {Object.entries(newTheme.colors[colorMode]).map(([key, value]) => {
-                            const colorInfo = COLOR_LABELS[key as keyof typeof COLOR_LABELS];
-                            if (!colorInfo) return null;
+                            const colorInfo = getColorLabel(key, t);
+                            if (!colorInfo.label) return null;
 
                             return (
                               <div key={key} className="space-y-3 p-3 border rounded-lg">
@@ -710,7 +711,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                     >
                       <div className="flex items-center gap-2">
                         <Type className="h-5 w-5" />
-                        <span className="font-medium">📝 Customize Fonts</span>
+                        <span className="font-medium">{t('themeManagement.createTheme.customizeFonts.title')}</span>
                       </div>
                       {expandedSections.fonts ? (
                         <ChevronUp className="h-4 w-4" />
@@ -728,7 +729,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                           className="mt-4 space-y-4"
                         >
                           {(["heading", "body", "accent"] as const).map((fontType) => {
-                            const fontInfo = FONT_TYPE_LABELS[fontType];
+                            const fontInfo = getFontTypeLabel(fontType, t);
 
                             return (
                               <div key={fontType} className="border rounded-lg p-4">
@@ -746,7 +747,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                 </Tooltip>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                   <div>
-                                    <Label className="text-sm">Font Style</Label>
+                                    <Label className="text-sm">{t('themeManagement.createTheme.customizeFonts.fontStyle')}</Label>
                                     <Select
                                       value={newTheme.fonts[fontType]?.family || ""}
                                       onValueChange={(value) =>
@@ -768,7 +769,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                     </Select>
                                   </div>
                                   <div>
-                                    <Label className="text-sm">Font Thickness</Label>
+                                    <Label className="text-sm">{t('themeManagement.createTheme.customizeFonts.fontWeight')}</Label>
                                     <Select
                                       value={newTheme.fonts[fontType]?.weight || ""}
                                       onValueChange={(value) =>
@@ -779,17 +780,17 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="300">Light & Thin</SelectItem>
-                                        <SelectItem value="400">Normal</SelectItem>
-                                        <SelectItem value="500">Medium</SelectItem>
-                                        <SelectItem value="600">Semibold</SelectItem>
-                                        <SelectItem value="700">Bold</SelectItem>
-                                        <SelectItem value="800">Extra Bold</SelectItem>
+                                        <SelectItem value="300">{t('themeManagement.createTheme.fontWeights.300')}</SelectItem>
+                                        <SelectItem value="400">{t('themeManagement.createTheme.fontWeights.400')}</SelectItem>
+                                        <SelectItem value="500">{t('themeManagement.createTheme.fontWeights.500')}</SelectItem>
+                                        <SelectItem value="600">{t('themeManagement.createTheme.fontWeights.600')}</SelectItem>
+                                        <SelectItem value="700">{t('themeManagement.createTheme.fontWeights.700')}</SelectItem>
+                                        <SelectItem value="800">{t('themeManagement.createTheme.fontWeights.800')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
                                   <div>
-                                    <Label className="text-sm">Font Size</Label>
+                                    <Label className="text-sm">{t('themeManagement.createTheme.customizeFonts.fontSize')}</Label>
                                     <Select
                                       value={newTheme.fonts[fontType]?.size || ""}
                                       onValueChange={(value) =>
@@ -800,12 +801,12 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="0.875rem">Small (14px)</SelectItem>
-                                        <SelectItem value="1rem">Normal (16px)</SelectItem>
-                                        <SelectItem value="1.125rem">Large (18px)</SelectItem>
-                                        <SelectItem value="1.25rem">Extra Large (20px)</SelectItem>
-                                        <SelectItem value="1.5rem">Huge (24px)</SelectItem>
-                                        <SelectItem value="2rem">Massive (32px)</SelectItem>
+                                        <SelectItem value="0.875rem">{t('themeManagement.createTheme.fontSizes.small')}</SelectItem>
+                                        <SelectItem value="1rem">{t('themeManagement.createTheme.fontSizes.normal')}</SelectItem>
+                                        <SelectItem value="1.125rem">{t('themeManagement.createTheme.fontSizes.large')}</SelectItem>
+                                        <SelectItem value="1.25rem">{t('themeManagement.createTheme.fontSizes.extraLarge')}</SelectItem>
+                                        <SelectItem value="1.5rem">{t('themeManagement.createTheme.fontSizes.huge')}</SelectItem>
+                                        <SelectItem value="2rem">{t('themeManagement.createTheme.fontSizes.massive')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
@@ -825,7 +826,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                       disabled={!newTheme.themeName.trim() || createTheme.isPending}
                       className="min-w-32"
                     >
-                      {createTheme.isPending ? "Creating..." : "🎨 Create My Design"}
+                      {createTheme.isPending ? t('themeManagement.createTheme.creating') : t('themeManagement.createTheme.createButton')}
                     </Button>
                   </div>
                 </CardContent>
@@ -838,7 +839,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
         {themes && themes.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Your Saved Designs</CardTitle>
+              <CardTitle>{t('themeManagement.savedThemes.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -877,7 +878,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                               variant="secondary"
                               className="bg-green-100 text-green-800"
                             >
-                              Active
+                              {t('themeManagement.savedThemes.active')}
                             </Badge>
                           )}
 
@@ -889,7 +890,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                 disabled={updateTheme.isPending}
                               >
                                 <Save className="h-3 w-3 mr-1" />
-                                Save
+                                {t('themeManagement.savedThemes.save')}
                               </Button>
                               <Button
                                 size="sm"
@@ -897,7 +898,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                 onClick={() => cancelEditingTheme(theme._id)}
                               >
                                 <X className="h-3 w-3 mr-1" />
-                                Cancel
+                                {t('themeManagement.savedThemes.cancel')}
                               </Button>
                             </div>
                           ) : (
@@ -907,7 +908,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                               onClick={() => startEditingTheme(theme)}
                             >
                               <Edit3 className="h-3 w-3 mr-1" />
-                              Edit
+                              {t('themeManagement.savedThemes.edit')}
                             </Button>
                           )}
                         </div>
@@ -915,7 +916,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
 
                       {/* Colors Section */}
                       <div className="mb-4">
-                        <Label className="text-sm font-medium mb-3 block">🎨 Colors</Label>
+                        <Label className="text-sm font-medium mb-3 block">{t('themeManagement.savedThemes.colors')}</Label>
                         {isEditing ? (
                           <div className="space-y-4">
                             {(["light", "dark"] as const).map((mode) => (
@@ -926,14 +927,15 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                   ) : (
                                     <Moon className="h-4 w-4" />
                                   )}
-                                  <h4 className="font-medium capitalize">{mode} Mode</h4>
+                                  <h4 className="font-medium capitalize">
+                                    {t(`themeManagement.activeTheme.${mode}Mode`)}
+                                  </h4>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                                   {Object.entries(currentTheme.colors[mode]).map(
                                     ([key, value]) => {
-                                      const colorInfo =
-                                        COLOR_LABELS[key as keyof typeof COLOR_LABELS];
-                                      if (!colorInfo) return null;
+                                      const colorInfo = getColorLabel(key, t);
+                                      if (!colorInfo.label) return null;
 
                                       return (
                                         <div key={key} className="space-y-2">
@@ -987,7 +989,9 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                           <div className="space-y-4">
                             {(["light", "dark"] as const).map((mode) => (
                               <div key={mode}>
-                                <h4 className="font-medium capitalize mb-2">{mode} Mode</h4>
+                                <h4 className="font-medium capitalize mb-2">
+                                  {t(`themeManagement.activeTheme.${mode}Mode`)}
+                                </h4>
                                 <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-10 gap-2">
                                   {theme.colors[mode] &&
                                     Object.entries(theme.colors[mode]).map(([key, color], idx) => (
@@ -1000,8 +1004,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                         </TooltipTrigger>
                                         <TooltipContent>
                                           <p>
-                                            {COLOR_LABELS[key as keyof typeof COLOR_LABELS]?.label ||
-                                              key}
+                                            {getColorLabel(key, t).label || key}
                                           </p>
                                         </TooltipContent>
                                       </Tooltip>
@@ -1015,11 +1018,11 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
 
                       {/* Fonts Section */}
                       <div className="mb-4">
-                        <Label className="text-sm font-medium mb-3 block">📝 Typography</Label>
+                        <Label className="text-sm font-medium mb-3 block">{t('themeManagement.savedThemes.typography')}</Label>
                         {isEditing ? (
                           <div className="space-y-3">
                             {(["heading", "body", "accent"] as const).map((fontType) => {
-                              const fontInfo = FONT_TYPE_LABELS[fontType];
+                              const fontInfo = getFontTypeLabel(fontType, t);
 
                               return (
                                 <div key={fontType} className="border rounded-lg p-3">
@@ -1035,7 +1038,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                       }
                                     >
                                       <SelectTrigger className="text-xs">
-                                        <SelectValue placeholder="Font" />
+                                        <SelectValue placeholder={t('themeManagement.createTheme.customizeFonts.fontStyle')} />
                                       </SelectTrigger>
                                       <SelectContent>
                                         {commonFonts.map((font) => (
@@ -1054,15 +1057,15 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                       }
                                     >
                                       <SelectTrigger className="text-xs">
-                                        <SelectValue placeholder="Weight" />
+                                        <SelectValue placeholder={t('themeManagement.createTheme.customizeFonts.fontWeight')} />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="300">Light</SelectItem>
-                                        <SelectItem value="400">Normal</SelectItem>
-                                        <SelectItem value="500">Medium</SelectItem>
-                                        <SelectItem value="600">Semibold</SelectItem>
-                                        <SelectItem value="700">Bold</SelectItem>
-                                        <SelectItem value="800">Extra Bold</SelectItem>
+                                        <SelectItem value="300">{t('themeManagement.createTheme.fontWeights.300')}</SelectItem>
+                                        <SelectItem value="400">{t('themeManagement.createTheme.fontWeights.400')}</SelectItem>
+                                        <SelectItem value="500">{t('themeManagement.createTheme.fontWeights.500')}</SelectItem>
+                                        <SelectItem value="600">{t('themeManagement.createTheme.fontWeights.600')}</SelectItem>
+                                        <SelectItem value="700">{t('themeManagement.createTheme.fontWeights.700')}</SelectItem>
+                                        <SelectItem value="800">{t('themeManagement.createTheme.fontWeights.800')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <Select
@@ -1072,15 +1075,15 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                                       }
                                     >
                                       <SelectTrigger className="text-xs">
-                                        <SelectValue placeholder="Size" />
+                                        <SelectValue placeholder={t('themeManagement.createTheme.customizeFonts.fontSize')} />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="0.875rem">Small</SelectItem>
-                                        <SelectItem value="1rem">Normal</SelectItem>
-                                        <SelectItem value="1.125rem">Large</SelectItem>
-                                        <SelectItem value="1.25rem">X-Large</SelectItem>
-                                        <SelectItem value="1.5rem">Huge</SelectItem>
-                                        <SelectItem value="2rem">Massive</SelectItem>
+                                        <SelectItem value="0.875rem">{t('themeManagement.createTheme.fontSizes.small')}</SelectItem>
+                                        <SelectItem value="1rem">{t('themeManagement.createTheme.fontSizes.normal')}</SelectItem>
+                                        <SelectItem value="1.125rem">{t('themeManagement.createTheme.fontSizes.large')}</SelectItem>
+                                        <SelectItem value="1.25rem">{t('themeManagement.createTheme.fontSizes.extraLarge')}</SelectItem>
+                                        <SelectItem value="1.5rem">{t('themeManagement.createTheme.fontSizes.huge')}</SelectItem>
+                                        <SelectItem value="2rem">{t('themeManagement.createTheme.fontSizes.massive')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
@@ -1109,7 +1112,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                               disabled={setActiveTheme.isPending}
                             >
                               <Check className="h-3 w-3 mr-1" />
-                              Use This
+                              {t('themeManagement.savedThemes.actions.useThis')}
                             </Button>
                           )}
                           <Button
@@ -1123,7 +1126,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                             }
                           >
                             <Copy className="h-3 w-3 mr-1" />
-                            Copy
+                            {t('themeManagement.savedThemes.actions.copy')}
                           </Button>
                           <Button
                             size="sm"
@@ -1132,7 +1135,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
                             disabled={theme.isActive}
                           >
                             <Trash2 className="h-3 w-3 mr-1" />
-                            Delete
+                            {t('themeManagement.savedThemes.actions.delete')}
                           </Button>
                         </div>
                       )}
