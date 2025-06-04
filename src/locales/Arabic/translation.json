@@ -678,6 +678,33 @@
       { "id": "ru", "name": "الروسية" }
     ]
   },
+  "login": {
+    "brand.name": "سكايلاين",
+    "brand.tagline": "سجل الدخول لفتح لوحة التحكم الشخصية وأدوات التحليل القوية",
+    "auth.signIn": "تسجيل الدخول",
+    "auth.signUp": "إنشاء حساب",
+    "auth.description": "أدخل بيانات الاعتماد للوصول إلى حسابك",
+    "auth.noAccount": "ليس لديك حساب؟",
+    "auth.email.label": "عنوان البريد الإلكتروني",
+    "auth.email.placeholder": "الاسم@example.com",
+    "auth.password.label": "كلمة المرور",
+    "auth.password.placeholder": "••••••••",
+    "auth.states.signingIn": "جاري تسجيل الدخول...",
+    "auth.states.success": "نجح!",
+    "auth.states.sending": "جاري الإرسال...",
+    "errors.inactiveAccount.resolution": "يرجى تفعيل حسابك بالنقر على الرابط في بريدك الإلكتروني",
+    "errors.inactiveAccount.action": "إعادة إرسال بريد التفعيل",
+    "errors.inactiveAccount.successMessage": "تم إرسال بريد التفعيل!",
+    "errors.inactiveAccount.successResolution": "يرجى فحص صندوق الوارد والنقر على رابط التفعيل.",
+    "errors.invalidCredentials.resolution": "يرجى التحقق من بيانات الاعتماد والمحاولة مرة أخرى",
+    "errors.accountLocked.resolution": "يرجى التواصل مع الدعم للحصول على المساعدة",
+    "errors.accountLocked.action": "تواصل مع الدعم",
+    "errors.forbidden.resolution": "ليس لديك صلاحية للوصول إلى هذا المورد",
+    "errors.serverError.resolution": "يرجى المحاولة مرة أخرى لاحقاً أو التواصل مع الدعم إذا استمرت المشكلة",
+    "errors.networkError.message": "خطأ في الاتصال بالشبكة",
+    "errors.networkError.resolution": "يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى",
+    "errors.unknown.resolution": "يرجى المحاولة مرة أخرى أو التواصل مع الدعم إذا استمرت المشكلة"
+  },
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

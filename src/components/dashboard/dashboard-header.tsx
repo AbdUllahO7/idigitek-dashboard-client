@@ -10,6 +10,8 @@ import { useLanguage } from "@/src/context/LanguageContext" // Import language c
 import { useRouter } from "next/navigation"
 import LanguageSelector from "./LanguageSelectorComponent"
 import { useTranslation } from "react-i18next"
+import useUsers from "@/src/hooks/users/use-users"
+import { getInitials } from "@/src/utils/user-helpers"
 
 /**
  * Props for the DashboardHeader component
@@ -25,9 +27,11 @@ interface DashboardHeaderProps {
  */
 export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: DashboardHeaderProps) {
     const { logout } = useAuth();
-    const { language, setLanguage, isLoaded } = useLanguage(); // Use language context
+    const { language, setLanguage, isLoaded } = useLanguage(); 
     const router = useRouter()
-        const {t} = useTranslation()
+    const {t} = useTranslation()
+    const { useGetCurrentUser, useUpdateProfile } = useUsers()
+    const { data: currentUserData, isLoading: isUserLoading } = useGetCurrentUser()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -75,7 +79,23 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
         {/* Theme toggle */}
         <ThemeToggle />
 
-
+    <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="/placeholder-user.jpg" alt="User" />
+                <AvatarFallback>{getInitials(currentUserData.data)}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSubmit}>Log out</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )
