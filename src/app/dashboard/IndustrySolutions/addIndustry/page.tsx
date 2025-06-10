@@ -1,4 +1,4 @@
-// Updated AddIndustry.tsx to fix the edit mode data display issue
+// Updated AddIndustry.tsx with translations
 
 "use client"
 
@@ -12,13 +12,17 @@ import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import IndustryItemsForm from "./IndustryForm"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import { useSearchParams } from "next/navigation"
+import { useTranslation } from "react-i18next"
+// Import your translation hook - adjust the import path as needed
 
-
-// Form sections to collect data from
-const FORM_SECTIONS = ["Industry Items"]
+// Form sections to collect data from - now using translation key
+const getFormSections = (t: any) => [t("addIndustryPage.industryItemsSection")]
 
 export default function AddIndustry() {
   const searchParams = useSearchParams()
+  
+  // Get translation function
+  const { t } = useTranslation() // Adjust based on your translation hook
   
   // Get URL parameters
   const sectionId = searchParams.get('sectionId')
@@ -30,7 +34,7 @@ export default function AddIndustry() {
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
   const { useGetById: useGetSectionItemById } = useSectionItems()
   const { useGetBySectionItemId: useGetSubSectionsBySectionItemId } = useSubSections()
-    const { websiteId } = useWebsiteContext();
+  const { websiteId } = useWebsiteContext();
   
   // Get languages
   const { 
@@ -67,12 +71,16 @@ export default function AddIndustry() {
   const findSubsection = (baseSlug: string) => {
     if (!subsectionsData?.data) return undefined;
     
+    console.log(t("addIndustryPage.searchingSubsection"), baseSlug);
+    
     // Normalize the baseSlug to lowercase and handle special cases
     const normalizedBaseSlug = baseSlug.toLowerCase();
     
     // Create a mapping for known slug patterns
     const slugMappings: Record<string, string> = {
       'industry-section': 'industry-section',
+      'industryitems': t("addIndustryPage.industryItemsSlug"),
+      'process-steps': t("addIndustryPage.processStepsSlug"),
     };
     
     // Get the normalized version of the slug
@@ -87,6 +95,7 @@ export default function AddIndustry() {
     );
     
     if (subsection) {
+      console.log(t("addIndustryPage.subsectionFound"), subsection);
       return subsection;
     }
     
@@ -100,10 +109,12 @@ export default function AddIndustry() {
     });
     
     if (partialMatch) {
+      console.log(t("addIndustryPage.subsectionFound"), partialMatch);
       return partialMatch;
     }
     
-      return undefined;
+    console.log(t("addIndustryPage.subsectionNotFound"), expectedSlug);
+    return undefined;
   };
   
   // Generate proper slugs for subsections
@@ -112,7 +123,7 @@ export default function AddIndustry() {
     
     // Special case handling for processSteps - correct the capitalization
     if (baseSlug === "process-Steps") {
-      baseSlug = "process-steps";
+      baseSlug = t("addIndustryPage.processStepsSlug");
     }
     
     // Find the subsection
@@ -131,7 +142,7 @@ export default function AddIndustry() {
   const tabs = [
     {
       id: "industryItems",
-      label: "Industry Items",
+      label: t("addIndustryPage.tabLabel"),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <IndustryItemsForm
@@ -147,11 +158,15 @@ export default function AddIndustry() {
    
   // Define save handler for the industry
   const handleSaveIndustry = async (formData: FormData) => {
+    console.log(t("addIndustryPage.savingIndustry"));
+    
     // Extract industry info from hero data for title/description
     const heroData = formData.hero || {}
     
+    console.log(t("addIndustryPage.extractingIndustryInfo"), heroData);
+    
     // Get English title and description values or fallback to the first language
-    let industryName = "New Industry"
+    let industryName = t("addIndustryPage.defaultIndustryName")
     let industryDescription = ""
     
     // Loop through languages to find title and description
@@ -171,6 +186,11 @@ export default function AddIndustry() {
       }
     }
     
+    console.log(t("addIndustryPage.creatingIndustryPayload"), {
+      name: industryName,
+      description: industryDescription
+    });
+    
     // Create the industry payload
     const industryPayload = {
       name: industryName,
@@ -180,6 +200,8 @@ export default function AddIndustry() {
       section: sectionId
     }
     
+    console.log(t("addIndustryPage.industrySaved"));
+    
     // Return data for saving
     return industryPayload
   }
@@ -187,12 +209,16 @@ export default function AddIndustry() {
   // Loading state
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
+  // Get item name for subtitle
+  const itemName = sectionItemData?.data?.name || t("addIndustryPage.defaultItemName")
+  
   return (
     <FormShell
-      title={isCreateMode ? "Create New industry item " : "Edit industry item "}
+      title={isCreateMode ? t("addIndustryPage.createTitle") : t("addIndustryPage.editTitle")}
       subtitle={isCreateMode 
-        ? "Create a new industry item with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'industry item'}" content across multiple languages`}
+        ? t("addIndustryPage.createSubtitle")
+        : t("addIndustryPage.editSubtitle").replace("{name}", itemName)
+      }
       backUrl={`/dashboard/IndustrySolutions?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}
@@ -201,7 +227,7 @@ export default function AddIndustry() {
       mode={mode}
       onSave={handleSaveIndustry}
       tabs={tabs}
-      formSections={FORM_SECTIONS}
+      formSections={getFormSections(t)}
       isLoading={isLoading}
     />
   )
