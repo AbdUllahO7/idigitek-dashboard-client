@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next';
 
 import translationEnglish from '../locales/English/translation.json';
 import translationArabic from '../locales/Arabic/translation.json';
+import translationTurkish from '../locales/Turkish/translation.json';
 
 const resources = {
   en: {
@@ -12,6 +13,9 @@ const resources = {
   ar: {
     translation: translationArabic,
   },
+  tr : {
+        translation: translationTurkish,
+  }
 };
 
 // Initialize i18next WITHOUT accessing localStorage during module load

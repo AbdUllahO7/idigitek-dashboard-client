@@ -1307,6 +1307,52 @@
     "errorCreatingService": "Error creating service",
     "errorOccurred": "An error occurred while creating the service"
   },
+  "formShell": {
+    "noActiveLanguages": "No active languages found. Please activate at least one language in settings.",
+    "languages": "Languages",
+    "completion": "Completion:",
+    "saving": "Saving...",
+    "create": "Create",
+    "update": "Update",
+    "unsavedChanges": {
+      "title": "Unsaved Changes",
+      "description": "You have unsaved changes. Are you sure you want to leave this page? All unsaved changes will be lost.",
+      "cancel": "Cancel",
+      "leavePage": "Leave Page"
+    }
+  },
+  "formContext": {
+    "errors": {
+      "general": "Error",
+      "missingSectionId": "Section ID is missing. Cannot save data.",
+      "validationError": "Validation Error", 
+      "validationDescription": "Please make sure all required fields are filled correctly.",
+      "savingError": "Error saving data",
+      "savingDescription": "There was an error saving your data. Please try again."
+    },
+    "success": {
+      "created": "Created successfully",
+      "updated": "Updated successfully", 
+      "saveDescription": "Your content has been saved."
+    }
+  },
+    "addHeader": {
+    "title": {
+      "create": "Create New Navigation Item",
+      "edit": "Edit Navigation Item"
+    },
+    "subtitle": {
+      "create": "Create a new navigation item with multilingual content",
+      "edit": "Editing \"{{name}}\" content across multiple languages"
+    },
+    "tabs": {
+      "navItems": "Navigation Items"
+    },
+    "defaults": {
+      "newHeader": "New Header",
+      "navItem": "navigation item"
+    }
+  },
   "common": {
     "welcome": "Welcome",
     "logout": "Log out",

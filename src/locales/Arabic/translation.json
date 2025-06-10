@@ -1262,15 +1262,7 @@
       "sectionTitle": "عنوان القسم",
       "sectionDescription": "وصف القسم"
     },
-  "common": {
-    "welcome": "مرحبا",
-    "logout": "تسجيل الخروج",
-    "profile": "الملف الشخصي",
-    "myAccount": "حسابي",
-    "loading": "جاري التحميل...",
-    "save": "حفظ",
-    "cancel": "إلغاء"
-  },
+
   "HeaderConfig" : {
   "title": "إدارة شريط التنقل",
   "description": "إدارة مخزون شريط التنقل والمحتوى متعدد اللغات",
@@ -1319,5 +1311,61 @@
   "addDetailsMessage": "يمكنك الآن إضافة تفاصيل لخدمتك",
   "errorCreatingService": "خطأ في إنشاء الخدمة",
   "errorOccurred": "حدث خطأ أثناء إنشاء الخدمة"
+  },
+  "formShell": {
+      "noActiveLanguages": "لم يتم العثور على لغات نشطة. يُرجى تفعيل لغة واحدة على الأقل في الإعدادات.",
+      "languages": "Languages",
+      "completion": "Completion:",
+      "saving": "جارٍ الحفظ...",
+      "create": "إنشاء",
+      "update": "تحديث",
+      "unsavedChanges": {
+      "title": "تغييرات غير محفوظة",
+      "description": "لديك تغييرات غير محفوظة. هل أنت متأكد من رغبتك في مغادرة هذه الصفحة؟ ستُفقد جميع التغييرات غير المحفوظة.",
+      "cancel": "إلغاء",
+      "leavePage": "مغادرة الصفحة"
+      }
+  },
+  "formContext": {
+    "errors": {
+      "general": "خطأ",
+      "missingSectionId": "معرف القسم مفقود. لا يمكن حفظ البيانات.",
+      "validationError": "خطأ في التحقق",
+      "validationDescription": "يرجى التأكد من ملء جميع الحقول المطلوبة بشكل صحيح.",
+      "savingError": "خطأ في حفظ البيانات",
+      "savingDescription": "حدث خطأ أثناء حفظ بياناتك. يرجى المحاولة مرة أخرى."
+    },
+    "success": {
+      "created": "تم الإنشاء بنجاح",
+      "updated": "تم التحديث بنجاح",
+      "saveDescription": "تم حفظ المحتوى الخاص بك."
+    }
+  },
+   "addHeader": {
+    "title": {
+      "create": "إنشاء عنصر تنقل جديد",
+      "edit": "تعديل عنصر التنقل"
+    },
+    "subtitle": {
+      "create": "إنشاء عنصر تنقل جديد بمحتوى متعدد اللغات",
+      "edit": "تعديل محتوى \"{{name}}\" عبر لغات متعددة"
+    },
+    "tabs": {
+      "navItems": "عناصر التنقل"
+    },
+    "defaults": {
+      "newHeader": "رأس جديد",
+      "navItem": "عنصر التنقل"
+    }
+  },
+  "common": {
+    "welcome": "مرحبا",
+    "logout": "تسجيل الخروج",
+    "profile": "الملف الشخصي",
+    "myAccount": "حسابي",
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء"
   }
+  
 }

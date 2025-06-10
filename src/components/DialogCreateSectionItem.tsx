@@ -13,6 +13,7 @@ import { useToast } from "../hooks/use-toast"
 import useUsers from "../hooks/users/use-users"
 import { useWebsiteContext } from "../providers/WebsiteContext"
 import { useTranslation } from "react-i18next"
+import { useLanguage } from "../context/LanguageContext"
 
 interface DialogCreateSectionItemProps {
   open: boolean;
@@ -37,7 +38,7 @@ export default function DialogCreateSectionItem({
   const { useGetCurrentUser } = useUsers()
   const { data: userData, isLoading: isLoadingUser, error: userError } = useGetCurrentUser()
   const { websiteId, websites, isLoadingWebsites, websitesError } = useWebsiteContext();
-
+  const {language} = useLanguage()
   // Get create hook from useSectionItems
   const { useCreate: useCreateSectionItem } = useSectionItems()
   const createSectionItem = useCreateSectionItem()
@@ -139,9 +140,9 @@ export default function DialogCreateSectionItem({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" dir={language === "ar" ? 'rtl' : 'ltr'}>
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
+          <DialogHeader className=""  dir={language === "ar" ? 'rtl' : 'ltr'}>
             <DialogTitle>{t('createSectionItemDialog.createNew', { title })}</DialogTitle>
             <DialogDescription>
               {t('createSectionItemDialog.dialogDescription')}
@@ -185,6 +186,7 @@ export default function DialogCreateSectionItem({
               variant="outline"
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
+              className="ml-2"
             >
               {t('createSectionItemDialog.cancelButton')}
             </Button>

@@ -6,17 +6,18 @@ import { Layout } from "lucide-react"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
+import { useTranslation } from "react-i18next"
 
 import { FormData } from "@/src/api/types/sections/service/serviceSections.types"
 import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import NavItemsForm from "./NavItemsForm"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 
-
 // Form sections to collect data from
 const FORM_SECTIONS = ["Nav Items"]
 
 export default function AddHeader() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   
   // Get URL parameters
@@ -29,7 +30,7 @@ export default function AddHeader() {
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
   const { useGetById: useGetSectionItemById } = useSectionItems()
   const { useGetBySectionItemId: useGetSubSectionsBySectionItemId } = useSubSections()
-    const { websiteId } = useWebsiteContext();
+  const { websiteId } = useWebsiteContext();
   
   // Get languages
   const { 
@@ -102,7 +103,7 @@ export default function AddHeader() {
       return partialMatch;
     }
     
-      return undefined;
+    return undefined;
   };
   
   // Generate proper slugs for subsections
@@ -130,7 +131,7 @@ export default function AddHeader() {
   const tabs = [
     {
       id: "navItems",
-      label: "Nav Items",
+      label: t("addHeader.tabs.navItems"),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <NavItemsForm
@@ -150,7 +151,7 @@ export default function AddHeader() {
     const heroData = formData.hero || {}
     
     // Get English title and description values or fallback to the first language
-    let headerName = "New Header"
+    let headerName = t("addHeader.defaults.newHeader")
     let headerDescription = ""
     
     // Loop through languages to find title and description
@@ -186,12 +187,15 @@ export default function AddHeader() {
   // Loading state
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
+  // Get the item name for display
+  const itemName = sectionItemData?.data?.name || t("addHeader.defaults.navItem")
+  
   return (
     <FormShell
-      title={isCreateMode ? "Create New nav item " : "Edit nav item "}
+      title={isCreateMode ? t("addHeader.title.create") : t("addHeader.title.edit")}
       subtitle={isCreateMode 
-        ? "Create a new nav item with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'nav item'}" content across multiple languages`}
+        ? t("addHeader.subtitle.create")
+        : t("addHeader.subtitle.edit", { name: itemName })}
       backUrl={`/dashboard/header?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}
