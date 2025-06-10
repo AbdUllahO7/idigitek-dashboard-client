@@ -11,72 +11,74 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { newsSectionConfig } from "./NewsSectionConfig"
-
-// Configuration for the News page
-const NEWS_CONFIG = {
-  title: "News Management",
-  description: "Manage your News inventory and multilingual content",
-  addButtonLabel: "Add New News item",
-  emptyStateMessage: "No News found. Create your first News by clicking the \"Add New News\" button.",
-  noSectionMessage: "Please create a News section first before adding News.",
-  mainSectionRequiredMessage: "Please enter your main section data before adding News.",
-  emptyFieldsMessage: "Please complete all required fields in the main section before adding News.",
-  sectionIntegrationTitle: "News Section Content",
-  sectionIntegrationDescription: "Manage your News section content in multiple languages.",
-  addSectionButtonLabel: "Add News Section",
-  editSectionButtonLabel: "Edit News Section",
-  saveSectionButtonLabel: "Save News Section",
-  listTitle: "News List",
-  editPath: "News/addNews"
-}
-
-// News table column definitions
-const NEWS_COLUMNS = [
-  {
-    header: "Name",
-    accessor: "name",
-    className: "font-medium"
-  },
-  {
-    header: "Description",
-    accessor: "description",
-    cell: TruncatedCell
-  },
-  {
-    header: "Status",
-    accessor: "isActive",
-    cell: (item: any, value: boolean) => (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center">
-          {StatusCell(item, value)}
-          {item.isMain && (
-            <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  },
-  {
-    header: "Order",
-    accessor: "order"
-  },
-  {
-    header: "Subsections",
-    accessor: "subsections.length",
-    cell: CountBadgeCell
-  }
-]
+import { getNewsSectionConfig, newsSectionConfig } from "./NewsSectionConfig"
+import { useTranslation } from "react-i18next"
 
 export default function NewsPage() {
+  const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const sectionId = searchParams.get("sectionId")
   const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
+
+  // Configuration for the News page - now using translations
+  const NEWS_CONFIG = {
+    title: t('newsPage.title', 'News Management'),
+    description: t('newsPage.description', 'Manage your News inventory and multilingual content'),
+    addButtonLabel: t('newsPage.addButtonLabel', 'Add New News item'),
+    emptyStateMessage: t('newsPage.emptyStateMessage', 'No News found. Create your first News by clicking the "Add New News" button.'),
+    noSectionMessage: t('newsPage.noSectionMessage', 'Please create a News section first before adding News.'),
+    mainSectionRequiredMessage: t('newsPage.mainSectionRequiredMessage', 'Please enter your main section data before adding News.'),
+    emptyFieldsMessage: t('newsPage.emptyFieldsMessage', 'Please complete all required fields in the main section before adding News.'),
+    sectionIntegrationTitle: t('newsPage.sectionIntegrationTitle', 'News Section Content'),
+    sectionIntegrationDescription: t('newsPage.sectionIntegrationDescription', 'Manage your News section content in multiple languages.'),
+    addSectionButtonLabel: t('newsPage.addSectionButtonLabel', 'Add News Section'),
+    editSectionButtonLabel: t('newsPage.editSectionButtonLabel', 'Edit News Section'),
+    saveSectionButtonLabel: t('newsPage.saveSectionButtonLabel', 'Save News Section'),
+    listTitle: t('newsPage.listTitle', 'News List'),
+    editPath: "News/addNews"
+  }
+
+  // News table column definitions - now using translations
+  const NEWS_COLUMNS = [
+    {
+      header: t('newsPage.columnName', 'Name'),
+      accessor: "name",
+      className: "font-medium"
+    },
+    {
+      header: t('newsPage.columnDescription', 'Description'),
+      accessor: "description",
+      cell: TruncatedCell
+    },
+    {
+      header: t('newsPage.columnStatus', 'Status'),
+      accessor: "isActive",
+      cell: (item: any, value: boolean) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center">
+            {StatusCell(item, value)}
+            {item.isMain && (
+              <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                {t('newsPage.main', 'Main')}
+              </span>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: t('newsPage.columnOrder', 'Order'),
+      accessor: "order"
+    },
+    {
+      header: t('newsPage.columnSubsections', 'Subsections'),
+      accessor: "subsections.length",
+      cell: CountBadgeCell
+    }
+  ]
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
@@ -116,11 +118,11 @@ export default function NewsPage() {
     apiHooks: useSectionItems(),
     editPath: NEWS_CONFIG.editPath
   })
+    const currentLanguage = i18n.language; // 'en', 'ar', 'tr'
+    const newsSectionConfig = getNewsSectionConfig(currentLanguage);
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {    
-
-    
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
       console.log("Still loading subsection data...");
@@ -267,7 +269,6 @@ export default function NewsPage() {
       ? NEWS_CONFIG.mainSectionRequiredMessage
       : NEWS_CONFIG.emptyStateMessage;
 
-
   // Components
   const NewsTable = (
     <GenericTable
@@ -284,7 +285,7 @@ export default function NewsPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="News"
+      title={t('newsPage.createNewsTitle', 'News')}
     />
   );
 
@@ -295,8 +296,9 @@ export default function NewsPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete News Item"
-      confirmText="Confirm"
+      title={t('newsPage.deleteNewsItem', 'Delete News Item')}
+      confirmText={t('newsPage.confirmDelete', 'Confirm')}
+      itemType="item"
     />
   );
 

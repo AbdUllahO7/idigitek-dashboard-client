@@ -23,19 +23,21 @@ import { createFormRef } from "../../../services/addService/Utils/Expose-form-da
 import { BackgroundImageSection } from "../../../services/addService/Components/Hero/SimpleImageUploader";
 import { NewsFormProps } from "@/src/api/types/sections/news/newsSections.types";
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations";
-
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/src/context/LanguageContext";
 
 const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
-  const { 
-    languageIds, 
-    activeLanguages, 
-    onDataChange, 
-    slug, 
-    ParentSectionId, 
-    initialData 
-  } = props;
-
+  const { languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData } = props;
   const { websiteId } = useWebsiteContext();
+  const { t, i18n } = useTranslation(); // Use newsForm namespace
+  const { language } = useLanguage();
+
+  // Sync i18next language with LanguageContext
+  useEffect(() => {
+    if (language && i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
 
   // Setup form with schema validation
   const formSchema = createHeroSchema(languageIds, activeLanguages);
@@ -43,7 +45,7 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: "onChange" // Enable validation on change for better UX
+    mode: "onChange", // Enable validation on change for better UX
   });
 
   // State management
@@ -51,77 +53,74 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
     isLoadingData: !slug,
     dataLoaded: !slug,
     hasUnsavedChanges: false,
-    existingSubSectionId: null as string | null ,
+    existingSubSectionId: null as string | null,
     contentElements: [] as ContentElement[],
-    isSaving: false
+    isSaving: false,
   });
 
   // Use object state update for better performance and readability
-  const updateState = useCallback((newState: { isLoadingData?: boolean; dataLoaded?: boolean; hasUnsavedChanges?: boolean; existingSubSectionId?: string | null; contentElements?: any[]; isSaving?: boolean; }) => {
-    setState(prev => ({ ...prev, ...newState }));
-  }, []);
+  const updateState = useCallback(
+    (newState: {
+      isLoadingData?: boolean;
+      dataLoaded?: boolean;
+      hasUnsavedChanges?: boolean;
+      existingSubSectionId?: string | null;
+      contentElements?: any[];
+      isSaving?: boolean;
+    }) => {
+      setState((prev) => ({ ...prev, ...newState }));
+    },
+    [],
+  );
 
   // Extract state variables for readability
-  const { 
-    isLoadingData, 
-    dataLoaded, 
-    hasUnsavedChanges, 
-    existingSubSectionId, 
-    contentElements, 
-    isSaving 
-  } = state;
+  const { isLoadingData, dataLoaded, hasUnsavedChanges, existingSubSectionId, contentElements, isSaving } = state;
 
   // Hooks
   const { toast } = useToast();
   const dataProcessed = useRef(false);
   const onDataChangeRef = useRef(onDataChange);
-  const defaultLangCode = activeLanguages[0]?.languageID || 'en';
-  
+  const defaultLangCode = activeLanguages[0]?.languageID || "en";
+
   // Services
-  const { 
-    useCreate: useCreateSubSection, 
-    useGetCompleteBySlug, 
-    useUpdate: useUpdateSubSection 
-  } = useSubSections();
-  
+  const { useCreate: useCreateSubSection, useGetCompleteBySlug, useUpdate: useUpdateSubSection } = useSubSections();
   const { useCreate: useCreateContentElement } = useContentElements();
   const { useBulkUpsert: useBulkUpsertTranslations } = useContentTranslations();
-  
+
   const createSubSection = useCreateSubSection();
   const updateSubSection = useUpdateSubSection();
   const createContentElement = useCreateContentElement();
   const bulkUpsertTranslations = useBulkUpsertTranslations();
 
   // Image upload hook
-  const { 
-    imageFile, 
-    imagePreview, 
-    handleImageUpload : handleOriginalImageUpload, 
-    handleImageRemove 
+  const {
+    imageFile,
+    imagePreview,
+    handleImageUpload: handleOriginalImageUpload,
+    handleImageRemove,
   } = useImageUploader({
     form,
-    fieldPath: 'backgroundImage',
+    fieldPath: "backgroundImage",
     initialImageUrl: initialData?.image || form.getValues().backgroundImage,
-    onUpload: () => updateState({
-      hasUnsavedChanges: true,
-
-    }),
-    onRemove: () => updateState({
-      hasUnsavedChanges: true,
-
-    }),
-    validate: (file: { type: string; }) => {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-      return validTypes.includes(file.type) || 'Only JPEG, PNG, GIF, or SVG files are allowed';
-    }
+    onUpload: () =>
+      updateState({
+        hasUnsavedChanges: true,
+      }),
+    onRemove: () =>
+      updateState({
+        hasUnsavedChanges: true,
+      }),
+    validate: (file: { type: string }) => {
+      const validTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+      return validTypes.includes(file.type) || t("newsForm.toastImageUploadErrorDescription");
+    },
   });
 
   // Data fetching from API
-  const { 
-    data: completeSubsectionData, 
-    isLoading: isLoadingSubsection, 
-    refetch 
-  } = useGetCompleteBySlug(slug || '', Boolean(slug));
+  const { data: completeSubsectionData, isLoading: isLoadingSubsection, refetch } = useGetCompleteBySlug(
+    slug || "",
+    Boolean(slug),
+  );
 
   // Update reference when onDataChange changes
   useEffect(() => {
@@ -131,81 +130,83 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
   // Process initial data from parent
   const processInitialData = useCallback(() => {
     if (initialData && !dataLoaded) {
-      
       if (initialData.description) {
         form.setValue(`${defaultLangCode}.description`, initialData.description);
       }
-      
+
       if (initialData.image) {
-        form.setValue('backgroundImage', initialData.image);
+        form.setValue("backgroundImage", initialData.image);
       }
-      
-      updateState({ 
-        dataLoaded: true, 
-        hasUnsavedChanges: false 
+
+      updateState({
+        dataLoaded: true,
+        hasUnsavedChanges: false,
       });
     }
   }, [initialData, dataLoaded, defaultLangCode, form]);
 
-  // Process hero data from API
-  const processNewsData = useCallback((subsectionData: SubSection | null) => {
-    processAndLoadData(
-      subsectionData,
-      form,
-      languageIds,
-      activeLanguages,
-      {
-        groupElements: (elements) => ({
-          'hero': elements.filter(el => el.type === 'text' || (el.name === 'Background Image' && el.type === 'image'))
-        }),
-        processElementGroup: (groupId, elements, langId, getTranslationContent) => {
-          const elementKeyMap: Record<string, keyof typeof result> = {
-            'Title': 'title',
-            'Description': 'description',
-            'Back Link Text': 'backLinkText'
-          };
-          
-          const result = {
-            title: '',
-            description: '',
-            backLinkText: ''
-          };
-          
-          elements.filter(el => el.type === 'text').forEach(element => {
-            const key = elementKeyMap[element.name];
-            if (key) {
-              result[key] = getTranslationContent(element, '');
-            }
-          });
-          
-          return result;
-        },
-        getDefaultValue: () => ({
-          title: '',
-          description: '',
-          backLinkText: ''
-        })
-      },
-      {
-        setExistingSubSectionId: (id) => updateState({ existingSubSectionId: id }),
-        setContentElements: (elements) => updateState({ contentElements: elements }),
-        setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
-        setHasUnsavedChanges: (hasChanges) => updateState({ hasUnsavedChanges: hasChanges }),
-        setIsLoadingData: (loading) => updateState({ isLoadingData: loading })
-      }
-    );
+  // Process news data from API
+  const processNewsData = useCallback(
+    (subsectionData: SubSection | null) => {
+      processAndLoadData(
+        subsectionData,
+        form,
+        languageIds,
+        activeLanguages,
+        {
+          groupElements: (elements) => ({
+            hero: elements.filter((el) => el.type === "text" || (el.name === "Background Image" && el.type === "image")),
+          }),
+          processElementGroup: (groupId, elements, langId, getTranslationContent) => {
+            const elementKeyMap: Record<string, keyof typeof result> = {
+              Title: "title",
+              Description: "description",
+              "Back Link Text": "backLinkText",
+            };
 
-    // Handle background image
-    const bgImageElement = subsectionData?.elements?.find(
-      (el) => el.name === 'Background Image' && el.type === 'image'
-    ) || subsectionData?.contentElements?.find(
-      (el) => el.name === 'Background Image' && el.type === 'image'
-    );
-    
-    if (bgImageElement?.imageUrl) {
-      form.setValue('backgroundImage', bgImageElement.imageUrl);
-    }
-  }, [form, languageIds, activeLanguages]);
+            const result = {
+              title: "",
+              description: "",
+              backLinkText: "",
+            };
+
+            elements
+              .filter((el) => el.type === "text")
+              .forEach((element) => {
+                const key = elementKeyMap[element.name];
+                if (key) {
+                  result[key] = getTranslationContent(element, "");
+                }
+              });
+
+            return result;
+          },
+          getDefaultValue: () => ({
+            title: "",
+            description: "",
+            backLinkText: "",
+          }),
+        },
+        {
+          setExistingSubSectionId: (id) => updateState({ existingSubSectionId: id }),
+          setContentElements: (elements) => updateState({ contentElements: elements }),
+          setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
+          setHasUnsavedChanges: (hasChanges) => updateState({ hasUnsavedChanges: hasChanges }),
+          setIsLoadingData: (loading) => updateState({ isLoadingData: loading }),
+        },
+      );
+
+      // Handle background image
+      const bgImageElement =
+        subsectionData?.elements?.find((el) => el.name === "Background Image" && el.type === "image") ||
+        subsectionData?.contentElements?.find((el) => el.name === "Background Image" && el.type === "image");
+
+      if (bgImageElement?.imageUrl) {
+        form.setValue("backgroundImage", bgImageElement.imageUrl);
+      }
+    },
+    [form, languageIds, activeLanguages],
+  );
 
   // Process initial data effect
   useEffect(() => {
@@ -217,13 +218,13 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
   // Process API data effect
   useEffect(() => {
     if (!slug || isLoadingSubsection || dataProcessed.current) return;
-    
+
     if (completeSubsectionData?.data) {
       updateState({ isLoadingData: true });
       processNewsData(completeSubsectionData.data);
-      updateState({ 
+      updateState({
         dataLoaded: true,
-        isLoadingData: false
+        isLoadingData: false,
       });
       dataProcessed.current = true;
     }
@@ -232,55 +233,55 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
   // Form watch effect for unsaved changes
   useEffect(() => {
     if (isLoadingData || !dataLoaded) return;
-    
+
     const subscription = form.watch((value) => {
       updateState({ hasUnsavedChanges: true });
       if (onDataChangeRef.current) {
         onDataChangeRef.current(value);
       }
     });
-    
+
     return () => subscription.unsubscribe();
   }, [form, isLoadingData, dataLoaded, updateState]);
 
   // Image upload handler
-  const uploadImage = useCallback(async (elementId: any, file: string | Blob) => {
-    if (!file) return null;
-    
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-      
-      const uploadResult = await apiClient.post(
-        `/content-elements/${elementId}/image`, 
-        formData, 
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      
-      const imageUrl = uploadResult.data?.imageUrl || 
-                      uploadResult.data?.url || 
-                      uploadResult.data?.data?.imageUrl;
-      
-      if (imageUrl) {
-        form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
-        toast({
-          title: "Image Uploaded",
-          description: "Background image has been successfully uploaded."
+  const uploadImage = useCallback(
+    async (elementId: any, file: string | Blob) => {
+      if (!file) return null;
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const uploadResult = await apiClient.post(`/content-elements/${elementId}/image`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        return imageUrl;
-      } 
-      
-      throw new Error("No image URL returned from server. Response: " + JSON.stringify(uploadResult.data));
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      toast({
-        title: "Image Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload image",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  }, [form, toast]);
+
+        const imageUrl =
+          uploadResult.data?.imageUrl || uploadResult.data?.url || uploadResult.data?.data?.imageUrl;
+
+        if (imageUrl) {
+          form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
+          toast({
+            title: t("newsForm.toastImageUploadSuccessTitle"),
+            description: t("newsForm.toastImageUploadSuccessDescription"),
+          });
+          return imageUrl;
+        }
+
+        throw new Error("No image URL returned from server. Response: " + JSON.stringify(uploadResult.data));
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        toast({
+          title: t("newsForm.toastImageUploadErrorTitle"),
+          description: error instanceof Error ? error.message : t("newsForm.toastImageUploadErrorDescription"),
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
+    [form, toast, t],
+  );
 
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
@@ -288,15 +289,15 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please fill all required fields correctly",
-        variant: "destructive"
+        title: t("newsForm.toastValidationErrorTitle"),
+        description: t("newsForm.toastValidationErrorDescription"),
+        variant: "destructive",
       });
       return false;
     }
 
     updateState({ isSaving: true });
-    
+
     try {
       const allFormValues = form.getValues();
 
@@ -306,7 +307,7 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
         if (!ParentSectionId) {
           throw new Error("Parent section ID is required to create a subsection");
         }
-        
+
         const subsectionData = {
           name: "News Section",
           slug: slug || `hero-section-${Date.now()}`,
@@ -314,12 +315,12 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
           isActive: true,
           isMain: false,
           order: 0,
-          defaultContent : '',
+          defaultContent: "",
           sectionItem: ParentSectionId,
           languages: languageIds,
-          WebSiteId : websiteId
+          WebSiteId: websiteId,
         };
-        
+
         const newSubSection = await createSubSection.mutateAsync(subsectionData);
         sectionId = newSubSection.data._id;
         updateState({ existingSubSectionId: sectionId });
@@ -327,12 +328,12 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
         const updateData = {
           isActive: true,
           isMain: false,
-          languages: languageIds
+          languages: languageIds,
         };
-        
+
         await updateSubSection.mutateAsync({
           id: sectionId,
-          data: updateData
+          data: updateData,
         });
       }
 
@@ -358,19 +359,19 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
 
         // Update translations for text elements
         const textElements = contentElements.filter((e) => e.type === "text");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] | { content: any; language: string; contentElement: string; isActive: boolean; }[] = [];
-        const elementNameToKeyMap: Record<string, 'title' | 'description' | 'backLinkText'> = {
-          'Title': 'title',
-          'Description': 'description',
-          'Back Link Text': 'backLinkText'
+        const translations: (Omit<ContentTranslation, "_id"> & { id?: string })[] = [];
+        const elementNameToKeyMap: Record<string, "title" | "description" | "backLinkText"> = {
+          Title: "title",
+          Description: "description",
+          "Back Link Text": "backLinkText",
         };
 
         Object.entries(allFormValues).forEach(([langCode, values]) => {
           if (langCode === "backgroundImage") return;
-          
+
           const langId = langCodeToIdMap[langCode];
           if (!langId) return;
-          
+
           textElements.forEach((element) => {
             const key = elementNameToKeyMap[element.name];
             if (key && values && typeof values === "object" && key in values) {
@@ -378,7 +379,7 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
                 content: values[key],
                 language: langId,
                 contentElement: element._id,
-                isActive: true
+                isActive: true,
               });
             }
           });
@@ -393,7 +394,7 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
           { type: "image", key: "backgroundImage", name: "Background Image" },
           { type: "text", key: "title", name: "Title" },
           { type: "text", key: "description", name: "Description" },
-          { type: "text", key: "backLinkText", name: "Back Link Text" }
+          { type: "text", key: "backLinkText", name: "Back Link Text" },
         ];
 
         const createdElements = [];
@@ -403,9 +404,8 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
             defaultContent = "image-placeholder";
           } else if (el.type === "text" && typeof allFormValues[defaultLangCode] === "object") {
             const langValues = allFormValues[defaultLangCode];
-            defaultContent = langValues && typeof langValues === "object" && el.key in langValues
-              ? langValues[el.key]
-              : "";
+            defaultContent =
+              langValues && typeof langValues === "object" && el.key in langValues ? langValues[el.key] : "";
           }
 
           const elementData = {
@@ -414,7 +414,7 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
             parent: sectionId,
             isActive: true,
             order: index,
-            defaultContent: defaultContent
+            defaultContent: defaultContent,
           };
 
           const newElement = await createContentElement.mutateAsync(elementData);
@@ -431,21 +431,21 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
 
         // Create translations for new elements
         const textElements = createdElements.filter((e) => e.key !== "backgroundImage");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] | { content: any; language: string; contentElement: any; isActive: boolean; }[] = [];
-        
+        const translations: (Omit<ContentTranslation, "_id"> & { id?: string })[] = [];
+
         Object.entries(allFormValues).forEach(([langCode, langValues]) => {
           if (langCode === "backgroundImage") return;
-          
+
           const langId = langCodeToIdMap[langCode];
           if (!langId) return;
-          
+
           for (const element of textElements) {
             if (langValues && typeof langValues === "object" && element.key in langValues) {
               translations.push({
                 content: langValues[element.key],
                 language: langId,
                 contentElement: element._id,
-                isActive: true
+                isActive: true,
               });
             }
           }
@@ -458,8 +458,8 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
 
       // Show success message
       toast({
-        title: existingSubSectionId ? "News section updated successfully!" : "News section created successfully!",
-        description: "All content has been saved."
+        title: existingSubSectionId ? t("newsForm.toastSuccessUpdate") : t("newsForm.toastSuccessCreate"),
+        description: t("newsForm.toastSuccessDescription"),
       });
 
       updateState({ hasUnsavedChanges: false });
@@ -475,9 +475,9 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
         // For new subsections, manually update form
         const updatedData = {
           ...allFormValues,
-          backgroundImage: form.getValues("backgroundImage")
+          backgroundImage: form.getValues("backgroundImage"),
         };
-        
+
         Object.entries(updatedData).forEach(([key, value]) => {
           if (key !== "backgroundImage") {
             Object.entries(value).forEach(([field, content]) => {
@@ -485,7 +485,7 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
             });
           }
         });
-        
+
         form.setValue("backgroundImage", updatedData.backgroundImage, { shouldDirty: false });
       }
 
@@ -493,33 +493,34 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
     } catch (error) {
       console.error("Operation failed:", error);
       toast({
-        title: existingSubSectionId ? "Error updating hero section" : "Error creating hero section",
+        title: existingSubSectionId ? t("newsForm.toastErrorUpdateTitle") : t("newsForm.toastErrorCreateTitle"),
+        description: error instanceof Error ? error.message : t("newsForm.toastErrorDescription"),
         variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred"
       });
       return false;
     } finally {
       updateState({ isSaving: false });
     }
   }, [
-    existingSubSectionId, 
-    form, 
-    imageFile, 
-    ParentSectionId, 
-    slug, 
-    toast, 
-    bulkUpsertTranslations, 
-    contentElements, 
-    createContentElement, 
-    createSubSection, 
-    defaultLangCode, 
-    languageIds, 
-    processNewsData, 
-    refetch, 
-    updateState, 
-    updateSubSection, 
-    uploadImage, 
-    activeLanguages
+    existingSubSectionId,
+    form,
+    imageFile,
+    ParentSectionId,
+    slug,
+    toast,
+    bulkUpsertTranslations,
+    contentElements,
+    createContentElement,
+    createSubSection,
+    defaultLangCode,
+    languageIds,
+    processNewsData,
+    refetch,
+    updateState,
+    updateSubSection,
+    uploadImage,
+    activeLanguages,
+    t,
   ]);
 
   // Create form ref for parent component
@@ -529,15 +530,15 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
     setHasUnsavedChanges: (value) => updateState({ hasUnsavedChanges: value }),
     existingSubSectionId,
     contentElements,
-    componentName: 'News',
+    componentName: "News",
     extraMethods: {
       getImageFile: () => imageFile,
-      saveData: handleSave
+      saveData: handleSave,
     },
     extraData: {
       imageFile,
-      existingSubSectionId
-    }
+      existingSubSectionId,
+    },
   });
 
   const languageCodes = createLanguageCodeMap(activeLanguages);
@@ -545,67 +546,56 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
   // Loading state
   if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-8" dir={language === "ar" ? "rtl" : "ltr"}>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading hero section data...</p>
+        <p className="ml-2 text-muted-foreground">{t("newsForm.loadingData")}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <LoadingDialog 
-        isOpen={isSaving} 
-        title={existingSubSectionId ? "Updating News Section" : "Creating News Section"}
-        description="Please wait while we save your changes..."
+    <div className="space-y-6" dir={language === "ar" ? "rtl" : "ltr"}>
+      <LoadingDialog
+        isOpen={isSaving}
+        title={existingSubSectionId ? t("newsForm.loadingDialogTitleUpdating") : t("newsForm.loadingDialogTitleCreating")}
+        description={t("newsForm.loadingDialogDescription")}
       />
-      
+
       <Form {...form}>
         {/* Background Image Section */}
-        <BackgroundImageSection 
-          imagePreview={imagePreview || undefined} 
+        <BackgroundImageSection
+          imagePreview={imagePreview || undefined}
           imageValue={form.getValues().backgroundImage}
           onUpload={(event: React.ChangeEvent<HTMLInputElement>) => {
-              if (event.target.files && event.target.files.length > 0) {
-                handleOriginalImageUpload({ target: { files: Array.from(event.target.files) } });
+            if (event.target.files && event.target.files.length > 0) {
+              handleOriginalImageUpload({ target: { files: Array.from(event.target.files) } });
             }
-            }}
+          }}
           onRemove={handleImageRemove}
           imageType="logo"
         />
-        
+
         {/* Language Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {languageIds.map((langId) => {
             const langCode = languageCodes[langId] || langId;
-            return (
-              <LanguageCard 
-                key={langId}
-                langCode={langCode}
-                form={form}
-              />
-            );
+            return <LanguageCard key={langId} langCode={langCode} form={form} />;
           })}
         </div>
       </Form>
-      
+
       {/* Save Button */}
       <div className="flex justify-end mt-6">
-        <Button 
-          type="button" 
-          onClick={handleSave} 
-          disabled={isLoadingData || isSaving}
-          className="flex items-center"
-        >
+        <Button type="button" onClick={handleSave} disabled={isLoadingData || isSaving} className="flex items-center">
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t("newsForm.savingButton")}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update News Content" : "Save News Content"}
+              {existingSubSectionId ? t("newsForm.updateButton") : t("newsForm.saveButton")}
             </>
           )}
         </Button>
