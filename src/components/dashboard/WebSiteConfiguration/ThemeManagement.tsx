@@ -335,30 +335,7 @@ export function ThemeManagement({ hasWebsite, websites }: ThemeManagementProps) 
     );
   }
 
-  if (themesError || activeThemeError) {
-    return (
-      <Card className="w-full">
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <AlertCircle className="h-16 w-16 text-red-400 mb-4" />
-          <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            {t('themeManagement.states.error.title')}
-          </h3>
-          <p className="text-slate-500 dark:text-slate-400 text-center max-w-md">
-            {themesError?.message || activeThemeError?.message || t('themeManagement.states.error.description')}
-          </p>
-          <Button
-            onClick={() => {
-              // Retry fetching
-              queryClient.invalidateQueries(["themes"]);
-            }}
-            className="mt-4"
-          >
-            {t('themeManagement.states.error.retry')}
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
+  
 
   if (themesLoading || activeThemeLoading) {
     return (
