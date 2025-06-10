@@ -26,8 +26,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { CreateMainSubSectionProps } from "../api/types/utils/CreateMainSubSection.types"
 import { useWebsiteContext } from "../providers/WebsiteContext"
 import { useContentTranslations } from "../hooks/webConfiguration/use-content-translations"
-
-// Types 
+import { useTranslation } from "react-i18next"
+import { useLanguage } from "../context/LanguageContext"
 
 // Debounce utility
 function debounce(func: (...args: any[]) => void, wait: number) {
@@ -44,8 +44,6 @@ function debounce(func: (...args: any[]) => void, wait: number) {
   return executedFunction;
 }
 
-// Add proper refetching after mutations
-
 export default function CreateMainSubSection({
   sectionId,
   sectionConfig,
@@ -54,7 +52,9 @@ export default function CreateMainSubSection({
 }: CreateMainSubSectionProps) {
   // Hooks
   const { toast } = useToast()
-  
+  const { t } = useTranslation()
+  const {language} = useLanguage()
+  const isRtl = language === "ar"
   // State
   const [isCreating, setIsCreating] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
@@ -101,7 +101,6 @@ export default function CreateMainSubSection({
     refetch: refetchCompleteSubsections
   } = useGetBySectionId(sectionId)
 
-
   // Mutations
   const createMutation = useCreate();
   const updateMutation = useUpdate();
@@ -118,7 +117,6 @@ export default function CreateMainSubSection({
     }
   }, [completeSubsectionsData]);
   
-  
   const { 
     data: languagesData, 
     isLoading: isLoadingLanguages 
@@ -128,14 +126,14 @@ export default function CreateMainSubSection({
   const languages = languagesData?.data?.filter((lang: { isActive: any }) => lang.isActive) || []
   const defaultLanguage = languages.find((lang: { isDefault: any }) => lang.isDefault) || (languages.length > 0 ? languages[0] : null)
   
-  // Build form schema
+  // Build form schema with translations
   const buildFormSchema = useCallback(() => {
     const schemaObj: Record<string, any> = {}
     
     sectionConfig.fields.forEach(field => {
       if (field.required) {
         if (field.type === 'textarea' || field.type === 'text' || field.type === 'badge') {
-          schemaObj[field.id] = z.string().min(1, `${field.label} is required`)
+          schemaObj[field.id] = z.string().min(1, `${field.label} ${t('mainSubsection.formFieldRequired')}`)
         }
       } else {
         if (field.type === 'textarea' || field.type === 'text' || field.type === 'badge') {
@@ -145,7 +143,7 @@ export default function CreateMainSubSection({
     })
     
     return z.object(schemaObj)
-  }, [sectionConfig.fields])
+  }, [sectionConfig.fields, t])
   
   const formSchema = useMemo(() => buildFormSchema(), [buildFormSchema])
   
@@ -246,10 +244,10 @@ export default function CreateMainSubSection({
       }
     } else {
       if (onFormValidityChange) {
-        onFormValidityChange(false, "Please enter your main section data!")
+        onFormValidityChange(false, t('mainSubsection.enterMainSectionData'))
       }
     }
-  }, [completeSubsectionsData, onFormValidityChange, subsection])
+  }, [completeSubsectionsData, onFormValidityChange, subsection, t])
   
   // Initialize forms with data
   useEffect(() => {
@@ -321,10 +319,10 @@ export default function CreateMainSubSection({
     if (onFormValidityChange) {
       onFormValidityChange(
         !isEmpty && subsectionExists,
-        isEmpty ? "Please enter your main section data!" : undefined
+        isEmpty ? t('mainSubsection.enterMainSectionData') : undefined
       )
     }
-  }, [defaultLanguage, languageForms, fields, subsectionExists, onFormValidityChange, isEditMode])
+  }, [defaultLanguage, languageForms, fields, subsectionExists, onFormValidityChange, isEditMode, t])
   
   // Debounced checkFormsEmpty
   const debouncedCheckFormsEmpty = useCallback(
@@ -357,8 +355,8 @@ export default function CreateMainSubSection({
       if (!result) {
         setActiveTab(lang.languageID)
         toast({
-          title: "Validation Error",
-          description: `Please check the form for errors in ${lang.name || lang.language}.`,
+          title: t('mainSubsection.validationError'),
+          description: `${t('mainSubsection.checkFormErrors')} ${lang.name || lang.language}.`,
           variant: "destructive"
         })
         return false
@@ -413,7 +411,7 @@ export default function CreateMainSubSection({
             const createdElement = elementResponse.data
             
             if (!createdElement || !createdElement._id) {
-              throw new Error(`Failed to create content element for ${field.label}`)
+              throw new Error(`${t('mainSubsection.errorCreatingElement')} ${field.label}`)
             }
             
             // Create translations for this element
@@ -430,7 +428,7 @@ export default function CreateMainSubSection({
                 }
                 return await createTranslationMutation.mutateAsync(translationData)
               } catch (translationError) {
-                console.error(`Error creating translation for ${field.label} in language ${lang.languageID}:`, translationError)
+                console.error(`${t('mainSubsection.errorCreatingTranslation')} ${field.label} ${t('mainSubsection.inLanguage')} ${lang.languageID}:`, translationError)
                 throw translationError
               }
             })
@@ -438,7 +436,7 @@ export default function CreateMainSubSection({
             await Promise.all(translationPromises)
             return createdElement
           } catch (elementError) {
-            console.error(`Error creating element for ${field.label}:`, elementError)
+            console.error(`${t('mainSubsection.errorCreatingElement')} ${field.label}:`, elementError)
             throw elementError
           }
         })
@@ -446,12 +444,11 @@ export default function CreateMainSubSection({
         await Promise.all(elementPromises)
         
         // After all operations are complete, refetch the data to update the UI
-        // We need a slight delay to ensure backend processing is complete
         setTimeout(async () => {
           try {
             await refetchCompleteSubsections()
           } catch (refetchError) {
-            console.error("Error refetching data after creation:", refetchError)
+            console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.creation')}:`, refetchError)
           }
         }, 500)
         
@@ -467,8 +464,8 @@ export default function CreateMainSubSection({
         }
         
         toast({
-          title: "Success",
-          description: `Main subsection created with content in ${languages.length} language(s).`
+          title: t('mainSubsection.success'),
+          description: `${t('mainSubsection.mainSubsectionCreated')} ${languages.length} ${t('mainSubsection.languages')}`
         })
         
         setIsEditMode(false)
@@ -477,8 +474,8 @@ export default function CreateMainSubSection({
     } catch (error: any) {
       console.error("Error in handleCreateSubsection:", error)
       toast({
-        title: "Error creating subsection",
-        description: error.message || "An unexpected error occurred",
+        title: t('mainSubsection.errorCreatingSubsection'),
+        description: error.message || t('mainSubsection.unexpectedError'),
         variant: "destructive"
       })
     } finally {
@@ -549,14 +546,14 @@ export default function CreateMainSubSection({
                 })
               }
             } catch (translationError) {
-              console.error(`Error updating translation for ${element.name} in language ${lang.languageID}:`, translationError)
+              console.error(`${t('mainSubsection.errorUpdatingTranslation')} ${element.name} ${t('mainSubsection.inLanguage')} ${lang.languageID}:`, translationError)
               throw translationError
             }
           })
           
           await Promise.all(translationPromises)
         } catch (elementError) {
-          console.error(`Error updating element ${element.name}:`, elementError)
+          console.error(`${t('mainSubsection.errorUpdatingElement')} ${element.name}:`, elementError)
           throw elementError
         }
       })
@@ -564,19 +561,18 @@ export default function CreateMainSubSection({
       await Promise.all(updatePromises)
       
       // After all operations are complete, refetch the data to update the UI
-      // We need a slight delay to ensure backend processing is complete
       setTimeout(async () => {
         try {
           await refetchCompleteSubsections()
         } catch (refetchError) {
-          console.error("Error refetching data after update:", refetchError)
+          console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.update')}:`, refetchError)
         }
       }, 500)
       
       checkFormsEmpty()
       toast({
-        title: "Success",
-        description: `Subsection updated with content in ${languages.length} language(s).`
+        title: t('mainSubsection.success'),
+        description: `${t('mainSubsection.subsectionUpdated')} ${languages.length} ${t('mainSubsection.languages')}`
       })
       
       setIsEditMode(false)
@@ -584,8 +580,8 @@ export default function CreateMainSubSection({
     } catch (error: any) {
       console.error("Error in handleUpdateSubsection:", error)
       toast({
-        title: "Error updating subsection",
-        description: error.message || "An unexpected error occurred",
+        title: t('mainSubsection.errorUpdatingSubsection'),
+        description: error.message || t('mainSubsection.unexpectedError'),
         variant: "destructive"
       })
     } finally {
@@ -601,7 +597,7 @@ export default function CreateMainSubSection({
       return (
         <TabsContent key={lang.languageID} value={String(lang.languageID)}>
           <Form {...form}>
-            <div className="space-y-6">
+            <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
               {sectionConfig.fields.map((field) => (
                 <FormField
                   key={`${lang.languageID}-${field.id}`}
@@ -611,18 +607,18 @@ export default function CreateMainSubSection({
                     <FormItem className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm">
                       <FormLabel className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
                         {field.label}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                        {field.required && <span className="text-red-500 ml-1">{t('mainSubsection.requiredField')}</span>}
                       </FormLabel>
                       <FormControl>
                         {field.type === 'textarea' ? (
                           <Textarea
-                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()} for ${lang.name || lang.language}`}
+                            placeholder={field.placeholder || `${t('mainSubsection.placeholderEnter')} ${field.label.toLowerCase()} ${t('mainSubsection.forLanguage')} ${lang.name || lang.language}`}
                             {...formField}
                             className="min-h-[120px] border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           />
                         ) : (
                           <Input
-                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()} for ${lang.name || lang.language}`}
+                            placeholder={field.placeholder || `${t('mainSubsection.placeholderEnter')} ${field.label.toLowerCase()} ${t('mainSubsection.forLanguage')} ${lang.name || lang.language}`}
                             {...formField}
                             className="border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           />
@@ -653,7 +649,7 @@ export default function CreateMainSubSection({
   if (completeSubsectionsError) {
     return (
       <ErrorCard
-        errorMessage="Could not check if main subsection exists."
+        errorMessage={t('mainSubsection.couldNotCheckSubsection')}
         onRetry={() => {
           refetchCompleteSubsections();
         }}
@@ -664,8 +660,8 @@ export default function CreateMainSubSection({
   if (languages.length === 0) {
     return (
       <WarningCard
-        title="No Active Languages Available"
-        message="You need to have at least one active language before creating a subsection."
+        title={t('mainSubsection.noActiveLanguagesTitle')}
+        message={t('mainSubsection.noActiveLanguagesMessage')}
       />
     )
   }
@@ -675,17 +671,10 @@ export default function CreateMainSubSection({
       ...subsection,
       elements: contentElements
     }
-    const metaFields = [
-      { key: 'name', label: 'Name' },
-      { key: 'description', label: 'Description', condition: (data: any) => !!data.description },
-      { key: 'slug', label: 'Slug' },
-      { key: 'languages', label: 'Languages', condition: (data: any) => data.languages && data.languages.length > 0 },
-      { key: 'elements.length', label: 'Content Elements' }
-    ]
     return (
       <SuccessCard
-        title="Main Subsection Available"
-        description="The main subsection is already set up for this section."
+        title={t('mainSubsection.mainSubsectionAvailableTitle')}
+        description={t('mainSubsection.mainSubsectionAvailableDescription')}
         onEdit={() => {
           setIsEditMode(true)
           setIsExpanded(true)
@@ -701,7 +690,7 @@ export default function CreateMainSubSection({
           className="flex items-center justify-between w-full cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <span>{subsectionExists ? "Edit Main Subsection" : "Create Main Subsection"}</span>
+          <span>{subsectionExists ? t('mainSubsection.editMainSubsection') : t('mainSubsection.createMainSubsection')}</span>
           <motion.div
             animate={{ rotate: isExpanded ? 0 : 180 }}
             transition={{ duration: 0.3 }}
@@ -715,8 +704,8 @@ export default function CreateMainSubSection({
       }
       description={
         subsectionExists
-          ? "Update the content for this main subsection across all languages."
-          : "Complete the required fields to create the main subsection for this section."
+          ? t('mainSubsection.updateContentDescription')
+          : t('mainSubsection.completeRequiredFields')
       }
     >
       <AnimatePresence initial={false}>
@@ -771,7 +760,7 @@ export default function CreateMainSubSection({
           >
             <div className="flex items-center justify-center">
               <ChevronDown size={18} className="mr-2" />
-              <span>Show Content Form</span>
+              <span>{t('mainSubsection.showContentForm')}</span>
             </div>
           </motion.button>
         )}

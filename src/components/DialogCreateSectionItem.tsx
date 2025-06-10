@@ -12,13 +12,14 @@ import { useWebSite } from "@/src/hooks/webConfiguration/use-WebSite"
 import { useToast } from "../hooks/use-toast"
 import useUsers from "../hooks/users/use-users"
 import { useWebsiteContext } from "../providers/WebsiteContext"
+import { useTranslation } from "react-i18next"
 
 interface DialogCreateSectionItemProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   sectionId: string;
   onServiceCreated: (serviceId: string) => void;
-  title:string,
+  title: string;
 }
 
 export default function DialogCreateSectionItem({ 
@@ -26,16 +27,16 @@ export default function DialogCreateSectionItem({
   onOpenChange, 
   sectionId, 
   onServiceCreated,
-  title ,
-
+  title,
 }: DialogCreateSectionItemProps) {
   const [name, setName] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const { toast } = useToast()
+  const { t } = useTranslation()
   const { useGetCurrentUser } = useUsers()
   const { data: userData, isLoading: isLoadingUser, error: userError } = useGetCurrentUser()
-  const { websiteId  , websites , isLoadingWebsites , websitesError} = useWebsiteContext();
+  const { websiteId, websites, isLoadingWebsites, websitesError } = useWebsiteContext();
 
   // Get create hook from useSectionItems
   const { useCreate: useCreateSectionItem } = useSectionItems()
@@ -46,8 +47,8 @@ export default function DialogCreateSectionItem({
     
     if (!name.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Service name is required",
+        title: t('createSectionItemDialog.validationError'),
+        description: t('createSectionItemDialog.serviceNameRequired'),
         variant: "destructive"
       })
       return
@@ -60,8 +61,8 @@ export default function DialogCreateSectionItem({
     if (!websiteId) {
       if (isLoadingWebsites || isLoadingUser) {
         toast({
-          title: "Loading",
-          description: "Please wait while we fetch your website information",
+          title: t('createSectionItemDialog.loading'),
+          description: t('createSectionItemDialog.waitFetchWebsite'),
           variant: "default"
         })
         return
@@ -69,8 +70,8 @@ export default function DialogCreateSectionItem({
 
       if (userError || websitesError) {
         toast({
-          title: "Error",
-          description: userError?.message || websitesError?.message || "Failed to fetch website information",
+          title: t('createSectionItemDialog.error'),
+          description: userError?.message || websitesError?.message || t('createSectionItemDialog.failedFetchWebsite'),
           variant: "destructive"
         })
         return
@@ -78,8 +79,8 @@ export default function DialogCreateSectionItem({
 
       if (websites.length === 0) {
         toast({
-          title: "Validation Error",
-          description: "Please create a website first before adding a service",
+          title: t('createSectionItemDialog.validationError'),
+          description: t('createSectionItemDialog.createWebsiteFirst'),
           variant: "destructive"
         })
         return
@@ -108,8 +109,8 @@ export default function DialogCreateSectionItem({
       const result = await createSectionItem.mutateAsync(sectionItemPayload)
 
       toast({
-        title: "Service created",
-        description: "Now you can add details to your service",
+        title: t('createSectionItemDialog.serviceCreated'),
+        description: t('createSectionItemDialog.addDetailsMessage'),
       })
 
       // Close dialog and pass the new service ID to the callback
@@ -118,8 +119,8 @@ export default function DialogCreateSectionItem({
       }
     } catch (error: any) {
       toast({
-        title: "Error creating service",
-        description: error.message || "An error occurred while creating the service",
+        title: t('createSectionItemDialog.errorCreatingService'),
+        description: error.message || t('createSectionItemDialog.errorOccurred'),
         variant: "destructive"
       })
     } finally {
@@ -141,22 +142,22 @@ export default function DialogCreateSectionItem({
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Create New {title}</DialogTitle>
+            <DialogTitle>{t('createSectionItemDialog.createNew', { title })}</DialogTitle>
             <DialogDescription>
-              Enter the basic information for your new service. You'll be able to add more details after creating it.
+              {t('createSectionItemDialog.dialogDescription')}
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="name" className="font-medium">
-                {title} Name <span className="text-red-500">*</span>
+                {t('createSectionItemDialog.nameLabel', { title })} <span className="text-red-500">{t('createSectionItemDialog.nameRequired')}</span>
               </Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter service name"
+                placeholder={t('createSectionItemDialog.namePlaceholder')}
                 disabled={isSubmitting}
                 autoFocus
                 required
@@ -165,13 +166,13 @@ export default function DialogCreateSectionItem({
             
             <div className="grid gap-2">
               <Label htmlFor="description" className="font-medium">
-                Description
+                {t('createSectionItemDialog.descriptionLabel')}
               </Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter service description"
+                placeholder={t('createSectionItemDialog.descriptionPlaceholder')}
                 disabled={isSubmitting}
                 rows={3}
               />
@@ -185,16 +186,16 @@ export default function DialogCreateSectionItem({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('createSectionItemDialog.cancelButton')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  {t('createSectionItemDialog.creatingButton')}
                 </>
               ) : (
-                `Create ${title}`
+                t('createSectionItemDialog.createButton', { title })
               )}
             </Button>
           </DialogFooter>

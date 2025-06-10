@@ -5,7 +5,6 @@ import { motion } from "framer-motion"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { Plus, ArrowRight, Loader2, AlertCircle } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
 
 // Animation variants
 const animations = {

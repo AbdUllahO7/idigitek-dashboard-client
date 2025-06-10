@@ -4,6 +4,7 @@ import React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 import { Button } from "@/src/components/ui/button"
 import { Edit, Trash, Search, ArrowUpDown, Filter, Eye } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 // Column definition interface
 export interface ColumnDefinition {
@@ -38,12 +39,18 @@ export function GenericTable({
   onView,
   keyField = "_id",
   actionColumn = true,
-  actionColumnHeader = "Actions",
+  actionColumnHeader,
   title,
   subtitle,
-  emptyMessage = "No data available",
+  emptyMessage,
   loading = false
 }: GenericTableProps) {
+  const { t } = useTranslation()
+
+  // Use translations for default values
+  const defaultActionColumnHeader = actionColumnHeader || t('GenericTable.actionsHeader')
+  const defaultEmptyMessage = emptyMessage || t('GenericTable.emptyMessage')
+
   // Function to safely get nested property values
   const getValueByPath = (obj: any, path: string) => {
     const keys = path.split('.')
@@ -60,16 +67,16 @@ export function GenericTable({
             {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>}
           </div>
           <div className="flex space-x-2">
-            {/* Example filter buttons - can be customized based on needs */}
+            {/* Filter button with translation */}
             <Button variant="outline" size="sm" className="hidden sm:flex items-center h-8 px-2 text-xs">
               <Filter className="h-3.5 w-3.5 mr-1" />
-              Filter
+              {t('GenericTable.filterButton')}
             </Button>
             <div className="relative">
               <Search className="h-3.5 w-3.5 absolute left-2.5 top-2 text-gray-500" />
               <input 
                 type="text" 
-                placeholder="Search..." 
+                placeholder={t('GenericTable.searchPlaceholder')}
                 className="h-8 w-full sm:w-[180px] pl-8 pr-2 text-sm rounded-md border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300"
               />
             </div>
@@ -94,7 +101,9 @@ export function GenericTable({
                 </TableHead>
               ))}
               {actionColumn && (onEdit || onDelete || onView) && (
-                <TableHead className="text-right text-gray-700 dark:text-gray-300 font-medium text-sm">{actionColumnHeader}</TableHead>
+                <TableHead className="text-right text-gray-700 dark:text-gray-300 font-medium text-sm">
+                  {defaultActionColumnHeader}
+                </TableHead>
               )}
             </TableRow>
           </TableHeader>
@@ -119,7 +128,7 @@ export function GenericTable({
                 </TableRow>
               ))
             ) : data.length === 0 ? (
-              // Empty state
+              // Empty state with translations
               <TableRow>
                 <TableCell 
                   colSpan={columns.length + (actionColumn ? 1 : 0)} 
@@ -127,8 +136,8 @@ export function GenericTable({
                 >
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Search className="h-8 w-8 text-gray-400 dark:text-gray-600" />
-                    <p className="font-medium">{emptyMessage}</p>
-                    <p className="text-sm text-gray-400 dark:text-gray-500">Try changing your search or filter criteria</p>
+                    <p className="font-medium">{defaultEmptyMessage}</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">{t('GenericTable.emptyDescription')}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -159,7 +168,7 @@ export function GenericTable({
                             variant="ghost"
                             size="icon"
                             onClick={() => onView(item[keyField])}
-                            title={`View ${item.name || 'item'}`}
+                            title={`${t('GenericTable.viewTooltip')} ${item.name || t('GenericTable.viewItem')}`}
                             className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                           >
                             <Eye className="h-4 w-4" />
@@ -170,7 +179,7 @@ export function GenericTable({
                             variant="ghost"
                             size="icon"
                             onClick={() => onEdit(item[keyField])}
-                            title={`Edit ${item.name || 'item'}`}
+                            title={`${t('GenericTable.editTooltip')} ${item.name || t('GenericTable.editItem')}`}
                             className="h-8 w-8 text-gray-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                           >
                             <Edit className="h-4 w-4" />
@@ -181,7 +190,7 @@ export function GenericTable({
                             variant="ghost"
                             size="icon"
                             onClick={() => onDelete(item[keyField], item.name || 'item')}
-                            title={`Delete ${item.name || 'item'}`}
+                            title={`${t('GenericTable.deleteTooltip')} ${item.name || t('GenericTable.deleteItem')}`}
                             className="h-8 w-8 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                           >
                             <Trash className="h-4 w-4" />
@@ -197,18 +206,24 @@ export function GenericTable({
         </Table>
       </div>
 
-      {/* Pagination example - can be implemented as needed */}
+      {/* Pagination with translations */}
       {data.length > 0 && (
-        <div className="flex justify-between items-center py-4 px-4 space-y-6 space">
+        <div className="flex justify-between items-center py-4 px-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing <span className="font-medium text-gray-900 dark:text-gray-100">{data.length}</span> results
+            {t('GenericTable.showingResults')} <span className="font-medium text-gray-900 dark:text-gray-100">{data.length}</span> {t('GenericTable.resultsText')}
           </p>
           <div className="flex gap-1">
-            <Button variant="outline" size="sm" className="h-8 px-3 text-xs" disabled>Previous</Button>
-            <Button variant="outline" size="sm" className="h-8 px-3 text-xs bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200 dark:border-blue-800">1</Button>
+            <Button variant="outline" size="sm" className="h-8 px-3 text-xs" disabled>
+              {t('GenericTable.paginationPrevious')}
+            </Button>
+            <Button variant="outline" size="sm" className="h-8 px-3 text-xs bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+              1
+            </Button>
             <Button variant="outline" size="sm" className="h-8 px-3 text-xs">2</Button>
             <Button variant="outline" size="sm" className="h-8 px-3 text-xs">3</Button>
-            <Button variant="outline" size="sm" className="h-8 px-3 text-xs">Next</Button>
+            <Button variant="outline" size="sm" className="h-8 px-3 text-xs">
+              {t('GenericTable.paginationNext')}
+            </Button>
           </div>
         </div>
       )}
@@ -216,19 +231,24 @@ export function GenericTable({
   )
 }
 
-// Enhanced cell renderers
-export const StatusCell = (item: any, value: boolean) => (
-  <span
-    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-      value
-        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800"
-        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800"
-    }`}
-  >
-    <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${value ? "bg-green-500" : "bg-red-500"}`}></span>
-    {value ? "Active" : "Inactive"}
-  </span>
-)
+// Enhanced cell renderers WITHOUT hooks - translations passed as parameters
+export const StatusCell = (item: any, value: boolean, translations?: { active: string, inactive: string }) => {
+  const activeText = translations?.active || "Active"
+  const inactiveText = translations?.inactive || "Inactive"
+  
+  return (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        value
+          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800"
+          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800"
+      }`}
+    >
+      <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${value ? "bg-green-500" : "bg-red-500"}`}></span>
+      {value ? activeText : inactiveText}
+    </span>
+  )
+}
 
 export const CountBadgeCell = (item: any, value: number) => (
   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
@@ -236,7 +256,7 @@ export const CountBadgeCell = (item: any, value: number) => (
   </span>
 )
 
-export const PriorityCell = (item: any, value: string) => {
+export const PriorityCell = (item: any, value: string, translations?: { high: string, medium: string, low: string }) => {
   const priorities = {
     high: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200", darkBg: "dark:bg-red-900/30", darkText: "dark:text-red-400", darkBorder: "dark:border-red-800" },
     medium: { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", darkBg: "dark:bg-amber-900/30", darkText: "dark:text-amber-400", darkBorder: "dark:border-amber-800" },
@@ -245,9 +265,18 @@ export const PriorityCell = (item: any, value: string) => {
   
   const priority = priorities[value?.toLowerCase() as keyof typeof priorities] || priorities.medium
   
+  const getPriorityText = (priority: string) => {
+    switch(priority?.toLowerCase()) {
+      case 'high': return translations?.high || "High"
+      case 'medium': return translations?.medium || "Medium"
+      case 'low': return translations?.low || "Low"
+      default: return translations?.medium || "Medium"
+    }
+  }
+  
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priority.bg} ${priority.text} ${priority.darkBg} ${priority.darkText} border ${priority.border} ${priority.darkBorder}`}>
-      {value || "Medium"}
+      {getPriorityText(value)}
     </span>
   )
 }
