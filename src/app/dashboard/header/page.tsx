@@ -11,24 +11,24 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { headerSectionConfig } from "./HeaderSectionConfig"
+import { getHeaderSectionConfig, headerSectionTranslations } from "./HeaderSectionConfig"
+import { useTranslation } from "react-i18next"
+import { useLanguage } from "@/src/context/LanguageContext"
 
-
-
-// Column definitions
-const HEADER_COLUMNS = [
+// Column definitions with translation support
+const getHeaderColumns = (t: any) => [
   {
-    header: "Name",
+    header: t('SectionTable.name', 'Name'),
     accessor: "name",
     className: "font-medium"
   },
   {
-    header: "Description",
+    header: t('SectionTable.description', 'Description'),
     accessor: "description",
     cell: TruncatedCell
   },
   {
-    header: "Status",
+    header: t('SectionTable.status', 'Status'),
     accessor: "isActive",
     cell: (item: any, value: boolean) => (
       <div className="flex flex-col gap-2">
@@ -36,7 +36,7 @@ const HEADER_COLUMNS = [
           {StatusCell(item, value)}
           {item.isMain && (
             <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
+              {t('SectionTable.main', 'Main')}
             </span>
           )}
         </div>
@@ -44,11 +44,11 @@ const HEADER_COLUMNS = [
     )
   },
   {
-    header: "Order",
+    header: t('SectionTable.order', 'Order'),
     accessor: "order"
   },
   {
-    header: "Subsections",
+    header: t('SectionTable.subsections', 'Subsections'),
     accessor: "subsections.length",
     cell: CountBadgeCell
   }
@@ -61,23 +61,39 @@ export default function HeaderPage() {
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
+  const { language } = useLanguage()
+  const { t } = useTranslation()
 
-  const HEADER_CONFIG = useMemo (() => ({
-    title: "Header Management",
-    description: "Manage your Header inventory and multilingual content",
-      addButtonLabel: "Add New Nav Item",
-    emptyStateMessage: "No Header found. Create your first Header by clicking the \"Add New Header\" button.",
-    noSectionMessage: "Please create a Header section first before adding Header.",
-    mainSectionRequiredMessage: "Please enter your main section data before adding Header.",
-    emptyFieldsMessage: "Please complete all required fields in the main section before adding Header.",
-    sectionIntegrationTitle: "Header Section Content",
-    sectionIntegrationDescription: "Manage your Header section content in multiple languages.",
-    addSectionButtonLabel: "Add Header Section",
-    editSectionButtonLabel: "Edit Header Section",
-    saveSectionButtonLabel: "Save Header Section",
-    listTitle: "Header List",
+  // Get translated header section config based on current language
+  const headerSectionConfig = useMemo(() => {
+    return getHeaderSectionConfig(language)
+  }, [language])
+
+  // Get translations for the current language
+  const headerTranslations = useMemo(() => {
+    return headerSectionTranslations[language as keyof typeof headerSectionTranslations] || headerSectionTranslations.en
+  }, [language])
+  
+  const HEADER_CONFIG = useMemo(() => ({
+    title: t('HeaderConfig.title', 'Header Management'),
+    description: t('HeaderConfig.description', 'Manage your Header inventory and multilingual content'),
+    addButtonLabel: t('HeaderConfig.addButtonLabel', 'Add New Nav Item'),
+    emptyStateMessage: t('HeaderConfig.emptyStateMessage', 'No Header found. Create your first Header by clicking the "Add New Header" button.'),
+    noSectionMessage: t('HeaderConfig.noSectionMessage', 'Please create a Header section first before adding Header.'),
+    mainSectionRequiredMessage: t('HeaderConfig.mainSectionRequiredMessage', 'Please enter your main section data before adding Header.'),
+    emptyFieldsMessage: t('header-config:emptyFieldsMessage', 'Please complete all required fields in the main section before adding Header.'),
+    sectionIntegrationTitle: t('HeaderConfig.sectionIntegrationTitle', 'Header Section Content'),
+    sectionIntegrationDescription: t('HeaderConfig.sectionIntegrationDescription', 'Manage your Header section content in multiple languages.'),
+    addSectionButtonLabel: t('HeaderConfig.addSectionButtonLabel', 'Add Header Section'),
+    editSectionButtonLabel: t('HeaderConfig.editSectionButtonLabel', 'Edit Header Section'),
+    saveSectionButtonLabel: t('HeaderConfig.aveSectionButtonLabel', 'Save Header Section'),
+    listTitle: t('HeaderConfig.listTitle', 'Header List'),
     editPath: "header/addNavItems"
-  }), [] );
+  }), [t]);
+
+  // Get translated column definitions
+  const HEADER_COLUMNS = useMemo(() => getHeaderColumns(t), [t])
+
   // Refs to track previous values for debugging
   const prevHasMainSubSection = useRef(hasMainSubSection);
   const isFirstRender = useRef(true);
@@ -121,7 +137,6 @@ export default function HeaderPage() {
     editPath: HEADER_CONFIG.editPath
   })
 
-
   // Debug changes in hasMainSubSection
   useEffect(() => {
     if (!isFirstRender.current && prevHasMainSubSection.current !== hasMainSubSection) {
@@ -136,7 +151,6 @@ export default function HeaderPage() {
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {
-
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
       setIsLoadingMainSubSection(true);
@@ -147,7 +161,7 @@ export default function HeaderPage() {
     let foundMainSubSection = false;
     let mainSubSection = null;
     
-    // Get expected name from configuration
+    // Get expected name from configuration (now translated)
     const expectedName = headerSectionConfig.subSectionName;
     
     // If we have a sectionId, prioritize checking the section-specific subsections
@@ -165,7 +179,6 @@ export default function HeaderPage() {
         foundMainSubSection = sectionData.isMain === true && sectionData.name === expectedName;
         mainSubSection = foundMainSubSection ? sectionData : null;
       }
-
     }
     
     // If we didn't find anything in the section-specific data, check the website-wide data
@@ -191,8 +204,6 @@ export default function HeaderPage() {
       });
     }
     
-  
-    
     // Update state based on what we found
     setHasMainSubSection(foundMainSubSection);
     setIsLoadingMainSubSection(false);
@@ -202,7 +213,6 @@ export default function HeaderPage() {
       const sectionInfo = typeof mainSubSection.section === 'string' 
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
-      
       
       // Set local section data
       setSectionData(sectionInfo);
@@ -220,14 +230,15 @@ export default function HeaderPage() {
     isLoadingSectionSubsections, 
     sectionId, 
     headerSection, 
-    setSection
+    setSection,
+    headerSectionConfig.subSectionName // Add this dependency to re-run when language changes
   ]);
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
     console.log("Main subsection created:", subsection);
     
-    // Check if subsection has the correct name
+    // Check if subsection has the correct name (now using translated name)
     const expectedName = headerSectionConfig.subSectionName;
     const hasCorrectName = subsection.name === expectedName;
     
@@ -265,9 +276,6 @@ export default function HeaderPage() {
     (Boolean(sectionId) && !hasMainSubSection) ||
     (navItems.length > 0); // This disables the button if there's already at least one NavItem
 
-
-
-
   // Custom message for empty state 
   const emptyStateMessage = !headerSection && !sectionData 
     ? HEADER_CONFIG.noSectionMessage 
@@ -291,7 +299,7 @@ export default function HeaderPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Header"
+      title={t('HeaderConfig.title', 'Header')}
     />
   );
 
@@ -302,8 +310,8 @@ export default function HeaderPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Section"
-      confirmText="Confirm"
+      title={t('header:deleteSection', 'Delete Section')}
+      confirmText={t('header:confirm', 'Confirm')}
     />
   );
 
