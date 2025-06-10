@@ -310,8 +310,7 @@ export default function HeaderPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title={t('header:deleteSection', 'Delete Section')}
-      confirmText={t('header:confirm', 'Confirm')}
+     
     />
   );
 

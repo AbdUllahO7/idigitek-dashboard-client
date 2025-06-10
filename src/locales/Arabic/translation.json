@@ -544,11 +544,11 @@
       },
       "placeholders": {
         "languageId": "مثال: en, fr, es",
-        "languageName": "مثال: الإنجليزية، الفرنسية"
+        "languageName": "مثال: الإنجليزية, الفرنسية"
       },
       "helpText": {
         "languageId": "استخدم رمز لغة قياسي (مثل \"en\" للإنجليزية)",
-        "languageIdTooltip": "استخدم رمز لغة ISO قياسي (مثل \"en\" للإنجليزية، \"fr\" للفرنسية)",
+        "languageIdTooltip": "استخدم رمز لغة ISO قياسي (مثل \"en\" للإنجليزية, \"fr\" للفرنسية)",
         "activeLanguage": "ستكون اللغات النشطة متاحة لإنشاء المحتوى"
       },
       "quickSelect": "اختيار سريع",
@@ -736,7 +736,7 @@
     "active": "نشط",
     "hidden": "مخفي",
     "deleteSection": "حذف القسم",
-    "deleteConfirmation": "سيؤدي هذا إلى حذف القسم نهائياً. لا يمكن التراجع عن هذا الإجراء، وسيتم فقدان أي محتوى في هذا القسم.",
+    "deleteConfirmation": "سيؤدي هذا إلى حذف القسم نهائياً. لا يمكن التراجع عن هذا الإجراء, وسيتم فقدان أي محتوى في هذا القسم.",
     "cancel": "إلغاء",
     "delete": "حذف القسم",
     "dragToReorder": "اسحب الأقسام لإعادة ترتيبها على موقعك",
@@ -800,7 +800,7 @@
       "buttonCreate": "تصميم مظهر جديد",
       "buttonCancel": "إلغاء",
       "nameLabel": "اعط تصميمك اسماً",
-      "namePlaceholder": "مثال: أجواء الصيف، الأزرق المهني، إلخ.",
+      "namePlaceholder": "مثال: أجواء الصيف, الأزرق المهني, إلخ.",
       "quickColors": {
         "title": "🎨 أنظمة الألوان السريعة",
         "tooltip": "اختر نظام ألوان جاهز للوضعين الفاتح والداكن"
@@ -1050,7 +1050,7 @@
     "confirmationsDeleteTitle": "تأكيد الحذف",
     "confirmationsDeleteMessage": "هل أنت متأكد من أنك تريد حذف هذا العنصر؟",
     "confirmationsDeleteWarning": "لا يمكن التراجع عن هذا الإجراء",
-    "confirmationsYesDelete": "نعم، احذف",
+    "confirmationsYesDelete": "نعم, احذف",
     "confirmationsCancel": "إلغاء",
     "confirmationsConfirm": "تأكيد"
   },
@@ -1358,6 +1358,153 @@
       "navItem": "عنصر التنقل"
     }
   },
+  "tabsLayout" : {
+    "backButton" : "عد"
+  },
+  "imageUploader": {
+    "replaceImage": "استبدال الصورة",
+    "remove": "إزالة",
+    "dragAndDrop": "اسحب وأفلت أو انقر للتحميل",
+    "uploadImage": "تحميل صورة",
+    "logoImageUploading": "تحميل صورة الشعار",
+    "sectionImage": "صورة القسم",
+    "logoImageUploadingForHeader": "تحميل صورة الشعار للرأس",
+    "uploadImageForSection": "تحميل صورة للقسم (ينطبق على جميع اللغات)",
+    "logo": "الشعار",
+    "backgroundImage": "صورة الخلفية",
+    "appliesToAllLanguages": "(ينطبق على جميع اللغات)",
+    "imagePreview": "معاينة الصورة",
+    "backgroundImagePreview": "معاينة صورة الخلفية"
+  },
+  "navLanguageCard": {
+    "navigationSection": "قسم التنقل",
+    "manageNavigationItems": "إدارة عناصر التنقل لـ",
+    "navItem": "عنصر التنقل"
+  },
+  "navForm": {
+    "loadingNavigationData": "تحميل بيانات قسم التنقل...",
+    "updatingNavigationSection": "تحديث قسم التنقل",
+    "creatingNavigationSection": "إنشاء قسم التنقل",
+    "pleaseWaitSaving": "يرجى الانتظار بينما نحفظ التغييرات...",
+    "navigationItemAdded": "تم إضافة عنصر التنقل",
+    "newNavigationItemAdded": "تم إضافة عنصر تنقل جديد.",
+    "cannotRemove": "لا يمكن الإزالة",
+    "needAtLeastOneItem": "تحتاج إلى عنصر تنقل واحد على الأقل",
+    "navigationItemDeleted": "تم حذف عنصر التنقل",
+    "itemDeletedFromDatabase": "تم حذف العنصر {{number}} من قاعدة البيانات",
+    "errorRemovingItem": "خطأ في إزالة العنصر",
+    "errorRemovingFromDatabase": "حدث خطأ في إزالة عنصر التنقل من قاعدة البيانات",
+    "imageUploaded": "تم تحميل الصورة",
+    "logoUploadedSuccessfully": "تم تحميل صورة الشعار بنجاح.",
+    "imageUploadFailed": "فشل تحميل الصورة",
+    "failedToUploadImage": "فشل في تحميل الصورة",
+    "validationError": "خطأ في التحقق",
+    "fillAllRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+    "creatingNewNavigationSection": "إنشاء قسم تنقل جديد...",
+    "settingUpNewContent": "إعداد محتوى التنقل الجديد.",
+    "navigationSectionUpdated": "تم تحديث قسم التنقل بنجاح!",
+    "navigationSectionCreated": "تم إنشاء قسم التنقل بنجاح!",
+    "allChangesSaved": "تم حفظ جميع التغييرات.",
+    "refreshingContent": "تحديث المحتوى",
+    "loadingUpdatedContent": "تحميل المحتوى المحدث...",
+    "errorUpdatingNavigationSection": "خطأ في تحديث قسم التنقل",
+    "errorCreatingNavigationSection": "خطأ في إنشاء قسم التنقل",
+    "unknownErrorOccurred": "حدث خطأ غير معروف",
+    "addNavItem": "إضافة عنصر تنقل",
+    "addNavItemToAllLanguages": "إضافة عنصر تنقل لجميع اللغات",
+    "sameNumberOfItems": "يجب أن تحتوي كل لغة على نفس عدد عناصر التنقل",
+    "saving": "جاري الحفظ...",
+    "updateNavigationContent": "تحديث محتوى التنقل",
+    "saveNavigationContent": "حفظ محتوى التنقل",
+    "navigationItemCountMismatch": "عدم تطابق عدد عناصر التنقل",
+    "countMismatchDescription": "يجب أن تحتوي كل لغة على نفس عدد عناصر التنقل قبل الحفظ. يرجى إضافة أو إزالة العناصر للتأكد من أن جميع اللغات لها نفس العدد:",
+    "items": "عناصر",
+    "close": "إغلاق",
+    "deleteNavigationItem": "حذف عنصر التنقل",
+    "deleteItem": "حذف العنصر",
+    "navigationSection": "قسم التنقل",
+    "navigationSectionDescription": "قسم التنقل للموقع الإلكتروني",
+    "logo": "الشعار",
+    "navItem": "عنصر التنقل"
+  },
+  "deleteDialog": {
+    "defaultTitle": "حذف العنصر",
+    "defaultConfirmText": "حذف",
+    "areYouSure": "هل أنت متأكد من أنك تريد حذف",
+    "actionCannotBeUndone": "؟ لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "deleting": "جاري الحذف...",
+    "deleteSection": "حذف القسم",
+    "deleteItem": "حذف العنصر",
+    "deleteService": "حذف الخدمة",
+    "deleteProject": "حذف المشروع",
+    "deleteUser": "حذف المستخدم",
+    "deleteLanguage": "حذف اللغة",
+    "deleteWebsite": "حذف الموقع",
+    "confirmDelete": "تأكيد الحذف",
+    "confirmRemoval": "تأكيد الإزالة"
+  },
+  "GenericTable": {
+"actionsHeader": "Actions",
+"searchPlaceholder": "بحث...",
+"filterButton": "تصفية",
+"emptyMessage": "لا توجد بيانات متاحة",
+"emptyDescription": "حاول تغيير معايير البحث أو التصفية",
+"loadingMessage": "جاري التحميل...",
+"showingResults": "جاري العرض",
+"resultsText": "النتائج",
+"viewTooltip": "عرض",
+"editTooltip": "تعديل",
+"deleteTooltip": "حذف",
+"viewItem": "عرض العنصر",
+"editItem": "تعديل العنصر",
+"deleteItem": "حذف العنصر",
+"paginationPrevious": "السابق",
+"paginationNext": "التالي",
+"paginationPage": "صفحة",
+"paginationOf": "من",
+"paginationShowing": "جاري العرض",
+"paginationTo": "إلى",
+"paginationEntries": "إدخالات",
+"statusActive": "نشط",
+"statusInactive": "غير نشط",
+"statusEnabled": "مفعّل",
+"statusDisabled": "معطّل",
+"priorityHigh": "عالي",
+"priorityMedium": "متوسط",
+"priorityLow": "منخفض",
+"priorityUrgent": "عاجل",
+"priorityNormal": "عادي",
+"sortAscending": "فرز تصاعدي",
+"sortDescending": "فرز تنازلي",
+"sortUnsorted": "غير مرتب",
+"filtersApply": "تطبيق الفلاتر",
+"filtersClear": "مسح الفلاتر",
+"filtersReset": "إعادة تعيين",
+"filtersShowAll": "إظهار الكل",
+"filtersAdvanced": "الفلاتر المتقدمة",
+"statesLoading": "جاري تحميل البيانات...",
+"statesRefreshing": "جاري التحديث...",
+"statesProcessing": "جاري المعالجة...",
+"statesSaving": "جاري الحفظ...",
+"statesDeleting": "جاري الحذف...",
+"statesUpdating": "جاري التحديث...",
+"errorsLoadFailed": "فشل تحميل البيانات",
+"errorsLoadRetry": "إعادة محاولة تحميل البيانات",
+"errorsActionFailed": "فشل الإجراء",
+"errorsActionRetry": "إعادة محاولة الإجراء",
+"errorsNetworkError": "خطأ في اتصال الشبكة",
+"errorsServerError": "حدث خطأ في الخادم",
+"errorsPermissionDenied": "رفض الإذن",
+"errorsNotFound": "لم يتم العثور على البيانات",
+"errorsTimeout": "انتهت مهلة الطلب",
+"confirmationsDeleteTitle": "تأكيد حذف",
+"confirmationsDeleteMessage": "هل أنت متأكد من حذف هذا العنصر؟",
+"confirmationsDeleteWarning": "لا يمكن التراجع عن هذا الإجراء",
+"confirmationsYesDelete": "نعم, احذف",
+"confirmationsCancel": "إلغاء",
+"confirmationsConfirm": "تأكيد"
+    },
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

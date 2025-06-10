@@ -25,6 +25,7 @@ import { SubSection } from "@/src/api/types/hooks/section.types"
 import { ContentElement } from "@/src/api/types/hooks/content.types"
 import { createSectionsDefaultValues, createSectionsSchema, processAndLoadNavData, sectionsFormData } from "../../../../utils/sections/utils"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations"
+import { useTranslation } from "react-i18next"
 
 
 interface NavFormProps {
@@ -40,6 +41,7 @@ interface NavFormProps {
 
 const NavItemsForm = forwardRef<unknown, NavFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
+    const { t } = useTranslation();
 
     const formSchema = useMemo(
       () => createSectionsSchema(languageIds, activeLanguages),
@@ -176,10 +178,10 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
         }
       )
 
-      toast({
-        title: "Navigation item added",
-        description: "A new navigation item has been added.",
-      })
+    toast({
+      title: t('navForm.navigationItemAdded', 'Navigation item added'),
+      description: t('navForm.newNavigationItemAdded', 'A new navigation item has been added.'),
+    })
     }
 
     const addNavItemToAllLanguages = () => {
@@ -192,11 +194,11 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
     const confirmRemoveNavItem = (langCode: string, index: number) => {
       const currentItems = form.getValues()[langCode] || []
       if (currentItems.length <= 1) {
-        toast({
-          title: "Cannot remove",
-          description: "You need at least one navigation item",
-          variant: "destructive",
-        })
+      toast({
+        title: t('navForm.cannotRemove', 'Cannot remove'),
+        description: t('navForm.needAtLeastOneItem', 'You need at least one navigation item'),
+        variant: "destructive",
+      })
         return
       }
 
@@ -232,8 +234,8 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
             setContentElements(prev => prev.filter(element => element.name !== `Nav Item ${itemNumber}`))
 
             toast({
-              title: "Navigation item deleted",
-              description: `Item ${itemNumber} has been deleted from the database`,
+              title: t('navForm.navigationItemDeleted', 'Navigation item deleted'),
+              description: t('navForm.itemDeletedFromDatabase', 'Item {{number}} has been deleted from the database', { number: itemNumber }),
             })
           }
 
@@ -288,8 +290,8 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
       } catch (error) {
         console.error("Error removing navigation item:", error)
         toast({
-          title: "Error removing item",
-          description: "There was an error removing the navigation item from the database",
+          title: t('navForm.errorRemovingItem', 'Error removing item'),
+          description: t('navForm.errorRemovingFromDatabase', 'There was an error removing the navigation item from the database'),
           variant: "destructive",
         })
       } finally {
@@ -333,8 +335,8 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
         if (imageUrl) {
           form.setValue("logo", imageUrl, { shouldDirty: false })
           toast({
-            title: "Image Uploaded",
-            description: "Logo image has been successfully uploaded.",
+            title: t('navForm.imageUploaded', 'Image Uploaded'),
+            description: t('navForm.logoUploadedSuccessfully', 'Logo image has been successfully uploaded.'),
           })
           return imageUrl
         }
@@ -342,11 +344,11 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
         throw new Error("No image URL returned from server. Response: " + JSON.stringify(uploadResult.data))
       } catch (error) {
         console.error("Image upload failed:", error)
-        toast({
-          title: "Image Upload Failed",
-          description: error instanceof Error ? error.message : "Failed to upload image",
-          variant: "destructive",
-        })
+          toast({
+            title: t('navForm.imageUploadFailed', 'Image Upload Failed'),
+            description: error instanceof Error ? error.message : t('navForm.failedToUploadImage', 'Failed to upload image'),
+            variant: "destructive",
+          })
         throw error
       }
     }
@@ -362,10 +364,10 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
 
       if (!isValid) {
         toast({
-          title: "Validation Error",
-          description: "Please fill all required fields correctly",
+          title: t('navForm.validationError', 'Validation Error'),
+          description: t('navForm.fillAllRequiredFields', 'Please fill all required fields correctly'),
           variant: "destructive",
-        })
+          })
         return
       }
 
@@ -391,8 +393,8 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
           }
 
           toast({
-            title: "Creating new navigation section...",
-            description: "Setting up your new navigation content.",
+            title: t('navForm.creatingNewNavigationSection', 'Creating new navigation section...'),
+            description: t('navForm.settingUpNewContent', 'Setting up your new navigation content.'),
           })
 
           const newSubSection = await createSubSection.mutateAsync(subsectionData)
@@ -570,16 +572,18 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
         }
 
         toast({
-          title: existingSubSectionId ? "Navigation section updated successfully!" : "Navigation section created successfully!",
-          description: "All changes have been saved.",
+          title: existingSubSectionId 
+            ? t('navForm.navigationSectionUpdated', 'Navigation section updated successfully!') 
+            : t('navForm.navigationSectionCreated', 'Navigation section created successfully!'),
+          description: t('navForm.allChangesSaved', 'All changes have been saved.'),
           duration: 5000,
         })
 
         if (slug) {
           toast({
-            title: "Refreshing content",
-            description: "Loading the updated content...",
-          })
+              title: t('navForm.refreshingContent', 'Refreshing content'),
+              description: t('navForm.loadingUpdatedContent', 'Loading the updated content...'),
+            })
 
           const result = await refetch()
           if (result.data?.data) {
@@ -592,9 +596,11 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
       } catch (error) {
         console.error("Operation failed:", error)
         toast({
-          title: existingSubSectionId ? "Error updating navigation section" : "Error creating navigation section",
+          title: existingSubSectionId 
+            ? t('navForm.errorUpdatingNavigationSection', 'Error updating navigation section') 
+            : t('navForm.errorCreatingNavigationSection', 'Error creating navigation section'),
           variant: "destructive",
-          description: error instanceof Error ? error.message : "Unknown error occurred",
+          description: error instanceof Error ? error.message : t('navForm.unknownErrorOccurred', 'Unknown error occurred'),
           duration: 5000,
         })
       } finally {
@@ -634,9 +640,10 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
                 name={`${langCode}.${index}.navItemName`}
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Nav Item {index + 1}</FormLabel>
+                    <FormLabel>{t('navForm.navItem', 'Nav Item')} {index + 1}</FormLabel>
+
                     <FormControl>
-                      <Input placeholder={`Nav Item ${index + 1}`} {...field} />
+                      <Input placeholder={`${t('navForm.navItem', 'Nav Item')} ${index + 1}`} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -660,7 +667,7 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
             className="w-full"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add Nav Item
+            {t('navForm.addNavItem', 'Add Nav Item')}
           </Button>
         </div>
       )
@@ -670,7 +677,8 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
       return (
         <div className="flex items-center justify-center p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Loading navigation section data...</p>
+          <p className="text-muted-foreground">{t('navForm.loadingNavigationData', 'Loading navigation section data...')}</p>
+
         </div>
       )
     }
@@ -678,10 +686,12 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
     return (
       <div className="space-y-6">
         <LoadingDialog
-          isOpen={isSaving}
-          title={existingSubSectionId ? "Updating Navigation Section" : "Creating Navigation Section"}
-          description="Please wait while we save your changes..."
-        />
+            isOpen={isSaving}
+              title={existingSubSectionId 
+                ? t('navForm.updatingNavigationSection', 'Updating Navigation Section') 
+                : t('navForm.creatingNavigationSection', 'Creating Navigation Section')}
+              description={t('navForm.pleaseWaitSaving', 'Please wait while we save your changes...')}
+            />
 
         <Form {...form}>
           <BackgroundImageSection
@@ -720,7 +730,7 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
               className="mx-auto"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add Nav Item to All Languages
+                {t('navForm.addNavItemToAllLanguages', 'Add Nav Item to All Languages')}
             </Button>
           </div>
         </Form>
@@ -729,7 +739,7 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
           {navItemCountMismatch && (
             <div className="flex items-center text-amber-500 mr-4">
               <AlertTriangle className="h-4 w-4 mr-2" />
-              <span className="text-sm">Each language must have the same number of navigation items</span>
+                <span className="text-sm">{t('navForm.sameNumberOfItems', 'Each language must have the same number of navigation items')}</span>
             </div>
           )}
           <Button
@@ -738,15 +748,17 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
             disabled={isLoadingData || navItemCountMismatch || isSaving}
             className="flex items-center"
           >
-            {isSaving ? (
+          {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t('navForm.saving', 'Saving...')}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                {existingSubSectionId ? "Update Navigation Content" : "Save Navigation Content"}
+                {existingSubSectionId 
+                  ? t('navForm.updateNavigationContent', 'Update Navigation Content') 
+                  : t('navForm.saveNavigationContent', 'Save Navigation Content')}
               </>
             )}
           </Button>
@@ -755,16 +767,15 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
         <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Navigation Item Count Mismatch</DialogTitle>
+            <DialogTitle>{t('navForm.navigationItemCountMismatch', 'Navigation Item Count Mismatch')}</DialogTitle>
               <DialogDescription>
                 <div className="mt-4 mb-4">
-                  Each language must have the same number of navigation items before saving. Please add or remove items to ensure all
-                  languages have the same count:
+                  {t('navForm.countMismatchDescription', 'Each language must have the same number of navigation items before saving. Please add or remove items to ensure all languages have the same count:')}
                 </div>
                 <ul className="list-disc pl-6 space-y-1">
                   {getNavItemCountsByLanguage.map(({ language, count }) => (
                     <li key={language}>
-                      <span className="font-semibold uppercase">{language}</span>: {count} items
+                      <span className="font-semibold uppercase">{language}</span>: {count} {t('navForm.items', 'items')}
                     </li>
                   ))}
                 </ul>
@@ -772,7 +783,7 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
             </DialogHeader>
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => setIsValidationDialogOpen(false)}>
-                Close
+                {t('navForm.close', 'Close')}
               </Button>
             </div>
           </DialogContent>
@@ -781,11 +792,9 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
-          serviceName={navItemToDelete ? `Navigation Item ${navItemToDelete.index + 1}` : ''}
           onConfirm={removeNavItem}
           isDeleting={isDeleting}
-          title="Delete Navigation Item"
-          confirmText="Delete Item"
+          itemType="item"
         />
       </div>
     )

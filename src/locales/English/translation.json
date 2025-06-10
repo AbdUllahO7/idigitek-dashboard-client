@@ -1336,7 +1336,7 @@
       "saveDescription": "Your content has been saved."
     }
   },
-    "addHeader": {
+  "addHeader": {
     "title": {
       "create": "Create New Navigation Item",
       "edit": "Edit Navigation Item"
@@ -1352,6 +1352,92 @@
       "newHeader": "New Header",
       "navItem": "navigation item"
     }
+  },
+  "tabsLayout" : {
+    "backButton" : "Back"
+  },
+  "imageUploader": {
+    "replaceImage": "Replace Image",
+    "remove": "Remove",
+    "dragAndDrop": "Drag and drop or click to upload",
+    "uploadImage": "Upload Image",
+    "logoImageUploading": "Logo Image Uploading",
+    "sectionImage": "Section Image",
+    "logoImageUploadingForHeader": "Logo Image Uploading for header",
+    "uploadImageForSection": "Upload an image for the section (applies to all languages)",
+    "logo": "Logo",
+    "backgroundImage": "Background Image",
+    "appliesToAllLanguages": "(applies to all languages)",
+    "imagePreview": "Image preview",
+    "backgroundImagePreview": "Background image preview"
+  },
+  "navLanguageCard": {
+    "navigationSection": "Navigation Section",
+    "manageNavigationItems": "Manage navigation items for",
+    "navItem": "Nav Item"
+  },
+  "navForm": {
+    "loadingNavigationData": "Loading navigation section data...",
+    "updatingNavigationSection": "Updating Navigation Section",
+    "creatingNavigationSection": "Creating Navigation Section",
+    "pleaseWaitSaving": "Please wait while we save your changes...",
+    "navigationItemAdded": "Navigation item added",
+    "newNavigationItemAdded": "A new navigation item has been added.",
+    "cannotRemove": "Cannot remove",
+    "needAtLeastOneItem": "You need at least one navigation item",
+    "navigationItemDeleted": "Navigation item deleted",
+    "itemDeletedFromDatabase": "Item {{number}} has been deleted from the database",
+    "errorRemovingItem": "Error removing item",
+    "errorRemovingFromDatabase": "There was an error removing the navigation item from the database",
+    "imageUploaded": "Image Uploaded",
+    "logoUploadedSuccessfully": "Logo image has been successfully uploaded.",
+    "imageUploadFailed": "Image Upload Failed",
+    "failedToUploadImage": "Failed to upload image",
+    "validationError": "Validation Error",
+    "fillAllRequiredFields": "Please fill all required fields correctly",
+    "creatingNewNavigationSection": "Creating new navigation section...",
+    "settingUpNewContent": "Setting up your new navigation content.",
+    "navigationSectionUpdated": "Navigation section updated successfully!",
+    "navigationSectionCreated": "Navigation section created successfully!",
+    "allChangesSaved": "All changes have been saved.",
+    "refreshingContent": "Refreshing content",
+    "loadingUpdatedContent": "Loading the updated content...",
+    "errorUpdatingNavigationSection": "Error updating navigation section",
+    "errorCreatingNavigationSection": "Error creating navigation section",
+    "unknownErrorOccurred": "Unknown error occurred",
+    "addNavItem": "Add Nav Item",
+    "addNavItemToAllLanguages": "Add Nav Item to All Languages",
+    "sameNumberOfItems": "Each language must have the same number of navigation items",
+    "saving": "Saving...",
+    "updateNavigationContent": "Update Navigation Content",
+    "saveNavigationContent": "Save Navigation Content",
+    "navigationItemCountMismatch": "Navigation Item Count Mismatch",
+    "countMismatchDescription": "Each language must have the same number of navigation items before saving. Please add or remove items to ensure all languages have the same count:",
+    "items": "items",
+    "close": "Close",
+    "deleteNavigationItem": "Delete Navigation Item",
+    "deleteItem": "Delete Item",
+    "navigationSection": "Navigation Section",
+    "navigationSectionDescription": "Navigation section for the website",
+    "logo": "Logo",
+    "navItem": "Nav Item"
+  },
+  "deleteDialog": {
+    "defaultTitle": "Delete Item",
+    "defaultConfirmText": "Delete",
+    "areYouSure": "Are you sure you want to delete",
+    "actionCannotBeUndone": "? This action cannot be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting...",
+    "deleteSection": "Delete Section",
+    "deleteItem": "Delete Item",
+    "deleteService": "Delete Service",
+    "deleteProject": "Delete Project",
+    "deleteUser": "Delete User",
+    "deleteLanguage": "Delete Language",
+    "deleteWebsite": "Delete Website",
+    "confirmDelete": "Confirm Delete",
+    "confirmRemoval": "Confirm Removal"
   },
   "common": {
     "welcome": "Welcome",

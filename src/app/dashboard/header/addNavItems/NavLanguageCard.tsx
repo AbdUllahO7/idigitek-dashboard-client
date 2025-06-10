@@ -7,6 +7,8 @@ import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/src/context/LanguageContext";
 
 interface NavLanguageCardProps {
   langCode: string;
@@ -18,18 +20,19 @@ interface NavLanguageCardProps {
 }
 
 export const NavLanguageCard = memo(({ langCode, form, onAddItem, onRemoveItem }: NavLanguageCardProps) => {
+  const { t } = useTranslation();
   const navItems = form.getValues()[langCode] || [];
-
+  const {language} = useLanguage()
   return (
-    <Card className="w-full">
+    <Card className="w-full" dir={language === 'ar' ? "rtl" : 'ltr'}>
       <CardHeader>
         <CardTitle className="flex items-center">
-          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
+          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 ml-2 mr-2">
             {langCode}
           </span>
-          Navigation Section
+          {t('navLanguageCard.navigationSection', 'Navigation Section')}
         </CardTitle>
-        <CardDescription>Manage navigation items for {langCode.toUpperCase()}</CardDescription>
+        <CardDescription>{t('navLanguageCard.manageNavigationItems', 'Manage navigation items for')} {langCode.toUpperCase()}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {navItems.map((_: any, index: number) => (
@@ -39,9 +42,9 @@ export const NavLanguageCard = memo(({ langCode, form, onAddItem, onRemoveItem }
               name={`${langCode}.${index}.navItemName`}
               render={({ field }) => (
                 <FormItem className="flex-1">
-                  <FormLabel>Nav Item {index + 1}</FormLabel>
+                  <FormLabel>{t('navLanguageCard.navItem', 'Nav Item')} {index + 1}</FormLabel>
                   <FormControl>
-                    <Input placeholder={`Nav Item ${index + 1}`} {...field} />
+                    <Input placeholder={`${t('navLanguageCard.navItem', 'Nav Item')} ${index + 1}`} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

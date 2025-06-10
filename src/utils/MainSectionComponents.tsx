@@ -348,7 +348,7 @@ export function MainFormCard({
         {children}
       </CardContent>
     </Card>
-  )
+  ) 
 }
 
 // Loading Dialog Component
