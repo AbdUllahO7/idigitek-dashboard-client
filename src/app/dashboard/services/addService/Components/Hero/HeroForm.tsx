@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useState, useRef, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next"; // or your i18n hook
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
@@ -37,6 +38,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     initialData 
   } = props;
 
+  const { t } = useTranslation(); // i18n hook
   const { websiteId } = useWebsiteContext();
 
   // Setup form with schema validation
@@ -190,7 +192,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     subsectionId: existingSubSectionId,
     websiteId,
     slug,
-    sectionName: "hero section",
+    sectionName: t('heroForm.deleteDialog.title'),
     contentElements,
     customWarnings: [
       "The hero background image will be permanently deleted",
@@ -323,8 +325,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       if (imageUrl) {
         form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
         toast({
-          title: "Image Uploaded",
-          description: "Background image has been successfully uploaded."
+          title: t('heroForm.toasts.imageUpload.success.title'),
+          description: t('heroForm.toasts.imageUpload.success.description')
         });
         return imageUrl;
       } 
@@ -333,13 +335,13 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     } catch (error) {
       console.error("Image upload failed:", error);
       toast({
-        title: "Image Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload image",
+        title: t('heroForm.toasts.imageUpload.error.title'),
+        description: error instanceof Error ? error.message : t('heroForm.toasts.imageUpload.error.description'),
         variant: "destructive"
       });
       throw error;
     }
-  }, [form, toast]);
+  }, [form, toast, t]);
 
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
@@ -347,8 +349,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please fill all required fields correctly",
+        title: t('heroForm.toasts.validation.title'),
+        description: t('heroForm.toasts.validation.description'),
         variant: "destructive"
       });
       return false;
@@ -516,9 +518,13 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       }
 
       // Show success message
+      const successMessage = existingSubSectionId 
+        ? t('heroForm.toasts.save.success.updated')
+        : t('heroForm.toasts.save.success.created');
+      
       toast({
-        title: existingSubSectionId ? "Hero section updated successfully!" : "Hero section created successfully!",
-        description: "All content has been saved."
+        title: successMessage,
+        description: t('heroForm.toasts.save.success.description')
       });
 
       updateState({ hasUnsavedChanges: false });
@@ -551,8 +557,12 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       return true;
     } catch (error) {
       console.error("Operation failed:", error);
+      const errorMessage = existingSubSectionId
+        ? t('heroForm.toasts.save.error.updated')
+        : t('heroForm.toasts.save.error.created');
+      
       toast({
-        title: existingSubSectionId ? "Error updating hero section" : "Error creating hero section",
+        title: errorMessage,
         variant: "destructive",
         description: error instanceof Error ? error.message : "Unknown error occurred"
       });
@@ -567,6 +577,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     ParentSectionId, 
     slug, 
     toast, 
+    t,
     bulkUpsertTranslations, 
     contentElements, 
     createContentElement, 
@@ -603,42 +614,38 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
 
   const languageCodes = createLanguageCodeMap(activeLanguages);
 
-  // Loading state
-  if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading hero section data...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Loading Dialogs */}
       <LoadingDialog 
         isOpen={isSaving} 
-        title={existingSubSectionId ? "Updating Hero Section" : "Creating Hero Section"}
-        description="Please wait while we save your changes..."
+        title={existingSubSectionId 
+          ? t('heroForm.loadingDialogs.updating.title')
+          : t('heroForm.loadingDialogs.creating.title')
+        }
+        description={existingSubSectionId 
+          ? t('heroForm.loadingDialogs.updating.description')
+          : t('heroForm.loadingDialogs.creating.description')
+        }
       />
       
       <LoadingDialog
         isOpen={deleteManager.isDeleting}
-        title="Deleting Hero Section"
-        description="Please wait while we delete the hero section..."
+        title={t('heroForm.loadingDialogs.deleting.title')}
+        description={t('heroForm.loadingDialogs.deleting.description')}
       />
 
       <LoadingDialog
         isOpen={isRefreshingAfterDelete}
-        title="Refreshing Data"
-        description="Updating the interface after deletion..."
+        title={t('heroForm.loadingDialogs.refreshing.title')}
+        description={t('heroForm.loadingDialogs.refreshing.description')}
       />
 
       {/* Delete Confirmation Dialog */}
       {/* <DeleteConfirmationDialog
         {...deleteManager.confirmationDialogProps}
-        title="Delete Hero Section"
-        description="Are you sure you want to delete this hero section? This action cannot be undone."
+        title={t('heroForm.deleteDialog.title')}
+        description={t('heroForm.deleteDialog.description')}
       /> */}
       
       <Form {...form}>
@@ -681,7 +688,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
             className="flex items-center"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete Hero Section
+            {t('heroForm.buttons.delete')}
           </Button>
         )} */}
 
@@ -690,18 +697,21 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           <Button 
             type="button" 
             onClick={handleSave} 
-            disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+            disabled={ isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
             className="flex items-center"
           >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t('heroForm.buttons.saving')}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                {existingSubSectionId ? "Update Hero Content" : "Save Hero Content"}
+                {existingSubSectionId 
+                  ? t('heroForm.buttons.update')
+                  : t('heroForm.buttons.save')
+                }
               </>
             )}
           </Button>

@@ -1,8 +1,8 @@
-
 "use client"
 
 import { useSearchParams } from "next/navigation"
 import { Layout, Sparkles, ListChecks, ArrowRight, HelpCircle } from "lucide-react"
+import { useTranslation } from "react-i18next" // or your i18n hook
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
@@ -20,6 +20,7 @@ import OverviewForm from "./Components/OverView/OverviewForm"
 const FORM_SECTIONS = ["hero", "benefits", "features", "processSteps", "faq"]
 
 export default function AddService() {
+  const { t } = useTranslation() // i18n hook
   const searchParams = useSearchParams()
   
   // Get URL parameters
@@ -133,11 +134,11 @@ export default function AddService() {
     return `${baseSlug.toLowerCase()}-${sectionItemId}`;
   };
   
-  // Define tabs configuration
+  // Define tabs configuration with i18n
   const tabs = [
     {
       id: "hero",
-      label: "Main banner",
+      label: t('addServicePage.tabs.hero'),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <HeroForm
@@ -151,7 +152,7 @@ export default function AddService() {
     },
     {
       id: "benefits",
-      label: "Benefits",
+      label: t('addServicePage.tabs.benefits'),
       icon: <Sparkles className="h-4 w-4" />,
       component: (
         <BenefitsForm
@@ -163,9 +164,9 @@ export default function AddService() {
         />
       )
     },
-        {
+    {
       id: "overView",
-      label: "OverView",
+      label: t('addServicePage.tabs.overview'),
       icon: <Sparkles className="h-4 w-4" />,
       component: (
         <OverviewForm
@@ -179,7 +180,7 @@ export default function AddService() {
     },
     {
       id: "features",
-      label: "Features",
+      label: t('addServicePage.tabs.features'),
       icon: <ListChecks className="h-4 w-4" />,
       component: (
         <FeaturesForm
@@ -193,7 +194,7 @@ export default function AddService() {
     },
     {
       id: "process",
-      label: "Process",
+      label: t('addServicePage.tabs.process'),
       icon: <ArrowRight className="h-4 w-4" />,
       component: (
         <ProcessStepsForm
@@ -207,7 +208,7 @@ export default function AddService() {
     },
     {
       id: "faq",
-      label: "FAQ",
+      label: t('addServicePage.tabs.faq'),
       icon: <HelpCircle className="h-4 w-4" />,
       component: (
         <FaqForm
@@ -227,7 +228,7 @@ export default function AddService() {
     const heroData = formData.hero || {}
     
     // Get English title and description values or fallback to the first language
-    let serviceName = "New Service"
+    let serviceName = t('addServicePage.defaults.serviceName')
     let serviceDescription = ""
     
     // Loop through languages to find title and description
@@ -263,12 +264,23 @@ export default function AddService() {
   // Loading state
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
+  // Get translated title and subtitle
+  const getTitle = () => {
+    return isCreateMode 
+      ? t('addServicePage.titles.create')
+      : t('addServicePage.titles.edit')
+  }
+  
+  const getSubtitle = () => {
+    return isCreateMode 
+      ? t('addServicePage.subtitles.create')
+      : t('addServicePage.subtitles.edit', { serviceName: sectionItemData?.data?.name || t('addServicePage.defaults.serviceName') })
+  }
+  
   return (
     <FormShell
-      title={isCreateMode ? "Create New Service" : "Edit Service"}
-      subtitle={isCreateMode 
-        ? "Create a new service with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'Service'}" content across multiple languages`}
+      title={getTitle()}
+      subtitle={getSubtitle()}
       backUrl={`/dashboard/services?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}

@@ -2532,6 +2532,641 @@
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Enter description"
   },
+  "servicesPage": {
+    "title": "Services Management",
+    "description": "Manage your service inventory and multilingual content",
+    "addButtonLabel": "Add New Service",
+    "emptyStateMessage": "No services found. Create your first service by clicking the \"Add New Service\" button.",
+    "noSectionMessage": "Please create a service section first before adding services.",
+    "mainSectionRequiredMessage": "Please enter your main section data before adding services.",
+    "emptyFieldsMessage": "Please complete all required fields in the main section before adding services.",
+    "sectionIntegrationTitle": "Service Section Content",
+    "sectionIntegrationDescription": "Manage your service section content in multiple languages.",
+    "addSectionButtonLabel": "Add Service Section",
+    "editSectionButtonLabel": "Edit Service Section",
+    "saveSectionButtonLabel": "Save Service Section",
+    "listTitle": "Service List",
+    "table": {
+      "columns": {
+        "name": "Name",
+        "description": "Description",
+        "status": "Status",
+        "order": "Order",
+        "subsections": "Subsections"
+      },
+      "badges": {
+        "main": "Main"
+      }
+    },
+    "dialogs": {
+      "createTitle": "Service",
+      "deleteTitle": "Delete Section",
+      "confirmText": "Confirm"
+    }
+  },
+  "addServicePage": {
+    "titles": {
+      "create": "Create New Service",
+      "edit": "Edit Service"
+    },
+    "subtitles": {
+      "create": "Create a new service with multilingual content",
+      "edit": "Editing \"{{serviceName}}\" content across multiple languages"
+    },
+    "tabs": {
+      "hero": "Main banner",
+      "benefits": "Benefits",
+      "overview": "Overview",
+      "features": "Features",
+      "process": "Process",
+      "faq": "FAQ"
+    },
+    "defaults": {
+      "serviceName": "New Service"
+    },
+    "navigation": {
+      "backToServices": "Back to Services"
+    }
+  },
+  "heroForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "Creating Hero Section",
+        "description": "Please wait while we save your changes..."
+      },
+      "updating": {
+        "title": "Updating Hero Section",
+        "description": "Please wait while we save your changes..."
+      },
+      "deleting": {
+        "title": "Deleting Hero Section",
+        "description": "Please wait while we delete the hero section..."
+      },
+      "refreshing": {
+        "title": "Refreshing Data",
+        "description": "Updating the interface after deletion..."
+      }
+    },
+    "deleteDialog": {
+      "title": "Delete Hero Section",
+      "description": "Are you sure you want to delete this hero section? This action cannot be undone."
+    },
+    "buttons": {
+      "save": "Save Hero Content",
+      "update": "Update Hero Content", 
+      "delete": "Delete Hero Section",
+      "saving": "Saving..."
+    },
+    "toasts": {
+      "validation": {
+        "title": "Validation Error",
+        "description": "Please fill all required fields correctly"
+      },
+      "imageUpload": {
+        "success": {
+          "title": "Image Uploaded",
+          "description": "Background image has been successfully uploaded."
+        },
+        "error": {
+          "title": "Image Upload Failed",
+          "description": "Failed to upload image"
+        }
+      },
+      "save": {
+        "success": {
+          "created": "Hero section created successfully!",
+          "updated": "Hero section updated successfully!",
+          "description": "All content has been saved."
+        },
+        "error": {
+          "created": "Error creating hero section",
+          "updated": "Error updating hero section"
+        }
+      }
+    },
+    "languageCard": {
+      "title": "Hero Section",
+      "description": "Manage hero content for {{language}}",
+      "fields": {
+        "title": {
+          "label": "Title",
+          "placeholder": "Enter title"
+        },
+        "description": {
+          "label": "Description", 
+          "placeholder": "Enter description"
+        },
+        "backLinkText": {
+          "label": "Back Button Text",
+          "placeholder": "Get Started"
+        }
+      }
+    }
+  },
+  "benefitsForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "Creating Benefits",
+        "description": "Please wait while we save your changes..."
+      },
+      "updating": {
+        "title": "Updating Benefits",
+        "description": "Please wait while we save your changes..."
+      },
+      "deleting": {
+        "title": "Deleting Benefits Section",
+        "description": "Please wait while we delete the benefits section..."
+      },
+      "refreshing": {
+        "title": "Refreshing Data",
+        "description": "Updating the interface after deletion..."
+      }
+    },
+    "deleteDialogs": {
+      "benefit": {
+        "title": "Delete Benefit",
+        "confirmText": "Delete Benefit"
+      },
+      "section": {
+        "title": "Delete Benefits Section",
+        "description": "Are you sure you want to delete this benefits section? This action cannot be undone."
+      }
+    },
+    "buttons": {
+      "save": "Save Benefits",
+      "update": "Update Benefits",
+      "delete": "Delete Benefits Section",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "countMismatch": "Each language must have the same number of benefits",
+      "minimumRequired": "You need at least one benefit"
+    },
+    "toasts": {
+      "cannotRemove": {
+        "title": "Cannot remove",
+        "description": "You need at least one benefit"
+      },
+      "benefitDeleted": {
+        "title": "Benefit deleted",
+        "description": "Benefit {{number}} has been deleted from the database"
+      },
+      "stepDeleted": {
+        "title": "Step deleted",
+        "description": "Step {{number}} has been deleted from the database"
+      },
+      "errorRemoving": {
+        "title": "Error removing benefit",
+        "description": "There was an error removing the benefit from the database"
+      },
+      "errorRemovingStep": {
+        "title": "Error removing step",
+        "description": "There was an error removing the step from the database"
+      },
+      "success": {
+        "created": "Benefits section created successfully!",
+        "updated": "Benefits section updated successfully!"
+      },
+      "error": {
+        "created": "Error creating benefits section",
+        "updated": "Error updating benefits section"
+      }
+    },
+    "errors": {
+      "parentSectionRequired": "Parent section ID is required to create a subsection",
+      "failedToCreateSection": "Failed to create or retrieve subsection ID",
+      "unknownError": "Unknown error occurred"
+    }
+  },
+  "benefitsFormForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "Creating Benefits",
+        "description": "Please wait while we save your changes..."
+      },
+      "updating": {
+        "title": "Updating Benefits",
+        "description": "Please wait while we save your changes..."
+      },
+      "deleting": {
+        "title": "Deleting Benefits Section",
+        "description": "Please wait while we delete the benefits section..."
+      },
+      "refreshing": {
+        "title": "Refreshing Data",
+        "description": "Updating the interface after deletion..."
+      }
+    },
+    "deleteDialogs": {
+      "benefit": {
+        "title": "Delete Benefit",
+        "confirmText": "Delete Benefit"
+      },
+      "section": {
+        "title": "Delete Benefits Section",
+        "description": "Are you sure you want to delete this benefits section? This action cannot be undone."
+      }
+    },
+    "buttons": {
+      "save": "Save Benefits",
+      "update": "Update Benefits",
+      "delete": "Delete Benefits Section",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "countMismatch": "Each language must have the same number of benefits",
+      "minimumRequired": "You need at least one benefit"
+    },
+    "toasts": {
+      "cannotRemove": {
+        "title": "Cannot remove",
+        "description": "You need at least one benefit"
+      },
+      "benefitDeleted": {
+        "title": "Benefit deleted",
+        "description": "Benefit {{number}} has been deleted from the database"
+      },
+      "stepDeleted": {
+        "title": "Step deleted",
+        "description": "Step {{number}} has been deleted from the database"
+      },
+      "errorRemoving": {
+        "title": "Error removing benefit",
+        "description": "There was an error removing the benefit from the database"
+      },
+      "errorRemovingStep": {
+        "title": "Error removing step",
+        "description": "There was an error removing the step from the database"
+      },
+      "success": {
+        "created": "Benefits section created successfully!",
+        "updated": "Benefits section updated successfully!"
+      },
+      "error": {
+        "created": "Error creating benefits section",
+        "updated": "Error updating benefits section"
+      }
+    },
+    "errors": {
+      "parentSectionRequired": "Parent section ID is required to create a subsection",
+      "failedToCreateSection": "Failed to create or retrieve subsection ID",
+      "unknownError": "Unknown error occurred"
+    }
+  },
+  "overviewForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "Creating Overview",
+        "description": "Please wait while we save your changes..."
+      },
+      "updating": {
+        "title": "Updating Overview",
+        "description": "Please wait while we save your changes..."
+      },
+      "deleting": {
+        "title": "Deleting Overview Section",
+        "description": "Please wait while we delete the overview section..."
+      },
+      "refreshing": {
+        "title": "Refreshing Data",
+        "description": "Updating the interface after deletion..."
+      }
+    },
+    "deleteDialog": {
+      "title": "Delete Overview Section",
+      "description": "Are you sure you want to delete this overview section? This action cannot be undone."
+    },
+    "buttons": {
+      "save": "Save Overview",
+      "update": "Update Overview",
+      "delete": "Delete Overview Section",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "error": {
+        "title": "Validation Error",
+        "description": "Please fill all required fields correctly"
+      }
+    },
+    "toasts": {
+      "success": {
+        "created": "Overview created successfully!",
+        "updated": "Overview updated successfully!",
+        "description": "All content has been saved."
+      },
+      "error": {
+        "created": "Error creating overview",
+        "updated": "Error updating overview"
+      }
+    },
+    "errors": {
+      "parentSectionRequired": "Parent section ID is required to create a subsection",
+      "failedToCreateSection": "Failed to create or retrieve subsection ID",
+      "unknownError": "Unknown error occurred"
+    },
+    "overviewCard": {
+      "title": "Form Overview",
+      "description": "Manage overview content for {{language}}",
+      "fields": {
+        "description": {
+          "label": "Description",
+          "placeholder": "Enter description"
+        }
+      }
+    }
+  },
+  "featuresForm": {
+      "featureForm": {
+        "featureTitle": "Feature {{number}}",
+        "badges": {
+          "primary": "Primary",
+          "items": "{{count}} items",
+          "primaryLanguageOnly": "Primary language only"
+        },
+        "sections": {
+          "basicInformation": "Basic Information",
+          "featureItems": "Feature Items",
+          "featureImage": "Feature Image"
+        },
+        "fields": {
+          "featureTitle": {
+            "label": "Feature Title",
+            "placeholder": "Enter feature title"
+          },
+          "sectionHeading": {
+            "label": "Section Heading",
+            "placeholder": "Enter section heading"
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Describe this feature in detail...",
+            "description": "Provide a comprehensive description of this feature"
+          }
+        },
+        "buttons": {
+          "addItem": "Add Item",
+          "removeFeature": "Remove Feature",
+          "removeItem": "Remove Item"
+        },
+        "emptyState": {
+          "title": "No feature items yet",
+          "description": "Click \"Add Item\" to get started"
+        },
+        "actions": {
+          "save": "Save Features Content",
+          "update": "Update Features Content",
+          "delete": "Delete Features Section",
+          "saving": "Saving...",
+          "deleting": "Deleting..."
+        },
+        "validation": {
+          "featureCountMismatch": "Each language must have the same number of features",
+          "fillRequiredFields": "Please fill all required fields correctly",
+          "cannotRemove": "Cannot remove",
+          "needAtLeastOneFeature": "You need at least one feature",
+          "needAtLeastOneItem": "You need at least one feature item"
+        },
+        "dialogs": {
+          "deleteFeature": {
+            "title": "Delete Feature",
+            "description": "Are you sure you want to delete this feature? This action cannot be undone.",
+            "confirmText": "Delete Feature"
+          },
+          "deleteFeatureItem": {
+            "title": "Delete Feature Item",
+            "description": "Are you sure you want to delete this feature item? This action cannot be undone.",
+            "confirmText": "Delete Item"
+          },
+          "deleteSection": {
+            "title": "Delete Features Section",
+            "description": "Are you sure you want to delete this entire features section? This action cannot be undone.",
+            "warnings": [
+              "All feature content including titles, descriptions, and images will be deleted",
+              "Feature items and lists for all languages will be removed",
+              "Uploaded feature images will be permanently deleted",
+              "This may affect the features showcase on your website"
+            ]
+          },
+          "validationError": {
+            "title": "Feature Count Mismatch",
+            "description": "Each language must have the same number of features before saving. Please add or remove features to ensure all languages have the same count:"
+          }
+        },
+        "loading": {
+          "creatingSection": "Creating Features Section",
+          "updatingSection": "Updating Features Section",
+          "deletingSection": "Deleting Features Section",
+          "refreshingData": "Refreshing Data",
+          "pleaseWait": "Please wait while we process your request..."
+        },
+        "toast": {
+          "featureAdded": "Feature added",
+          "featureAddedDesc": "A new feature has been added. Please fill in the details and save your changes.",
+          "featureRemoved": "Feature removed",
+          "featureRemovedDesc": "The feature has been removed successfully.",
+          "itemAdded": "Feature item added",
+          "itemAddedDesc": "A new feature item has been added to all languages.",
+          "itemRemoved": "Item removed",
+          "itemRemovedDesc": "The feature item has been removed successfully.",
+          "sectionCreated": "Features section created successfully!",
+          "sectionUpdated": "Features section updated successfully!",
+          "contentSaved": "All content has been saved.",
+          "errorCreating": "Error creating features section",
+          "errorUpdating": "Error updating features section",
+          "errorRemoving": "There was an error removing the feature item.",
+          "errorLoading": "Failed to load features data. Please try again."
+        }
+      },
+      "featureItem": {
+        "placeholder": "Feature {{number}}"
+      },
+      "languageCard": {
+        "title": "Features Section",
+        "description": "Manage features content for {{language}}",
+        "addFeature": "Add Feature"
+      }
+  },
+  "processStepsForm": {
+      "stepForm": {
+        "stepTitle": "Step {{number}}",
+        "badges": {
+          "iconControl": "Icon Control",
+          "primary": "Primary"
+        },
+        "sections": {
+          "processStepsSection": "Process Steps Section"
+        },
+        "fields": {
+          "icon": {
+            "label": "Icon",
+            "placeholder": "Select an icon",
+            "controlledBy": "Icon (controlled by {{language}})"
+          },
+          "title": {
+            "label": "Title", 
+            "placeholder": "Enter step title"
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Enter step description"
+          }
+        },
+        "buttons": {
+          "addStep": "Add Process Step",
+          "deleteStep": "Delete Step"
+        },
+        "actions": {
+          "save": "Save Process Steps",
+          "update": "Update Process Steps", 
+          "delete": "Delete Process Steps",
+          "saving": "Saving...",
+          "deleting": "Deleting..."
+        },
+        "validation": {
+          "stepCountMismatch": "Each language must have the same number of steps",
+          "fillRequiredFields": "Please fill all required fields correctly",
+          "cannotRemove": "Cannot remove",
+          "needAtLeastOneStep": "You need at least one process step"
+        },
+        "dialogs": {
+          "deleteStep": {
+            "title": "Delete Process",
+            "description": "Are you sure you want to delete this step? This action cannot be undone.",
+            "confirmText": "Delete Process"
+          },
+          "deleteSection": {
+            "title": "Delete Process Steps Section",
+            "description": "Are you sure you want to delete this entire process steps section? This action cannot be undone.",
+            "warnings": [
+              "All process steps will be permanently removed",
+              "This action cannot be undone"
+            ]
+          },
+          "validationError": {
+            "title": "Step Count Mismatch",
+            "description": "Each language must have the same number of process steps before saving. Please add or remove steps to ensure all languages have the same count:",
+            "close": "Close"
+          }
+        },
+        "loading": {
+          "loadingData": "Loading process steps data...",
+          "creatingSection": "Creating Process Steps",
+          "updatingSection": "Updating Process Steps", 
+          "deletingSection": "Deleting Process Steps",
+          "refreshingData": "Refreshing Data",
+          "pleaseWait": "Please wait while we save your changes...",
+          "pleaseWaitDelete": "Please wait while we delete the process steps section...",
+          "pleaseWaitRefresh": "Updating the interface after deletion..."
+        },
+        "toast": {
+          "stepAdded": "Step added",
+          "stepAddedDesc": "A new process step has been added to all languages.",
+          "stepDeleted": "Step deleted", 
+          "stepDeletedDesc": "Step {{number}} has been deleted from the database",
+          "stepRemoved": "Step removed",
+          "stepRemovedDesc": "The step has been removed successfully.",
+          "sectionCreated": "Process steps created successfully!",
+          "sectionUpdated": "Process steps updated successfully!",
+          "contentSaved": "All changes have been saved.",
+          "creatingSection": "Creating new process steps section...",
+          "creatingSectionDesc": "Setting up your new process steps content.",
+          "refreshingContent": "Refreshing content",
+          "refreshingContentDesc": "Loading the updated content...",
+          "errorCreating": "Error creating process steps",
+          "errorUpdating": "Error updating process steps", 
+          "errorRemoving": "Error removing step",
+          "errorRemovingDesc": "There was an error removing the step from the database"
+        }
+      },
+      "languageCard": {
+        "title": "Process Steps Section",
+        "description": "Manage process steps content for {{language}}",
+        "iconControlDesc": "Icons defined here will be used for all languages"
+      }
+  },
+   "faqForm": {
+      "section": {
+        "title": "FAQ Section",
+        "description": "Manage FAQ content for {{language}}"
+      },
+      "item": {
+        "defaultTitle": "FAQ {{number}}",
+        "fields": {
+          "question": {
+            "label": "Question",
+            "placeholder": "Enter question"
+          },
+          "answer": {
+            "label": "Answer", 
+            "placeholder": "Enter answer"
+          }
+        }
+      },
+      "actions": {
+        "addFaq": "Add FAQ",
+        "save": "Save FAQ Content",
+        "update": "Update FAQ Content",
+        "delete": "Delete FAQ Section",
+        "saving": "Saving...",
+        "deleting": "Deleting..."
+      },
+      "loading": {
+        "loadingData": "Loading FAQ section data...",
+        "creatingSection": "Creating FAQ Section",
+        "updatingSection": "Updating FAQ Section",
+        "deletingSection": "Deleting FAQ Section",
+        "refreshingData": "Refreshing Data",
+        "pleaseWait": "Please wait while we save your changes...",
+        "pleaseWaitDelete": "Please wait while we delete the FAQ section...",
+        "pleaseWaitRefresh": "Updating the interface after deletion..."
+      },
+      "validation": {
+        "faqCountMismatch": "Each language must have the same number of FAQs",
+        "fillRequiredFields": "Please fill all required fields correctly",
+        "cannotRemove": "Cannot remove",
+        "needAtLeastOneFaq": "You need at least one FAQ"
+      },
+      "dialogs": {
+        "deleteFaq": {
+          "title": "Delete FAQ",
+          "description": "Are you sure you want to delete this FAQ? This action cannot be undone.",
+          "confirmText": "Delete FAQ"
+        },
+        "deleteSection": {
+          "title": "Delete FAQ Section",
+          "description": "Are you sure you want to delete this entire FAQ section? This action cannot be undone.",
+          "warnings": [
+            "All FAQ questions and answers will be permanently removed",
+            "This action cannot be undone"
+          ]
+        },
+        "validationError": {
+          "title": "FAQ Count Mismatch",
+          "description": "Each language must have the same number of FAQs before saving. Please add or remove FAQs to ensure all languages have the same count:",
+          "close": "Close"
+        }
+      },
+      "toast": {
+        "faqAdded": "FAQ added",
+        "faqAddedDesc": "A new FAQ has been added to the section.",
+        "faqDeleted": "FAQ deleted",
+        "faqDeletedDesc": "FAQ {{number}} has been deleted from the database",
+        "faqRemoved": "FAQ removed",
+        "faqRemovedDesc": "The FAQ has been removed successfully.",
+        "sectionCreated": "FAQ section created successfully!",
+        "sectionUpdated": "FAQ section updated successfully!",
+        "contentSaved": "All changes have been saved.",
+        "creatingSection": "Creating new FAQ section...",
+        "creatingSectionDesc": "Setting up your new FAQ content.",
+        "refreshingContent": "Refreshing content",
+        "refreshingContentDesc": "Loading the updated content...",
+        "errorCreating": "Error creating FAQ section",
+        "errorUpdating": "Error updating FAQ section",
+        "errorRemoving": "Error removing FAQ",
+        "errorRemovingDesc": "There was an error removing the FAQ from the database",
+        "validationError": "Validation Error"
+      }
+    },
   "common": {
     "welcome": "Welcome",
     "logout": "Log out",

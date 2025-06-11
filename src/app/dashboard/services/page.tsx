@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next" // or your i18n hook
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useGenericList } from "@/src/hooks/useGenericList"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
@@ -11,72 +12,76 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { serviceSectionConfig } from "./serviceSectionConfig"
-
-// Configuration for the Services page
-const SERVICES_CONFIG = {
-  title: "Services Management",
-  description: "Manage your service inventory and multilingual content",
-  addButtonLabel: "Add New Service",
-  emptyStateMessage: "No services found. Create your first service by clicking the \"Add New Service\" button.",
-  noSectionMessage: "Please create a service section first before adding services.",
-  mainSectionRequiredMessage: "Please enter your main section data before adding services.",
-  emptyFieldsMessage: "Please complete all required fields in the main section before adding services.",
-  sectionIntegrationTitle: "Service Section Content",
-  sectionIntegrationDescription: "Manage your service section content in multiple languages.",
-  addSectionButtonLabel: "Add Service Section",
-  editSectionButtonLabel: "Edit Service Section",
-  saveSectionButtonLabel: "Save Service Section",
-  listTitle: "Service List",
-  editPath: "services/addService"
-}
-
-// Service table column definitions
-const SERVICE_COLUMNS = [
-  {
-    header: "Name",
-    accessor: "name",
-    className: "font-medium"
-  },
-  {
-    header: "Description",
-    accessor: "description",
-    cell: TruncatedCell
-  },
-  {
-    header: "Status",
-    accessor: "isActive",
-    cell: (item: any, value: boolean) => (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center">
-          {StatusCell(item, value)}
-          {item.isMain && (
-            <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  },
-  {
-    header: "Order",
-    accessor: "order"
-  },
-  {
-    header: "Subsections",
-    accessor: "subsections.length",
-    cell: CountBadgeCell
-  }
-]
+import { getServiceSectionConfig } from "./serviceSectionConfig"
 
 export default function ServicesPage() {
+  const { t, i18n } = useTranslation() // i18n hook
   const searchParams = useSearchParams()
   const sectionId = searchParams.get("sectionId")
   const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
+
+  // Get translated service section config based on current language
+  const serviceSectionConfig = getServiceSectionConfig(i18n.language)
+
+  // Configuration for the Services page using i18n
+  const SERVICES_CONFIG = {
+    title: t('servicesPage.title'),
+    description: t('servicesPage.description'),
+    addButtonLabel: t('servicesPage.addButtonLabel'),
+    emptyStateMessage: t('servicesPage.emptyStateMessage'),
+    noSectionMessage: t('servicesPage.noSectionMessage'),
+    mainSectionRequiredMessage: t('servicesPage.mainSectionRequiredMessage'),
+    emptyFieldsMessage: t('servicesPage.emptyFieldsMessage'),
+    sectionIntegrationTitle: t('servicesPage.sectionIntegrationTitle'),
+    sectionIntegrationDescription: t('servicesPage.sectionIntegrationDescription'),
+    addSectionButtonLabel: t('servicesPage.addSectionButtonLabel'),
+    editSectionButtonLabel: t('servicesPage.editSectionButtonLabel'),
+    saveSectionButtonLabel: t('servicesPage.saveSectionButtonLabel'),
+    listTitle: t('servicesPage.listTitle'),
+    editPath: "services/addService"
+  }
+
+  // Service table column definitions with i18n
+  const SERVICE_COLUMNS = [
+    {
+      header: t('servicesPage.table.columns.name'),
+      accessor: "name",
+      className: "font-medium"
+    },
+    {
+      header: t('servicesPage.table.columns.description'),
+      accessor: "description",
+      cell: TruncatedCell
+    },
+    {
+      header: t('servicesPage.table.columns.status'),
+      accessor: "isActive",
+      cell: (item: any, value: boolean) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center">
+            {StatusCell(item, value)}
+            {item.isMain && (
+              <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                {t('servicesPage.table.badges.main')}
+              </span>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: t('servicesPage.table.columns.order'),
+      accessor: "order"
+    },
+    {
+      header: t('servicesPage.table.columns.subsections'),
+      accessor: "subsections.length",
+      cell: CountBadgeCell
+    }
+  ]
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
@@ -225,7 +230,8 @@ export default function ServicesPage() {
     isLoadingSectionSubsections, 
     sectionId, 
     serviceSection, 
-    setSection
+    setSection,
+    serviceSectionConfig.name // Add this dependency since it can change with language
   ]);
 
   // Handle main subsection creation
@@ -281,8 +287,6 @@ export default function ServicesPage() {
     });
   }, [defaultAddButtonDisabled, isLoadingMainSubSection, sectionId, hasMainSubSection, isAddButtonDisabled]);
 
-
-
   // Custom message for empty state - keep it simple
   const emptyStateMessage = !serviceSection && !sectionData 
     ? SERVICES_CONFIG.noSectionMessage 
@@ -306,7 +310,7 @@ export default function ServicesPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Service"
+      title={t('servicesPage.dialogs.createTitle')}
     />
   );
 
@@ -317,8 +321,8 @@ export default function ServicesPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Section"
-      confirmText="Confirm"
+      title={t('servicesPage.dialogs.deleteTitle')}
+      confirmText={t('servicesPage.dialogs.confirmText')}
     />
   );
 

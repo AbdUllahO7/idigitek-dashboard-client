@@ -1,7 +1,8 @@
-// OverviewCard Component
+// OverviewCard Component with i18n Integration
 "use client";
 
 import { memo } from "react";
+import { useTranslation } from "react-i18next"; // or your i18n hook
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form";
 import { Textarea } from "@/src/components/ui/textarea";
@@ -13,16 +14,20 @@ interface OverviewCardProps {
 }
 
 export const OverviewCard = memo(({ langCode, form }: OverviewCardProps) => {
+  const { t } = useTranslation();
+
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center">
-          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
+          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 ml-2 mr-2">
             {langCode}
           </span>
-          Form Overview
+          {t('overviewForm.overviewCard.title')}
         </CardTitle>
-        <CardDescription>Manage overview content for {langCode.toUpperCase()}</CardDescription>
+        <CardDescription>
+          {t('overviewForm.overviewCard.description', { language: langCode.toUpperCase() })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Description Field Only */}
@@ -31,10 +36,10 @@ export const OverviewCard = memo(({ langCode, form }: OverviewCardProps) => {
           name={`${langCode}.description`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{t('overviewForm.overviewCard.fields.description.label')}</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Enter description" 
+                  placeholder={t('overviewForm.overviewCard.fields.description.placeholder')} 
                   className="min-h-[200px]" 
                   {...field} 
                 />

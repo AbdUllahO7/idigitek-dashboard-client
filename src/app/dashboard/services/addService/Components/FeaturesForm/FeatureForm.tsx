@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { useTranslation } from "react-i18next"
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
 import { Button } from "@/src/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
@@ -13,34 +13,7 @@ import { Badge } from "@/src/components/ui/badge"
 import { Separator } from "@/src/components/ui/separator"
 import { Plus, Trash2, GripVertical, ImageIcon, FileText, List } from "lucide-react"
 import { memo } from "react"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/src/components/ui/alert-dialog"
-
-// Mock FeatureItem component for demo
-const FeatureItem = ({ featureItemIndex, langCode, index, form, onRemoveFeatureItem }: any) => (
-  <div className="p-3 border rounded-lg bg-muted/30">
-    <div className="flex items-center justify-between">
-      <span className="text-sm font-medium">Feature Item {featureItemIndex + 1}</span>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={() => onRemoveFeatureItem(langCode, index, featureItemIndex)}
-      >
-        <Trash2 className="h-3 w-3" />
-      </Button>
-    </div>
-  </div>
-)
+import { FeatureItem } from "./FeatureItem"
 
 interface FeatureFormProps {
   index: number
@@ -49,7 +22,7 @@ interface FeatureFormProps {
     content: {
       heading: string
       description: string
-      features: any[]
+      features: string[]
     }
   }
   langCode: string
@@ -75,6 +48,8 @@ export const FeatureForm = memo(
     onRemoveFeatureItem,
     FeatureImageUploader,
   }: FeatureFormProps) => {
+    const { t } = useTranslation()
+    
     const handleDelete = (e: { stopPropagation: () => void }) => {
       e.stopPropagation()
       onRemoveFeature(langCode, index)
@@ -96,37 +71,34 @@ export const FeatureForm = memo(
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-primary" />
                         <CardTitle className="text-base font-semibold">
-                          {feature.title || `Feature ${index + 1}`}
+                          {feature.title || t('featuresForm.featureForm.featureTitle', { number: index + 1 })}
                         </CardTitle>
                       </div>
                       <div className="flex items-center gap-2">
                         {isPrimaryLanguage && (
                           <Badge variant="secondary" className="text-xs">
-                            Primary
+                            {t('featuresForm.featureForm.badges.primary')}
                           </Badge>
                         )}
                         {featureCount > 0 && (
                           <Badge variant="outline" className="text-xs">
-                            {featureCount} items
+                            {t('featuresForm.featureForm.badges.items', { count: featureCount })}
                           </Badge>
                         )}
                       </div>
                     </div>
                   </AccordionTrigger>
-                
                 </div>
-                
               </div>
-   <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="mr-4"
-                    onClick={handleDelete}
-                  >
-                    <Trash2 className="h-4 w-4" />
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="mr-4"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
-          
             </div>
           </CardHeader>
 
@@ -135,7 +107,7 @@ export const FeatureForm = memo(
               {/* Hidden ID field */}
               <FormField
                 control={form.control}
-                name={`${langCode}.${index}.id` as any}
+                name={`${langCode}.${index}.id`}
                 render={({ field }) => (
                   <FormItem className="hidden">
                     <FormControl>
@@ -149,19 +121,21 @@ export const FeatureForm = memo(
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
-                  <Label className="text-sm font-medium">Basic Information</Label>
+                  <Label className="text-sm font-medium">
+                    {t('featuresForm.featureForm.sections.basicInformation')}
+                  </Label>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name={`${langCode}.${index}.title` as any}
+                    name={`${langCode}.${index}.title`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Feature Title</FormLabel>
+                        <FormLabel>{t('featuresForm.featureForm.fields.featureTitle.label')}</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter feature title"
+                            placeholder={t('featuresForm.featureForm.fields.featureTitle.placeholder')}
                             className="transition-all focus:ring-2 focus:ring-primary/20"
                             {...field}
                           />
@@ -173,13 +147,13 @@ export const FeatureForm = memo(
 
                   <FormField
                     control={form.control}
-                    name={`${langCode}.${index}.content.heading` as any}
+                    name={`${langCode}.${index}.content.heading`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Section Heading</FormLabel>
+                        <FormLabel>{t('featuresForm.featureForm.fields.sectionHeading.label')}</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Enter section heading"
+                            placeholder={t('featuresForm.featureForm.fields.sectionHeading.placeholder')}
                             className="transition-all focus:ring-2 focus:ring-primary/20"
                             {...field}
                           />
@@ -192,18 +166,20 @@ export const FeatureForm = memo(
 
                 <FormField
                   control={form.control}
-                  name={`${langCode}.${index}.content.description` as any}
+                  name={`${langCode}.${index}.content.description`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t('featuresForm.featureForm.fields.description.label')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe this feature in detail..."
+                          placeholder={t('featuresForm.featureForm.fields.description.placeholder')}
                           className="min-h-[120px] transition-all focus:ring-2 focus:ring-primary/20"
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>Provide a comprehensive description of this feature</FormDescription>
+                      <FormDescription>
+                        {t('featuresForm.featureForm.fields.description.description')}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -217,7 +193,9 @@ export const FeatureForm = memo(
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <List className="h-4 w-4 text-muted-foreground" />
-                    <Label className="text-sm font-medium">Feature Items</Label>
+                    <Label className="text-sm font-medium">
+                      {t('featuresForm.featureForm.sections.featureItems')}
+                    </Label>
                     {featureCount > 0 && (
                       <Badge variant="outline" className="text-xs">
                         {featureCount}
@@ -232,19 +210,19 @@ export const FeatureForm = memo(
                     className="hover:bg-primary hover:text-primary-foreground transition-colors"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Item
+                    {t('featuresForm.featureForm.buttons.addItem')}
                   </Button>
                 </div>
 
                 {featureCount === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <List className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No feature items yet</p>
-                    <p className="text-xs">Click "Add Item" to get started</p>
+                    <p className="text-sm">{t('featuresForm.featureForm.emptyState.title')}</p>
+                    <p className="text-xs">{t('featuresForm.featureForm.emptyState.description')}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {feature.content.features.map((featureItem, featureItemIndex) => (
+                    {feature.content.features.map((_, featureItemIndex) => (
                       <FeatureItem
                         key={`${langCode}-${index}-feature-${featureItemIndex}`}
                         featureItemIndex={featureItemIndex}
@@ -265,10 +243,9 @@ export const FeatureForm = memo(
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                      <Label className="text-sm font-medium">Feature Image</Label>
-                      <Badge variant="secondary" className="text-xs">
-                        Primary Language Only
-                      </Badge>
+                      <Label className="text-sm font-medium">
+                        {t('featuresForm.featureForm.sections.featureImage')}
+                      </Label>
                     </div>
                     <div className="p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg bg-muted/30">
                       <FeatureImageUploader featureIndex={index} />
@@ -278,7 +255,6 @@ export const FeatureForm = memo(
               )}
             </CardContent>
           </AccordionContent>
-          
         </Card>
       </AccordionItem>
     )

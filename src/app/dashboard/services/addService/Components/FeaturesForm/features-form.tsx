@@ -36,6 +36,7 @@ import { createFeaturesSchema } from "../../Utils/language-specific-schemas"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations"
 import LanguageCard from "./LanguageCard"
 import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager"
+import { useTranslation } from "react-i18next"
 
 // Main Features Form Component
 interface FeaturesFormProps {
@@ -50,6 +51,7 @@ interface FeaturesFormProps {
 const FeaturesForm = forwardRef<any, FeaturesFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
     const { websiteId } = useWebsiteContext();
+    const { t } = useTranslation(); // Add translation hook
     
     // Track feature item IDs to prevent duplicates
     const [featureItemIds, setFeatureItemIds] = useState<Record<string, Set<string>>>({});
@@ -251,8 +253,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       } catch (error) {
         console.error("Error processing features data:", error);
         toast({
-          title: "Error loading data",
-          description: "Failed to load features data. Please try again.",
+          title: t("featuresForm.featureForm.toast.errorLoading"),
+          description: t("featuresForm.featureForm.toast.errorLoading"),
           variant: "destructive",
         });
         setIsLoadingData(false);
@@ -264,13 +266,13 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       subsectionId: existingSubSectionId,
       websiteId,
       slug,
-      sectionName: "features section",
+      sectionName: t("featuresForm.featureForm.dialogs.deleteSection.title"),
       contentElements,
       customWarnings: [
-        "All feature content including titles, descriptions, and images will be deleted",
-        "Feature items and lists for all languages will be removed",
-        "Uploaded feature images will be permanently deleted",
-        "This may affect the features showcase on your website"
+        t("featuresForm.featureForm.dialogs.deleteSection.warnings.0"),
+        t("featuresForm.featureForm.dialogs.deleteSection.warnings.1"),
+        t("featuresForm.featureForm.dialogs.deleteSection.warnings.2"),
+        t("featuresForm.featureForm.dialogs.deleteSection.warnings.3")
       ],
       shouldRefetch: !!slug,
       refetchFn: refetch,
@@ -415,8 +417,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       }, 0);
       
       toast({
-        title: "Feature item added",
-        description: "A new feature item has been added to all languages.",
+        title: t("featuresForm.featureForm.toast.itemAdded"),
+        description: t("featuresForm.featureForm.toast.itemAddedDesc"),
       });
     };
 
@@ -427,8 +429,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       
       if (!currentFeature || !currentFeature.content || !Array.isArray(currentFeature.content.features) || currentFeature.content.features.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one feature item",
+          title: t("featuresForm.featureForm.validation.cannotRemove"),
+          description: t("featuresForm.featureForm.validation.needAtLeastOneItem"),
           variant: "destructive",
         });
         return;
@@ -527,14 +529,14 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
         validateFeatureCounts();
         
         toast({
-          title: "Item removed",
-          description: "The feature item has been removed successfully.",
+          title: t("featuresForm.featureForm.toast.itemRemoved"),
+          description: t("featuresForm.featureForm.toast.itemRemovedDesc"),
         });
       } catch (error) {
         console.error("Error removing feature item:", error);
         toast({
-          title: "Error",
-          description: "There was an error removing the feature item.",
+          title: t("featuresForm.featureForm.toast.errorRemoving"),
+          description: t("featuresForm.featureForm.toast.errorRemoving"),
           variant: "destructive",
         });
       } finally {
@@ -574,8 +576,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       validateFeatureCounts();
       setHasUnsavedChanges(true);
       toast({
-        title: "Feature added",
-        description: "A new feature has been added. Please fill in the details and save your changes.",
+        title: t("featuresForm.featureForm.toast.featureAdded"),
+        description: t("featuresForm.featureForm.toast.featureAddedDesc"),
       });
     };
 
@@ -584,8 +586,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       const currentFeatures = form.getValues()[langCode] || [];
       if (currentFeatures.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one feature",
+          title: t("featuresForm.featureForm.validation.cannotRemove"),
+          description: t("featuresForm.featureForm.validation.needAtLeastOneFeature"),
           variant: "destructive",
         });
         return;
@@ -649,14 +651,14 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
         validateFeatureCounts();
         
         toast({
-          title: "Feature removed",
-          description: "The feature has been removed successfully.",
+          title: t("featuresForm.featureForm.toast.featureRemoved"),
+          description: t("featuresForm.featureForm.toast.featureRemovedDesc"),
         });
       } catch (error) {
         console.error("Error removing feature:", error);
         toast({
-          title: "Error",
-          description: "There was an error removing the feature.",
+          title: t("featuresForm.featureForm.toast.errorRemoving"),
+          description: t("featuresForm.featureForm.toast.errorRemoving"),
           variant: "destructive",
         });
       } finally {
@@ -688,8 +690,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
 
       if (!isValid) {
         toast({
-          title: "Validation Error",
-          description: "Please fill all required fields correctly",
+          title: t("featuresForm.featureForm.validation.fillRequiredFields"),
+          description: t("featuresForm.featureForm.validation.fillRequiredFields"),
           variant: "destructive",
         });
         return;
@@ -1070,8 +1072,8 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
         }
 
         toast({
-          title: existingSubSectionId ? "Features section updated successfully!" : "Features section created successfully!",
-          description: "All content has been saved.",
+          title: existingSubSectionId ? t("featuresForm.featureForm.toast.sectionUpdated") : t("featuresForm.featureForm.toast.sectionCreated"),
+          description: t("featuresForm.featureForm.toast.contentSaved"),
           duration: 5000,
         });
 
@@ -1088,7 +1090,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       } catch (error) {
         console.error("Operation failed:", error);
         toast({
-          title: existingSubSectionId ? "Error updating features section" : "Error creating features section",
+          title: existingSubSectionId ? t("featuresForm.featureForm.toast.errorUpdating") : t("featuresForm.featureForm.toast.errorCreating"),
           variant: "destructive",
           description: error instanceof Error ? error.message : "Unknown error occurred",
           duration: 5000,
@@ -1122,64 +1124,54 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
       [activeLanguages]
     );
 
-    // Loading state
-    if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
-      return (
-        <div className="flex items-center justify-center p-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Loading features section data...</p>
-        </div>
-      );
-    }
-
     return (
       <div className="space-y-6">
         {/* Loading Dialogs */}
         <LoadingDialog
           isOpen={isSaving}
-          title={existingSubSectionId ? "Updating Features Section" : "Creating Features Section"}
-          description="Please wait while we save your changes..."
+          title={existingSubSectionId ? t("featuresForm.featureForm.loading.updatingSection") : t("featuresForm.featureForm.loading.creatingSection")}
+          description={t("featuresForm.featureForm.loading.pleaseWait")}
         />
         
         <LoadingDialog
           isOpen={deleteManager.isDeleting}
-          title="Deleting Features Section"
-          description="Please wait while we delete the features section..."
+          title={t("featuresForm.featureForm.loading.deletingSection")}
+          description={t("featuresForm.featureForm.loading.pleaseWait")}
         />
 
         <LoadingDialog
           isOpen={isRefreshingAfterDelete}
-          title="Refreshing Data"
-          description="Updating the interface after deletion..."
+          title={t("featuresForm.featureForm.loading.refreshingData")}
+          description={t("featuresForm.featureForm.loading.pleaseWait")}
         />
 
         {/* Subsection Delete Confirmation Dialog */}
         <DeleteConfirmationDialog
           {...deleteManager.confirmationDialogProps}
-          title="Delete Features Section"
-          description="Are you sure you want to delete this entire features section? This action cannot be undone."
+          title={t("featuresForm.featureForm.dialogs.deleteSection.title")}
+          description={t("featuresForm.featureForm.dialogs.deleteSection.description")}
         />
         
         {/* Individual Feature Delete Dialog */}
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
-          serviceName={featureToDelete ? `Feature ${featureToDelete.index + 1}` : ''}
+          serviceName={featureToDelete ? t("featuresForm.featureForm.featureTitle", { number: featureToDelete.index + 1 }) : ''}
           onConfirm={removeFeature}
           isDeleting={isDeleting}
-          title="Delete Feature"
-          confirmText="Delete Feature"
+          title={t("featuresForm.featureForm.dialogs.deleteFeature.title")}
+          confirmText={t("featuresForm.featureForm.dialogs.deleteFeature.confirmText")}
         />
         
         {/* Individual Feature Item Delete Dialog */}
         <DeleteSectionDialog
           open={deleteFeatureItemDialogOpen}
           onOpenChange={setDeleteFeatureItemDialogOpen}
-          serviceName={featureItemToDelete ? `Feature Item ${featureItemToDelete.itemIndex + 1}` : ''}
+          serviceName={featureItemToDelete ? t("featuresForm.featureItem.placeholder", { number: featureItemToDelete.itemIndex + 1 }) : ''}
           onConfirm={removeFeatureItem}
           isDeleting={isDeletingFeatureItem}
-          title="Delete Feature Item"
-          confirmText="Delete Item"
+          title={t("featuresForm.featureForm.dialogs.deleteFeatureItem.title")}
+          confirmText={t("featuresForm.featureForm.dialogs.deleteFeatureItem.confirmText")}
         />
         
         {/* Main Form */}
@@ -1217,7 +1209,7 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
               className="flex items-center"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete Features Section
+              {t("featuresForm.featureForm.actions.delete")}
             </Button>
           )}
 
@@ -1226,25 +1218,25 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
             {featureCountMismatch && (
               <div className="flex items-center text-amber-500">
                 <AlertTriangle className="h-4 w-4 mr-2" />
-                <span className="text-sm">Each language must have the same number of features</span>
+                <span className="text-sm">{t("featuresForm.featureForm.validation.featureCountMismatch")}</span>
               </div>
             )}
             
             <Button
               type="button"
               onClick={handleSave}
-              disabled={isLoadingData || isSaving || featureCountMismatch || deleteManager.isDeleting || isRefreshingAfterDelete}
+              disabled={isSaving || featureCountMismatch || deleteManager.isDeleting || isRefreshingAfterDelete}
               className="flex items-center"
             >
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {t("featuresForm.featureForm.actions.saving")}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {existingSubSectionId ? "Update Features Content" : "Save Features Content"}
+                  {existingSubSectionId ? t("featuresForm.featureForm.actions.update") : t("featuresForm.featureForm.actions.save")}
                 </>
               )}
             </Button>
@@ -1255,11 +1247,10 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
         <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Feature Count Mismatch</DialogTitle>
+              <DialogTitle>{t("featuresForm.featureForm.dialogs.validationError.title")}</DialogTitle>
               <DialogDescription>
                 <div className="mt-4 mb-4">
-                  Each language must have the same number of features before saving. Please add or remove features to
-                  ensure all languages have the same count:
+                  {t("featuresForm.featureForm.dialogs.validationError.description")}
                 </div>
                 <ul className="list-disc pl-6 space-y-1">
                   {getFeatureCountsByLanguage.map(({ language, count }) => (

@@ -1,6 +1,7 @@
 "use client"
 
 import { memo, useState } from "react"
+import { useTranslation } from "react-i18next" // or your i18n hook
 import { X, ChevronDown, ChevronUp, Trash2 } from "lucide-react"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
@@ -21,8 +22,6 @@ import {
 } from "@/src/components/ui/alert-dialog"
 import { IconComponent, IconNames } from "@/src/utils/MainSectionComponents"
 
-
-
 interface BenefitCardProps {
   langCode: string
   index: number
@@ -38,6 +37,7 @@ interface BenefitCardProps {
  */
 export const BenefitCard = memo(
   ({ langCode, index, form, isFirstLanguage, syncIcons, availableIcons, onDelete }: BenefitCardProps) => {
+    const { t } = useTranslation() // i18n hook
     const [isCollapsed, setIsCollapsed] = useState(true)
     const handleDelete = () => onDelete(langCode, index)
 
@@ -45,7 +45,9 @@ export const BenefitCard = memo(
       <Card className="border border-muted transition-all duration-200">
         <CardHeader className="p-4 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-base">Benefit {index + 1}</CardTitle>
+            <CardTitle className="text-base">
+              {t('benefitsForm.benefitCard.title', { number: index + 1 })}
+            </CardTitle>
             {/* Collapse/Expand button */}
             <Button
               type="button"
@@ -73,18 +75,22 @@ export const BenefitCard = memo(
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Benefit</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {t('benefitsForm.benefitCard.deleteDialog.title')}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete this benefit? This action cannot be undone.
+                    {t('benefitsForm.benefitCard.deleteDialog.description')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>
+                    {t('benefitsForm.benefitCard.deleteDialog.cancel')}
+                  </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    Delete
+                    {t('benefitsForm.benefitCard.deleteDialog.delete')}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -102,7 +108,7 @@ export const BenefitCard = memo(
                 name={`${langCode}.${index}.icon`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Icon</FormLabel>
+                    <FormLabel>{t('benefitsForm.benefitCard.fields.icon.label')}</FormLabel>
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value)
@@ -113,7 +119,7 @@ export const BenefitCard = memo(
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an icon">
+                          <SelectValue placeholder={t('benefitsForm.benefitCard.fields.icon.placeholder')}>
                             <div className="flex items-center">
                               <span className="mr-2">
                                 <IconComponent iconName={field.value || "Clock"} />
@@ -142,13 +148,17 @@ export const BenefitCard = memo(
               />
             ) : (
               <div className="mb-4">
-                <FormLabel className="block mb-2">Icon</FormLabel>
+                <FormLabel className="block mb-2">
+                  {t('benefitsForm.benefitCard.fields.icon.label')}
+                </FormLabel>
                 <div className="flex items-center h-10 px-3 rounded-md border border-input bg-muted/50 text-muted-foreground">
                   <span className="mr-2">
                     <IconComponent iconName={form.watch(`${langCode}.${index}.icon`) || "Clock"} />
                   </span>
                   {form.watch(`${langCode}.${index}.icon`) || "Clock"}
-                  <span className="ml-2 text-xs text-muted-foreground">(Controlled by primary language)</span>
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {t('benefitsForm.benefitCard.fields.icon.controlledHint')}
+                  </span>
                 </div>
               </div>
             )}
@@ -159,9 +169,12 @@ export const BenefitCard = memo(
               name={`${langCode}.${index}.title`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>{t('benefitsForm.benefitCard.fields.title.label')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter title" {...field} />
+                    <Input 
+                      placeholder={t('benefitsForm.benefitCard.fields.title.placeholder')} 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -174,9 +187,13 @@ export const BenefitCard = memo(
               name={`${langCode}.${index}.description`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('benefitsForm.benefitCard.fields.description.label')}</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter description" className="min-h-[80px]" {...field} />
+                    <Textarea 
+                      placeholder={t('benefitsForm.benefitCard.fields.description.placeholder')} 
+                      className="min-h-[80px]" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

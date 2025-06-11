@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
+import { useTranslation } from "react-i18next";
 
 
 // Define the props interface
@@ -25,6 +26,8 @@ export const FaqItem = memo(({
   form, 
   onConfirmDelete 
 }: FaqItemProps) => {
+  const { t } = useTranslation(); // Add translation hook
+  
   const handleDelete = (e: { stopPropagation: () => void; }) => {
     e.stopPropagation();
     onConfirmDelete(langCode, index);
@@ -34,7 +37,7 @@ export const FaqItem = memo(({
     <AccordionItem value={`item-${index}`}>
       <div className="flex items-center justify-between">
         <AccordionTrigger className="flex-1">
-          {faq.question || `FAQ ${index + 1}`}
+          {faq.question || t("faqForm.item.defaultTitle", { number: index + 1 })}
         </AccordionTrigger>
         <Button
           type="button"
@@ -54,9 +57,9 @@ export const FaqItem = memo(({
               name={`${langCode}.${index}.question`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Question</FormLabel>
+                  <FormLabel>{t("faqForm.item.fields.question.label")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter question" {...field} />
+                    <Input placeholder={t("faqForm.item.fields.question.placeholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,10 +71,10 @@ export const FaqItem = memo(({
               name={`${langCode}.${index}.answer`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Answer</FormLabel>
+                  <FormLabel>{t("faqForm.item.fields.answer.label")}</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Enter answer" 
+                      placeholder={t("faqForm.item.fields.answer.placeholder")} 
                       className="min-h-[100px]" 
                       {...field} 
                     />
