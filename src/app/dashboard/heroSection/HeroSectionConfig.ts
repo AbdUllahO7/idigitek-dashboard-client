@@ -2,25 +2,57 @@
 
 import { FieldConfig } from "@/src/api/types/hooks/MultilingualSection.types";
 
-
-
-
-// Define service section configuration
-export const heroSectionConfig = {
-    name: "Hero Section Basic",
-    slug: "Hero-main",
-    subSectionName: "Hero Section Basic",
-    description: "Hero section for managing service information",
-    isMain: true,
-    type: 'Hero',
-    // Define fields with proper typing
-    fields: [
-        { id: "sectionTitle", label: "Section Title", type: "text", required: true },
-
-    ] as FieldConfig[],
-
-  // Define element mapping
-    elementsMapping: {
-        "sectionTitle": "Title", 
-    }
+// Translation keys for hero section
+export const heroSectionTranslations = {
+  en: {
+    sectionName: "Hero Section Basic",
+    sectionDescription: "Hero section for managing service information",
+    sectionTitleLabel: "Section Title",
+    type: "Hero",
+    titleElement: "Title"
+  },
+  ar: {
+    sectionName: "قسم شريط التنقل الأساسي",
+    sectionDescription: "قسم شريط التنقل لإدارة معلومات الخدمة",
+    sectionTitleLabel: "عنوان القسم",
+    type: "بطل",
+    titleElement: "العنوان"
+  },
+  tr: {
+    sectionName: "Temel Ana Bölüm",
+    sectionDescription: "Hizmet bilgilerini yönetmek için ana bölüm",
+    sectionTitleLabel: "Bölüm Başlığı",
+    type: "Ana",
+    titleElement: "Başlık"
+  }
 };
+
+// Function to get translated hero section config
+export const getHeroSectionConfig = (language: string = 'en') => {
+  const translations = heroSectionTranslations[language as keyof typeof heroSectionTranslations] || heroSectionTranslations.en;
+  
+  return {
+    name: translations.sectionName,
+    slug: "Hero-main",
+    subSectionName: translations.sectionName,
+    description: translations.sectionDescription,
+    isMain: true,
+    type: translations.type,
+    // Define fields with translated labels
+    fields: [
+      { 
+        id: "sectionTitle", 
+        label: translations.sectionTitleLabel, 
+        type: "text", 
+        required: true 
+      },
+    ] as FieldConfig[],
+    // Define element mapping with translated values
+    elementsMapping: {
+      "sectionTitle": translations.titleElement, 
+    }
+  };
+};
+
+// Default export for backward compatibility
+export const heroSectionConfig = getHeroSectionConfig();

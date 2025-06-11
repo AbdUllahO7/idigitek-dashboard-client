@@ -6,12 +6,12 @@ import { useToast } from "@/src/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { FormContextType, FormRef } from "@/src/api/types/hooks/form.types"
 import { Language } from "@/src/api/types/hooks/language.types"
+import { useTranslation } from "react-i18next"
 
 // Define form data type (adjust as needed)
 export interface FormData {
   [key: string]: any
 }
-
 
 // Create context
 const FormContext = createContext<FormContextType | undefined>(undefined)
@@ -39,6 +39,7 @@ export function FormContextProvider({
   backUrl,
   onSave
 }: FormContextProviderProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -125,8 +126,8 @@ export function FormContextProvider({
   const saveAllData = async () => {
     if (!sectionId) {
       toast({
-        title: "Error",
-        description: "Section ID is missing. Cannot save data.",
+        title: t("formContext.errors.general"),
+        description: t("formContext.errors.missingSectionId"),
         variant: "destructive",
       })
       return
@@ -166,8 +167,8 @@ export function FormContextProvider({
         await Promise.all(savePromises)
         
         toast({
-          title: mode === 'create' ? "Created successfully" : "Updated successfully",
-          description: "Your content has been saved.",
+          title: mode === 'create' ? t("formContext.success.created") : t("formContext.success.updated"),
+          description: t("formContext.success.saveDescription"),
         })
         
         // Navigate back after successful save
@@ -175,16 +176,16 @@ export function FormContextProvider({
       } catch (error) {
         console.error("Form validation or save error:", error)
         toast({
-          title: "Validation Error",
-          description: "Please make sure all required fields are filled correctly.",
+          title: t("formContext.errors.validationError"),
+          description: t("formContext.errors.validationDescription"),
           variant: "destructive",
         })
       }
     } catch (error) {
       console.error("Error saving data:", error)
       toast({
-        title: "Error saving data",
-        description: "There was an error saving your data. Please try again.",
+        title: t("formContext.errors.savingError"),
+        description: t("formContext.errors.savingDescription"),
         variant: "destructive",
       })
     } finally {

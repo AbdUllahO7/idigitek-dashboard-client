@@ -11,7 +11,8 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { heroSectionConfig } from "./HeroSectionConfig"
+import { getHeroSectionConfig } from "./HeroSectionConfig"
+import { useTranslation } from "react-i18next"
 
 
 
@@ -61,7 +62,7 @@ export default function HeroPage() {
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
-
+  const {t , i18n} = useTranslation()
   const Hero_CONFIG = useMemo (() => ({
     title: "Hero Management",
     description: "Manage your Hero inventory and multilingual content",
@@ -120,8 +121,9 @@ export default function HeroPage() {
     apiHooks: useSectionItems(),
     editPath: Hero_CONFIG.editPath
   })
+    const currentLanguage = i18n.language; // 'en', 'ar', 'tr'
 
-
+    const heroSectionConfig = getHeroSectionConfig(currentLanguage)
   // Debug changes in hasMainSubSection
   useEffect(() => {
     if (!isFirstRender.current && prevHasMainSubSection.current !== hasMainSubSection) {

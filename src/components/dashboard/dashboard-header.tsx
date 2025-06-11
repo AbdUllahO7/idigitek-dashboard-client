@@ -32,7 +32,6 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
   const { t } = useTranslation()
   const { useGetCurrentUser } = useUsers()
   const { data: currentUserData, isLoading: isUserLoading } = useGetCurrentUser()
-
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -51,7 +50,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
 
   // Language change handler
   const handleLanguageChange = (languageCode: string) => {
-    setLanguage(languageCode as 'en' | 'ar')
+    setLanguage(languageCode as 'en' | 'ar' | 'tr')
   }
 
   // Safe translation function

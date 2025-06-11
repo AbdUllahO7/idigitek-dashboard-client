@@ -544,11 +544,11 @@
       },
       "placeholders": {
         "languageId": "مثال: en, fr, es",
-        "languageName": "مثال: الإنجليزية، الفرنسية"
+        "languageName": "مثال: الإنجليزية, الفرنسية"
       },
       "helpText": {
         "languageId": "استخدم رمز لغة قياسي (مثل \"en\" للإنجليزية)",
-        "languageIdTooltip": "استخدم رمز لغة ISO قياسي (مثل \"en\" للإنجليزية، \"fr\" للفرنسية)",
+        "languageIdTooltip": "استخدم رمز لغة ISO قياسي (مثل \"en\" للإنجليزية, \"fr\" للفرنسية)",
         "activeLanguage": "ستكون اللغات النشطة متاحة لإنشاء المحتوى"
       },
       "quickSelect": "اختيار سريع",
@@ -736,7 +736,7 @@
     "active": "نشط",
     "hidden": "مخفي",
     "deleteSection": "حذف القسم",
-    "deleteConfirmation": "سيؤدي هذا إلى حذف القسم نهائياً. لا يمكن التراجع عن هذا الإجراء، وسيتم فقدان أي محتوى في هذا القسم.",
+    "deleteConfirmation": "سيؤدي هذا إلى حذف القسم نهائياً. لا يمكن التراجع عن هذا الإجراء, وسيتم فقدان أي محتوى في هذا القسم.",
     "cancel": "إلغاء",
     "delete": "حذف القسم",
     "dragToReorder": "اسحب الأقسام لإعادة ترتيبها على موقعك",
@@ -800,7 +800,7 @@
       "buttonCreate": "تصميم مظهر جديد",
       "buttonCancel": "إلغاء",
       "nameLabel": "اعط تصميمك اسماً",
-      "namePlaceholder": "مثال: أجواء الصيف، الأزرق المهني، إلخ.",
+      "namePlaceholder": "مثال: أجواء الصيف, الأزرق المهني, إلخ.",
       "quickColors": {
         "title": "🎨 أنظمة الألوان السريعة",
         "tooltip": "اختر نظام ألوان جاهز للوضعين الفاتح والداكن"
@@ -1050,7 +1050,7 @@
     "confirmationsDeleteTitle": "تأكيد الحذف",
     "confirmationsDeleteMessage": "هل أنت متأكد من أنك تريد حذف هذا العنصر؟",
     "confirmationsDeleteWarning": "لا يمكن التراجع عن هذا الإجراء",
-    "confirmationsYesDelete": "نعم، احذف",
+    "confirmationsYesDelete": "نعم, احذف",
     "confirmationsCancel": "إلغاء",
     "confirmationsConfirm": "تأكيد"
   },
@@ -1262,15 +1262,7 @@
       "sectionTitle": "عنوان القسم",
       "sectionDescription": "وصف القسم"
     },
-  "common": {
-    "welcome": "مرحبا",
-    "logout": "تسجيل الخروج",
-    "profile": "الملف الشخصي",
-    "myAccount": "حسابي",
-    "loading": "جاري التحميل...",
-    "save": "حفظ",
-    "cancel": "إلغاء"
-  },
+
   "HeaderConfig" : {
   "title": "إدارة شريط التنقل",
   "description": "إدارة مخزون شريط التنقل والمحتوى متعدد اللغات",
@@ -1319,5 +1311,888 @@
   "addDetailsMessage": "يمكنك الآن إضافة تفاصيل لخدمتك",
   "errorCreatingService": "خطأ في إنشاء الخدمة",
   "errorOccurred": "حدث خطأ أثناء إنشاء الخدمة"
+  },
+  "formShell": {
+      "noActiveLanguages": "لم يتم العثور على لغات نشطة. يُرجى تفعيل لغة واحدة على الأقل في الإعدادات.",
+      "languages": "Languages",
+      "completion": "Completion:",
+      "saving": "جارٍ الحفظ...",
+      "create": "إنشاء",
+      "update": "تحديث",
+      "unsavedChanges": {
+      "title": "تغييرات غير محفوظة",
+      "description": "لديك تغييرات غير محفوظة. هل أنت متأكد من رغبتك في مغادرة هذه الصفحة؟ ستُفقد جميع التغييرات غير المحفوظة.",
+      "cancel": "إلغاء",
+      "leavePage": "مغادرة الصفحة"
+      }
+  },
+  "formContext": {
+    "errors": {
+      "general": "خطأ",
+      "missingSectionId": "معرف القسم مفقود. لا يمكن حفظ البيانات.",
+      "validationError": "خطأ في التحقق",
+      "validationDescription": "يرجى التأكد من ملء جميع الحقول المطلوبة بشكل صحيح.",
+      "savingError": "خطأ في حفظ البيانات",
+      "savingDescription": "حدث خطأ أثناء حفظ بياناتك. يرجى المحاولة مرة أخرى."
+    },
+    "success": {
+      "created": "تم الإنشاء بنجاح",
+      "updated": "تم التحديث بنجاح",
+      "saveDescription": "تم حفظ المحتوى الخاص بك."
+    }
+  },
+   "addHeader": {
+    "title": {
+      "create": "إنشاء عنصر تنقل جديد",
+      "edit": "تعديل عنصر التنقل"
+    },
+    "subtitle": {
+      "create": "إنشاء عنصر تنقل جديد بمحتوى متعدد اللغات",
+      "edit": "تعديل محتوى \"{{name}}\" عبر لغات متعددة"
+    },
+    "tabs": {
+      "navItems": "عناصر التنقل"
+    },
+    "defaults": {
+      "newHeader": "رأس جديد",
+      "navItem": "عنصر التنقل"
+    }
+  },
+  "tabsLayout" : {
+    "backButton" : "عد"
+  },
+  "imageUploader": {
+    "replaceImage": "استبدال الصورة",
+    "remove": "إزالة",
+    "dragAndDrop": "اسحب وأفلت أو انقر للتحميل",
+    "uploadImage": "تحميل صورة",
+    "logoImageUploading": "تحميل صورة الشعار",
+    "sectionImage": "صورة القسم",
+    "logoImageUploadingForHeader": "تحميل صورة الشعار للرأس",
+    "uploadImageForSection": "تحميل صورة للقسم (ينطبق على جميع اللغات)",
+    "logo": "الشعار",
+    "backgroundImage": "صورة الخلفية",
+    "appliesToAllLanguages": "(ينطبق على جميع اللغات)",
+    "imagePreview": "معاينة الصورة",
+    "backgroundImagePreview": "معاينة صورة الخلفية"
+  },
+  "navLanguageCard": {
+    "navigationSection": "قسم التنقل",
+    "manageNavigationItems": "إدارة عناصر التنقل لـ",
+    "navItem": "عنصر التنقل"
+  },
+  "navForm": {
+    "loadingNavigationData": "تحميل بيانات قسم التنقل...",
+    "updatingNavigationSection": "تحديث قسم التنقل",
+    "creatingNavigationSection": "إنشاء قسم التنقل",
+    "pleaseWaitSaving": "يرجى الانتظار بينما نحفظ التغييرات...",
+    "navigationItemAdded": "تم إضافة عنصر التنقل",
+    "newNavigationItemAdded": "تم إضافة عنصر تنقل جديد.",
+    "cannotRemove": "لا يمكن الإزالة",
+    "needAtLeastOneItem": "تحتاج إلى عنصر تنقل واحد على الأقل",
+    "navigationItemDeleted": "تم حذف عنصر التنقل",
+    "itemDeletedFromDatabase": "تم حذف العنصر {{number}} من قاعدة البيانات",
+    "errorRemovingItem": "خطأ في إزالة العنصر",
+    "errorRemovingFromDatabase": "حدث خطأ في إزالة عنصر التنقل من قاعدة البيانات",
+    "imageUploaded": "تم تحميل الصورة",
+    "logoUploadedSuccessfully": "تم تحميل صورة الشعار بنجاح.",
+    "imageUploadFailed": "فشل تحميل الصورة",
+    "failedToUploadImage": "فشل في تحميل الصورة",
+    "validationError": "خطأ في التحقق",
+    "fillAllRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+    "creatingNewNavigationSection": "إنشاء قسم تنقل جديد...",
+    "settingUpNewContent": "إعداد محتوى التنقل الجديد.",
+    "navigationSectionUpdated": "تم تحديث قسم التنقل بنجاح!",
+    "navigationSectionCreated": "تم إنشاء قسم التنقل بنجاح!",
+    "allChangesSaved": "تم حفظ جميع التغييرات.",
+    "refreshingContent": "تحديث المحتوى",
+    "loadingUpdatedContent": "تحميل المحتوى المحدث...",
+    "errorUpdatingNavigationSection": "خطأ في تحديث قسم التنقل",
+    "errorCreatingNavigationSection": "خطأ في إنشاء قسم التنقل",
+    "unknownErrorOccurred": "حدث خطأ غير معروف",
+    "addNavItem": "إضافة عنصر تنقل",
+    "addNavItemToAllLanguages": "إضافة عنصر تنقل لجميع اللغات",
+    "sameNumberOfItems": "يجب أن تحتوي كل لغة على نفس عدد عناصر التنقل",
+    "saving": "جاري الحفظ...",
+    "updateNavigationContent": "تحديث محتوى التنقل",
+    "saveNavigationContent": "حفظ محتوى التنقل",
+    "navigationItemCountMismatch": "عدم تطابق عدد عناصر التنقل",
+    "countMismatchDescription": "يجب أن تحتوي كل لغة على نفس عدد عناصر التنقل قبل الحفظ. يرجى إضافة أو إزالة العناصر للتأكد من أن جميع اللغات لها نفس العدد:",
+    "items": "عناصر",
+    "close": "إغلاق",
+    "deleteNavigationItem": "حذف عنصر التنقل",
+    "deleteItem": "حذف العنصر",
+    "navigationSection": "قسم التنقل",
+    "navigationSectionDescription": "قسم التنقل للموقع الإلكتروني",
+    "logo": "الشعار",
+    "navItem": "عنصر التنقل"
+  },
+  "deleteDialog": {
+    "defaultTitle": "حذف العنصر",
+    "defaultConfirmText": "حذف",
+    "areYouSure": "هل أنت متأكد من أنك تريد حذف",
+    "actionCannotBeUndone": "؟ لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "deleting": "جاري الحذف...",
+    "deleteSection": "حذف القسم",
+    "deleteItem": "حذف العنصر",
+    "deleteService": "حذف الخدمة",
+    "deleteProject": "حذف المشروع",
+    "deleteUser": "حذف المستخدم",
+    "deleteLanguage": "حذف اللغة",
+    "deleteWebsite": "حذف الموقع",
+    "confirmDelete": "تأكيد الحذف",
+    "confirmRemoval": "تأكيد الإزالة"
+  },
+  "GenericTable": {
+"actionsHeader": "Actions",
+"searchPlaceholder": "بحث...",
+"filterButton": "تصفية",
+"emptyMessage": "لا توجد بيانات متاحة",
+"emptyDescription": "حاول تغيير معايير البحث أو التصفية",
+"loadingMessage": "جاري التحميل...",
+"showingResults": "جاري العرض",
+"resultsText": "النتائج",
+"viewTooltip": "عرض",
+"editTooltip": "تعديل",
+"deleteTooltip": "حذف",
+"viewItem": "عرض العنصر",
+"editItem": "تعديل العنصر",
+"deleteItem": "حذف العنصر",
+"paginationPrevious": "السابق",
+"paginationNext": "التالي",
+"paginationPage": "صفحة",
+"paginationOf": "من",
+"paginationShowing": "جاري العرض",
+"paginationTo": "إلى",
+"paginationEntries": "إدخالات",
+"statusActive": "نشط",
+"statusInactive": "غير نشط",
+"statusEnabled": "مفعّل",
+"statusDisabled": "معطّل",
+"priorityHigh": "عالي",
+"priorityMedium": "متوسط",
+"priorityLow": "منخفض",
+"priorityUrgent": "عاجل",
+"priorityNormal": "عادي",
+"sortAscending": "فرز تصاعدي",
+"sortDescending": "فرز تنازلي",
+"sortUnsorted": "غير مرتب",
+"filtersApply": "تطبيق الفلاتر",
+"filtersClear": "مسح الفلاتر",
+"filtersReset": "إعادة تعيين",
+"filtersShowAll": "إظهار الكل",
+"filtersAdvanced": "الفلاتر المتقدمة",
+"statesLoading": "جاري تحميل البيانات...",
+"statesRefreshing": "جاري التحديث...",
+"statesProcessing": "جاري المعالجة...",
+"statesSaving": "جاري الحفظ...",
+"statesDeleting": "جاري الحذف...",
+"statesUpdating": "جاري التحديث...",
+"errorsLoadFailed": "فشل تحميل البيانات",
+"errorsLoadRetry": "إعادة محاولة تحميل البيانات",
+"errorsActionFailed": "فشل الإجراء",
+"errorsActionRetry": "إعادة محاولة الإجراء",
+"errorsNetworkError": "خطأ في اتصال الشبكة",
+"errorsServerError": "حدث خطأ في الخادم",
+"errorsPermissionDenied": "رفض الإذن",
+"errorsNotFound": "لم يتم العثور على البيانات",
+"errorsTimeout": "انتهت مهلة الطلب",
+"confirmationsDeleteTitle": "تأكيد حذف",
+"confirmationsDeleteMessage": "هل أنت متأكد من حذف هذا العنصر؟",
+"confirmationsDeleteWarning": "لا يمكن التراجع عن هذا الإجراء",
+"confirmationsYesDelete": "نعم, احذف",
+"confirmationsCancel": "إلغاء",
+"confirmationsConfirm": "تأكيد"
+  },
+  "newsPage": {
+    "title": "إدارة الأخبار",
+    "description": "إدارة مخزون الأخبار والمحتوى متعدد اللغات",
+    "addButtonLabel": "إضافة خبر جديد",
+    "emptyStateMessage": "لم يتم العثور على أخبار. أنشئ أول خبر لك بالنقر على زر \"إضافة خبر جديد\".",
+    "noSectionMessage": "يرجى إنشاء قسم الأخبار أولاً قبل إضافة الأخبار.",
+    "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة الأخبار.",
+    "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة الأخبار.",
+    "sectionIntegrationTitle": "محتوى قسم الأخبار",
+    "sectionIntegrationDescription": "إدارة محتوى قسم الأخبار بلغات متعددة.",
+    "addSectionButtonLabel": "إضافة قسم الأخبار",
+    "editSectionButtonLabel": "تعديل قسم الأخبار",
+    "saveSectionButtonLabel": "حفظ قسم الأخبار",
+    "listTitle": "قائمة الأخبار",
+    "editPath": "News/addNews",
+    
+    "// Table Columns": "",
+    "columnName": "الاسم",
+    "columnDescription": "الوصف",
+    "columnStatus": "الحالة",
+    "columnOrder": "الترتيب",
+    "columnSubsections": "الأقسام الفرعية",
+    
+    "// Status Labels": "",
+    "main": "رئيسي",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    
+    "// Dialog Titles": "",
+    "deleteNewsItem": "حذف عنصر الأخبار",
+    "confirmDelete": "تأكيد",
+    "createNewsTitle": "الأخبار"
+  },
+  "newsSectionConfig": {
+    "sectionName": "قسم الأخبار الأساسي",
+    "sectionDescription": "قسم الأخبار لإدارة معلومات الخدمة",
+    "subSectionName": "قسم الأخبار الأساسي",
+    "type": "أخبار",
+    
+    "// Field Labels": "",
+    "sectionBadgeLabel": "شارة القسم",
+    "sectionTitleLabel": "عنوان القسم",
+    "sectionDescriptionLabel": "وصف القسم", 
+    "newsDetailsLabel": "تفاصيل الأخبار",
+    
+    "// Field Placeholders": "",
+    "sectionBadgePlaceholder": "أدخل نص شارة القسم",
+    "sectionTitlePlaceholder": "أدخل عنوان القسم",
+    "sectionDescriptionPlaceholder": "أدخل وصف القسم",
+    "newsDetailsPlaceholder": "أدخل تفاصيل الأخبار",
+    
+    "// Element Mapping": "",
+    "badgeElement": "الشارة",
+    "titleElement": "العنوان",
+    "descriptionElement": "الوصف",
+    "serviceDetailsElement": "تفاصيل الخدمة",
+    
+    "// Helper Text": "",
+    "sectionBadgeHelper": "نص قصير يتم عرضه كشارة فوق القسم",
+    "sectionTitleHelper": "العنوان الرئيسي لقسم الأخبار",
+    "sectionDescriptionHelper": "وصف موجز لما يحتويه هذا القسم",
+    "newsDetailsHelper": "معلومات مفصلة حول عناصر الأخبار"
+  },
+  "addNews": {
+    "// Page Titles": "",
+    "createTitle": "إنشاء خبر جديد",
+    "editTitle": "تعديل الأخبار",
+    
+    "// Page Subtitles": "",
+    "createSubtitle": "إنشاء خدمة جديدة مع محتوى متعدد اللغات",
+    "editSubtitle": "تعديل محتوى  عبر لغات متعددة",
+    "editSubtitleFallback": "تعديل محتوى الأخبار عبر لغات متعددة",
+    
+    "// Tab Labels": "",
+    "newsTab": "الأخبار",
+    "newsTabDescription": "إدارة محتوى ومعلومات الأخبار",
+    
+    "// Default Values": "",
+    "defaultServiceName": "خبر جديد",
+    "defaultServiceDescription": "وصف خدمة الأخبار",
+    "newNewsItem": "عنصر أخبار جديد",
+    
+    "// Loading States": "",
+    "loadingLanguages": "جاري تحميل اللغات...",
+    "loadingSectionItem": "جاري تحميل عنصر الأخبار...",
+    "loadingSubsections": "جاري تحميل الأقسام الفرعية...",
+    "loadingData": "جاري تحميل البيانات...",
+    
+    "// Form States": "",
+    "savingChanges": "جاري حفظ التغييرات...",
+    "creatingNews": "جاري إنشاء الأخبار...",
+    "updatingNews": "جاري تحديث الأخبار...",
+    
+    "// Error Messages": "",
+    "errorLoadingData": "خطأ في تحميل البيانات",
+    "errorSavingData": "خطأ في حفظ البيانات",
+    "missingRequiredFields": "يرجى ملء جميع الحقول المطلوبة",
+    "invalidData": "البيانات المقدمة غير صحيحة",
+    
+    "// Success Messages": "",
+    "newsCreatedSuccessfully": "تم إنشاء الأخبار بنجاح",
+    "newsUpdatedSuccessfully": "تم تحديث الأخبار بنجاح",
+    "changesSaved": "تم حفظ التغييرات بنجاح",
+    
+    "// Navigation": "",
+    "backToNews": "العودة إلى الأخبار",
+    "backToList": "العودة إلى القائمة",
+    "returnToDashboard": "العودة إلى لوحة التحكم",
+    
+    "// Form Actions": "",
+    "save": "حفظ",
+    "saveAndPublish": "حفظ ونشر",
+    "saveDraft": "حفظ كمسودة",
+    "cancel": "إلغاء",
+    "reset": "إعادة تعيين",
+    "preview": "معاينة",
+    
+    "// Validation": "",
+    "titleRequired": "العنوان مطلوب",
+    "descriptionRequired": "الوصف مطلوب",
+    "imageRequired": "الصورة مطلوبة",
+    "contentRequired": "المحتوى مطلوب"
+  },
+  "newsLanguageCard": {
+    "titleLabel": "العنوان",
+    "titlePlaceholder": "أدخل العنوان",
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "أدخل الوصف",
+    "buttonTextLabel": "نص الزر",
+    "buttonTextPlaceholder": "ابدأ",
+    "cardTitle": "قسم الأخبار",
+    "cardDescription": "إدارة محتوى الأخبار باللغة العربية"
+  },
+  "newsForm": {
+    "loadingData": "جارٍ تحميل بيانات قسم الأخبار...",
+    "loadingDialogTitleCreating": "إنشاء قسم الأخبار",
+    "loadingDialogTitleUpdating": "تحديث قسم الأخبار",
+    "loadingDialogDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
+    "saveButton": "حفظ محتوى الأخبار",
+    "updateButton": "تحديث محتوى الأخبار",
+    "savingButton": "جارٍ الحفظ...",
+    "toastSuccessCreate": "تم إنشاء قسم الأخبار بنجاح!",
+    "toastSuccessUpdate": "تم تحديث قسم الأخبار بنجاح!",
+    "toastSuccessDescription": "تم حفظ جميع المحتويات.",
+    "toastValidationErrorTitle": "خطأ في التحقق",
+    "toastValidationErrorDescription": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+    "toastErrorCreateTitle": "خطأ في إنشاء قسم الأخبار",
+    "toastErrorUpdateTitle": "خطأ في تحديث قسم الأخبار",
+    "toastErrorDescription": "حدث خطأ غير معروف",
+    "toastImageUploadSuccessTitle": "تم رفع الصورة",
+    "toastImageUploadSuccessDescription": "تم رفع صورة الخلفية بنجاح.",
+    "toastImageUploadErrorTitle": "فشل رفع الصورة",
+    "toastImageUploadErrorDescription": "فشل في رفع الصورة"
+  },
+  "industryPage": {
+    "// Page Configuration": "",
+    "title": "إدارة الصناعة",
+    "description": "إدارة مخزون الصناعة والمحتوى متعدد اللغات",
+    "addButtonLabel": "إضافة عنصر صناعة جديد",
+    "emptyStateMessage": "لم يتم العثور على صناعة. قم بإنشاء صناعتك الأولى عن طريق النقر على زر \"إضافة صناعة جديدة\".",
+    "noSectionMessage": "يرجى إنشاء قسم صناعة أولاً قبل إضافة الصناعة.",
+    "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة الصناعة.",
+    "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة الصناعة.",
+    "sectionIntegrationTitle": "محتوى قسم الصناعة",
+    "sectionIntegrationDescription": "إدارة محتوى قسم الصناعة بلغات متعددة.",
+    "addSectionButtonLabel": "إضافة قسم الصناعة",
+    "editSectionButtonLabel": "تعديل قسم الصناعة",
+    "saveSectionButtonLabel": "حفظ قسم الصناعة",
+    "listTitle": "قائمة الصناعة",
+    
+    "// Table Columns": "",
+    "columnName": "الاسم",
+    "columnDescription": "الوصف",
+    "columnStatus": "الحالة",
+    "columnOrder": "الترتيب",
+    "columnSubsections": "الأقسام الفرعية",
+    "main": "رئيسي",
+    
+    "// Dialog Titles": "",
+    "createIndustryTitle": "الصناعة",
+    "deleteIndustryItem": "حذف عنصر الصناعة",
+    "confirmDelete": "تأكيد",
+    
+    "// Loading States": "",
+    "loadingData": "جاري تحميل بيانات الصناعة...",
+    "loadingSubsections": "ما زال يتم تحميل بيانات الأقسام الفرعية...",
+    "loadingItems": "جاري تحميل عناصر الصناعة...",
+    
+    "// Messages": "",
+    "expectedSubsectionName": "اسم القسم الفرعي المتوقع:",
+    "subsectionCreated": "تم إنشاء القسم الفرعي الرئيسي:",
+    "subsectionNameCheck": "فحص اسم القسم الفرعي الرئيسي:",
+    "finalSubsectionResult": "نتيجة القسم الفرعي النهائي:",
+    "settingSectionData": "تعيين بيانات القسم:",
+    
+    "// Actions": "",
+    "addNew": "إضافة جديد",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "create": "إنشاء",
+    
+    "// Status": "",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "published": "منشور",
+    "draft": "مسودة",
+    
+    "// Navigation": "",
+    "backToList": "العودة إلى القائمة",
+    "viewDetails": "عرض التفاصيل",
+    
+    "// Configuration Info": "",
+    "currentConfig": "التكوين الحالي",
+    "language": "اللغة",
+    "sectionName": "اسم القسم",
+    "sectionType": "نوع القسم"
+  },
+  "addIndustryPage": {
+    "// Page Configuration": "",
+    "tabLabel": "عناصر الصناعة",
+    "createTitle": "إنشاء عنصر صناعة جديد",
+    "editTitle": "تعديل عنصر الصناعة",
+    "createSubtitle": "إنشاء عنصر صناعة جديد بمحتوى متعدد اللغات",
+    "editSubtitle": "تحرير محتوى \"{name}\" عبر عدة لغات",
+    "defaultItemName": "عنصر صناعة",
+    
+    "// Default Values": "",
+    "defaultIndustryName": "صناعة جديدة",
+    "defaultDescription": "وصف الصناعة",
+    
+    "// Loading States": "",
+    "loadingLanguages": "جاري تحميل اللغات...",
+    "loadingSectionItem": "جاري تحميل عنصر الصناعة...",
+    "loadingSubsections": "جاري تحميل الأقسام الفرعية...",
+    "loadingData": "جاري تحميل البيانات...",
+    
+    "// Form Sections": "",
+    "industryItemsSection": "عناصر الصناعة",
+    
+    "// Messages": "",
+    "searchingSubsection": "البحث عن قسم فرعي بالمعرف:",
+    "subsectionFound": "تم العثور على القسم الفرعي:",
+    "subsectionNotFound": "لم يتم العثور على القسم الفرعي، استخدام المعرف الافتراضي:",
+    "savingIndustry": "جاري حفظ عنصر الصناعة...",
+    "industrySaved": "تم حفظ عنصر الصناعة بنجاح",
+    "extractingIndustryInfo": "استخراج معلومات الصناعة من البيانات الأساسية",
+    "creatingIndustryPayload": "إنشاء حمولة عنصر الصناعة",
+    
+    "// Navigation": "",
+    "backToList": "العودة إلى قائمة الصناعة",
+    
+    "// Error Messages": "",
+    "errorLoadingData": "خطأ في تحميل البيانات",
+    "errorSavingIndustry": "خطأ في حفظ عنصر الصناعة",
+    "missingRequiredFields": "يرجى ملء جميع الحقول المطلوبة",
+    "noLanguagesFound": "لم يتم العثور على لغات نشطة",
+    
+    "// Form Labels": "",
+    "industryName": "اسم الصناعة",
+    "industryDescription": "وصف الصناعة",
+    "industryImage": "صورة الصناعة",
+    "backgroundImage": "صورة الخلفية",
+    "status": "الحالة",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    
+    "// Actions": "",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "create": "إنشاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "update": "تحديث",
+    
+    "// Validation": "",
+    "nameRequired": "اسم الصناعة مطلوب",
+    "descriptionRequired": "وصف الصناعة مطلوب",
+    "nameMinLength": "يجب أن يكون اسم الصناعة 3 أحرف على الأقل",
+    "nameMaxLength": "لا يمكن أن يتجاوز اسم الصناعة 100 حرف",
+    "titleRequired": "العنوان مطلوب",
+    "contentRequired": "المحتوى مطلوب",
+    
+    "// Slugs and Identifiers": "",
+    "industryItemsSlug": "industry-items",
+    "processStepsSlug": "process-steps",
+    "defaultSlugPrefix": "industry",
+    
+    "// Success Messages": "",
+    "industryCreated": "تم إنشاء عنصر الصناعة بنجاح",
+    "industryUpdated": "تم تحديث عنصر الصناعة بنجاح",
+    "dataLoaded": "تم تحميل البيانات بنجاح"
+  },
+  "industryLanguageCard": {
+    "// Card Header": "",
+    "sectionTitle": "قسم الصناعة",
+    "cardDescription": "إدارة محتوى اللوح الرئيسي لـ {langCode}",
+    "heroContent": "محتوى اللوح الرئيسي",
+    
+    "// Form Fields": "",
+    "titleLabel": "العنوان",
+    "titlePlaceholder": "أدخل العنوان",
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "أدخل الوصف",
+    "contentLabel": "المحتوى",
+    "contentPlaceholder": "أدخل المحتوى",
+    "subtitleLabel": "العنوان الفرعي",
+    "subtitlePlaceholder": "أدخل العنوان الفرعي",
+    
+    "// Validation Messages": "",
+    "titleRequired": "العنوان مطلوب",
+    "descriptionRequired": "الوصف مطلوب",
+    "titleMinLength": "يجب أن يكون العنوان 3 أحرف على الأقل",
+    "titleMaxLength": "لا يمكن أن يتجاوز العنوان 200 حرف",
+    "descriptionMaxLength": "لا يمكن أن يتجاوز الوصف 500 حرف",
+    
+    "// Language Display": "",
+    "languageCode": "رمز اللغة",
+    "languageName": "اسم اللغة",
+    "currentLanguage": "اللغة الحالية",
+    
+    "// Actions": "",
+    "save": "حفظ",
+    "clear": "مسح",
+    "reset": "إعادة تعيين",
+    "preview": "معاينة",
+    
+    "// Status": "",
+    "saved": "تم الحفظ",
+    "modified": "تم التعديل",
+    "error": "خطأ",
+    "loading": "جاري التحميل"
+  },
+  "industryForm": {
+    "// Loading States": "",
+    "loadingHeroData": "جاري تحميل بيانات القسم الرئيسي...",
+    "loadingData": "جاري تحميل البيانات...",
+    "loadingSubsection": "جاري تحميل القسم الفرعي...",
+    "saving": "جاري الحفظ...",
+    
+    "// Dialog Titles": "",
+    "updatingIndustrySection": "تحديث قسم الصناعة",
+    "creatingIndustrySection": "إنشاء قسم الصناعة",
+    "dialogDescription": "يرجى الانتظار أثناء حفظ التغييرات...",
+    
+    "// Section Names": "",
+    "sectionName": "قسم الصناعة",
+    "heroSectionSlug": "hero-section",
+    "backgroundImageName": "صورة الخلفية",
+    "titleElementName": "العنوان",
+    "descriptionElementName": "الوصف",
+    "imagePlaceholder": "image-placeholder",
+    
+    "// Image Upload": "",
+    "imageUploaded": "تم رفع الصورة",
+    "imageUploadedDesc": "تم رفع صورة الخلفية بنجاح.",
+    "imageUploadFailed": "فشل في رفع الصورة",
+    "imageUploadFailedDesc": "فشل في رفع الصورة",
+    "noImageUrlReturned": "لم يتم إرجاع رابط الصورة من الخادم. الاستجابة:",
+    "imageUploadError": "فشل رفع الصورة:",
+    
+    "// File Validation": "",
+    "invalidFileType": "فقط ملفات JPEG، PNG، GIF، أو SVG مسموحة",
+    "validationError": "خطأ في التحقق",
+    "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+    
+    "// Save Process": "",
+    "parentSectionRequired": "معرف القسم الرئيسي مطلوب لإنشاء قسم فرعي",
+    "failedToCreateSubsection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+    "operationFailed": "فشلت العملية:",
+    "unknownError": "حدث خطأ غير معروف",
+    
+    "// Success Messages": "",
+    "industryUpdated": "تم تحديث قسم الصناعة بنجاح!",
+    "industryCreated": "تم إنشاء قسم الصناعة بنجاح!",
+    "allContentSaved": "تم حفظ جميع المحتويات.",
+    
+    "// Error Messages": "",
+    "errorUpdatingSection": "خطأ في تحديث قسم اللوح الرئيسي",
+    "errorCreatingSection": "خطأ في إنشاء قسم اللوح الرئيسي",
+    
+    "// Button Labels": "",
+    "updateIndustryContent": "تحديث محتوى الصناعة",
+    "saveIndustryContent": "حفظ محتوى الصناعة",
+    "saveButton": "حفظ",
+    "updateButton": "تحديث",
+    
+    "// Form Elements": "",
+    "backgroundImageSection": "قسم صورة الخلفية",
+    "languageCardsGrid": "شبكة بطاقات اللغات",
+    "formSubmission": "إرسال النموذج",
+    
+    "// State Management": "",
+    "unsavedChanges": "تغييرات غير محفوظة",
+    "dataProcessing": "معالجة البيانات",
+    "formValidation": "التحقق من النموذج",
+    "contentCreation": "إنشاء المحتوى",
+    "translationUpdate": "تحديث الترجمة",
+    
+    "// API Operations": "",
+    "creatingSubsection": "إنشاء قسم فرعي",
+    "updatingSubsection": "تحديث قسم فرعي",
+    "creatingContentElement": "إنشاء عنصر محتوى",
+    "updatingTranslations": "تحديث الترجمات",
+    "uploadingImage": "رفع الصورة",
+    
+    "// Debug Messages": "",
+    "processingInitialData": "معالجة البيانات الأولية",
+    "processingIndustryData": "معالجة بيانات الصناعة",
+    "mappingLanguageCodes": "تخطيط رموز اللغات",
+    "handlingExistingContent": "التعامل مع المحتوى الموجود",
+    "creatingNewContent": "إنشاء محتوى جديد",
+    
+    "// Component Status": "",
+    "componentReady": "المكون جاهز",
+    "formInitialized": "تم تهيئة النموذج",
+    "dataLoaded": "تم تحميل البيانات",
+    "validationPassed": "تم اجتياز التحقق",
+    "savingInProgress": "الحفظ قيد التقدم",
+    "saveCompleted": "تم إتمام الحفظ"
+  },
+  "heroPage": {
+      "// Loading States": "",
+      "loadingHeroData": "جارٍ تحميل بيانات قسم اللوح الرئيسي...",
+      "loadingData": "جارٍ تحميل البيانات...",
+      "loadingSubsection": "جارٍ تحميل القسم الفرعي...",
+      "saving": "جارٍ الحفظ...",
+      
+      "// Page Configuration": "",
+      "title": "إدارة اللوح الرئيسي",
+      "description": "إدارة مخزون اللوح الرئيسي والمحتوى متعدد اللغات",
+      "addButtonLabel": "إضافة عنصر تنقل جديد",
+      "listTitle": "قائمة اللوح الرئيسي",
+      "editPath": "heroSection/addHero",
+      
+      "// Messages": "",
+      "emptyStateMessage": "لم يتم العثور على بطل. قم بإنشاء اللوح الرئيسي الأول الخاص بك بالنقر على زر \"إضافة بطل جديد\".",
+      "noSectionMessage": "يرجى إنشاء قسم اللوح الرئيسي أولاً قبل إضافة اللوح الرئيسي.",
+      "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة اللوح الرئيسي.",
+      "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة اللوح الرئيسي.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "محتوى قسم اللوح الرئيسي",
+      "sectionIntegrationDescription": "إدارة محتوى قسم اللوح الرئيسي بلغات متعددة.",
+      "addSectionButtonLabel": "إضافة قسم اللوح الرئيسي",
+      "editSectionButtonLabel": "تحرير قسم اللوح الرئيسي",
+      "saveSectionButtonLabel": "حفظ قسم اللوح الرئيسي",
+      
+      "// Table Columns": "",
+      "nameColumn": "الاسم",
+      "descriptionColumn": "الوصف",
+      "statusColumn": "الحالة",
+      "orderColumn": "الترتيب",
+      "subsectionsColumn": "الأقسام الفرعية",
+      "mainBadge": "الرئيسي",
+      
+      "// Dialog Titles": "",
+      "createDialogTitle": "اللوح الرئيسي",
+      "deleteDialogTitle": "حذف القسم",
+      "deleteDialogConfirm": "تأكيد",
+      
+      "// Debug Messages": "",
+      "hasMainSubSectionChanged": "تغير hasMainSubSection من",
+      "websiteSubsectionsCheck": "فحص الأقسام الفرعية للموقع:",
+      "mainSubsectionCreated": "تم إنشاء القسم الفرعي الرئيسي:",
+      "mainSubsectionNameCheck": "فحص اسم القسم الفرعي الرئيسي:",
+      
+      "// Component Status": "",
+      "componentReady": "المكون جاهز",
+      "dataLoaded": "تم تحميل البيانات",
+      "validationPassed": "تم اجتياز التحقق",
+      "processingComplete": "اكتملت المعالجة"
+  },
+  "addHero": {
+    "// Page Titles": "",
+    "createTitle": "إنشاء بطل جديد",
+    "editTitle": "تحرير اللوح الرئيسي",
+    
+    "// Page Subtitles": "",
+    "createSubtitle": "إنشاء خدمة جديدة بمحتوى متعدد اللغات",
+    "editSubtitle": "المحتوى عبر لغات متعددة",
+    "editingPrefix": "تحرير",
+    
+    "// Tab Labels": "",
+    "heroTabLabel": "اللوح الرئيسي",
+    
+    "// Default Values": "",
+    "defaultServiceName": "بطل جديد",
+    "defaultServiceDescription": "",
+    
+    "// URL Paths": "",
+    "backUrlPath": "/dashboard/heroSection",
+    
+    "// Form Sections": "",
+    "heroFormSection": "hero",
+    
+    "// Loading States": "",
+    "loadingLanguages": "جارٍ تحميل اللغات...",
+    "loadingSectionItem": "جارٍ تحميل عنصر القسم...",
+    "loadingSubsections": "جارٍ تحميل الأقسام الفرعية...",
+    "loadingData": "جارٍ تحميل البيانات...",
+    
+    "// Slugs and Identifiers": "",
+    "heroSectionSlug": "hero-section",
+    "slugGeneration": "جارٍ إنشاء الرابط...",
+    "subsectionLookup": "البحث عن القسم الفرعي...",
+    
+    "// Form Processing": "",
+    "processingFormData": "معالجة بيانات النموذج...",
+    "extractingHeroData": "استخراج بيانات اللوح الرئيسي...",
+    "creatingServicePayload": "إنشاء حمولة الخدمة...",
+    "savingData": "حفظ البيانات...",
+    
+    "// Mode Handling": "",
+    "createMode": "create",
+    "editMode": "edit",
+    "modeDetection": "اكتشاف الوضع...",
+    
+    "// API Operations": "",
+    "fetchingLanguages": "جلب اللغات...",
+    "fetchingSectionItem": "جلب عنصر القسم...",
+    "fetchingSubsections": "جلب الأقسام الفرعية...",
+    "savingService": "حفظ الخدمة..."
+  },
+  "HeroLanguageCard": {
+      "// Card Header": "",
+      "heroSection": "قسم اللوح الرئيسي",
+      "primaryBadge": "الأساسي",
+      
+      "// Card Description": "",
+      "manageContentPrefix": "إدارة محتوى اللوح الرئيسي لـ",
+      "urlSettingsNote": "(إعدادات الرابط المكونة هنا تنطبق على جميع اللغات)",
+      
+      "// Button Labels": "",
+      "addHeroButton": "إضافة بطل",
+      
+      "// Accessibility": "",
+      "heroCardTitle": "محتوى اللوح الرئيسي للغة",
+      "primaryLanguageNote": "إعدادات اللغة الأساسية"
+  },
+  "heroesForm": {
+      "// Loading States": "",
+      "loadingHeroData": "جارٍ تحميل بيانات قسم الأبطال...",
+      "saving": "جارٍ الحفظ...",
+      "updatingHeroes": "تحديث الأبطال",
+      "creatingHeroes": "إنشاء الأبطال",
+      "saveDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
+      
+      "// Section Names": "",
+      "sectionName": "قسم الأبطال",
+      "sectionDescription": "قسم الأبطال للموقع الإلكتروني",
+      
+      "// Element Names": "",
+      "heroTitle": "اللوح الرئيسي {{heroIndex}} - العنوان",
+      "heroDescription": "اللوح الرئيسي {{heroIndex}} - الوصف",
+      "heroExploreButton": "اللوح الرئيسي {{heroIndex}} - زر الاستكشاف",
+      "heroExploreButtonType": "اللوح الرئيسي {{heroIndex}} - نوع زر الاستكشاف",
+      "heroExploreButtonUrl": "اللوح الرئيسي {{heroIndex}} - رابط زر الاستكشاف",
+      "heroRequestButton": "اللوح الرئيسي {{heroIndex}} - زر الطلب",
+      "heroRequestButtonType": "اللوح الرئيسي {{heroIndex}} - نوع زر الطلب",
+      "heroRequestButtonUrl": "اللوح الرئيسي {{heroIndex}} - رابط زر الطلب",
+      "heroImage": "اللوح الرئيسي {{heroIndex}} - الصورة",
+      
+      "// Toast Messages - Remove": "",
+      "cannotRemove": "لا يمكن الإزالة",
+      "needAtLeastOneHero": "تحتاج إلى بطل واحد على الأقل",
+      "heroDeleted": "تم حذف اللوح الرئيسي",
+      "heroDeletedFromDatabase": "تم حذف اللوح الرئيسي {{heroNumber}} من قاعدة البيانات",
+      "heroRemoved": "تم إزالة اللوح الرئيسي",
+      "heroRemovedSuccessfully": "تم إزالة اللوح الرئيسي بنجاح.",
+      "errorRemoving": "خطأ",
+      "errorRemovingHero": "حدث خطأ أثناء إزالة اللوح الرئيسي.",
+      
+      "// Toast Messages - Add": "",
+      "heroAdded": "تم إضافة اللوح الرئيسي",
+      "heroAddedDescription": "تم إضافة بطل جديد. يرجى ملء التفاصيل وحفظ التغييرات.",
+      
+      "// Toast Messages - Validation": "",
+      "validationError": "خطأ في التحقق",
+      "allLanguagesSameCount": "يجب أن تحتوي جميع اللغات على نفس عدد الأبطال.",
+      "fillAllRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح.",
+      
+      "// Toast Messages - Loading": "",
+      "errorLoadingData": "خطأ في تحميل البيانات",
+      "failedToLoadHeroData": "فشل في تحميل بيانات اللوح الرئيسي. يرجى المحاولة مرة أخرى.",
+      
+      "// Toast Messages - Image Upload": "",
+      "imageUploadError": "خطأ في رفع الصورة",
+      "failedToUploadImage": "فشل في رفع الصورة للبطل {{heroIndex}}. يرجى المحاولة مرة أخرى.",
+      "configurationError": "خطأ في التكوين",
+      "imageMissingForHero": "عنصر محتوى الصورة مفقود للبطل {{heroIndex}}.",
+      
+      "// Toast Messages - Save Success": "",
+      "heroesUpdatedSuccessfully": "تم تحديث قسم الأبطال بنجاح!",
+      "heroesCreatedSuccessfully": "تم إنشاء قسم الأبطال بنجاح!",
+      "allContentSaved": "تم حفظ جميع المحتويات.",
+      
+      "// Toast Messages - Save Error": "",
+      "warning": "تحذير",
+      "failedToReloadData": "فشل في إعادة تحميل البيانات بعد الحفظ.",
+      "errorUpdatingHeroes": "خطأ في تحديث قسم الأبطال",
+      "errorCreatingHeroes": "خطأ في إنشاء قسم الأبطال",
+      
+      "// Button Labels": "",
+      "saveHeroes": "حفظ الأبطال",
+      "updateHeroes": "تحديث الأبطال",
+      
+      "// Validation Messages": "",
+      "samNumberOfHeroes": "يجب أن تحتوي كل لغة على نفس عدد الأبطال",
+      
+      "// Dialog Titles": "",
+      "deleteHero": "حذف اللوح الرئيسي",
+      "deleteHeroConfirm": "حذف اللوح الرئيسي",
+      "deleteHeroService": "اللوح الرئيسي {{index}}",
+      
+      "// Default Values": "",
+      "defaultButtonType": "افتراضي",
+      "imagePlaceholder": "عنصر نائب للصورة",
+      
+      "// Console Messages": "",
+      "formValuesAfterProcess": "قيم النموذج بعد معالجة بيانات الأبطال:",
+      "refetchingData": "إعادة جلب البيانات:",
+      "formValuesBeforeSave": "قيم النموذج قبل الحفظ:",
+      "uploadingImageForHero": "رفع الصورة للبطل",
+      "uploadResult": "نتيجة الرفع:",
+      "noImageFileProvided": "لم يتم توفير ملف صورة للبطل {{heroIndex}}",
+      "imageElementNotFound": "عنصر محتوى الصورة غير موجود للبطل {{heroIndex}}",
+      "formValuesAfterSave": "قيم النموذج بعد الحفظ:",
+      "refetchedData": "البيانات المعاد جلبها:",
+      "saveOperationFailed": "فشلت عملية الحفظ:",
+      "errorRemovingHeroConsole": "خطأ في إزالة اللوح الرئيسي:",
+      "errorProcessingHeroData": "خطأ في معالجة بيانات اللوح الرئيسي:",
+      
+      "// Error Messages": "",
+      "parentSectionRequired": "معرف القسم الأصلي مطلوب لإنشاء قسم فرعي",
+      "failedToCreateSubsection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+      "unknownError": "حدث خطأ غير معروف"
+  },
+  "heroCard": {
+      "// Card Title": "",
+      "heroTitle": "اللوح الرئيسي {{index}}",
+      
+      "// Form Labels": "",
+      "titleLabel": "العنوان",
+      "descriptionLabel": "الوصف",
+      "exploreButtonTextLabel": "نص زر الاستكشاف",
+      "exploreButtonLinkTypeLabel": "نوع رابط زر الاستكشاف",
+      "exploreButtonUrlLabel": "رابط زر الاستكشاف",
+      "requestButtonTextLabel": "نص زر الطلب",
+      "requestButtonLinkTypeLabel": "نوع رابط زر الطلب",
+      "requestButtonUrlLabel": "رابط زر الطلب",
+      "heroImageLabel": "صورة اللوح الرئيسي",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "أدخل العنوان",
+      "descriptionPlaceholder": "أدخل الوصف",
+      "exploreButtonPlaceholder": "أدخل نص زر الاستكشاف",
+      "requestButtonPlaceholder": "أدخل نص زر الطلب",
+      "urlPlaceholder": "https://example.com",
+      
+      "// Radio Options": "",
+      "defaultOption": "افتراضي",
+      "specialLinkOption": "رابط خاص",
+      
+      "// Helper Text": "",
+      "optionalText": "(اختياري)",
+      "appliesToAllLanguages": "(ينطبق على جميع اللغات)",
+      "uploadImageText": "رفع صورة",
+      
+      "// Validation Messages": "",
+      "imageSizeError": "يجب أن تكون الصورة أقل من 2 ميجابايت",
+      
+      "// Alt Text": "",
+      "heroImageAlt": "صورة اللوح الرئيسي {{index}}",
+      
+      "// Button Labels": "",
+      "deleteHero": "حذف اللوح الرئيسي",
+      "expandCollapse": "توسيع/طي بطاقة اللوح الرئيسي"
+  },
+  "common": {
+    "welcome": "مرحبا",
+    "logout": "تسجيل الخروج",
+    "profile": "الملف الشخصي",
+    "myAccount": "حسابي",
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء"
   }
+  
 }

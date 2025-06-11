@@ -11,64 +11,9 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { industrySectionConfig } from "./industrySectionConfig"
-
-// Configuration for the Industry page
-const INDUSTRY_CONFIG = {
-  title: "Industry Management",
-  description: "Manage your Industry inventory and multilingual content",
-  addButtonLabel: "Add New Industry item",
-  emptyStateMessage: "No Industry found. Create your first Industry by clicking the \"Add New Industry\" button.",
-  noSectionMessage: "Please create a Industry section first before adding Industry.",
-  mainSectionRequiredMessage: "Please enter your main section data before adding Industry.",
-  emptyFieldsMessage: "Please complete all required fields in the main section before adding Industry.",
-  sectionIntegrationTitle: "Industry Section Content",
-  sectionIntegrationDescription: "Manage your Industry section content in multiple languages.",
-  addSectionButtonLabel: "Add Industry Section",
-  editSectionButtonLabel: "Edit Industry Section",
-  saveSectionButtonLabel: "Save Industry Section",
-  listTitle: "Industry List",
-  editPath: "IndustrySolutions/addIndustry"
-}
-
-// Column definitions
-const INDUSTRY_COLUMNS = [
-  {
-    header: "Name",
-    accessor: "name",
-    className: "font-medium"
-  },
-  {
-    header: "Description",
-    accessor: "description",
-    cell: TruncatedCell
-  },
-  {
-    header: "Status",
-    accessor: "isActive",
-    cell: (item: any, value: boolean) => (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center">
-          {StatusCell(item, value)}
-          {item.isMain && (
-            <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  },
-  {
-    header: "Order",
-    accessor: "order"
-  },
-  {
-    header: "Subsections",
-    accessor: "subsections.length",
-    cell: CountBadgeCell
-  }
-]
+import { getIndustrySectionConfig } from "./industrySectionConfig"
+import { useTranslation } from "react-i18next"
+// Import your translation hook - adjust the import path as needed
 
 export default function IndustryPage() {
   const searchParams = useSearchParams()
@@ -77,6 +22,68 @@ export default function IndustryPage() {
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
+  
+  // Get translation function
+  const { t , i18n } = useTranslation() // Adjust based on your translation hook
+    const currentLanguage = i18n.language; // 'en', 'ar', 'tr'
+    const industrySectionConfig = getIndustrySectionConfig(currentLanguage);
+
+  // Configuration for the Industry page - now using translations
+  const INDUSTRY_CONFIG = {
+    title: t("industryPage.title"),
+    description: t("industryPage.description"),
+    addButtonLabel: t("industryPage.addButtonLabel"),
+    emptyStateMessage: t("industryPage.emptyStateMessage"),
+    noSectionMessage: t("industryPage.noSectionMessage"),
+    mainSectionRequiredMessage: t("industryPage.mainSectionRequiredMessage"),
+    emptyFieldsMessage: t("industryPage.emptyFieldsMessage"),
+    sectionIntegrationTitle: t("industryPage.sectionIntegrationTitle"),
+    sectionIntegrationDescription: t("industryPage.sectionIntegrationDescription"),
+    addSectionButtonLabel: t("industryPage.addSectionButtonLabel"),
+    editSectionButtonLabel: t("industryPage.editSectionButtonLabel"),
+    saveSectionButtonLabel: t("industryPage.saveSectionButtonLabel"),
+    listTitle: t("industryPage.listTitle"),
+    editPath: "IndustrySolutions/addIndustry"
+  }
+
+  // Column definitions - now using translations
+  const INDUSTRY_COLUMNS = [
+    {
+      header: t("industryPage.columnName"),
+      accessor: "name",
+      className: "font-medium"
+    },
+    {
+      header: t("industryPage.columnDescription"),
+      accessor: "description",
+      cell: TruncatedCell
+    },
+    {
+      header: t("industryPage.columnStatus"),
+      accessor: "isActive",
+      cell: (item: any, value: boolean) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center">
+            {StatusCell(item, value)}
+            {item.isMain && (
+              <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                {t("industryPage.main")}
+              </span>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: t("industryPage.columnOrder"),
+      accessor: "order"
+    },
+    {
+      header: t("industryPage.columnSubsections"),
+      accessor: "subsections.length",
+      cell: CountBadgeCell
+    }
+  ]
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
@@ -122,7 +129,7 @@ export default function IndustryPage() {
     
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
-      console.log("Still loading subsection data...");
+      console.log(t("industryPage.loadingSubsections"));
       setIsLoadingMainSubSection(true);
       return;
     }
@@ -133,7 +140,7 @@ export default function IndustryPage() {
     
     // Get expected name from configuration - FIXED: Use .name instead of .subSectionName
     const expectedSlug = industrySectionConfig.name;
-    console.log("Expected subsection name:", expectedSlug);
+    console.log(t("industryPage.expectedSubsectionName"), expectedSlug);
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -181,7 +188,7 @@ export default function IndustryPage() {
       });
     }
     
-    console.log("Final subsection result:", { 
+    console.log(t("industryPage.finalSubsectionResult"), { 
       foundMainSubSection, 
       mainSubSection,
       name: mainSubSection?.name,
@@ -198,7 +205,7 @@ export default function IndustryPage() {
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
       
-      console.log("Setting section data:", sectionInfo);
+      console.log(t("industryPage.settingSectionData"), sectionInfo);
       
       // Set local section data
       setSectionData(sectionInfo);
@@ -216,12 +223,13 @@ export default function IndustryPage() {
     isLoadingSectionSubsections, 
     sectionId, 
     industrySection, 
-    setSection
+    setSection,
+    t
   ]);
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
+    console.log(t("industryPage.subsectionCreated"), subsection);
     
     // Check if subsection has the correct name - FIXED: Use .name instead of .subSectionName
     const expectedSlug = industrySectionConfig.name;
@@ -231,7 +239,7 @@ export default function IndustryPage() {
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
     // Log the name check
-    console.log("Main subsection name check:", {
+    console.log(t("industryPage.subsectionNameCheck"), {
       actualSlug: subsection.name,
       expectedSlug,
       isCorrect: hasCorrectSlug
@@ -282,7 +290,7 @@ export default function IndustryPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Industry"
+      title={t("industryPage.createIndustryTitle")}
     />
   );
 
@@ -293,8 +301,6 @@ export default function IndustryPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Industry Item"
-      confirmText="Confirm"
     />
   );
 

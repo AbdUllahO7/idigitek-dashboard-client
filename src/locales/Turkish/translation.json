@@ -1,0 +1,2126 @@
+{
+  "Dashboard_Header": {
+    "dark": "Karanlık",
+    "light": "Aydınlık"
+  },
+  "Dashboard_sideBar": {
+    "title": "Yönetici Kontrol Paneli",
+    "menu": "Menü",
+    "unknownUser": "Bilinmeyen kullanıcı",
+    "unknownRole": "Bilinmeyen",
+    "notRefreshed": "Yenilenmedi",
+    "refreshSections": "Bölümleri yenile",
+    "noActiveSections": "Aktif bölüm bulunamadı",
+    "configureSections": "Bölümleri Yapılandır",
+    "helpSupport": "Yardım ve Destek",
+    "noWebsiteSelected": "Web Sitesi Seçilmedi",
+    "selectWebsiteMessage": "Mevcut bölümleri görüntülemek ve içeriği yönetmek için lütfen bir web sitesi seçin.",
+    "configureWebsite": "Web Sitesini Yapılandır",
+    "errorLoadingSections": "Bölümler Yüklenirken Hata",
+    "unknownError": "Bölümler yüklenirken bilinmeyen bir hata oluştu.",
+    "retry": "Tekrar Dene",
+    "settings": "Ayarlar",
+    "nav": {
+      "dashboard": "Kontrol Paneli",
+      "users": "Kullanıcılar",
+      "services": "Hizmetler",
+      "header": "Başlık",
+      "news": "Haberler",
+      "industrySolutions": "Endüstri Çözümleri",
+      "whyChooseUs": "Neden Bizi Seçmelisiniz",
+      "projects": "Projeler",
+      "ourProcess": "Süreçlerimiz",
+      "team": "Ekip",
+      "clientComments": "Müşteri Yorumları",
+      "partners": "Ortaklar",
+      "faq": "Sık Sorulan Sorular",
+      "blog": "Blog",
+      "contact": "İletişim",
+      "hero": "Ana Banner",
+      "footer": "Alt Bilgi",
+      "profile": "Profil",
+      "webConfigurations": "Web Yapılandırmaları",
+      "idigitekAdmin": "Idigitek Yöneticisi"
+    }
+  },
+  "Dashboard": {
+    "title": "Kontrol Paneli",
+    "subtitle": "Web sitesi yapılandırmanızı ve analizlerinizi izleyin",
+    "noWebsiteSelected": {
+      "title": "Web Sitesi Seçilmedi",
+      "description": "Kontrol paneli verilerini görüntülemek için lütfen bir web sitesi seçin."
+    },
+    "metrics": {
+      "totalSections": "Toplam Bölüm",
+      "activeSections": "Aktif Bölümler",
+      "totalLanguages": "Toplam Dil",
+      "activeLanguages": "Aktif Diller",
+      "websiteUsers": "Web Sitesi Kullanıcıları"
+    },
+    "charts": {
+      "sectionDistribution": "Bölüm Dağılımı",
+      "languageDistribution": "Dil Dağılımı",
+      "userRoleDistribution": "Kullanıcı Rolü Dağılımı",
+      "activityOverview": "Etkinlik Genel Bakış",
+      "active": "Aktif",
+      "inactive": "Pasif"
+    },
+    "descriptions": {
+      "userRoleDistribution": "Kullanıcı rolü dağılımı",
+      "activeVsInactiveSections": "Aktif ve Pasif Bölümler",
+      "activeVsInactiveLanguages": "Aktif ve Pasif Diller",
+      "websiteUserTypes": "Web Sitesi Kullanıcı Türleri",
+      "weeklyContentActivity": "Haftalık içerik etkinliği"
+    },
+    "status": {
+      "active": "aktif",
+      "inactive": "pasif",
+      "more": "daha fazla",
+      "total": "Toplam",
+      "lastUpdated": "Son güncelleme",
+      "realTimeData": "Gerçek zamanlı veri",
+      "increaseThisWeek": "bu hafta artış",
+      "updatedRealTime": "Gerçek zamanlı güncellendi"
+    },
+    "labels": {
+      "sections": "bölümler",
+      "languages": "diller",
+      "users": "kullanıcılar",
+      "roles": "roller"
+    },
+    "buttons": {
+      "manageUsers": "Kullanıcıları Yönet"
+    },
+    "userRoles": {
+      "owner": "Sahip",
+      "superAdmin": "Süper Yönetici",
+      "admin": "Yönetici",
+      "user": "Kullanıcı"
+    },
+    "weekDays": {
+      "monday": "Pzt",
+      "tuesday": "Sal",
+      "wednesday": "Çar",
+      "thursday": "Per",
+      "friday": "Cum",
+      "saturday": "Cmt",
+      "sunday": "Paz"
+    }
+  },
+  "Users": {
+    "title": "Kullanıcı Yönetimi",
+    "subtitle": "Kullanıcı hesaplarını, rollerini ve izinlerini yönetin",
+    "search": {
+      "placeholder": "Kullanıcıları ara...",
+      "noResults": "Aramanızla eşleşen kullanıcı bulunamadı."
+    },
+    "buttons": {
+      "addUser": "Kullanıcı Ekle",
+      "refresh": "Yenile",
+      "edit": "Düzenle",
+      "view": "Görüntüle",
+      "delete": "Sil",
+      "save": "Kaydet",
+      "cancel": "İptal",
+      "confirm": "Onayla",
+      "close": "Kapat"
+    },
+    "stats": {
+      "totalUsers": "Toplam Kullanıcı",
+      "activeUsers": "Aktif Kullanıcılar",
+      "inactiveUsers": "Pasif Kullanıcılar",
+      "adminUsers": "Yönetici Kullanıcılar",
+      "ownerUsers": "Sahip Kullanıcılar",
+      "superAdminUsers": "Süper Yönetici Kullanıcılar",
+      "regularUsers": "Normal Kullanıcılar"
+    },
+    "table": {
+      "headers": {
+        "name": "Ad",
+        "email": "E-posta",
+        "role": "Rol",
+        "status": "Durum",
+        "createdAt": "Oluşturulma Tarihi",
+        "lastLogin": "Son Giriş",
+        "actions": "İşlemler"
+      },
+      "filters": {
+        "all": "Tüm Kullanıcılar",
+        "active": "Aktif",
+        "inactive": "Pasif",
+        "owner": "Sahipler",
+        "admin": "Yöneticiler",
+        "user": "Kullanıcılar"
+      },
+      "status": {
+        "active": "Aktif",
+        "inactive": "Pasif",
+        "suspended": "Askıya Alınmış",
+        "pending": "Beklemede"
+      },
+      "noData": "Kullanıcı bulunamadı",
+      "loading": "Kullanıcılar yükleniyor..."
+    },
+    "forms": {
+      "addUser": {
+        "title": "Yeni Kullanıcı Ekle",
+        "description": "Belirtilen rol ve izinlerle yeni bir kullanıcı hesabı oluşturun."
+      },
+      "editUser": {
+        "title": "Kullanıcıyı Düzenle",
+        "description": "Kullanıcı bilgilerini, rolünü ve izinlerini güncelleyin."
+      },
+      "deleteUser": {
+        "title": "Kullanıcıyı Sil",
+        "description": "Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "confirmMessage": "Bu, kullanıcı hesabını ve ilişkili tüm verileri kalıcı olarak silecektir."
+      },
+      "viewUser": {
+        "title": "Kullanıcı Detayları",
+        "description": "Bu kullanıcı hakkında detaylı bilgileri görüntüleyin."
+      },
+      "fields": {
+        "name": "Ad Soyad",
+        "email": "E-posta Adresi",
+        "password": "Şifre",
+        "confirmPassword": "Şifreyi Onayla",
+        "role": "Kullanıcı Rolü",
+        "status": "Durum",
+        "avatar": "Profil Resmi",
+        "phoneNumber": "Telefon Numarası",
+        "department": "Departman",
+        "position": "Pozisyon",
+        "bio": "Biyografi",
+        "lastLogin": "Son Giriş",
+        "createdAt": "Oluşturulma Tarihi",
+        "updatedAt": "Son Güncelleme"
+      },
+      "placeholders": {
+        "name": "Ad soyad girin",
+        "email": "E-posta adresi girin",
+        "password": "Şifre girin",
+        "confirmPassword": "Şifrenizi onaylayın",
+        "phoneNumber": "Telefon numarası girin",
+        "department": "Departman girin",
+        "position": "Pozisyon girin",
+        "bio": "Kullanıcı biyografisi girin"
+      },
+      "validation": {
+        "nameRequired": "Ad gereklidir",
+        "emailRequired": "E-posta gereklidir",
+        "emailInvalid": "Lütfen geçerli bir e-posta adresi girin",
+        "passwordRequired": "Şifre gereklidir",
+        "passwordMinLength": "Şifre en az 8 karakter olmalıdır",
+        "passwordMismatch": "Şifreler eşleşmiyor",
+        "roleRequired": "Lütfen bir kullanıcı rolü seçin",
+        "statusRequired": "Lütfen bir durum seçin"
+      },
+      "success": {
+        "userAdded": "Kullanıcı başarıyla eklendi",
+        "userUpdated": "Kullanıcı başarıyla güncellendi",
+        "userDeleted": "Kullanıcı başarıyla silindi"
+      },
+      "errors": {
+        "addFailed": "Kullanıcı ekleme başarısız",
+        "updateFailed": "Kullanıcı güncelleme başarısız",
+        "deleteFailed": "Kullanıcı silme başarısız",
+        "loadFailed": "Kullanıcılar yükleme başarısız",
+        "emailExists": "E-posta adresi zaten mevcut",
+        "insufficientPermissions": "Bu işlemi gerçekleştirmek için yeterli izin yok"
+      }
+    },
+    "roles": {
+      "owner": "Sahip",
+      "superAdmin": "Süper Yönetici",
+      "admin": "Yönetici",
+      "user": "Kullanıcı",
+      "moderator": "Moderatör",
+      "editor": "Editör",
+      "viewer": "Görüntüleyici"
+    },
+    "permissions": {
+      "canEdit": "Kullanıcıları düzenleyebilir",
+      "canDelete": "Kullanıcıları silebilir",
+      "canView": "Kullanıcıları görüntüleyebilir",
+      "canCreate": "Kullanıcı oluşturabilir",
+      "fullAccess": "Tam erişim",
+      "limitedAccess": "Sınırlı erişim",
+      "readOnly": "Sadece okuma"
+    },
+    "tooltips": {
+      "editUser": "Kullanıcı detaylarını düzenle",
+      "deleteUser": "Bu kullanıcıyı sil",
+      "viewUser": "Kullanıcı detaylarını görüntüle",
+      "refreshUsers": "Kullanıcı listesini yenile",
+      "addUser": "Yeni kullanıcı ekle",
+      "togglePassword": "Şifreyi göster/gizle",
+      "userStatus": "Kullanıcı hesap durumu",
+      "userRole": "Kullanıcı rolü ve izinleri"
+    }
+  },
+  "UserStats": {
+    "totalUsers": "Toplam Kullanıcı",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "pending": "Beklemede",
+    "suspended": "Askıya Alınmış"
+  },
+  "EditUserDialog": {
+    "title": "Kullanıcıyı Düzenle",
+    "description": "Aşağıdaki kullanıcı bilgilerinde değişiklik yapın.",
+    "ownerWarning": "Bu kullanıcı şu anda bir sahip",
+    "fields": {
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta",
+      "role": "Rol",
+      "status": "Durum",
+      "newPassword": "Yeni Şifre",
+      "confirmPassword": "Yeni Şifreyi Onayla"
+    },
+    "placeholders": {
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "kullanici@ornek.com",
+      "role": "Bir rol seçin",
+      "status": "Durum seçin",
+      "newPassword": "Yeni şifre girin",
+      "confirmPassword": "Yeni şifreyi onaylayın"
+    },
+    "roles": {
+      "user": "Kullanıcı",
+      "admin": "Yönetici",
+      "superAdmin": "Süper Yönetici",
+      "owner": "Sahip"
+    },
+    "statuses": {
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "suspended": "Askıya Alınmış",
+      "pending": "Beklemede"
+    },
+    "passwordSection": {
+      "title": "Şifreyi Sıfırla",
+      "description": "Şifreyi değiştirmek istemiyorsanız bu alanları boş bırakın"
+    },
+    "buttons": {
+      "cancel": "İptal",
+      "saveChanges": "Değişiklikleri Kaydet",
+      "updating": "Güncelleniyor..."
+    },
+    "accessibility": {
+      "showPassword": "Şifreyi göster",
+      "hidePassword": "Şifreyi gizle"
+    }
+  },
+  "DeleteUserDialog": {
+    "title": "Kullanıcıyı Sil",
+    "description": "Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "buttons": {
+      "cancel": "İptal",
+      "deleteUser": "Kullanıcıyı Sil",
+      "deleting": "Siliniyor..."
+    }
+  },
+  "AddUserDialog": {
+    "title": "Yeni Kullanıcı Ekle",
+    "description": "Aşağıdaki formu doldurarak yeni bir kullanıcı hesabı oluşturun.",
+    "ownerWarning": "Sistemde zaten bir sahip mevcut",
+    "fields": {
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta Adresi",
+      "password": "Şifre",
+      "confirmPassword": "Şifreyi Onayla",
+      "role": "Kullanıcı Rolü",
+      "status": "Hesap Durumu"
+    },
+    "placeholders": {
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "kullanici@ornek.com",
+      "password": "Şifre girin",
+      "confirmPassword": "Şifreyi onaylayın",
+      "role": "Bir rol seçin",
+      "status": "Durum seçin"
+    },
+    "roles": {
+      "user": "Kullanıcı",
+      "admin": "Yönetici",
+      "superAdmin": "Süper Yönetici",
+      "owner": "Sahip"
+    },
+    "statuses": {
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "suspended": "Askıya Alınmış",
+      "pending": "Beklemede"
+    },
+    "buttons": {
+      "cancel": "İptal",
+      "createUser": "Kullanıcı Oluştur",
+      "creating": "Oluşturuluyor..."
+    },
+    "accessibility": {
+      "showPassword": "Şifreyi göster",
+      "hidePassword": "Şifreyi gizle"
+    }
+  },
+  "ProfilePage": {
+    "title": "Profil Ayarlarım",
+    "tabs": {
+      "account": "Hesap Bilgileri"
+    },
+    "fields": {
+      "role": "Rol",
+      "status": "Durum",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta Adresi",
+      "accountStatus": "Hesap Durumu"
+    },
+    "editProfile": {
+      "title": "Profili Düzenle",
+      "description": "Kişisel bilgilerinizi güncelleyin"
+    },
+    "accountInfo": {
+      "title": "Hesap Bilgileri"
+    },
+    "buttons": {
+      "saveChanges": "Değişiklikleri kaydet",
+      "saving": "Kaydediliyor..."
+    },
+    "messages": {
+      "savedSuccessfully": "Başarıyla kaydedildi"
+    },
+    "toasts": {
+      "updateSuccess": {
+        "title": "Profil güncellendi",
+        "description": "Profil bilgileriniz başarıyla güncellendi."
+      },
+      "updateError": {
+        "title": "Güncelleme başarısız",
+        "description": "Profilinizi güncellerken bir sorun oluştu"
+      }
+    },
+    "roles": {
+      "user": "Kullanıcı",
+      "admin": "Yönetici",
+      "superadmin": "Süper Yönetici",
+      "owner": "Sahip"
+    },
+    "statuses": {
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "suspended": "Askıya Alınmış",
+      "pending": "Beklemede"
+    }
+  },
+  "adminManagement": {
+    "title": "Web Sitesi İçerik Yöneticisi",
+    "subtitle": "Web sitenizi diller, bölümler ve güzel temalarla özelleştirin",
+    "loading": {
+      "content": "İçerik yükleniyor..."
+    },
+    "error": {
+      "title": "Veri Yükleme Hatası",
+      "message": "Veriler yüklenemedi. Lütfen sayfayı yenilemeyi deneyin.",
+      "refreshButton": "Sayfayı Yenile"
+    },
+    "tabs": {
+      "languages": "Diller",
+      "sections": "Bölümler",
+      "themes": "Temalar"
+    },
+    "footer": {
+      "description": "Web sitenizin dillerini, bölümlerini ve görsel temalarını yönetin.",
+      "note": "Bu ayarlar web sitenizi oluşturma sürecinizde kullanılacaktır."
+    }
+  },
+  "websiteList": {
+    "title": "Web Sitelerim",
+    "createWebsite": "Web Sitesi Oluştur",
+    "createNewWebsite": "Yeni Web Sitesi Oluştur",
+    "editWebsite": "Web Sitesini Düzenle",
+    "noWebsitesTitle": "Henüz Web Sitesi Yok",
+    "noWebsitesDescription": "Henüz hiç web siteniz yok. Çevrimiçi varlığınızı başlatmak için bir tane oluşturun.",
+    "errorLoadingTitle": "Web Siteleri Yüklenirken Hata",
+    "form": {
+      "labels": {
+        "name": "Ad",
+        "description": "Açıklama",
+        "logo": "Logo",
+        "sector": "Sektör",
+        "phoneNumber": "Telefon Numarası",
+        "email": "E-posta",
+        "address": "Adres"
+      },
+      "placeholders": {
+        "name": "Web sitesi adını girin",
+        "description": "Web sitenizi açıklayın",
+        "sector": "Sektör başlığını girin",
+        "phoneNumber": "Telefon numarası girin",
+        "email": "E-posta adresi girin",
+        "address": "Fiziksel adresi girin"
+      },
+      "helperText": {
+        "logoUpload": "Web sitesi logonuzu yükleyin (maks 2MB)",
+        "logoPlaceholder": "Logo yüklemek için tıklayın"
+      }
+    },
+    "buttons": {
+      "cancel": "İptal",
+      "createWebsite": "Web Sitesi Oluştur",
+      "saveChanges": "Değişiklikleri Kaydet",
+      "change": "Değiştir",
+      "remove": "Kaldır",
+      "changeLogo": "Logo Değiştir",
+      "removeLogo": "Logo Kaldır"
+    },
+    "loadingStates": {
+      "creating": "Oluşturuluyor...",
+      "saving": "Kaydediliyor...",
+      "uploading": "Yükleniyor...",
+      "deleting": "Siliniyor..."
+    },
+    "labels": {
+      "created": "Oluşturuldu",
+      "phone": "Telefon",
+      "email": "E-posta",
+      "address": "Adres"
+    },
+    "validation": {
+      "invalidFile": "Geçersiz dosya",
+      "invalidImageType": "Lütfen PNG, JPEG veya SVG resmi yükleyin",
+      "imageTooLarge": "Resim 2MB'dan küçük olmalıdır"
+    },
+    "toastMessages": {
+      "websiteCreated": "Web Sitesi Oluşturuldu",
+      "websiteCreatedDesc": "Web siteniz başarıyla oluşturuldu",
+      "websiteUpdated": "Web Sitesi Güncellendi",
+      "websiteUpdatedDesc": "Web siteniz başarıyla güncellendi",
+      "websiteDeleted": "Web Sitesi Silindi",
+      "websiteDeletedDesc": "Web sitesi başarıyla silindi",
+      "logoUploaded": "Logo Yüklendi",
+      "logoUploadedDesc": "Logo başarıyla yüklendi",
+      "logoRemoved": "Logo Kaldırıldı",
+      "logoRemovedDesc": "Logo başarıyla kaldırıldı",
+      "uploadFailed": "Yükleme Başarısız",
+      "uploadFailedDesc": "Logo yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.",
+      "deleteFailed": "Silme Başarısız",
+      "deleteFailedDesc": "Web sitesi silinirken bir sorun oluştu. Lütfen tekrar deneyin."
+    },
+    "deleteDialog": {
+      "title": "Web Sitesini Sil",
+      "confirmButton": "Web Sitesini Sil"
+    }
+  },
+  "languageManagement": {
+    "loading": "Diller yükleniyor...",
+    "errorTitle": "Dil Yükleme Hatası",
+    "errorDescription": "Beklenmeyen bir hata oluştu",
+    "tryAgain": "Tekrar Dene",
+    "changesSaved": "Değişiklikler başarıyla kaydedildi!",
+    "addNew": {
+      "title": "Yeni Dil Ekle",
+      "description": "Web sitenizde desteklenecek yeni dil için detayları girin",
+      "websiteRequired": {
+        "title": "Web Sitesi Gerekli",
+        "noWebsite": "Dil eklemeden önce lütfen önce bir web sitesi oluşturun.",
+        "noSelected": "Dil eklemeden önce lütfen bir web sitesi seçin."
+      }
+    },
+    "form": {
+      "labels": {
+        "languageId": "Dil ID (kod)",
+        "languageName": "Dil Adı",
+        "activeLanguage": "Aktif dil olarak ayarla"
+      },
+      "placeholders": {
+        "languageId": "örn. tr, en, fr",
+        "languageName": "örn. Türkçe, İngilizce"
+      },
+      "helpText": {
+        "languageId": "Standart dil kodu kullanın (örn. \"tr\" Türkçe için)",
+        "languageIdTooltip": "Standart ISO dil kodu kullanın (örn. \"tr\" Türkçe için, \"en\" İngilizce için)",
+        "activeLanguage": "Aktif diller içerik oluşturma için kullanılabilir olacaktır"
+      },
+      "quickSelect": "Hızlı Seç",
+      "buttons": {
+        "resetForm": "Formu Sıfırla",
+        "addLanguage": "Dil Ekle",
+        "adding": "Ekleniyor...",
+        "cancel": "İptal",
+        "saveChanges": "Değişiklikleri Kaydet",
+        "delete": "Sil"
+      }
+    },
+    "manage": {
+      "title": "Dilleri Yönet",
+      "description": "Mevcut dilleri düzenleyin veya kaldırın (toplam)",
+      "noWebsiteSelected": "Dillerini yönetmek için bir web sitesi seçin",
+      "help": {
+        "button": "Yardım",
+        "title": "Dil Yönetimi İpuçları",
+        "tips": [
+          "Standart ISO dil kodları kullanın (örn. \"tr\" Türkçe için)",
+          "Aktif diller içerik oluşturma için kullanılabilir olacaktır",
+          "Dili düzenlemeden dil durumunu değiştirebilirsiniz",
+          "Bir dili silmek o dildeki tüm içeriği kaldıracaktır"
+        ]
+      },
+      "search": {
+        "placeholder": "Dilleri ara...",
+        "noResults": {
+          "title": "Sonuç Bulunamadı",
+          "description": "\"{query}\" aramanızla eşleşen dil yok. Farklı bir arama terimi deneyin.",
+          "clearButton": "Aramayı Temizle"
+        }
+      },
+      "tabs": {
+        "all": "Tümü ",
+        "active": "Aktif ",
+        "inactive": "Pasif "
+      },
+      "emptyState": {
+        "noWebsite": {
+          "title": "Web Sitesi Seçilmedi",
+          "description": "Dillerini görüntülemek ve yönetmek için lütfen bir web sitesi seçin."
+        },
+        "noLanguages": {
+          "title": "Dil Bulunamadı",
+          "description": "Bu web sitesinin henüz hiç dili yok. Yukarıdaki formu kullanarak ilk dilinizi ekleyin."
+        }
+      }
+    },
+    "languageCard": {
+      "status": {
+        "active": "Aktif",
+        "inactive": "Pasif"
+      },
+      "tooltips": {
+        "activate": "Dili etkinleştir",
+        "deactivate": "Dili devre dışı bırak",
+        "edit": "Dili düzenle",
+        "delete": "Dili sil"
+      }
+    },
+    "editDialog": {
+      "title": "Dili Düzenle",
+      "description": "Aşağıdaki dil detaylarında değişiklik yapın.",
+      "labels": {
+        "languageId": "Dil ID",
+        "languageName": "Dil Adı",
+        "active": "Aktif"
+      }
+    },
+    "deleteDialog": {
+      "title": "Dili Sil",
+      "description": "\"{name}\" dilini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      "warning": {
+        "title": "Uyarı",
+        "description": "Bu dili silmek onunla ilişkili tüm içeriği kaldıracaktır."
+      },
+      "buttons": {
+        "cancel": "İptal",
+        "delete": "Sil"
+      }
+    },
+    "validation": {
+      "invalidInput": "Geçersiz giriş",
+      "missingFields": "Lütfen dil için hem ID hem de ad girin.",
+      "missingFieldsUpdate": "Güncelleme için gerekli alanlar eksik.",
+      "websiteRequired": "Web sitesi gerekli",
+      "selectWebsite": "Lütfen önce bir web sitesi seçin.",
+      "duplicateId": "Tekrar eden ID",
+      "duplicateIdDescription": "Bu web sitesi için bu ID'ye sahip bir dil zaten mevcut."
+    },
+    "toastMessages": {
+      "languageAdded": "Dil eklendi",
+      "languageAddedDesc": "{name} başarıyla eklendi.",
+      "languageUpdated": "Dil güncellendi",
+      "languageUpdatedDesc": "Dil başarıyla güncellendi.",
+      "languageDeleted": "Dil silindi",
+      "languageDeletedDesc": "Dil başarıyla silindi.",
+      "languageActivated": "Dil etkinleştirildi",
+      "languageActivatedDesc": "Dil başarıyla etkinleştirildi.",
+      "languageDeactivated": "Dil devre dışı bırakıldı",
+      "languageDeactivatedDesc": "Dil başarıyla devre dışı bırakıldı.",
+      "errorAdding": "Dil ekleme hatası",
+      "errorUpdating": "Dil güncelleme hatası",
+      "errorDeleting": "Dil silme hatası",
+      "errorTogglingStatus": "Dil güncelleme hatası",
+      "errorGenericDesc": "İsteğiniz işlenirken bir hata oluştu."
+    },
+    "commonLanguages": [
+      { "id": "tr", "name": "Türkçe" },
+      { "id": "en", "name": "İngilizce" },
+      { "id": "es", "name": "İspanyolca" },
+      { "id": "fr", "name": "Fransızca" },
+      { "id": "de", "name": "Almanca" },
+      { "id": "it", "name": "İtalyanca" },
+      { "id": "pt", "name": "Portekizce" },
+      { "id": "zh", "name": "Çince" },
+      { "id": "ja", "name": "Japonca" },
+      { "id": "ar", "name": "Arapça" },
+      { "id": "ru", "name": "Rusça" }
+    ]
+  },
+  "login": {
+    "brand.name": "Skyline",
+    "brand.tagline": "Kişiselleştirilmiş kontrol panelinizi ve güçlü analiz araçlarınızı açmak için giriş yapın",
+    "auth.signIn": "Giriş yap",
+    "auth.signUp": "Kaydol",
+    "auth.description": "Hesabınıza erişmek için kimlik bilgilerinizi girin",
+    "auth.noAccount": "Hesabınız yok mu?",
+    "auth.email.label": "E-posta Adresi",
+    "auth.email.placeholder": "isim@ornek.com",
+    "auth.password.label": "Şifre",
+    "auth.password.placeholder": "••••••••",
+    "auth.states.signingIn": "Giriş yapılıyor...",
+    "auth.states.success": "Başarılı!",
+    "auth.states.sending": "Gönderiliyor...",
+    "errors.inactiveAccount.resolution": "Lütfen e-postanızdaki bağlantıya tıklayarak hesabınızı etkinleştirin",
+    "errors.inactiveAccount.action": "Etkinleştirme e-postasını tekrar gönder",
+    "errors.inactiveAccount.successMessage": "Etkinleştirme e-postası gönderildi!",
+    "errors.inactiveAccount.successResolution": "Lütfen gelen kutunuzu kontrol edin ve etkinleştirme bağlantısına tıklayın.",
+    "errors.invalidCredentials.resolution": "Lütfen kimlik bilgilerinizi kontrol edin ve tekrar deneyin",
+    "errors.accountLocked.resolution": "Lütfen yardım için destek ile iletişime geçin",
+    "errors.accountLocked.action": "Destek İle İletişime Geç",
+    "errors.forbidden.resolution": "Bu kaynağa erişim izniniz yok",
+    "errors.serverError.resolution": "Lütfen daha sonra tekrar deneyin veya sorun devam ederse destek ile iletişime geçin",
+    "errors.networkError.message": "Ağ bağlantısı hatası",
+    "errors.networkError.resolution": "Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin",
+    "errors.unknown.resolution": "Lütfen tekrar deneyin veya sorun devam ederse destek ile iletişime geçin"
+  },
+  "sectionManagement": {
+    "description1": "Web siteniz için logo, menü öğeleri ve iletişim bilgileri içeren üst navigasyon çubuğu",
+    "sections.hero.description": "Etkileyici başlıklar ve eylem çağrısı düğmeleri içeren göz alıcı ana banner",
+    "sections.services.description": "Temel hizmetlerinizi ve tekliflerinizi detaylı açıklamalarla sergileyin",
+    "sections.news.description": "Kitleniz için en son haberleri, güncellemeleri ve duyuruları görüntüleyin",
+    "sections.industrySolutions.description": "Hizmet verdiğiniz farklı endüstriler için özel çözümler sunun",
+    "sections.whyChooseUs.description": "Benzersiz değer önerilerinizi ve rekabet avantajlarınızı vurgulayın",
+    "sections.projects.description": "Tamamlanmış projelerinizin ve vaka çalışmalarınızın portföy vitrini",
+    "sections.ourProcess.description": "İş akışınızın ve metodolojinizin adım adım dökümü",
+    "sections.team.description": "Personel profilleri ve uzmanlıkları ile ekiple tanışma bölümü",
+    "sections.clientComments.description": "Güven ve kredibilite oluşturmak için müşteri görüşleri ve değerlendirmeleri",
+    "sections.partners.description": "İş ortaklarınızın logolarını ve bilgilerini görüntüleyin",
+    "sections.faq.description": "Yaygın müşteri sorularını ele almak için sık sorulan sorular",
+    "sections.blog.description": "Makaleler, içgörüler ve düşünce liderliği içerikleri için blog bölümü",
+    "sections.contact.description": "Müşteri soruları için iletişim bilgileri, formlar ve konum detayları",
+    "sections.footer.description": "Bağlantılar, sosyal medya ve ek şirket bilgileri içeren alt bölüm",
+    "title": "Web Sitesi Bölümleri",
+    "currentSections": "Mevcut Web Sitesi Bölümleri",
+    "addNewSections": "Önceden Tasarlanmış Bölümler Ekle",
+    "searchPlaceholder": "Bölümleri ara...",
+    "addNew": "Yeni Ekle",
+    "categories.all": "Tüm Bölümler",
+    "categories.layout": "Düzen",
+    "categories.content": "İçerik",
+    "noSectionsYet": "Henüz bölüm yok",
+    "noSectionsDescription": "Web sitesi yapınızı oluşturmak için önceden tasarlanmış bölümler ekleyin. Bölümler herhangi bir sırada düzenlenebilir.",
+    "browseSections": "Mevcut Bölümlere Göz At",
+    "addToWebsite": "Web Sitesine Ekle",
+    "active": "Aktif",
+    "hidden": "Gizli",
+    "deleteSection": "Bölümü Sil",
+    "deleteConfirmation": "Bu, bölümü kalıcı olarak silecektir. Bu işlem geri alınamaz ve bu bölümdeki herhangi bir içerik kaybolacaktır.",
+    "cancel": "İptal",
+    "delete": "Bölümü Sil",
+    "dragToReorder": "Web sitenizde yeniden sıralamak için bölümleri sürükleyin",
+    "noSectionsFound": "Bölüm bulunamadı",
+    "noSectionsFoundDescription": "Aramanızla eşleşen bölüm bulunamadı",
+    "clearSearch": "Aramayı Temizle",
+    "clearSearchLink": "Aramayı temizle",
+    "filterByCategory": "Kategoriye Göre Filtrele",
+    "createWebsiteFirst": "Bölümlerini görmek için lütfen önce bir web sitesi oluşturun.",
+    "createWebsiteBeforeAdding": "Bölüm eklemeden önce lütfen önce bir web sitesi oluşturun.",
+    "sectionCount": "bölüm",
+    "duplicateSection": "Tekrar eden bölüm",
+    "duplicateSectionMessage": "Bu adda bir bölüm zaten mevcut.",
+    "sectionAdded": "Bölüm eklendi",
+    "sectionAddedSuccessfully": "bölüm başarıyla eklendi.",
+    "errorAddingSection": "Bölüm ekleme hatası",
+    "errorAddingSectionMessage": "Bölüm eklenirken bir hata oluştu.",
+    "sectionDeleted": "Bölüm silindi",
+    "sectionDeletedSuccessfully": "Bölüm başarıyla silindi.",
+    "errorDeletingSection": "Bölüm silme hatası",
+    "errorDeletingSectionMessage": "Bölüm silinirken bir hata oluştu.",
+    "sectionActivated": "Bölüm etkinleştirildi",
+    "sectionDeactivated": "Bölüm devre dışı bırakıldı",
+    "sectionVisibilityChanged": "artık web sitenizde görünür.",
+    "sectionVisibilityHidden": "artık web sitenizde gizli.",
+    "errorUpdatingSection": "Bölüm güncelleme hatası",
+    "errorUpdatingSectionMessage": "Bölüm durumu güncellenirken bir hata oluştu.",
+    "orderUpdated": "Sıra güncellendi",
+    "orderUpdatedSuccessfully": "Bölüm sırası başarıyla güncellendi.",
+    "errorUpdatingOrder": "Sıra güncelleme hatası",
+    "errorUpdatingOrderMessage": "Bölüm sırası güncellenirken bir hata oluştu.",
+    "noValidSections": "Yeniden sıralanacak geçerli bölüm yok.",
+    "sectionIdMissing": "Bölüm ID'si eksik.",
+    "changesSaved": "Değişiklikler başarıyla kaydedildi!",
+    "hideSection": "Bölümü gizle",
+    "showSection": "Bölümü göster",
+    "deleteSectionTooltip": "Bölümü sil",
+    "loadingSections": "Bölümler yükleniyor...",
+    "errorLoadingSections": "Bölümler yüklenirken hata",
+    "failedToFetchSections": "Bölümler getirilemedi",
+    "tryAgain": "Tekrar Dene",
+    "current": "Mevcut",
+    "available": "Mevcut"
+  },
+  "themeManagement": {
+    "pageTitle": "Web Sitesi Görünüm Ayarları",
+    "websiteSelection": {
+      "title": "Özelleştirilecek Web Sitesini Seçin",
+      "placeholder": "Web sitenizi seçin"
+    },
+    "activeTheme": {
+      "title": "Şu Anda Aktif Görünüm",
+      "badge": "Web Sitesinde Canlı",
+      "colorSchemes": "🎨 Renk Şemaları",
+      "typography": "📝 Tipografi Stili",
+      "lightMode": "Açık Mod",
+      "darkMode": "Karanlık Mod"
+    },
+    "createTheme": {
+      "title": "Yeni Görünüm ve His Oluştur",
+      "buttonCreate": "Yeni Görünüm Tasarla",
+      "buttonCancel": "İptal",
+      "nameLabel": "Tasarımınıza Bir Ad Verin",
+      "namePlaceholder": "örn. Yaz Atmosferi, Profesyonel Mavi, vb.",
+      "quickColors": {
+        "title": "🎨 Hızlı Renk Temaları",
+        "tooltip": "Hem açık hem de karanlık modlar için hazır renk şeması seçin"
+      },
+      "fontCombinations": {
+        "title": "📝 Font Kombinasyonları",
+        "tooltip": "Birlikte iyi çalışan fontları seçin",
+        "headlines": "Başlıklar:",
+        "bodyText": "Gövde metni:"
+      },
+      "customizeColors": {
+        "title": "🎨 Renkleri Özelleştir",
+        "lightMode": "Açık Mod",
+        "darkMode": "Karanlık Mod"
+      },
+      "customizeFonts": {
+        "title": "📝 Fontları Özelleştir",
+        "fontStyle": "Font Stili",
+        "fontWeight": "Font Kalınlığı",
+        "fontSize": "Font Boyutu"
+      },
+      "fontWeights": {
+        "300": "Açık ve İnce",
+        "400": "Normal",
+        "500": "Orta",
+        "600": "Yarı Kalın",
+        "700": "Kalın",
+        "800": "Çok Kalın"
+      },
+      "fontSizes": {
+        "small": "Küçük (14px)",
+        "normal": "Normal (16px)",
+        "large": "Büyük (18px)",
+        "extraLarge": "Çok Büyük (20px)",
+        "huge": "Kocaman (24px)",
+        "massive": "Devasa (32px)"
+      },
+      "createButton": "🎨 Tasarımımı Oluştur",
+      "creating": "Oluşturuluyor..."
+    },
+    "savedThemes": {
+      "title": "Kayıtlı Tasarımlarınız",
+      "active": "Aktif",
+      "edit": "Düzenle",
+      "save": "Kaydet",
+      "cancel": "İptal",
+      "colors": "🎨 Renkler",
+      "typography": "📝 Tipografi",
+      "actions": {
+        "useThis": "Bunu Kullan",
+        "copy": "Kopyala",
+        "delete": "Sil"
+      }
+    },
+    "fontPresets": {
+      "modern": "Modern ve Profesyonel",
+      "elegant": "Zarif ve Rafine",
+      "creative": "Yaratıcı ve Cesur",
+      "minimal": "Temiz ve Minimal",
+      "classic": "Klasik ve Zamansız"
+    },
+    "fontFamilies": {
+      "inter": "Inter (Modern ve Temiz)",
+      "roboto": "Roboto (Google'ın Tercihi)",
+      "openSans": "Open Sans (Dostane ve Açık)",
+      "lato": "Lato (Zarif)",
+      "montserrat": "Montserrat (Geometrik)",
+      "playfair": "Playfair Display (Zarif Başlıklar)",
+      "merriweather": "Merriweather (Okuma Dostu)",
+      "sourceSerif": "Source Serif Pro (Profesyonel)",
+      "robotoMono": "Roboto Mono (Kod Stili)",
+      "firaCode": "Fira Code (Geliştirici Stili)"
+    },
+    "states": {
+      "noWebsite": {
+        "title": "Web Sitesi Mevcut Değil",
+        "description": "Renkler ve fontlarla görsel görünümünüzü özelleştirmeye başlamak için önce bir web sitesi oluşturun."
+      },
+      "error": {
+        "title": "Temalar Yüklenirken Hata",
+        "description": "Temalar getirilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+        "retry": "Tekrar Dene"
+      },
+      "loading": {
+        "title": "Temalar Yükleniyor..."
+      }
+    },
+    "tooltips": {
+      "colorPresets": "Hem açık hem de karanlık modlar için hazır renk şeması seçin",
+      "fontPresets": "Birlikte iyi çalışan fontları seçin",
+      "colorCustomization": "Temanız için ayrı renkleri özelleştirin",
+      "fontCustomization": "Farklı metin öğeleri için tipografi ayarlarını özelleştirin"
+    },
+    "colorPresets": {
+      "corporateBlue": "Kurumsal Mavi",
+      "emeraldNature": "Zümrüt Doğa",
+      "purpleCreative": "Mor Yaratıcı",
+      "roseElegant": "Gül Zarif"
+    },
+    "fontPresets": {
+      "modernSans": "Modern Sans",
+      "classicSerif": "Klasik Serif",
+      "techStack": "Teknoloji Yığını",
+      "editorial": "Editöryal"
+    },
+    "colorLabels": {
+      "primary": {
+        "label": "Ana Marka Rengi",
+        "description": "Düğmeler ve vurgular için kullanılan birincil marka renginiz",
+        "icon": "🎨"
+      },
+      "secondary": {
+        "label": "İkincil Renk",
+        "description": "Ana markanızı tamamlayan destekleyici renk",
+        "icon": "✨"
+      },
+      "background": {
+        "label": "Arka Plan Rengi",
+        "description": "Web sitenizin ana arka plan rengi",
+        "icon": "📄"
+      },
+      "text": {
+        "label": "Metin Rengi",
+        "description": "Normal metin içeriği için renk",
+        "icon": "📝"
+      },
+      "accent": {
+        "label": "Vurgu Rengi",
+        "description": "Özel vurgular ve eylem çağrıları için renk",
+        "icon": "⭐"
+      },
+      "border": {
+        "label": "Kenar Rengi",
+        "description": "Öğelerin etrafındaki çizgiler ve kenarlıklar için renk",
+        "icon": "🔲"
+      },
+      "hover": {
+        "label": "Hover Efekt Rengi",
+        "description": "Düğmelerin üzerine gelindiğinde görünen renk",
+        "icon": "👆"
+      },
+      "error": {
+        "label": "Hata/Uyarı Rengi",
+        "description": "Hata mesajları ve uyarılar için renk",
+        "icon": "⚠️"
+      },
+      "success": {
+        "label": "Başarı Rengi",
+        "description": "Başarı mesajları ve onaylar için renk",
+        "icon": "✅"
+      },
+      "warning": {
+        "label": "Uyarı Rengi",
+        "description": "Önemli bildirimler ve uyarılar için renk",
+        "icon": "🚨"
+      }
+    },
+    "fontTypeLabels": {
+      "heading": {
+        "label": "Başlıklar ve Başlıklar",
+        "description": "Sayfa başlıkları ve bölüm başlıkları için kullanılan font",
+        "icon": "📰"
+      },
+      "body": {
+        "label": "Gövde Metni",
+        "description": "Paragraflar ve normal içerik için kullanılan font",
+        "icon": "📖"
+      },
+      "accent": {
+        "label": "Özel Metin",
+        "description": "Alıntılar, açıklamalar ve özel öğeler için kullanılan font",
+        "icon": "💬"
+      }
+    },
+    "fontPropertyLabels": {
+      "family": "Font Stili",
+      "weight": "Font Kalınlığı",
+      "size": "Font Boyutu"
+    },
+    "colorModeLabels": {
+      "light": {
+        "label": "Açık Mod",
+        "description": "Açık tema için renkler (varsayılan gündüz görünümü)",
+        "icon": "☀️"
+      },
+      "dark": {
+        "label": "Karanlık Mod",
+        "description": "Karanlık tema için renkler (gece/düşük ışık görünümü)",
+        "icon": "🌙"
+      }
+    }
+  },
+  "GenericTable": {
+    "actionsHeader": "İşlemler",
+    "searchPlaceholder": "Ara...",
+    "filterButton": "Filtrele",
+    "emptyMessage": "Veri mevcut değil",
+    "emptyDescription": "Arama veya filtre kriterlerinizi değiştirmeyi deneyin",
+    "loadingMessage": "Yükleniyor...",
+    "showingResults": "Gösteriliyor",
+    "resultsText": "sonuç",
+    "viewTooltip": "Görüntüle",
+    "editTooltip": "Düzenle",
+    "deleteTooltip": "Sil",
+    "viewItem": "Öğeyi görüntüle",
+    "editItem": "Öğeyi düzenle",
+    "deleteItem": "Öğeyi sil",
+    "paginationPrevious": "Önceki",
+    "paginationNext": "Sonraki",
+    "paginationPage": "Sayfa",
+    "paginationOf": "/",
+    "paginationShowing": "Gösteriliyor",
+    "paginationTo": "-",
+    "paginationEntries": "giriş",
+    "statusActive": "Aktif",
+    "statusInactive": "Pasif",
+    "statusEnabled": "Etkin",
+    "statusDisabled": "Devre Dışı",
+    "priorityHigh": "Yüksek",
+    "priorityMedium": "Orta",
+    "priorityLow": "Düşük",
+    "priorityUrgent": "Acil",
+    "priorityNormal": "Normal",
+    "sortAscending": "Artan sırala",
+    "sortDescending": "Azalan sırala",
+    "sortUnsorted": "Sıralanmamış",
+    "filtersApply": "Filtreleri Uygula",
+    "filtersClear": "Filtreleri Temizle",
+    "filtersReset": "Sıfırla",
+    "filtersShowAll": "Tümünü Göster",
+    "filtersAdvanced": "Gelişmiş Filtreler",
+    "statesLoading": "Veri yükleniyor...",
+    "statesRefreshing": "Yenileniyor...",
+    "statesProcessing": "İşleniyor...",
+    "statesSaving": "Kaydediliyor...",
+    "statesDeleting": "Siliniyor...",
+    "statesUpdating": "Güncelleniyor...",
+    "errorsLoadFailed": "Veri yüklenemedi",
+    "errorsLoadRetry": "Veri yüklemeyi yeniden dene",
+    "errorsActionFailed": "İşlem başarısız",
+    "errorsActionRetry": "İşlemi yeniden dene",
+    "errorsNetworkError": "Ağ bağlantısı hatası",
+    "errorsServerError": "Sunucu hatası oluştu",
+    "errorsPermissionDenied": "İzin reddedildi",
+    "errorsNotFound": "Veri bulunamadı",
+    "errorsTimeout": "İstek zaman aşımı",
+    "confirmationsDeleteTitle": "Silmeyi Onayla",
+    "confirmationsDeleteMessage": "Bu öğeyi silmek istediğinizden emin misiniz?",
+    "confirmationsDeleteWarning": "Bu işlem geri alınamaz",
+    "confirmationsYesDelete": "Evet, Sil",
+    "confirmationsCancel": "İptal",
+    "confirmationsConfirm": "Onayla"
+  },
+  "process": {
+    "title": "Süreç Yönetimi",
+    "description": "Süreç envanterinizi ve çok dilli içeriğinizi yönetin",
+    "addButtonLabel": "Yeni Süreç öğesi ekle",
+    "emptyStateMessage": "Süreç bulunamadı. \"Yeni Süreç Ekle\" düğmesine tıklayarak ilk Sürecinizi oluşturun.",
+    "noSectionMessage": "Süreç eklemeden önce lütfen önce bir Süreç bölümü oluşturun.",
+    "mainSectionRequiredMessage": "Süreç eklemeden önce lütfen ana bölüm verilerinizi girin.",
+    "emptyFieldsMessage": "Süreç eklemeden önce lütfen ana bölümdeki tüm gerekli alanları tamamlayın.",
+    "sectionIntegrationTitle": "Süreç Bölümü İçeriği",
+    "sectionIntegrationDescription": "Süreç bölümü içeriğinizi birden fazla dilde yönetin.",
+    "addSectionButtonLabel": "Süreç Bölümü Ekle",
+    "editSectionButtonLabel": "Süreç Bölümünü Düzenle",
+    "saveSectionButtonLabel": "Süreç Bölümünü Kaydet",
+    "listTitle": "Süreç Listesi",
+    "editPath": "ourProcess/addProcess",
+    "columnName": "Ad",
+    "columnDescription": "Açıklama",
+    "columnStatus": "Durum",
+    "columnOrder": "Sıra",
+    "columnSubsections": "Alt Bölümler",
+    "statusMain": "Ana",
+    "createDialogTitle": "Süreç",
+    "deleteDialogTitle": "Süreç Öğesini Sil",
+    "deleteConfirmText": "Onayla",
+    "loadingMessage": "Süreçler yükleniyor...",
+    "noDataMessage": "Mevcut süreç yok",
+    "createNewProcess": "Yeni Süreç Oluştur",
+    "editProcess": "Süreç Düzenle",
+    "deleteProcess": "Süreç Sil",
+    "processItem": "Süreç Öğesi",
+    "mainSubsectionCreated": "Ana alt bölüm başarıyla oluşturuldu",
+    "sectionDataUpdated": "Bölüm verisi güncellendi",
+    "expectedSubsectionName": "Beklenen alt bölüm adı",
+    "actualSubsectionName": "Gerçek alt bölüm adı",
+    "subsectionNameCorrect": "Alt bölüm adı doğru",
+    "stillLoadingData": "Alt bölüm verisi hala yükleniyor",
+    "foundMainSubsection": "Ana alt bölüm bulundu",
+    "noMainSubsectionFound": "Ana alt bölüm bulunamadı",
+    "settingSectionData": "Bölüm verisi ayarlanıyor",
+    "refetchingData": "Ana alt bölüm verisi yeniden alınıyor"
+  },
+  "mainSubsection": {
+    "validationError": "Doğrulama Hatası",
+    "checkFormErrors": "Lütfen formda hataları kontrol edin",
+    "success": "Başarılı",
+    "mainSubsectionCreated": "Ana alt bölüm içerikle oluşturuldu",
+    "languages": "dil(ler).",
+    "errorCreatingSubsection": "Alt bölüm oluşturma hatası",
+    "unexpectedError": "Beklenmeyen bir hata oluştu",
+    "subsectionUpdated": "Alt bölüm içerikle güncellendi",
+    "errorUpdatingSubsection": "Alt bölüm güncelleme hatası",
+    "couldNotCheckSubsection": "Ana alt bölümün mevcut olup olmadığı kontrol edilemedi.",
+    "enterMainSectionData": "Lütfen ana bölüm verilerinizi girin!",
+    "noActiveLanguagesTitle": "Aktif Dil Mevcut Değil",
+    "noActiveLanguagesMessage": "Alt bölüm oluşturmadan önce en az bir aktif dilinizin olması gerekir.",
+    "mainSubsectionAvailableTitle": "Ana Alt Bölüm Mevcut",
+    "mainSubsectionAvailableDescription": "Bu bölüm için ana alt bölüm zaten kurulmuş.",
+    "editMainSubsection": "Ana Alt Bölümü Düzenle",
+    "createMainSubsection": "Ana Alt Bölüm Oluştur",
+    "updateContentDescription": "Bu ana alt bölüm için içeriği tüm dillerde güncelleyin.",
+    "completeRequiredFields": "Bu bölüm için ana alt bölümü oluşturmak için gerekli alanları tamamlayın.",
+    "showContentForm": "İçerik Formunu Göster",
+    "enterFieldFor": "Girin",
+    "forLanguage": "için",
+    "requiredField": "*",
+    "metaFieldName": "Ad",
+    "metaFieldDescription": "Açıklama",
+    "metaFieldSlug": "Kısa Ad",
+    "metaFieldLanguages": "Diller",
+    "metaFieldContentElements": "İçerik Öğeleri",
+    "loadingMessage": "Yükleniyor...",
+    "retryButton": "Tekrar Dene",
+    "editButton": "Düzenle",
+    "cancelButton": "İptal",
+    "saveButton": "Kaydet",
+    "createButton": "Oluştur",
+    "updateButton": "Güncelle",
+    "creating": "Oluşturuluyor...",
+    "updating": "Güncelleniyor...",
+    "creatingElements": "Öğeler oluşturuluyor...",
+    "processingData": "Veriler işleniyor...",
+    "validatingForms": "Formlar doğrulanıyor...",
+    "savingChanges": "Değişiklikler kaydediliyor...",
+    "formFieldRequired": "gereklidir",
+    "placeholderEnter": "Girin",
+    "placeholderLowercase": "küçük harf",
+    "errorCreatingElement": "İçerik öğesi oluşturulamadı",
+    "errorCreatingTranslation": "Çeviri oluşturma hatası",
+    "errorUpdatingElement": "Öğe güncelleme hatası",
+    "errorUpdatingTranslation": "Çeviri güncelleme hatası",
+    "inLanguage": "dilde",
+    "errorRefetchingData": "Veri yeniden alma hatası",
+    "creation": "oluşturma",
+    "update": "güncelleme",
+    "expandForm": "Formu Genişlet",
+    "collapseForm": "Formu Daralt",
+    "selectLanguage": "Dil Seç",
+    "allLanguages": "Tüm Diller",
+    "defaultLanguage": "Varsayılan Dil",
+    "additionalLanguages": "Ek Diller",
+    "contentPreview": "İçerik Önizlemesi",
+    "formValidation": "Form Doğrulaması",
+    "fieldValidation": "Alan Doğrulaması",
+    "languageValidation": "Dil Doğrulaması",
+    "subsectionData": "Alt Bölüm Verisi",
+    "elementData": "Öğe Verisi",
+    "translationData": "Çeviri Verisi"
+  },
+  "mainSectionComponents": {
+    "errorTitle": "Hata",
+    "tryAgain": "Tekrar Dene",
+    "retryAction": "Tekrar Dene",
+    "warningTitle": "Uyarı",
+    "successTitle": "Başarılı",
+    "infoTitle": "Bilgi",
+    "editContent": "İçeriği Düzenle",
+    "cancel": "İptal",
+    "saveChanges": "Değişiklikleri Kaydet",
+    "createMainSubsection": "Ana Alt Bölüm Oluştur",
+    "creatingSubsection": "Alt Bölüm Oluşturuluyor...",
+    "creatingContentElements": "İçerik Öğeleri Oluşturuluyor...",
+    "updatingContent": "İçerik Güncelleniyor...",
+    "processing": "İşleniyor...",
+    "loading": "Yükleniyor...",
+    "saving": "Kaydediliyor...",
+    "activeLanguages": "Aktif Diller",
+    "defaultLanguage": "Varsayılan",
+    "noDataAvailable": "Veri mevcut değil",
+    "couldNotLoad": "Veri yüklenemedi",
+    "unexpectedError": "Beklenmeyen bir hata oluştu",
+    "pleaseWait": "Lütfen bekleyin...",
+    "operationInProgress": "İşlem devam ediyor",
+    "almostDone": "Neredeyse bitti...",
+    "preparingData": "Veri hazırlanıyor...",
+    "validatingInput": "Giriş doğrulanıyor...",
+    "connectingToServer": "Sunucuya bağlanılıyor...",
+    "processingRequest": "İstek işleniyor...",
+    "savingChanges": "Değişiklikler kaydediliyor...",
+    "loadingContent": "İçerik yükleniyor...",
+    "refreshingData": "Veri yenileniyor...",
+    "checkingStatus": "Durum kontrol ediliyor...",
+    "initializingComponent": "Bileşen başlatılıyor...",
+    "configuringSettings": "Ayarlar yapılandırılıyor...",
+    "establishingConnection": "Bağlantı kuruluyor...",
+    "synchronizingData": "Veri senkronize ediliyor...",
+    "finalizing": "Sonlandırılıyor...",
+    "completed": "Tamamlandı",
+    "failed": "Başarısız",
+    "cancelled": "İptal Edildi",
+    "timeout": "Zaman Aşımı",
+    "retry": "Tekrar Dene",
+    "close": "Kapat",
+    "confirm": "Onayla",
+    "yes": "Evet",
+    "no": "Hayır",
+    "ok": "Tamam",
+    "continue": "Devam Et",
+    "back": "Geri",
+    "next": "Sonraki",
+    "previous": "Önceki",
+    "finish": "Bitir",
+    "submit": "Gönder",
+    "reset": "Sıfırla",
+    "clear": "Temizle",
+    "delete": "Sil",
+    "remove": "Kaldır",
+    "add": "Ekle",
+    "create": "Oluştur",
+    "update": "Güncelle",
+    "edit": "Düzenle",
+    "view": "Görüntüle",
+    "preview": "Önizleme",
+    "download": "İndir",
+    "upload": "Yükle",
+    "import": "İçe Aktar",
+    "export": "Dışa Aktar",
+    "print": "Yazdır",
+    "share": "Paylaş",
+    "copy": "Kopyala",
+    "paste": "Yapıştır",
+    "cut": "Kes",
+    "undo": "Geri Al",
+    "redo": "Yinele",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "refresh": "Yenile",
+    "reload": "Yeniden Yükle",
+    "help": "Yardım",
+    "settings": "Ayarlar",
+    "preferences": "Tercihler",
+    "options": "Seçenekler",
+    "tools": "Araçlar",
+    "menu": "Menü",
+    "home": "Ana Sayfa",
+    "dashboard": "Kontrol Paneli",
+    "profile": "Profil",
+    "account": "Hesap",
+    "logout": "Çıkış Yap",
+    "login": "Giriş Yap",
+    "signup": "Kaydol",
+    "register": "Kayıt Ol"
+  },
+  "sectionFields": {
+    "sectionBadge": "Bölüm Rozeti",
+    "sectionTitle": "Bölüm Başlığı",
+    "sectionDescription": "Bölüm Açıklaması"
+  },
+  "HeaderConfig": {
+    "title": "Başlık Yönetimi",
+    "description": "Başlık envanterinizi ve çok dilli içeriğinizi yönetin",
+    "addButtonLabel": "Yeni Navigasyon Öğesi Ekle",
+    "emptyStateMessage": "Başlık bulunamadı. \"Yeni Başlık Ekle\" düğmesine tıklayarak ilk Başlığınızı oluşturun.",
+    "noSectionMessage": "Başlık eklemeden önce lütfen önce bir Başlık bölümü oluşturun.",
+    "mainSectionRequiredMessage": "Başlık eklemeden önce lütfen ana bölüm verilerinizi girin.",
+    "emptyFieldsMessage": "Başlık eklemeden önce lütfen ana bölümdeki tüm gerekli alanları tamamlayın.",
+    "sectionIntegrationTitle": "Başlık Bölümü İçeriği",
+    "sectionIntegrationDescription": "Başlık bölümü içeriğinizi birden fazla dilde yönetin.",
+    "addSectionButtonLabel": "Başlık Bölümü Ekle",
+    "editSectionButtonLabel": "Başlık Bölümünü Düzenle",
+    "saveSectionButtonLabel": "Başlık Bölümünü Kaydet",
+    "listTitle": "Başlık Listesi"
+  },
+  "SectionTable": {
+    "name": "Ad",
+    "description": "Açıklama",
+    "status": "Durum",
+    "main": "Ana",
+    "order": "Sıra",
+    "subsections": "Alt Bölümler",
+    "header": "Başlık",
+    "deleteSection": "Bölümü Sil",
+    "confirm": "Onayla"
+  },
+  "createSectionItemDialog": {
+    "createNew": "Yeni {{title}} Oluştur",
+    "dialogDescription": "Yeni hizmetiniz için temel bilgileri girin. Oluşturduktan sonra daha fazla ayrıntı ekleyebileceksiniz.",
+    "nameLabel": "{{title}} Adı",
+    "nameRequired": "*",
+    "descriptionLabel": "Açıklama",
+    "namePlaceholder": "Hizmet adını girin",
+    "descriptionPlaceholder": "Hizmet açıklamasını girin",
+    "cancelButton": "İptal",
+    "createButton": "{{title}} Oluştur",
+    "creatingButton": "Oluşturuluyor...",
+    "validationError": "Doğrulama Hatası",
+    "serviceNameRequired": "Hizmet adı gereklidir",
+    "loading": "Yükleniyor",
+    "waitFetchWebsite": "Web sitesi bilgilerinizi alırken lütfen bekleyin",
+    "error": "Hata",
+    "failedFetchWebsite": "Web sitesi bilgileri alınamadı",
+    "createWebsiteFirst": "Hizmet eklemeden önce lütfen önce bir web sitesi oluşturun",
+    "serviceCreated": "Hizmet oluşturuldu",
+    "addDetailsMessage": "Artık hizmetinize ayrıntılar ekleyebilirsiniz",
+    "errorCreatingService": "Hizmet oluşturma hatası",
+    "errorOccurred": "Hizmet oluşturulurken bir hata oluştu"
+  },
+  "formShell": {
+    "noActiveLanguages": "Aktif dil bulunamadı. Lütfen ayarlarda en az bir dili etkinleştirin.",
+    "languages": "Diller",
+    "completion": "Tamamlama:",
+    "saving": "Kaydediliyor...",
+    "create": "Oluştur",
+    "update": "Güncelle",
+    "unsavedChanges": {
+      "title": "Kaydedilmemiş Değişiklikler",
+      "description": "Kaydedilmemiş değişiklikleriniz var. Bu sayfadan ayrılmak istediğinizden emin misiniz? Tüm kaydedilmemiş değişiklikler kaybolacaktır.",
+      "cancel": "İptal",
+      "leavePage": "Sayfadan Ayrıl"
+    }
+  },
+  "formContext": {
+    "errors": {
+      "general": "Hata",
+      "missingSectionId": "Bölüm ID'si eksik. Veri kaydedilemiyor.",
+      "validationError": "Doğrulama Hatası",
+      "validationDescription": "Lütfen tüm gerekli alanların doğru şekilde doldurulduğundan emin olun.",
+      "savingError": "Veri kaydetme hatası",
+      "savingDescription": "Verileriniz kaydedilirken bir hata oluştu. Lütfen tekrar deneyin."
+    },
+    "success": {
+      "created": "Başarıyla oluşturuldu",
+      "updated": "Başarıyla güncellendi",
+      "saveDescription": "İçeriğiniz kaydedildi."
+    }
+  },
+  "addHeader": {
+    "title": {
+      "create": "Yeni Navigasyon Öğesi Oluştur",
+      "edit": "Navigasyon Öğesini Düzenle"
+    },
+    "subtitle": {
+      "create": "Çok dilli içerikle yeni bir navigasyon öğesi oluşturun",
+      "edit": "\"{{name}}\" içeriğini birden fazla dilde düzenleme"
+    },
+    "tabs": {
+      "navItems": "Navigasyon Öğeleri"
+    },
+    "defaults": {
+      "newHeader": "Yeni Başlık",
+      "navItem": "navigasyon öğesi"
+    }
+  },
+  "languageSelector": {
+    "selectLanguage": "Dil Seçin"
+  },
+  "tabsLayout" : {
+    "backButton" : "Dön"
+  },
+  "imageUploader": {
+    "replaceImage": "Resmi Değiştir",
+    "remove": "Kaldır",
+    "dragAndDrop": "Sürükle bırak veya yüklemek için tıkla",
+    "uploadImage": "Resim Yükle",
+    "logoImageUploading": "Logo Resmi Yükleme",
+    "sectionImage": "Bölüm Resmi",
+    "logoImageUploadingForHeader": "Başlık için logo resmi yükleme",
+    "uploadImageForSection": "Bölüm için resim yükle (tüm diller için geçerlidir)",
+    "logo": "Logo",
+    "backgroundImage": "Arka Plan Resmi",
+    "appliesToAllLanguages": "(tüm diller için geçerlidir)",
+    "imagePreview": "Resim önizlemesi",
+    "backgroundImagePreview": "Arka plan resmi önizlemesi"
+  },
+  "navLanguageCard": {
+    "navigationSection": "Navigasyon Bölümü", 
+    "manageNavigationItems": "için navigasyon öğelerini yönet",
+    "navItem": "Navigasyon Öğesi"
+  },
+  "navForm": {
+    "loadingNavigationData": "Navigasyon bölümü verileri yükleniyor...",
+    "updatingNavigationSection": "Navigasyon Bölümü Güncelleniyor",
+    "creatingNavigationSection": "Navigasyon Bölümü Oluşturuluyor",
+    "pleaseWaitSaving": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+    "navigationItemAdded": "Navigasyon öğesi eklendi",
+    "newNavigationItemAdded": "Yeni bir navigasyon öğesi eklendi.",
+    "cannotRemove": "Kaldırılamıyor",
+    "needAtLeastOneItem": "En az bir navigasyon öğesine ihtiyacınız var",
+    "navigationItemDeleted": "Navigasyon öğesi silindi",
+    "itemDeletedFromDatabase": "Öğe {{number}} veritabanından silindi",
+    "errorRemovingItem": "Öğe kaldırma hatası",
+    "errorRemovingFromDatabase": "Navigasyon öğesi veritabanından kaldırılırken bir hata oluştu",
+    "imageUploaded": "Resim Yüklendi",
+    "logoUploadedSuccessfully": "Logo resmi başarıyla yüklendi.",
+    "imageUploadFailed": "Resim Yükleme Başarısız",
+    "failedToUploadImage": "Resim yüklenemedi",
+    "validationError": "Doğrulama Hatası",
+    "fillAllRequiredFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+    "creatingNewNavigationSection": "Yeni navigasyon bölümü oluşturuluyor...",
+    "settingUpNewContent": "Yeni navigasyon içeriğiniz ayarlanıyor.",
+    "navigationSectionUpdated": "Navigasyon bölümü başarıyla güncellendi!",
+    "navigationSectionCreated": "Navigasyon bölümü başarıyla oluşturuldu!",
+    "allChangesSaved": "Tüm değişiklikler kaydedildi.",
+    "refreshingContent": "İçerik yenileniyor",
+    "loadingUpdatedContent": "Güncellenmiş içerik yükleniyor...",
+    "errorUpdatingNavigationSection": "Navigasyon bölümü güncellenirken hata",
+    "errorCreatingNavigationSection": "Navigasyon bölümü oluşturulurken hata",
+    "unknownErrorOccurred": "Bilinmeyen bir hata oluştu",
+    "addNavItem": "Navigasyon Öğesi Ekle",
+    "addNavItemToAllLanguages": "Tüm Dillere Navigasyon Öğesi Ekle",
+    "sameNumberOfItems": "Her dil aynı sayıda navigasyon öğesine sahip olmalıdır",
+    "saving": "Kaydediliyor...",
+    "updateNavigationContent": "Navigasyon İçeriğini Güncelle",
+    "saveNavigationContent": "Navigasyon İçeriğini Kaydet",
+    "navigationItemCountMismatch": "Navigasyon Öğesi Sayısı Uyumsuzluğu",
+    "countMismatchDescription": "Kaydetmeden önce her dil aynı sayıda navigasyon öğesine sahip olmalıdır. Lütfen tüm dillerin aynı sayıya sahip olduğundan emin olmak için öğeleri ekleyin veya kaldırın:",
+    "items": "öğe",
+    "close": "Kapat",
+    "deleteNavigationItem": "Navigasyon Öğesini Sil",
+    "deleteItem": "Öğeyi Sil",
+    "navigationSection": "Navigasyon Bölümü",
+    "navigationSectionDescription": "Web sitesi için navigasyon bölümü",
+    "logo": "Logo",
+    "navItem": "Navigasyon Öğesi"
+  },
+  "deleteDialog": {
+    "defaultTitle": "Öğeyi Sil",
+    "defaultConfirmText": "Sil",
+    "areYouSure": "Silmek istediğinizden emin misiniz",
+    "actionCannotBeUndone": "? Bu işlem geri alınamaz.",
+    "cancel": "İptal",
+    "deleting": "Siliniyor...",
+    "deleteSection": "Bölümü Sil",
+    "deleteItem": "Öğeyi Sil",
+    "deleteService": "Hizmeti Sil",
+    "deleteProject": "Projeyi Sil",
+    "deleteUser": "Kullanıcıyı Sil",
+    "deleteLanguage": "Dili Sil",
+    "deleteWebsite": "Web Sitesini Sil",
+    "confirmDelete": "Silmeyi Onayla",
+    "confirmRemoval": "Kaldırmayı Onayla"
+  },
+  "newsPage": {
+    "title": "Haber Yönetimi",
+    "description": "Haber envanterinizi ve çok dilli içeriğinizi yönetin",
+    "addButtonLabel": "Yeni Haber Ekle",
+    "emptyStateMessage": "Haber bulunamadı. \"Yeni Haber Ekle\" düğmesine tıklayarak ilk haberinizi oluşturun.",
+    "noSectionMessage": "Haber eklemeden önce lütfen bir Haber bölümü oluşturun.",
+    "mainSectionRequiredMessage": "Haber eklemeden önce lütfen ana bölüm verilerinizi girin.",
+    "emptyFieldsMessage": "Haber eklemeden önce lütfen ana bölümdeki tüm gerekli alanları tamamlayın.",
+    "sectionIntegrationTitle": "Haber Bölümü İçeriği",
+    "sectionIntegrationDescription": "Haber bölümü içeriğinizi birden fazla dilde yönetin.",
+    "addSectionButtonLabel": "Haber Bölümü Ekle",
+    "editSectionButtonLabel": "Haber Bölümünü Düzenle",
+    "saveSectionButtonLabel": "Haber Bölümünü Kaydet",
+    "listTitle": "Haber Listesi",
+    "editPath": "News/addNews",
+    
+    "// Table Columns": "",
+    "columnName": "Ad",
+    "columnDescription": "Açıklama",
+    "columnStatus": "Durum",
+    "columnOrder": "Sıra",
+    "columnSubsections": "Alt Bölümler",
+    
+    "// Status Labels": "",
+    "main": "Ana",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    
+    "// Dialog Titles": "",
+    "deleteNewsItem": "Haber Öğesini Sil",
+    "confirmDelete": "Onayla",
+    "createNewsTitle": "Haber"
+  },
+  "newsSectionConfig": {
+    "sectionName": "Temel Haber Bölümü",
+    "sectionDescription": "Hizmet bilgilerini yönetmek için haber bölümü",
+    "subSectionName": "Temel Haber Bölümü",
+    "type": "Haber",
+    
+    "// Field Labels": "",
+    "sectionBadgeLabel": "Bölüm Rozeti",
+    "sectionTitleLabel": "Bölüm Başlığı",
+    "sectionDescriptionLabel": "Bölüm Açıklaması",
+    "newsDetailsLabel": "Haber Detayları",
+    
+    "// Field Placeholders": "",
+    "sectionBadgePlaceholder": "Bölüm rozet metnini girin",
+    "sectionTitlePlaceholder": "Bölüm başlığını girin",
+    "sectionDescriptionPlaceholder": "Bölüm açıklamasını girin",
+    "newsDetailsPlaceholder": "Haber detaylarını girin",
+    
+    "// Element Mapping": "",
+    "badgeElement": "Rozet",
+    "titleElement": "Başlık",
+    "descriptionElement": "Açıklama",
+    "serviceDetailsElement": "Hizmet Detayları",
+    
+    "// Helper Text": "",
+    "sectionBadgeHelper": "Bölümün üstünde rozet olarak gösterilen kısa metin",
+    "sectionTitleHelper": "Haber bölümü için ana başlık",
+    "sectionDescriptionHelper": "Bu bölümün ne içerdiğinin kısa açıklaması",
+    "newsDetailsHelper": "Haber öğeleri hakkında detaylı bilgiler"
+  },
+  "addNews": {
+    "// Page Titles": "",
+    "createTitle": "Yeni Haber Oluştur",
+    "editTitle": "Haber Düzenle",
+    
+    "// Page Subtitles": "",
+    "createSubtitle": "Çok dilli içerikle yeni bir hizmet oluşturun",
+    "editSubtitle": " içeriğini birden fazla dilde düzenleme",
+    "editSubtitleFallback": "Haber içeriğini birden fazla dilde düzenleme",
+    
+    "// Tab Labels": "",
+    "newsTab": "Haber",
+    "newsTabDescription": "Haber içeriği ve bilgilerini yönetin",
+    
+    "// Default Values": "",
+    "defaultServiceName": "Yeni Haber",
+    "defaultServiceDescription": "Haber hizmeti açıklaması",
+    "newNewsItem": "Yeni Haber Öğesi",
+    
+    "// Loading States": "",
+    "loadingLanguages": "Diller yükleniyor...",
+    "loadingSectionItem": "Haber öğesi yükleniyor...",
+    "loadingSubsections": "Alt bölümler yükleniyor...",
+    "loadingData": "Veri yükleniyor...",
+    
+    "// Form States": "",
+    "savingChanges": "Değişiklikler kaydediliyor...",
+    "creatingNews": "Haber oluşturuluyor...",
+    "updatingNews": "Haber güncelleniyor...",
+    
+    "// Error Messages": "",
+    "errorLoadingData": "Veri yükleme hatası",
+    "errorSavingData": "Veri kaydetme hatası",
+    "missingRequiredFields": "Lütfen tüm gerekli alanları doldurun",
+    "invalidData": "Geçersiz veri sağlandı",
+    
+    "// Success Messages": "",
+    "newsCreatedSuccessfully": "Haber başarıyla oluşturuldu",
+    "newsUpdatedSuccessfully": "Haber başarıyla güncellendi",
+    "changesSaved": "Değişiklikler başarıyla kaydedildi",
+    
+    "// Navigation": "",
+    "backToNews": "Haberlere Dön",
+    "backToList": "Listeye Dön",
+    "returnToDashboard": "Panele Dön",
+    
+    "// Form Actions": "",
+    "save": "Kaydet",
+    "saveAndPublish": "Kaydet ve Yayınla",
+    "saveDraft": "Taslak Kaydet",
+    "cancel": "İptal",
+    "reset": "Sıfırla",
+    "preview": "Önizleme",
+    
+    "// Validation": "",
+    "titleRequired": "Başlık gerekli",
+    "descriptionRequired": "Açıklama gerekli",
+    "imageRequired": "Resim gerekli",
+    "contentRequired": "İçerik gerekli"
+  },
+  "newsLanguageCard": {
+    "titleLabel": "Başlık",
+    "titlePlaceholder": "Başlık girin",
+    "descriptionLabel": "Açıklama",
+    "descriptionPlaceholder": "Açıklama girin",
+    "buttonTextLabel": "Düğme Metni",
+    "buttonTextPlaceholder": "Başla",
+    "cardTitle": "Haberler Bölümü",
+    "cardDescription": "Türkçe için haber içeriğini yönetin"
+  },
+  "newsForm": {
+    "loadingData": "Haber bölümü verileri yükleniyor...",
+    "loadingDialogTitleCreating": "Haber Bölümü Oluşturuluyor",
+    "loadingDialogTitleUpdating": "Haber Bölümü Güncelleniyor",
+    "loadingDialogDescription": "Değişiklikleriniz kaydedilirken lütfen bekleyin...",
+    "saveButton": "Haber İçeriğini Kaydet",
+    "updateButton": "Haber İçeriğini Güncelle",
+    "savingButton": "Kaydediliyor...",
+    "toastSuccessCreate": "Haber bölümü başarıyla oluşturuldu!",
+    "toastSuccessUpdate": "Haber bölümü başarıyla güncellendi!",
+    "toastSuccessDescription": "Tüm içerikler kaydedildi.",
+    "toastValidationErrorTitle": "Doğrulama Hatası",
+    "toastValidationErrorDescription": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+    "toastErrorCreateTitle": "Haber bölümü oluşturulurken hata oluştu",
+    "toastErrorUpdateTitle": "Haber bölümü güncellenirken hata oluştu",
+    "toastErrorDescription": "Bilinmeyen bir hata oluştu",
+    "toastImageUploadSuccessTitle": "Resim Yüklendi",
+    "toastImageUploadSuccessDescription": "Arka plan resmi başarıyla yüklendi.",
+    "toastImageUploadErrorTitle": "Resim Yükleme Başarısız",
+    "toastImageUploadErrorDescription": "Resim yüklenemedi"
+  },
+  "industryPage": {
+  "// Sayfa Yapılandırması": "",
+  "title": "Endüstri Yönetimi",
+  "description": "Endüstri envanterini ve çok dilli içeriği yönet",
+  "addButtonLabel": "Yeni bir endüstri öğesi ekle",
+  "emptyStateMessage": "Hiçbir endüstri bulunamadı. 'Yeni Endüstri Ekle' düğmesine tıklayarak ilk endüstrinizi oluşturun.",
+  "noSectionMessage": "Lütfen bir endüstri eklemeden önce bir endüstri bölümü oluşturun.",
+  "mainSectionRequiredMessage": "Lütfen bir endüstri eklemeden önce ana bölüm bilgilerini girin.",
+  "emptyFieldsMessage": "Lütfen bir endüstri eklemeden önce ana bölümdeki tüm zorunlu alanları doldurun.",
+  "sectionIntegrationTitle": "Endüstri Bölümü İçeriği",
+  "sectionIntegrationDescription": "Endüstri bölümü içeriğini birden fazla dilde yönetin.",
+  "addSectionButtonLabel": "Bir endüstri ekle section",
+  "editSectionButtonLabel": "Bir endüstri bölümünü düzenle",
+  "saveSectionButtonLabel": "Endüstri Bölümünü Kaydet",
+  "listTitle": "Endüstri Listesi",
+
+  "// Tablo Sütunları": "",
+  "columnName": "Ad",
+  "columnDescription": "Açıklama",
+  "columnStatus": "Durum",
+  "columnOrder": "Sıra",
+  "columnSubsections": "Alt Bölümler",
+  "main": "Ana",
+
+  "// İletişim Kutusu Başlıkları": "",
+  "createIndustryTitle": "Endüstri",
+  "deleteIndustryItem": "Endüstri Öğesini Sil",
+  "confirmDelete": "Onayla",
+
+  "// Yükleniyor Durumlar": "",
+  "loadingData": "Yükleniyor Endüstri Verileri...",
+  "loadingSubsections": "Hala Alt Bölüm Verileri yükleniyor...",
+  "loadingItems": "Endüstri Öğeleri Yükleniyor...",
+
+  "// Messages": "",
+  "expectedSubsectionName": "Beklenen Alt Bölüm Adı:",
+  "subsectionCreated": "Ana Alt Bölüm Oluşturuldu:",
+  "subsectionNameCheck": "Ana Alt Bölüm Adı Kontrol Edildi:",
+  "finalSubsectionResult": "Son Alt Bölüm Sonucu:",
+  "settingSectionData": "Bölüm Verilerini Ayarla:",
+
+  "//Actions": "",
+  "addNew": "Yeni Ekle",
+  "edit": "Değiştir",
+  "delete": "Sil",
+  "save": "Kaydet",
+  "cancel": "İptal",
+  "create": "Oluştur",
+
+  "//Status": "",
+  "active": "Aktif",
+  "etkin değil": "Etkin değil",
+  "yayınlandı": "Yayınlandı",
+  "taslak": "Taslak",
+
+  "//Gezinme": "",
+  "backToList": "Listeye Geri Dön",
+  "viewDetails": "Ayrıntıları Görüntüle",
+
+  "// Yapılandırma Bilgileri": "",
+  "currentConfig": "Geçerli Yapılandırma",
+  "language": "Dil",
+  "sectionName": "Bölüm Adı",
+  "sectionType": "Bölüm Türü"
+  },
+  "addIndustryPage": {
+    "// Page Configuration": "",
+    "tabLabel": "Endüstri Öğeleri",
+    "createTitle": "Yeni Endüstri Öğesi Oluştur",
+    "editTitle": "Endüstri Öğesini Düzenle",
+    "createSubtitle": "Çok dilli içerikle yeni bir endüstri öğesi oluşturun",
+    "editSubtitle": "\"{name}\" içeriğini birden fazla dilde düzenleme",
+    "defaultItemName": "endüstri öğesi",
+    
+    "// Default Values": "",
+    "defaultIndustryName": "Yeni Endüstri",
+    "defaultDescription": "Endüstri açıklaması",
+    
+    "// Loading States": "",
+    "loadingLanguages": "Diller yükleniyor...",
+    "loadingSectionItem": "Endüstri öğesi yükleniyor...",
+    "loadingSubsections": "Alt bölümler yükleniyor...",
+    "loadingData": "Veriler yükleniyor...",
+    
+    "// Form Sections": "",
+    "industryItemsSection": "Endüstri Öğeleri",
+    
+    "// Messages": "",
+    "searchingSubsection": "Şu slug ile alt bölüm aranıyor:",
+    "subsectionFound": "Alt bölüm bulundu:",
+    "subsectionNotFound": "Alt bölüm bulunamadı, varsayılan slug kullanılıyor:",
+    "savingIndustry": "Endüstri öğesi kaydediliyor...",
+    "industrySaved": "Endüstri öğesi başarıyla kaydedildi",
+    "extractingIndustryInfo": "Hero verilerinden endüstri bilgileri çıkarılıyor",
+    "creatingIndustryPayload": "Endüstri verisi oluşturuluyor",
+    
+    "// Navigation": "",
+    "backToList": "Endüstri Listesine Dön",
+    
+    "// Error Messages": "",
+    "errorLoadingData": "Veri yükleme hatası",
+    "errorSavingIndustry": "Endüstri öğesi kaydetme hatası",
+    "missingRequiredFields": "Lütfen tüm gerekli alanları doldurun",
+    "noLanguagesFound": "Aktif dil bulunamadı",
+    
+    "// Form Labels": "",
+    "industryName": "Endüstri Adı",
+    "industryDescription": "Endüstri Açıklaması",
+    "industryImage": "Endüstri Resmi",
+    "backgroundImage": "Arka Plan Resmi",
+    "status": "Durum",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    
+    "// Actions": "",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "create": "Oluştur",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "update": "Güncelle",
+    
+    "// Validation": "",
+    "nameRequired": "Endüstri adı gereklidir",
+    "descriptionRequired": "Endüstri açıklaması gereklidir",
+    "nameMinLength": "Endüstri adı en az 3 karakter olmalıdır",
+    "nameMaxLength": "Endüstri adı 100 karakteri geçemez",
+    "titleRequired": "Başlık gereklidir",
+    "contentRequired": "İçerik gereklidir",
+    
+    "// Slugs and Identifiers": "",
+    "industryItemsSlug": "industry-items",
+    "processStepsSlug": "process-steps",
+    "defaultSlugPrefix": "industry",
+    
+    "// Success Messages": "",
+    "industryCreated": "Endüstri öğesi başarıyla oluşturuldu",
+    "industryUpdated": "Endüstri öğesi başarıyla güncellendi",
+    "dataLoaded": "Veriler başarıyla yüklendi"
+  },
+  "industryLanguageCard": {
+    "// Card Header": "",
+    "sectionTitle": "Endüstri Bölümü",
+    "cardDescription": "{langCode} için hero içeriği yönetimi",
+    "heroContent": "Hero İçeriği",
+    
+    "// Form Fields": "",
+    "titleLabel": "Başlık",
+    "titlePlaceholder": "Başlık girin",
+    "descriptionLabel": "Açıklama",
+    "descriptionPlaceholder": "Açıklama girin",
+    "contentLabel": "İçerik",
+    "contentPlaceholder": "İçerik girin",
+    "subtitleLabel": "Alt Başlık",
+    "subtitlePlaceholder": "Alt başlık girin",
+    
+    "// Validation Messages": "",
+    "titleRequired": "Başlık gereklidir",
+    "descriptionRequired": "Açıklama gereklidir",
+    "titleMinLength": "Başlık en az 3 karakter olmalıdır",
+    "titleMaxLength": "Başlık 200 karakteri geçemez",
+    "descriptionMaxLength": "Açıklama 500 karakteri geçemez",
+    
+    "// Language Display": "",
+    "languageCode": "Dil Kodu",
+    "languageName": "Dil Adı",
+    "currentLanguage": "Mevcut Dil",
+    
+    "// Actions": "",
+    "save": "Kaydet",
+    "clear": "Temizle",
+    "reset": "Sıfırla",
+    "preview": "Önizle",
+    
+    "// Status": "",
+    "saved": "Kaydedildi",
+    "modified": "Değiştirildi",
+    "error": "Hata",
+    "loading": "Yükleniyor"
+  },
+  "industryForm": {
+    "// Loading States": "",
+    "loadingHeroData": "Hero bölüm verisi yükleniyor...",
+    "loadingData": "Veriler yükleniyor...",
+    "loadingSubsection": "Alt bölüm yükleniyor...",
+    "saving": "Kaydediliyor...",
+    
+    "// Dialog Titles": "",
+    "updatingIndustrySection": "Endüstri Bölümü Güncelleniyor",
+    "creatingIndustrySection": "Endüstri Bölümü Oluşturuluyor",
+    "dialogDescription": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+    
+    "// Section Names": "",
+    "sectionName": "Endüstri Bölümü",
+    "heroSectionSlug": "hero-section",
+    "backgroundImageName": "Arka Plan Resmi",
+    "titleElementName": "Başlık",
+    "descriptionElementName": "Açıklama",
+    "imagePlaceholder": "image-placeholder",
+    
+    "// Image Upload": "",
+    "imageUploaded": "Resim Yüklendi",
+    "imageUploadedDesc": "Arka plan resmi başarıyla yüklendi.",
+    "imageUploadFailed": "Resim Yükleme Başarısız",
+    "imageUploadFailedDesc": "Resim yükleme başarısız",
+    "noImageUrlReturned": "Sunucudan resim URL'si döndürülmedi. Yanıt:",
+    "imageUploadError": "Resim yükleme başarısız:",
+    
+    "// File Validation": "",
+    "invalidFileType": "Sadece JPEG, PNG, GIF veya SVG dosyalarına izin verilir",
+    "validationError": "Doğrulama Hatası",
+    "fillRequiredFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+    
+    "// Save Process": "",
+    "parentSectionRequired": "Alt bölüm oluşturmak için ana bölüm ID'si gereklidir",
+    "failedToCreateSubsection": "Alt bölüm ID'si oluşturma veya alma başarısız",
+    "operationFailed": "İşlem başarısız:",
+    "unknownError": "Bilinmeyen hata oluştu",
+    
+    "// Success Messages": "",
+    "industryUpdated": "Endüstri bölümü başarıyla güncellendi!",
+    "industryCreated": "Endüstri bölümü başarıyla oluşturuldu!",
+    "allContentSaved": "Tüm içerik kaydedildi.",
+    
+    "// Error Messages": "",
+    "errorUpdatingSection": "Hero bölümünü güncelleme hatası",
+    "errorCreatingSection": "Hero bölümü oluşturma hatası",
+    
+    "// Button Labels": "",
+    "updateIndustryContent": "Endüstri İçeriğini Güncelle",
+    "saveIndustryContent": "Endüstri İçeriğini Kaydet",
+    "saveButton": "Kaydet",
+    "updateButton": "Güncelle",
+    
+    "// Form Elements": "",
+    "backgroundImageSection": "Arka Plan Resmi Bölümü",
+    "languageCardsGrid": "Dil Kartları Izgara",
+    "formSubmission": "Form Gönderimi",
+    
+    "// State Management": "",
+    "unsavedChanges": "Kaydedilmemiş Değişiklikler",
+    "dataProcessing": "Veri İşleme",
+    "formValidation": "Form Doğrulama",
+    "contentCreation": "İçerik Oluşturma",
+    "translationUpdate": "Çeviri Güncelleme",
+    
+    "// API Operations": "",
+    "creatingSubsection": "Alt Bölüm Oluşturuluyor",
+    "updatingSubsection": "Alt Bölüm Güncelleniyor",
+    "creatingContentElement": "İçerik Öğesi Oluşturuluyor",
+    "updatingTranslations": "Çeviriler Güncelleniyor",
+    "uploadingImage": "Resim Yükleniyor",
+    
+    "// Debug Messages": "",
+    "processingInitialData": "Başlangıç Verisi İşleniyor",
+    "processingIndustryData": "Endüstri Verisi İşleniyor",
+    "mappingLanguageCodes": "Dil Kodları Eşleniyor",
+    "handlingExistingContent": "Mevcut İçerik İşleniyor",
+    "creatingNewContent": "Yeni İçerik Oluşturuluyor",
+    
+    "// Component Status": "",
+    "componentReady": "Bileşen Hazır",
+    "formInitialized": "Form Başlatıldı",
+    "dataLoaded": "Veri Yüklendi",
+    "validationPassed": "Doğrulama Geçti",
+    "savingInProgress": "Kaydetme Devam Ediyor",
+    "saveCompleted": "Kaydetme Tamamlandı"
+  },
+  "heroPage": {
+      "// Loading States": "",
+      "loadingHeroData": "Ana bölüm verisi yükleniyor...",
+      "loadingData": "Veriler yükleniyor...",
+      "loadingSubsection": "Alt bölüm yükleniyor...",
+      "saving": "Kaydediliyor...",
+      
+      "// Page Configuration": "",
+      "title": "Ana Yönetim",
+      "description": "Ana envanterinizi ve çok dilli içeriğinizi yönetin",
+      "addButtonLabel": "Yeni Nav Öğesi Ekle",
+      "listTitle": "Ana Listesi",
+      "editPath": "heroSection/addHero",
+      
+      "// Messages": "",
+      "emptyStateMessage": "Ana bulunamadı. \"Yeni Ana Ekle\" düğmesine tıklayarak ilk Ana'nızı oluşturun.",
+      "noSectionMessage": "Ana eklemeden önce lütfen bir Ana bölümü oluşturun.",
+      "mainSectionRequiredMessage": "Ana eklemeden önce lütfen ana bölüm verilerinizi girin.",
+      "emptyFieldsMessage": "Ana eklemeden önce lütfen ana bölümdeki tüm gerekli alanları tamamlayın.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "Ana Bölüm İçeriği",
+      "sectionIntegrationDescription": "Ana bölüm içeriğinizi birden fazla dilde yönetin.",
+      "addSectionButtonLabel": "Ana Bölümü Ekle",
+      "editSectionButtonLabel": "Ana Bölümünü Düzenle",
+      "saveSectionButtonLabel": "Ana Bölümünü Kaydet",
+      
+      "// Table Columns": "",
+      "nameColumn": "Ad",
+      "descriptionColumn": "Açıklama",
+      "statusColumn": "Durum",
+      "orderColumn": "Sıra",
+      "subsectionsColumn": "Alt Bölümler",
+      "mainBadge": "Ana",
+      
+      "// Dialog Titles": "",
+      "createDialogTitle": "Ana",
+      "deleteDialogTitle": "Bölümü Sil",
+      "deleteDialogConfirm": "Onayla",
+      
+      "// Debug Messages": "",
+      "hasMainSubSectionChanged": "hasMainSubSection değişti",
+      "websiteSubsectionsCheck": "Web sitesi alt bölümleri kontrolü:",
+      "mainSubsectionCreated": "Ana alt bölüm oluşturuldu:",
+      "mainSubsectionNameCheck": "Ana alt bölüm adı kontrolü:",
+      
+      "// Component Status": "",
+      "componentReady": "Bileşen Hazır",
+      "dataLoaded": "Veri Yüklendi",
+      "validationPassed": "Doğrulama Geçti",
+      "processingComplete": "İşlem Tamamlandı"
+  },
+  "addHero": {
+      "// Page Titles": "",
+      "createTitle": "Yeni Ana Oluştur",
+      "editTitle": "Ana Düzenle",
+      
+      "// Page Subtitles": "",
+      "createSubtitle": "Çok dilli içerikle yeni bir hizmet oluşturun",
+      "editSubtitle": "içeriği birden fazla dilde",
+      "editingPrefix": "Düzenleniyor",
+      
+      "// Tab Labels": "",
+      "heroTabLabel": "Ana",
+      
+      "// Default Values": "",
+      "defaultServiceName": "Yeni Ana",
+      "defaultServiceDescription": "",
+      
+      "// URL Paths": "",
+      "backUrlPath": "/dashboard/heroSection",
+      
+      "// Form Sections": "",
+      "heroFormSection": "hero",
+      
+      "// Loading States": "",
+      "loadingLanguages": "Diller yükleniyor...",
+      "loadingSectionItem": "Bölüm öğesi yükleniyor...",
+      "loadingSubsections": "Alt bölümler yükleniyor...",
+      "loadingData": "Veriler yükleniyor...",
+      
+      "// Slugs and Identifiers": "",
+      "heroSectionSlug": "hero-section",
+      "slugGeneration": "Slug oluşturuluyor...",
+      "subsectionLookup": "Alt bölüm aranıyor...",
+      
+      "// Form Processing": "",
+      "processingFormData": "Form verileri işleniyor...",
+      "extractingHeroData": "Ana verileri çıkarılıyor...",
+      "creatingServicePayload": "Hizmet yükü oluşturuluyor...",
+      "savingData": "Veriler kaydediliyor...",
+      
+      "// Mode Handling": "",
+      "createMode": "create",
+      "editMode": "edit",
+      "modeDetection": "Mod algılanıyor...",
+      
+      "// API Operations": "",
+      "fetchingLanguages": "Diller getiriliyor...",
+      "fetchingSectionItem": "Bölüm öğesi getiriliyor...",
+      "fetchingSubsections": "Alt bölümler getiriliyor...",
+      "savingService": "Hizmet kaydediliyor..."
+  },
+  "HeroLanguageCard": {
+      "// Card Header": "",
+      "heroSection": "Ana Bölüm",
+      "primaryBadge": "Birincil",
+      
+      "// Card Description": "",
+      "manageContentPrefix": "Ana içeriğini yönet",
+      "urlSettingsNote": "(Burada yapılandırılan URL ayarları tüm diller için geçerlidir)",
+      
+      "// Button Labels": "",
+      "addHeroButton": "Ana Ekle",
+      
+      "// Accessibility": "",
+      "heroCardTitle": "Dil için ana içerik",
+      "primaryLanguageNote": "Birincil dil ayarları"
+  },
+  "heroesForm": {
+      "// Loading States": "",
+      "loadingHeroData": "Ana bölüm verileri yükleniyor...",
+      "saving": "Kaydediliyor...",
+      "updatingHeroes": "Analar Güncelleniyor",
+      "creatingHeroes": "Analar Oluşturuluyor",
+      "saveDescription": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+      
+      "// Section Names": "",
+      "sectionName": "Analar Bölümü",
+      "sectionDescription": "Web sitesi için analar bölümü",
+      
+      "// Element Names": "",
+      "heroTitle": "Ana {{heroIndex}} - Başlık",
+      "heroDescription": "Ana {{heroIndex}} - Açıklama",
+      "heroExploreButton": "Ana {{heroIndex}} - Keşfet Butonu",
+      "heroExploreButtonType": "Ana {{heroIndex}} - Keşfet Butonu Türü",
+      "heroExploreButtonUrl": "Ana {{heroIndex}} - Keşfet Butonu URL",
+      "heroRequestButton": "Ana {{heroIndex}} - Talep Butonu",
+      "heroRequestButtonType": "Ana {{heroIndex}} - Talep Butonu Türü",
+      "heroRequestButtonUrl": "Ana {{heroIndex}} - Talep Butonu URL",
+      "heroImage": "Ana {{heroIndex}} - Resim",
+      
+      "// Toast Messages - Remove": "",
+      "cannotRemove": "Kaldırılamaz",
+      "needAtLeastOneHero": "En az bir ana gereklidir",
+      "heroDeleted": "Ana silindi",
+      "heroDeletedFromDatabase": "Ana {{heroNumber}} veritabanından silindi",
+      "heroRemoved": "Ana kaldırıldı",
+      "heroRemovedSuccessfully": "Ana başarıyla kaldırıldı.",
+      "errorRemoving": "Hata",
+      "errorRemovingHero": "Ana kaldırılırken bir hata oluştu.",
+      
+      "// Toast Messages - Add": "",
+      "heroAdded": "Ana eklendi",
+      "heroAddedDescription": "Yeni bir ana eklendi. Lütfen detayları doldurun ve değişikliklerinizi kaydedin.",
+      
+      "// Toast Messages - Validation": "",
+      "validationError": "Doğrulama Hatası",
+      "allLanguagesSameCount": "Tüm dillerin aynı sayıda anası olmalıdır.",
+      "fillAllRequiredFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun.",
+      
+      "// Toast Messages - Loading": "",
+      "errorLoadingData": "Veri yükleme hatası",
+      "failedToLoadHeroData": "Ana verileri yüklenemedi. Lütfen tekrar deneyin.",
+      
+      "// Toast Messages - Image Upload": "",
+      "imageUploadError": "Resim Yükleme Hatası",
+      "failedToUploadImage": "Ana {{heroIndex}} için resim yüklenemedi. Lütfen tekrar deneyin.",
+      "configurationError": "Yapılandırma Hatası",
+      "imageMissingForHero": "Ana {{heroIndex}} için resim içerik öğesi eksik.",
+      
+      "// Toast Messages - Save Success": "",
+      "heroesUpdatedSuccessfully": "Analar bölümü başarıyla güncellendi!",
+      "heroesCreatedSuccessfully": "Analar bölümü başarıyla oluşturuldu!",
+      "allContentSaved": "Tüm içerik kaydedildi.",
+      
+      "// Toast Messages - Save Error": "",
+      "warning": "Uyarı",
+      "failedToReloadData": "Kaydetmeden sonra veriler yeniden yüklenemedi.",
+      "errorUpdatingHeroes": "Analar bölümü güncellenirken hata",
+      "errorCreatingHeroes": "Analar bölümü oluşturulurken hata",
+      
+      "// Button Labels": "",
+      "saveHeroes": "Anaları Kaydet",
+      "updateHeroes": "Anaları Güncelle",
+      
+      "// Validation Messages": "",
+      "samNumberOfHeroes": "Her dilin aynı sayıda anası olmalıdır",
+      
+      "// Dialog Titles": "",
+      "deleteHero": "Ana Sil",
+      "deleteHeroConfirm": "Ana Sil",
+      "deleteHeroService": "Ana {{index}}",
+      
+      "// Default Values": "",
+      "defaultButtonType": "varsayılan",
+      "imagePlaceholder": "resim-yer-tutucusu",
+      
+      "// Console Messages": "",
+      "formValuesAfterProcess": "Ana verileri işlendikten sonra form değerleri:",
+      "refetchingData": "Veriler yeniden getiriliyor:",
+      "formValuesBeforeSave": "Kaydetmeden önce form değerleri:",
+      "uploadingImageForHero": "Ana için resim yükleniyor",
+      "uploadResult": "Yükleme sonucu:",
+      "noImageFileProvided": "Ana {{heroIndex}} için resim dosyası sağlanmadı",
+      "imageElementNotFound": "Ana {{heroIndex}} için resim içerik öğesi bulunamadı",
+      "formValuesAfterSave": "Kaydetmeden sonra form değerleri:",
+      "refetchedData": "Yeniden getirilen veriler:",
+      "saveOperationFailed": "Kaydetme işlemi başarısız:",
+      "errorRemovingHeroConsole": "Ana kaldırma hatası:",
+      "errorProcessingHeroData": "Ana verileri işleme hatası:",
+      
+      "// Error Messages": "",
+      "parentSectionRequired": "Alt bölüm oluşturmak için üst bölüm ID'si gereklidir",
+      "failedToCreateSubsection": "Alt bölüm ID'si oluşturma veya alma başarısız",
+      "unknownError": "Bilinmeyen bir hata oluştu"
+  },
+  "heroCard": {
+      "// Card Title": "",
+      "heroTitle": "Ana {{index}}",
+      
+      "// Form Labels": "",
+      "titleLabel": "Başlık",
+      "descriptionLabel": "Açıklama",
+      "exploreButtonTextLabel": "Keşfet Butonu Metni",
+      "exploreButtonLinkTypeLabel": "Keşfet Butonu Bağlantı Türü",
+      "exploreButtonUrlLabel": "Keşfet Butonu URL'si",
+      "requestButtonTextLabel": "Talep Butonu Metni",
+      "requestButtonLinkTypeLabel": "Talep Butonu Bağlantı Türü",
+      "requestButtonUrlLabel": "Talep Butonu URL'si",
+      "heroImageLabel": "Ana Resmi",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "Başlığı girin",
+      "descriptionPlaceholder": "Açıklamayı girin",
+      "exploreButtonPlaceholder": "Keşfet Butonu metnini girin",
+      "requestButtonPlaceholder": "Talep Butonu metnini girin",
+      "urlPlaceholder": "https://example.com",
+      
+      "// Radio Options": "",
+      "defaultOption": "Varsayılan",
+      "specialLinkOption": "Özel Bağlantı",
+      
+      "// Helper Text": "",
+      "optionalText": "(isteğe bağlı)",
+      "appliesToAllLanguages": "(tüm diller için geçerlidir)",
+      "uploadImageText": "Resim Yükle",
+      
+      "// Validation Messages": "",
+      "imageSizeError": "Resim 2MB'den küçük olmalıdır",
+      
+      "// Alt Text": "",
+      "heroImageAlt": "Ana {{index}} resmi",
+      
+      "// Button Labels": "",
+      "deleteHero": "Ana Sil",
+      "expandCollapse": "Ana Kartını Genişlet/Daralt"
+  },
+  "common": {
+    "welcome": "Hoş geldiniz",
+    "logout": "Çıkış yap",
+    "profile": "Profil",
+    "myAccount": "Hesabım",
+    "loading": "Yükleniyor...",
+    "save": "Kaydet",
+    "cancel": "İptal"
+  }
+}

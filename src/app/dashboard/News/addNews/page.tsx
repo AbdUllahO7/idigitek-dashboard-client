@@ -1,4 +1,4 @@
-// Updated AddNews.tsx to fix the edit mode data display issue
+// Updated AddNews.tsx with translations
 
 "use client"
 import { useSearchParams } from "next/navigation"
@@ -6,17 +6,18 @@ import { Layout } from "lucide-react"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
+import { useTranslation } from "react-i18next"
 
 import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import NewsForm from "./News/NewsForm"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import { FormDataNews } from "@/src/api/types/sections/news/newsSections.types"
 
-
 // Form sections to collect data from
 const FORM_SECTIONS = ["news"]
 
 export default function AddNews() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   
   // Get URL parameters
@@ -24,7 +25,7 @@ export default function AddNews() {
   const sectionItemId = searchParams.get('sectionItemId')
   const mode = searchParams.get('mode') || 'edit'
   const isCreateMode = mode === 'create'
-    const { websiteId } = useWebsiteContext();
+  const { websiteId } = useWebsiteContext();
 
   // API hooks
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
@@ -102,7 +103,7 @@ export default function AddNews() {
       return partialMatch;
     }
     
-      return undefined;
+    return undefined;
   };
   
   // Generate proper slugs for subsections
@@ -126,11 +127,11 @@ export default function AddNews() {
     return `${baseSlug.toLowerCase()}-${sectionItemId}`;
   };
   
-  // Define tabs configuration
+  // Define tabs configuration with translations
   const tabs = [
     {
       id: "news",
-      label: "News",
+      label: t('addNews.newsTab', 'News'),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <NewsForm
@@ -144,14 +145,14 @@ export default function AddNews() {
     }
   ]
    
-  // Define save handler for the service
+  // Define save handler for the service with translated default values
   const handleSaveNews = async (formData: FormDataNews) => {
     // Extract service info from news data for title/description
     const newsData = formData.news || {}
     
     // Get English title and description values or fallback to the first language
-    let serviceName = "New News"
-    let serviceDescription = ""
+    let serviceName = t('addNews.defaultServiceName', 'New News')
+    let serviceDescription = t('addNews.defaultServiceDescription', '')
     
     // Loop through languages to find title and description
     for (const langCode in newsData) {
@@ -186,12 +187,23 @@ export default function AddNews() {
   // Loading state
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
+  // Get service name for subtitle
+  const serviceName = sectionItemData?.data?.name || t('addNews.newNewsItem', 'News')
+  
+  // Create translated subtitle with dynamic content
+  const subtitle = isCreateMode 
+    ? t('addNews.createSubtitle', 'Create a new service with multilingual content')
+    : t('addNews.editSubtitle', 'Editing "{name}" content across multiple languages', { 
+        name: serviceName 
+      })
+  
   return (
     <FormShell
-      title={isCreateMode ? "Create New News" : "Edit News"}
-      subtitle={isCreateMode 
-        ? "Create a new service with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'News'}" content across multiple languages`}
+      title={isCreateMode 
+        ? t('addNews.createTitle', 'Create New News')
+        : t('addNews.editTitle', 'Edit News')
+      }
+      subtitle={subtitle}
       backUrl={`/dashboard/News?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}
@@ -205,3 +217,4 @@ export default function AddNews() {
     />
   )
 }
+

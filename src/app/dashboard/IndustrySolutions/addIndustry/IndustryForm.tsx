@@ -14,7 +14,7 @@ import { LoadingDialog } from "@/src/utils/MainSectionComponents";
 import { ContentElement, ContentTranslation } from "@/src/api/types/hooks/content.types";
 import { SubSection } from "@/src/api/types/hooks/section.types";
 import { useWebsiteContext } from "@/src/providers/WebsiteContext";
-import {  createIndustrySchema } from "../../services/addService/Utils/language-specific-schemas";
+import { createIndustrySchema } from "../../services/addService/Utils/language-specific-schemas";
 import { createHeroDefaultValues, createLanguageCodeMap } from "../../services/addService/Utils/Language-default-values";
 import { useImageUploader } from "../../services/addService/Utils/Image-uploader";
 import { processAndLoadData } from "../../services/addService/Utils/load-form-data";
@@ -23,8 +23,9 @@ import { BackgroundImageSection } from "../../services/addService/Components/Her
 import { IndustryFormProps } from "@/src/api/types/sections/industry/industrySections.types";
 import { IndustryLanguageCard } from "./IndustryLanguageCard";
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations";
-
-
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/src/context/LanguageContext";
+// Import your translation hook - adjust the import path as needed
 
 const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
   const { 
@@ -37,7 +38,10 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
   } = props;
 
   const { websiteId } = useWebsiteContext();
-
+  
+  // Get translation function
+  const { t } = useTranslation(); // Adjust based on your translation hook
+  const {language} = useLanguage()
   // Setup form with schema validation
   const formSchema = createIndustrySchema(languageIds, activeLanguages);
   const defaultValues = createHeroDefaultValues(languageIds, activeLanguages);
@@ -52,7 +56,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     isLoadingData: !slug,
     dataLoaded: !slug,
     hasUnsavedChanges: false,
-    existingSubSectionId: null as string | null ,
+    existingSubSectionId: null as string | null,
     contentElements: [] as ContentElement[],
     isSaving: false
   });
@@ -97,7 +101,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
   const { 
     imageFile, 
     imagePreview, 
-    handleImageUpload : handleOriginalImageUpload, 
+    handleImageUpload: handleOriginalImageUpload, 
     handleImageRemove 
   } = useImageUploader({
     form,
@@ -105,15 +109,13 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     initialImageUrl: initialData?.image || form.getValues().backgroundImage,
     onUpload: () => updateState({
       hasUnsavedChanges: true,
-
     }),
     onRemove: () => updateState({
       hasUnsavedChanges: true,
-
     }),
     validate: (file: { type: string; }) => {
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-      return validTypes.includes(file.type) || 'Only JPEG, PNG, GIF, or SVG files are allowed';
+      return validTypes.includes(file.type) || t("industryForm.invalidFileType");
     }
   });
 
@@ -132,6 +134,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
   // Process initial data from parent
   const processInitialData = useCallback(() => {
     if (initialData && !dataLoaded) {
+      console.log(t("industryForm.processingInitialData"));
       
       if (initialData.description) {
         form.setValue(`${defaultLangCode}.description`, initialData.description);
@@ -146,10 +149,12 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         hasUnsavedChanges: false 
       });
     }
-  }, [initialData, dataLoaded, defaultLangCode, form]);
+  }, [initialData, dataLoaded, defaultLangCode, form, t]);
 
   // Process hero data from API
   const processIndustryData = useCallback((subsectionData: SubSection | null) => {
+    console.log(t("industryForm.processingIndustryData"));
+    
     processAndLoadData(
       subsectionData,
       form,
@@ -157,12 +162,12 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
       activeLanguages,
       {
         groupElements: (elements) => ({
-          'hero': elements.filter(el => el.type === 'text' || (el.name === 'Background Image' && el.type === 'image'))
+          'hero': elements.filter(el => el.type === 'text' || (el.name === t("industryForm.backgroundImageName") && el.type === 'image'))
         }),
         processElementGroup: (groupId, elements, langId, getTranslationContent) => {
           const elementKeyMap: Record<string, keyof typeof result> = {
-            'Title': 'title',
-            'Description': 'description',
+            [t("industryForm.titleElementName")]: 'title',
+            [t("industryForm.descriptionElementName")]: 'description',
           };
           
           const result = {
@@ -195,15 +200,15 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
 
     // Handle background image
     const bgImageElement = subsectionData?.elements?.find(
-      (el) => el.name === 'Background Image' && el.type === 'image'
+      (el) => el.name === t("industryForm.backgroundImageName") && el.type === 'image'
     ) || subsectionData?.contentElements?.find(
-      (el) => el.name === 'Background Image' && el.type === 'image'
+      (el) => el.name === t("industryForm.backgroundImageName") && el.type === 'image'
     );
     
     if (bgImageElement?.imageUrl) {
       form.setValue('backgroundImage', bgImageElement.imageUrl);
     }
-  }, [form, languageIds, activeLanguages]);
+  }, [form, languageIds, activeLanguages, t]);
 
   // Process initial data effect
   useEffect(() => {
@@ -246,6 +251,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     if (!file) return null;
     
     try {
+      console.log(t("industryForm.uploadingImage"));
       const formData = new FormData();
       formData.append("image", file);
       
@@ -262,23 +268,23 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
       if (imageUrl) {
         form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
         toast({
-          title: "Image Uploaded",
-          description: "Background image has been successfully uploaded."
+          title: t("industryForm.imageUploaded"),
+          description: t("industryForm.imageUploadedDesc")
         });
         return imageUrl;
       } 
       
-      throw new Error("No image URL returned from server. Response: " + JSON.stringify(uploadResult.data));
+      throw new Error(t("industryForm.noImageUrlReturned") + " " + JSON.stringify(uploadResult.data));
     } catch (error) {
-      console.error("Image upload failed:", error);
+      console.error(t("industryForm.imageUploadError"), error);
       toast({
-        title: "Image Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload image",
+        title: t("industryForm.imageUploadFailed"),
+        description: error instanceof Error ? error.message : t("industryForm.imageUploadFailedDesc"),
         variant: "destructive"
       });
       throw error;
     }
-  }, [form, toast]);
+  }, [form, toast, t]);
 
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
@@ -286,8 +292,8 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please fill all required fields correctly",
+        title: t("industryForm.validationError"),
+        description: t("industryForm.fillRequiredFields"),
         variant: "destructive"
       });
       return false;
@@ -302,26 +308,28 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
       let sectionId = existingSubSectionId;
       if (!sectionId) {
         if (!ParentSectionId) {
-          throw new Error("Parent section ID is required to create a subsection");
+          throw new Error(t("industryForm.parentSectionRequired"));
         }
         
+        console.log(t("industryForm.creatingSubsection"));
         const subsectionData = {
-          name: "Industry Section",
-          slug: slug || `hero-section-${Date.now()}`,
+          name: t("industryForm.sectionName"),
+          slug: slug || `${t("industryForm.heroSectionSlug")}-${Date.now()}`,
           description: "",
           isActive: true,
           isMain: false,
           order: 0,
-          defaultContent : '',
+          defaultContent: '',
           sectionItem: ParentSectionId,
           languages: languageIds,
-          WebSiteId : websiteId
+          WebSiteId: websiteId
         };
         
         const newSubSection = await createSubSection.mutateAsync(subsectionData);
         sectionId = newSubSection.data._id;
         updateState({ existingSubSectionId: sectionId });
       } else {
+        console.log(t("industryForm.updatingSubsection"));
         const updateData = {
           isActive: true,
           isMain: false,
@@ -335,10 +343,11 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
       }
 
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID");
+        throw new Error(t("industryForm.failedToCreateSubsection"));
       }
 
       // Step 2: Map language codes to IDs
+      console.log(t("industryForm.mappingLanguageCodes"));
       const langCodeToIdMap = activeLanguages.reduce<Record<string, string>>((acc: { [x: string]: any; }, lang: { languageID: string | number; _id: any; }) => {
         acc[lang.languageID] = lang._id;
         return acc;
@@ -346,6 +355,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
 
       // Step 3: Handle existing content or create new content
       if (contentElements.length > 0) {
+        console.log(t("industryForm.handlingExistingContent"));
         // Handle existing content elements
         if (imageFile) {
           const imageElement = contentElements.find((e) => e.type === "image");
@@ -357,9 +367,9 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         // Update translations for text elements
         const textElements = contentElements.filter((e) => e.type === "text");
         const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] | { content: any; language: string; contentElement: string; isActive: boolean; }[] = [];
-        const elementNameToKeyMap: Record<string, 'title' | 'description' > = {
-          'Title': 'title',
-          'Description': 'description',
+        const elementNameToKeyMap: Record<string, 'title' | 'description'> = {
+          [t("industryForm.titleElementName")]: 'title',
+          [t("industryForm.descriptionElementName")]: 'description',
         };
 
         Object.entries(allFormValues).forEach(([langCode, values]) => {
@@ -382,21 +392,23 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         });
 
         if (translations.length > 0) {
+          console.log(t("industryForm.updatingTranslations"));
           await bulkUpsertTranslations.mutateAsync(translations);
         }
       } else {
+        console.log(t("industryForm.creatingNewContent"));
         // Create new content elements
         const elementTypes = [
-          { type: "image", key: "backgroundImage", name: "Background Image" },
-          { type: "text", key: "title", name: "Title" },
-          { type: "text", key: "description", name: "Description" },
+          { type: "image", key: "backgroundImage", name: t("industryForm.backgroundImageName") },
+          { type: "text", key: "title", name: t("industryForm.titleElementName") },
+          { type: "text", key: "description", name: t("industryForm.descriptionElementName") },
         ];
 
         const createdElements = [];
         for (const [index, el] of elementTypes.entries()) {
           let defaultContent = "";
           if (el.type === "image") {
-            defaultContent = "image-placeholder";
+            defaultContent = t("industryForm.imagePlaceholder");
           } else if (el.type === "text" && typeof allFormValues[defaultLangCode] === "object") {
             const langValues = allFormValues[defaultLangCode];
             defaultContent = langValues && typeof langValues === "object" && el.key in langValues
@@ -404,6 +416,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
               : "";
           }
 
+          console.log(t("industryForm.creatingContentElement"), el.name);
           const elementData = {
             name: el.name,
             type: el.type,
@@ -448,14 +461,15 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         });
 
         if (translations.length > 0) {
+          console.log(t("industryForm.updatingTranslations"));
           await bulkUpsertTranslations.mutateAsync(translations);
         }
       }
 
       // Show success message
       toast({
-        title: existingSubSectionId ? "Industry section updated successfully!" : "Industry section created successfully!",
-        description: "All content has been saved."
+        title: existingSubSectionId ? t("industryForm.industryUpdated") : t("industryForm.industryCreated"),
+        description: t("industryForm.allContentSaved")
       });
 
       updateState({ hasUnsavedChanges: false });
@@ -485,13 +499,14 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         form.setValue("backgroundImage", updatedData.backgroundImage, { shouldDirty: false });
       }
 
+      console.log(t("industryForm.saveCompleted"));
       return true;
     } catch (error) {
-      console.error("Operation failed:", error);
+      console.error(t("industryForm.operationFailed"), error);
       toast({
-        title: existingSubSectionId ? "Error updating hero section" : "Error creating hero section",
+        title: existingSubSectionId ? t("industryForm.errorUpdatingSection") : t("industryForm.errorCreatingSection"),
         variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred"
+        description: error instanceof Error ? error.message : t("industryForm.unknownError")
       });
       return false;
     } finally {
@@ -515,7 +530,9 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     updateState, 
     updateSubSection, 
     uploadImage, 
-    activeLanguages
+    activeLanguages,
+    websiteId,
+    t
   ]);
 
   // Create form ref for parent component
@@ -543,7 +560,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading hero section data...</p>
+        <p className="ml-2 text-muted-foreground">{t("industryForm.loadingHeroData")}</p>
       </div>
     );
   }
@@ -552,8 +569,8 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     <div className="space-y-6">
       <LoadingDialog 
         isOpen={isSaving} 
-        title={existingSubSectionId ? "Updating Industry Section" : "Creating Industry Section"}
-        description="Please wait while we save your changes..."
+        title={existingSubSectionId ? t("industryForm.updatingIndustrySection") : t("industryForm.creatingIndustrySection")}
+        description={t("industryForm.dialogDescription")}
       />
       
       <Form {...form}>
@@ -571,7 +588,7 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         />
         
         {/* Language Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" dir = {language === 'ar' ? 'rtl' : 'ltr'}>
           {languageIds.map((langId) => {
             const langCode = languageCodes[langId] || langId;
             return (
@@ -596,12 +613,12 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t("industryForm.saving")}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update Industry Content" : "Save Industry Content"}
+              {existingSubSectionId ? t("industryForm.updateIndustryContent") : t("industryForm.saveIndustryContent")}
             </>
           )}
         </Button>

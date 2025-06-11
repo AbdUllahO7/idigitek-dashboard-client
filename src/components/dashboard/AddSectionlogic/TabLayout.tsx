@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { Button } from "@/src/components/ui/button"
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import { useLanguage } from "@/src/context/LanguageContext"
+import { useTranslation } from "react-i18next"
 
 interface TabItem {
   id: string
@@ -53,13 +55,11 @@ export function TabLayout({
   onBack,
   title,
   subtitle,
-  isSubmitting = false,
-  saveButtonLabel = "Save",
   showBackButton = true,
   backButtonLabel = "Back"
 }: TabLayoutProps) {
   const [activeTab, setActiveTab] = useState<string>(initialTab || tabs[0]?.id || "")
-
+  const {t} = useTranslation()
   // Get tab IDs in order
   const tabOrder = tabs.map(tab => tab.id)
   
@@ -100,10 +100,10 @@ export function TabLayout({
             <Button
               variant="outline"
               onClick={onBack}
-              className="border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700"
+              className="border-slate-200  dark:border-slate-700"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {backButtonLabel}
+              {t("tabsLayout.backButton")}
             </Button>
           )}
         </motion.div>
