@@ -10,6 +10,7 @@ import {
 } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next"; // or your i18n hook
 import { Save, AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
@@ -36,6 +37,7 @@ import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSub
 // Main Component
 const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
+    const { t } = useTranslation(); // i18n hook
     const { websiteId } = useWebsiteContext();
     const formSchema = createBenefitsSchema(languageIds, activeLanguages);
     const defaultValues = createBenefitsDefaultValues(
@@ -198,7 +200,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       subsectionId: existingSubSectionId,
       websiteId,
       slug,
-      sectionName: "benefits section",
+      sectionName: t('benefitsFormForm.deleteDialogs.section.title'),
       contentElements,
       customWarnings: [
         "All benefit icons and descriptions will be removed",
@@ -302,8 +304,8 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       const currentSteps = form.getValues()[langCode] || [];
       if (currentSteps.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one process step",
+          title: t('benefitsFormForm.toasts.cannotRemove.title'),
+          description: t('benefitsFormForm.validation.minimumRequired'),
           variant: "destructive",
         });
         setIsDeleting(false);
@@ -334,8 +336,8 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
             });
 
             toast({
-              title: "Step deleted",
-              description: `Step ${stepNumber} has been deleted from the database`,
+              title: t('benefitsFormForm.toasts.stepDeleted.title'),
+              description: t('benefitsFormForm.toasts.stepDeleted.description', { number: stepNumber }),
             });
           }
 
@@ -366,8 +368,8 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         } catch (error) {
           console.error("Error removing process step elements:", error);
           toast({
-            title: "Error removing step",
-            description: "There was an error removing the step from the database",
+            title: t('benefitsFormForm.toasts.errorRemovingStep.title'),
+            description: t('benefitsFormForm.toasts.errorRemovingStep.description'),
             variant: "destructive",
           });
         }
@@ -390,6 +392,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       deleteContentElement,
       updateContentElement,
       toast,
+      t,
       validateFormBenefitCounts,
       updateState,
     ]);
@@ -474,8 +477,8 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         const currentBenefits = form.getValues()[langCode] || [];
         if (currentBenefits.length <= 1) {
           toast({
-            title: "Cannot remove",
-            description: "You need at least one benefit",
+            title: t('benefitsFormForm.toasts.cannotRemove.title'),
+            description: t('benefitsFormForm.toasts.cannotRemove.description'),
             variant: "destructive",
           });
           return;
@@ -507,8 +510,8 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
               });
 
               toast({
-                title: "Benefit deleted",
-                description: `Benefit ${benefitNumber} has been deleted from the database`,
+                title: t('benefitsFormForm.toasts.benefitDeleted.title'),
+                description: t('benefitsFormForm.toasts.benefitDeleted.description', { number: benefitNumber }),
               });
             }
 
@@ -537,8 +540,8 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
           } catch (error) {
             console.error("Error removing benefit elements:", error);
             toast({
-              title: "Error removing benefit",
-              description: "There was an error removing the benefit from the database",
+              title: t('benefitsFormForm.toasts.errorRemoving.title'),
+              description: t('benefitsFormForm.toasts.errorRemoving.description'),
               variant: "destructive",
             });
           }
@@ -575,6 +578,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         deleteContentElement,
         updateContentElement,
         toast,
+        t,
         forceUpdate,
         validateFormBenefitCounts,
         updateState,
@@ -600,7 +604,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         let sectionId = existingSubSectionId;
         if (!sectionId) {
           if (!ParentSectionId) {
-            throw new Error("Parent section ID is required to create a subsection");
+            throw new Error(t('benefitsFormForm.errors.parentSectionRequired'));
           }
 
           const subsectionData = {
@@ -621,7 +625,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         }
 
         if (!sectionId) {
-          throw new Error("Failed to create or retrieve subsection ID");
+          throw new Error(t('benefitsFormForm.errors.failedToCreateSection'));
         }
 
         const langCodeToIdMap = activeLanguages.reduce((acc: { [x: string]: any; }, lang: { languageID: string | number; _id: any; }) => {
@@ -739,10 +743,12 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
           await bulkUpsertTranslations.mutateAsync(translations);
         }
 
+        const successMessage = existingSubSectionId
+          ? t('benefitsFormForm.toasts.success.updated')
+          : t('benefitsFormForm.toasts.success.created');
+
         toast({
-          title: existingSubSectionId
-            ? "Benefits section updated successfully!"
-            : "Benefits section created successfully!",
+          title: successMessage,
         });
 
         if (slug) {
@@ -763,13 +769,14 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
         }
       } catch (error) {
         console.error("Operation failed:", error);
+        const errorMessage = existingSubSectionId
+          ? t('benefitsFormForm.toasts.error.updated')
+          : t('benefitsFormForm.toasts.error.created');
+
         toast({
-          title: existingSubSectionId
-            ? "Error updating benefits section"
-            : "Error creating benefits section",
+          title: errorMessage,
           variant: "destructive",
-          description:
-            error instanceof Error ? error.message : "Unknown error occurred",
+          description: error instanceof Error ? error.message : t('benefitsFormForm.errors.unknownError'),
         });
         updateState({ isLoadingData: false });
       } finally {
@@ -789,6 +796,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       updateContentElement,
       bulkUpsertTranslations,
       toast,
+      t,
       refetch,
       processBenefitsData,
       updateState,
@@ -832,53 +840,41 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
       setDeleteDialogOpen(true);
     };
 
-    // Loading state
-    if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
-      return (
-        <div className="flex items-center justify-center p-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Loading benefits section data...</p>
-        </div>
-      );
-    }
-
     return (
       <div className="space-y-6">
         {/* Loading Dialogs */}
         <LoadingDialog
           isOpen={isSaving}
-          title={existingSubSectionId ? "Updating Benefits" : "Creating Benefits"}
-          description="Please wait while we save your changes..."
+          title={existingSubSectionId 
+            ? t('benefitsFormForm.loadingDialogs.updating.title')
+            : t('benefitsFormForm.loadingDialogs.creating.title')
+          }
+          description={existingSubSectionId 
+            ? t('benefitsFormForm.loadingDialogs.updating.description')
+            : t('benefitsFormForm.loadingDialogs.creating.description')
+          }
         />
 
         <LoadingDialog
           isOpen={deleteManager.isDeleting}
-          title="Deleting Benefits Section"
-          description="Please wait while we delete the benefits section..."
+          title={t('benefitsFormForm.loadingDialogs.deleting.title')}
+          description={t('benefitsFormForm.loadingDialogs.deleting.description')}
         />
 
         <LoadingDialog
           isOpen={isRefreshingAfterDelete}
-          title="Refreshing Data"
-          description="Updating the interface after deletion..."
+          title={t('benefitsFormForm.loadingDialogs.refreshing.title')}
+          description={t('benefitsFormForm.loadingDialogs.refreshing.description')}
         />
-
-        {/* Subsection Delete Confirmation Dialog */}
-        {/* <DeleteConfirmationDialog
-          {...deleteManager.confirmationDialogProps}
-          title="Delete Benefits Section"
-          description="Are you sure you want to delete this entire benefits section? This action cannot be undone."
-        /> */}
-
-        {/* Individual Benefit Delete Dialog */}
+        
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
           serviceName={stepToDelete ? `Benefit ${stepToDelete.index + 1}` : ""}
           onConfirm={removeProcessStep}
           isDeleting={isDeleting}
-          title="Delete Benefit"
-          confirmText="Delete Benefit"
+          title={t('benefitsFormForm.deleteDialogs.benefit.title')}
+          confirmText={t('benefitsFormForm.deleteDialogs.benefit.confirmText')}
         />
 
         <Form {...form}>
@@ -906,19 +902,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
 
         {/* Action Buttons */}
         <div className="flex justify-between items-center mt-6">
-          {/* Delete Section Button - Only show if there's an existing subsection */}
-          {/* {existingSubSectionId && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={deleteManager.openDeleteDialog}
-              disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
-              className="flex items-center"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Benefits Section
-            </Button>
-          )} */}
+       
 
           {/* Save Button and Validation Warning */}
           <div className={`flex items-center gap-4 ${existingSubSectionId ? "" : "ml-auto"}`}>
@@ -926,7 +910,7 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
               <div className="flex items-center text-amber-500">
                 <AlertTriangle className="h-4 w-4 mr-2" />
                 <span className="text-sm">
-                  Each language must have the same number of benefits
+                  {t('benefitsFormForm.validation.countMismatch')}
                 </span>
               </div>
             )}
@@ -934,18 +918,21 @@ const BenefitsForm = forwardRef<HeroFormRef, HeroFormProps>(
             <Button
               type="button"
               onClick={handleSave}
-              disabled={isLoadingData || benefitCountMismatch || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+              disabled={benefitCountMismatch || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
               className="flex items-center"
             >
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {t('benefitsFormForm.buttons.saving')}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {existingSubSectionId ? "Update Benefits" : "Save Benefits"}
+                  {existingSubSectionId 
+                    ? t('benefitsFormForm.buttons.update')
+                    : t('benefitsFormForm.buttons.save')
+                  }
                 </>
               )}
             </Button>

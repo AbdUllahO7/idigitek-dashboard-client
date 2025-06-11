@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useState, useRef, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next"; // or your i18n hook
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
@@ -32,6 +33,7 @@ interface OverviewFormProps {
 }
 
 const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
+    const { t } = useTranslation(); // i18n hook
     const { 
         languageIds, 
         activeLanguages, 
@@ -51,7 +53,7 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         const { z } = require("zod");
         
         const languageSchema = z.object({
-            description: z.string().min(1, "Description is required")
+            description: z.string().min(1, t('overviewForm.overviewCard.fields.description.label') + " is required")
         });
 
         const schemaObject: Record<string, any> = {};
@@ -182,7 +184,7 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         subsectionId: existingSubSectionId,
         websiteId,
         slug,
-        sectionName: "overview section",
+        sectionName: t('overviewForm.deleteDialog.title'),
         contentElements,
         customWarnings: [
             "All overview descriptions will be permanently deleted",
@@ -306,8 +308,8 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
 
             if (!isValid || hasEmptyFields) {
                 toast({
-                    title: "Validation Error", 
-                    description: "Please fill all required fields correctly",
+                    title: t('overviewForm.validation.error.title'), 
+                    description: t('overviewForm.validation.error.description'),
                     variant: "destructive"
                 });
                 return false;
@@ -319,7 +321,7 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
             let sectionId = existingSubSectionId;
             if (!sectionId) {
                 if (!ParentSectionId) {
-                    throw new Error("Parent section ID is required to create a subsection");
+                    throw new Error(t('overviewForm.errors.parentSectionRequired'));
                 }
                 
                 const subsectionData = {
@@ -352,7 +354,7 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
             }
 
             if (!sectionId) {
-                throw new Error("Failed to create or retrieve subsection ID");
+                throw new Error(t('overviewForm.errors.failedToCreateSection'));
             }
 
             // Step 2: Map language codes to IDs (reverse mapping)
@@ -431,9 +433,13 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
             }
 
             // Show success message
+            const successMessage = existingSubSectionId 
+                ? t('overviewForm.toasts.success.updated')
+                : t('overviewForm.toasts.success.created');
+
             toast({
-                title: existingSubSectionId ? "Overview updated successfully!" : "Overview created successfully!",
-                description: "All content has been saved."
+                title: successMessage,
+                description: t('overviewForm.toasts.success.description')
             });
 
             updateState({ hasUnsavedChanges: false });
@@ -457,10 +463,14 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
             return true;
         } catch (error) {
             console.error("Save operation failed:", error);
+            const errorMessage = existingSubSectionId 
+                ? t('overviewForm.toasts.error.updated')
+                : t('overviewForm.toasts.error.created');
+
             toast({
-                title: existingSubSectionId ? "Error updating overview" : "Error creating overview",
+                title: errorMessage,
                 variant: "destructive",
-                description: error instanceof Error ? error.message : "Unknown error occurred"
+                description: error instanceof Error ? error.message : t('overviewForm.errors.unknownError')
             });
             return false;
         } finally {
@@ -472,6 +482,7 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         ParentSectionId, 
         slug, 
         toast, 
+        t,
         bulkUpsertTranslations, 
         contentElements, 
         createContentElement, 
@@ -514,42 +525,38 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
         }
     });
 
-    // Loading state
-    if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
-        return (
-            <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="ml-2 text-muted-foreground">Loading overview data...</p>
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
             {/* Loading Dialogs */}
             <LoadingDialog 
                 isOpen={isSaving} 
-                title={existingSubSectionId ? "Updating Overview" : "Creating Overview"}
-                description="Please wait while we save your changes..."
+                title={existingSubSectionId 
+                    ? t('overviewForm.loadingDialogs.updating.title')
+                    : t('overviewForm.loadingDialogs.creating.title')
+                }
+                description={existingSubSectionId 
+                    ? t('overviewForm.loadingDialogs.updating.description')
+                    : t('overviewForm.loadingDialogs.creating.description')
+                }
             />
             
             <LoadingDialog
                 isOpen={deleteManager.isDeleting}
-                title="Deleting Overview Section"
-                description="Please wait while we delete the overview section..."
+                title={t('overviewForm.loadingDialogs.deleting.title')}
+                description={t('overviewForm.loadingDialogs.deleting.description')}
             />
 
             <LoadingDialog
                 isOpen={isRefreshingAfterDelete}
-                title="Refreshing Data"
-                description="Updating the interface after deletion..."
+                title={t('overviewForm.loadingDialogs.refreshing.title')}
+                description={t('overviewForm.loadingDialogs.refreshing.description')}
             />
 
             {/* Delete Confirmation Dialog */}
             <DeleteConfirmationDialog
                 {...deleteManager.confirmationDialogProps}
-                title="Delete Overview Section"
-                description="Are you sure you want to delete this overview section? This action cannot be undone."
+                title={t('overviewForm.deleteDialog.title')}
+                description={t('overviewForm.deleteDialog.description')}
             />
             
             <Form {...form}>
@@ -580,7 +587,7 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
                         className="flex items-center"
                     >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete Overview Section
+                        {t('overviewForm.buttons.delete')}
                     </Button>
                 )}
 
@@ -589,18 +596,21 @@ const OverviewForm = forwardRef<any, OverviewFormProps>((props, ref) => {
                     <Button 
                         type="button" 
                         onClick={handleSave}
-                        disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+                        disabled={isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
                         className="flex items-center"
                     >
                         {isSaving ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Saving...
+                                {t('overviewForm.buttons.saving')}
                             </>
                         ) : (
                             <>
                                 <Save className="mr-2 h-4 w-4" />
-                                {existingSubSectionId ? "Update Overview" : "Save Overview"}
+                                {existingSubSectionId 
+                                    ? t('overviewForm.buttons.update')
+                                    : t('overviewForm.buttons.save')
+                                }
                             </>
                         )}
                     </Button>

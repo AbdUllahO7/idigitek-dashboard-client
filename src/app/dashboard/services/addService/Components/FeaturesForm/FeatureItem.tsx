@@ -3,6 +3,7 @@ import { FormControl, FormField, FormItem, FormMessage } from "@/src/components/
 import { Input } from "@/src/components/ui/input";
 import { X } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next"; // or your i18n hook
 
 interface FeatureItemProps {
   featureItemIndex: number;
@@ -12,7 +13,7 @@ interface FeatureItemProps {
   onRemoveFeatureItem: (langCode: string, index: number, featureItemIndex: number) => void;
 }
 
-// Fixed Feature Item component
+// Fixed Feature Item component with i18n
 export const FeatureItem = memo(({
   featureItemIndex,
   langCode,
@@ -20,6 +21,8 @@ export const FeatureItem = memo(({
   form,
   onRemoveFeatureItem
 }: FeatureItemProps) => {
+  const { t } = useTranslation(); // i18n hook
+  
   // Create a stable reference for the field name
   const fieldName = `${langCode}.${index}.content.features.${featureItemIndex}`;
   const previousFieldNameRef = useRef(fieldName);
@@ -48,7 +51,7 @@ export const FeatureItem = memo(({
           <div className="flex-1">
             <FormControl>
               <Input 
-                placeholder={`Feature ${featureItemIndex + 1}`} 
+                placeholder={t('featuresForm.featureItem.placeholder', { number: featureItemIndex + 1 })} 
                 {...field} 
                 onChange={(e) => {
                   field.onChange(e);

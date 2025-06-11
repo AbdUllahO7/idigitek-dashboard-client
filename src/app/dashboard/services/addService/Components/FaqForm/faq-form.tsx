@@ -25,6 +25,7 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content
 import { createFaqSchema } from "../../Utils/language-specific-schemas"
 import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager"
 import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog"
+import { useTranslation } from "react-i18next"
 
 
 
@@ -37,6 +38,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       [languageIds, activeLanguages]
     );
     const { websiteId } = useWebsiteContext();
+    const { t } = useTranslation(); 
     
     const defaultValues = useMemo(() => 
       createFaqDefaultValues(languageIds, activeLanguages), 
@@ -168,11 +170,11 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       subsectionId: existingSubSectionId,
       websiteId,
       slug,
-      sectionName: "FAQ section",
+      sectionName: t("faqForm.section.title"),
       contentElements,
       customWarnings: [
-        "All FAQ questions and answers will be permanently removed",
-        "This action cannot be undone"
+        t("faqForm.dialogs.deleteSection.warnings.0"),
+        t("faqForm.dialogs.deleteSection.warnings.1")
       ],
       shouldRefetch: !!slug,
       refetchFn: refetch,
@@ -256,8 +258,8 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       });
       
       toast({
-        title: "FAQ added",
-        description: "A new FAQ has been added to the section.",
+        title: t("faqForm.toast.faqAdded"),
+        description: t("faqForm.toast.faqAddedDesc"),
       });
     };
 
@@ -266,8 +268,8 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       const currentFaqs = form.getValues()[langCode] || [];
       if (currentFaqs.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one FAQ",
+          title: t("faqForm.validation.cannotRemove"),
+          description: t("faqForm.validation.needAtLeastOneFaq"),
           variant: "destructive",
         });
         return;
@@ -316,8 +318,8 @@ const FaqForm = forwardRef<any, FaqFormProps>(
             );
 
             toast({
-              title: "FAQ deleted",
-              description: `FAQ ${faqNumber} has been deleted from the database`,
+              title: t("faqForm.toast.faqDeleted"),
+              description: t("faqForm.toast.faqDeletedDesc", { number: faqNumber }),
             });
           }
 
@@ -373,8 +375,8 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       } catch (error) {
         console.error("Error removing FAQ elements:", error);
         toast({
-          title: "Error removing FAQ",
-          description: "There was an error removing the FAQ from the database",
+          title: t("faqForm.toast.errorRemoving"),
+          description: t("faqForm.toast.errorRemovingDesc"),
           variant: "destructive",
         });
       } finally {
@@ -405,8 +407,8 @@ const FaqForm = forwardRef<any, FaqFormProps>(
 
       if (!isValid) {
         toast({
-          title: "Validation Error",
-          description: "Please fill all required fields correctly",
+          title: t("faqForm.toast.validationError"),
+          description: t("faqForm.validation.fillRequiredFields"),
           variant: "destructive",
         });
         return false;
@@ -437,8 +439,8 @@ const FaqForm = forwardRef<any, FaqFormProps>(
           };
 
           toast({
-            title: "Creating new FAQ section...",
-            description: "Setting up your new FAQ content.",
+            title: t("faqForm.toast.creatingSection"),
+            description: t("faqForm.toast.creatingSectionDesc"),
           });
 
           const newSubSection = await createSubSection.mutateAsync(subsectionData);
@@ -695,16 +697,16 @@ const FaqForm = forwardRef<any, FaqFormProps>(
         }
 
         toast({
-          title: existingSubSectionId ? "FAQ section updated successfully!" : "FAQ section created successfully!",
-          description: "All changes have been saved.",
+          title: existingSubSectionId ? t("faqForm.toast.sectionUpdated") : t("faqForm.toast.sectionCreated"),
+          description: t("faqForm.toast.contentSaved"),
           duration: 5000,
         });
 
         // Refresh data immediately after save
         if (slug) {
           toast({
-            title: "Refreshing content",
-            description: "Loading the updated content...",
+            title: t("faqForm.toast.refreshingContent"),
+            description: t("faqForm.toast.refreshingContentDesc"),
           });
           
           const result = await refetch();
@@ -720,7 +722,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       } catch (error) {
         console.error("Operation failed:", error);
         toast({
-          title: existingSubSectionId ? "Error updating FAQ section" : "Error creating FAQ section",
+          title: existingSubSectionId ? t("faqForm.toast.errorUpdating") : t("faqForm.toast.errorCreating"),
           variant: "destructive",
           description: error instanceof Error ? error.message : "Unknown error occurred",
           duration: 5000,
@@ -734,6 +736,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       form,
       validateFaqCounts,
       toast,
+      t,
       existingSubSectionId,
       slug,
       ParentSectionId,
@@ -776,7 +779,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
       return (
         <div className="flex items-center justify-center p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Loading FAQ section data...</p>
+          <p className="text-muted-foreground">{t("faqForm.loading.loadingData")}</p>
         </div>
       );
     }
@@ -786,27 +789,27 @@ const FaqForm = forwardRef<any, FaqFormProps>(
         {/* Loading Dialogs */}
         <LoadingDialog 
           isOpen={isSaving} 
-          title={existingSubSectionId ? "Updating FAQ Section" : "Creating FAQ Section"}
-          description="Please wait while we save your changes..."
+          title={existingSubSectionId ? t("faqForm.loading.updatingSection") : t("faqForm.loading.creatingSection")}
+          description={t("faqForm.loading.pleaseWait")}
         />
 
         <LoadingDialog
           isOpen={deleteManager.isDeleting}
-          title="Deleting FAQ Section"
-          description="Please wait while we delete the FAQ section..."
+          title={t("faqForm.loading.deletingSection")}
+          description={t("faqForm.loading.pleaseWaitDelete")}
         />
 
         <LoadingDialog
           isOpen={isRefreshingAfterDelete}
-          title="Refreshing Data"
-          description="Updating the interface after deletion..."
+          title={t("faqForm.loading.refreshingData")}
+          description={t("faqForm.loading.pleaseWaitRefresh")}
         />
         
         {/* Delete Confirmation Dialog for entire section */}
         <DeleteConfirmationDialog
           {...deleteManager.confirmationDialogProps}
-          title="Delete FAQ Section"
-          description="Are you sure you want to delete this entire FAQ section? This action cannot be undone."
+          title={t("faqForm.dialogs.deleteSection.title")}
+          description={t("faqForm.dialogs.deleteSection.description")}
         />
         
         {/* Main Form */}
@@ -846,7 +849,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
               className="flex items-center"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete FAQ Section
+              {t("faqForm.actions.delete")}
             </Button>
           )}
 
@@ -855,7 +858,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
             {faqCountMismatch && (
               <div className="flex items-center text-amber-500 mr-4 mb-2">
                 <AlertTriangle className="h-4 w-4 mr-2" />
-                <span className="text-sm">Each language must have the same number of FAQs</span>
+                <span className="text-sm">{t("faqForm.validation.faqCountMismatch")}</span>
               </div>
             )}
             <Button
@@ -873,12 +876,12 @@ const FaqForm = forwardRef<any, FaqFormProps>(
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {t("faqForm.actions.saving")}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {existingSubSectionId ? "Update FAQ Content" : "Save FAQ Content"}
+                  {existingSubSectionId ? t("faqForm.actions.update") : t("faqForm.actions.save")}
                 </>
               )}
             </Button>
@@ -889,11 +892,10 @@ const FaqForm = forwardRef<any, FaqFormProps>(
         <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>FAQ Count Mismatch</DialogTitle>
+              <DialogTitle>{t("faqForm.dialogs.validationError.title")}</DialogTitle>
               <DialogDescription>
                 <div className="mt-4 mb-4">
-                  Each language must have the same number of FAQs before saving. Please add or remove FAQs to ensure all
-                  languages have the same count:
+                  {t("faqForm.dialogs.validationError.description")}
                 </div>
                 <ul className="list-disc pl-6 space-y-1">
                   {getFaqCountsByLanguage.map(({ language, count }) => (
@@ -906,7 +908,7 @@ const FaqForm = forwardRef<any, FaqFormProps>(
             </DialogHeader>
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => setIsValidationDialogOpen(false)}>
-                Close
+                {t("faqForm.dialogs.validationError.close")}
               </Button>
             </div>
           </DialogContent>
@@ -916,11 +918,11 @@ const FaqForm = forwardRef<any, FaqFormProps>(
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
-          serviceName={faqToDelete ? `FAQ ${faqToDelete.index + 1}` : ''}
+          serviceName={faqToDelete ? t("faqForm.item.defaultTitle", { number: faqToDelete.index + 1 }) : ''}
           onConfirm={removeFaq}
           isDeleting={isDeleting}
-          title="Delete FAQ"
-          confirmText="Delete FAQ"
+          title={t("faqForm.dialogs.deleteFaq.title")}
+          confirmText={t("faqForm.dialogs.deleteFaq.confirmText")}
         />
       </div>
     );

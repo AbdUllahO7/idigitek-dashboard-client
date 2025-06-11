@@ -2,30 +2,96 @@
 
 import { FieldConfig } from "@/src/api/types/hooks/MultilingualSection.types";
 
-
-
-
-// Define service section configuration
-export const serviceSectionConfig = {
-    name: "Service Section Basic",
-    slug: "services-main",
-    subSectionName: "Service Section Basic",
-    description: "Service section for managing service information",
-    isMain: true,
-    type: 'service',
-    // Define fields with proper typing
-    fields: [
-        { id: "sectionBadge", label: "Section Badge", type: "text", required: true },
-        { id: "sectionTitle", label: "Section Title", type: "text", required: true },
-        { id: "sectionDescription", label: "Section Description", type: "textarea", required: false },
-        { id: "serviceDetails", label: "Service Details", type: "badge", required: true },
-    ] as FieldConfig[],
-
-  // Define element mapping
-    elementsMapping: {
-        "sectionBadge": "Badge",
-        "sectionTitle": "Title", 
-        "sectionDescription": "Description",
-        "serviceDetails": "ServiceDetails"
+// Translation keys for service section
+export const serviceSectionTranslations = {
+    en: {
+        sectionName: "Service Section Basic",
+        sectionDescription: "Service section for managing service information",
+        sectionBadgeLabel: "Section Badge",
+        sectionTitleLabel: "Section Title",
+        sectionDescriptionLabel: "Section Description",
+        serviceDetailsLabel: "Service Details",
+        type: "Service",
+        badgeElement: "Badge",
+        titleElement: "Title",
+        descriptionElement: "Description",
+        serviceDetailsElement: "ServiceDetails"
+    },
+    ar: {
+        sectionName: "قسم الخدمات الأساسي",
+        sectionDescription: "قسم الخدمات لإدارة معلومات الخدمة",
+        sectionBadgeLabel: "شارة القسم",
+        sectionTitleLabel: "عنوان القسم",
+        sectionDescriptionLabel: "وصف القسم",
+        serviceDetailsLabel: "تفاصيل الخدمة",
+        type: "خدمة",
+        badgeElement: "الشارة",
+        titleElement: "العنوان",
+        descriptionElement: "الوصف",
+        serviceDetailsElement: "تفاصيل الخدمة"
+    },
+    tr: {
+        sectionName: "Temel Hizmet Bölümü",
+        sectionDescription: "Hizmet bilgilerini yönetmek için hizmet bölümü",
+        sectionBadgeLabel: "Bölüm Rozeti",
+        sectionTitleLabel: "Bölüm Başlığı",
+        sectionDescriptionLabel: "Bölüm Açıklaması",
+        serviceDetailsLabel: "Hizmet Detayları",
+        type: "Hizmet",
+        badgeElement: "Rozet",
+        titleElement: "Başlık",
+        descriptionElement: "Açıklama",
+        serviceDetailsElement: "Hizmet Detayları"
     }
 };
+
+// Function to get translated service section config
+export const getServiceSectionConfig = (language: string = 'en') => {
+    const translations = serviceSectionTranslations[language as keyof typeof serviceSectionTranslations] || serviceSectionTranslations.en;
+    
+    return {
+        name: "Service Section Basic",
+        slug: "services-main",
+        subSectionName: translations.sectionName,
+        description: translations.sectionDescription,
+        isMain: true,
+        type: translations.type,
+        // Define fields with translated labels
+        fields: [
+        { 
+            id: "sectionBadge", 
+            label: translations.sectionBadgeLabel, 
+            type: "text", 
+            required: true 
+        },
+        { 
+            id: "sectionTitle", 
+            label: translations.sectionTitleLabel, 
+            type: "text", 
+            required: true 
+        },
+        { 
+            id: "sectionDescription", 
+            label: translations.sectionDescriptionLabel, 
+            type: "textarea", 
+            required: false 
+        },
+        { 
+            id: "serviceDetails", 
+            label: translations.serviceDetailsLabel, 
+            type: "badge", 
+            required: true 
+        },
+        ] as FieldConfig[],
+        // Define element mapping with translated values
+        elementsMapping: {
+        "sectionBadge": translations.badgeElement,
+        "sectionTitle": translations.titleElement, 
+        "sectionDescription": translations.descriptionElement,
+        "serviceDetails": translations.serviceDetailsElement
+        }
+    };
+};
+
+// Default export for backward compatibility
+export const serviceSectionConfig = getServiceSectionConfig();

@@ -4,6 +4,7 @@ import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { FaqItem } from "./FaqItem";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Interface for LanguageCard props
 interface LanguageCardProps {
@@ -22,6 +23,7 @@ export const LanguageCard = memo(({
   onAddFaq, 
   onConfirmDelete 
 }: LanguageCardProps) => {
+  const { t } = useTranslation(); // Add translation hook
   const faqs = form.watch(langCode) || [];
   
   const handleAddFaq = () => onAddFaq(langCode);
@@ -33,10 +35,10 @@ export const LanguageCard = memo(({
           <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
             {langCode}
           </span>
-          FAQ Section
+          {t("faqForm.section.title")}
         </CardTitle>
         <CardDescription>
-          Manage FAQ content for {langCode.toUpperCase()}
+          {t("faqForm.section.description", { language: langCode.toUpperCase() })}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -60,7 +62,7 @@ export const LanguageCard = memo(({
           onClick={handleAddFaq}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add FAQ
+          {t("faqForm.actions.addFaq")}
         </Button>
       </CardContent>
     </Card>

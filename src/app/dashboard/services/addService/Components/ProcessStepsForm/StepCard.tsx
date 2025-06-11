@@ -10,6 +10,7 @@ import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { IconComponent, type IconNames } from "@/src/utils/MainSectionComponents"
 import { cn } from "@/src/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface StepCardProps {
   index: number
@@ -24,6 +25,7 @@ interface StepCardProps {
 // Memoized StepCard component to prevent unnecessary rerenders
 export const StepCard = memo(
   ({ index, langCode, isFirstLanguage, defaultLangCode, form, onDelete, availableIcons }: StepCardProps) => {
+    const { t } = useTranslation() // Add translation hook
     const [isCollapsed, setIsCollapsed] = useState(true)
     const handleDelete = () => onDelete(langCode, index)
 
@@ -54,7 +56,7 @@ export const StepCard = memo(
               </div>
               <div className="flex flex-col">
                 <CardTitle className="text-base font-semibold">
-                  Step {index + 1}
+                  {t("processStepsForm.stepForm.stepTitle", { number: index + 1 })}
                   {currentTitle && <span className="ml-2 text-sm font-normal text-gray-600">- {currentTitle}</span>}
                 </CardTitle>
                 {currentDescription && (
@@ -104,11 +106,11 @@ export const StepCard = memo(
                   name={`${langCode}.${index}.icon`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Icon</FormLabel>
+                      <FormLabel className="text-sm font-medium">{t("processStepsForm.stepForm.fields.icon.label")}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="h-11 hover:border-primary transition-colors">
-                            <SelectValue placeholder="Select an icon">
+                            <SelectValue placeholder={t("processStepsForm.stepForm.fields.icon.placeholder")}>
                               {field.value && (
                                 <div className="flex items-center">
                                   <span className="mr-2">
@@ -140,7 +142,7 @@ export const StepCard = memo(
               ) : (
                 <div className="space-y-2">
                   <FormLabel className="text-sm font-medium text-muted-foreground">
-                    Icon (controlled by {defaultLangCode.toUpperCase()})
+                    {t("processStepsForm.stepForm.fields.icon.controlledBy", { language: defaultLangCode.toUpperCase() })}
                   </FormLabel>
                   <div className="flex items-center h-11 px-3 border-2 border-dashed border-gray-200 rounded-md bg-gray-50">
                     <span className="mr-2">
@@ -159,10 +161,10 @@ export const StepCard = memo(
               name={`${langCode}.${index}.title`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Title</FormLabel>
+                  <FormLabel className="text-sm font-medium">{t("processStepsForm.stepForm.fields.title.label")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter step title"
+                      placeholder={t("processStepsForm.stepForm.fields.title.placeholder")}
                       className="h-11 hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20"
                       {...field}
                     />
@@ -178,10 +180,10 @@ export const StepCard = memo(
               name={`${langCode}.${index}.description`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Description</FormLabel>
+                  <FormLabel className="text-sm font-medium">{t("processStepsForm.stepForm.fields.description.label")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter step description"
+                      placeholder={t("processStepsForm.stepForm.fields.description.placeholder")}
                       className="min-h-[100px] hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20 resize-none"
                       {...field}
                     />

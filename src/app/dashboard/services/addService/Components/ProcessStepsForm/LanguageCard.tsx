@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { memo } from "react";
 import { StepCard } from "./StepCard";
 import { getAvailableIcons } from "../../Utils/Expose-form-data";
+import { useTranslation } from "react-i18next";
 
 interface LanguageCardProps {
   langId: string;
@@ -25,6 +26,8 @@ export const LanguageCard = memo(({
   onAddStep, 
   onDeleteStep 
 }: LanguageCardProps) => {
+  const { t } = useTranslation(); // Add translation hook
+  
   // Use formValues directly from form.watch to ensure re-renders when values change
   const formValues = form.watch(langCode) || [];
   
@@ -35,18 +38,18 @@ export const LanguageCard = memo(({
           <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
             {langCode}
           </span>
-          Process Steps Section
+          {t("processStepsForm.languageCard.title")}
           {isFirstLanguage && (
             <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-              Icon Control
+              {t("processStepsForm.stepForm.badges.iconControl")}
             </span>
           )}
         </CardTitle>
         <CardDescription>
-          Manage process steps content for {langCode.toUpperCase()}
+          {t("processStepsForm.languageCard.description", { language: langCode.toUpperCase() })}
           {isFirstLanguage && (
             <span className="block text-xs text-blue-600 mt-1">
-              Icons defined here will be used for all languages
+              {t("processStepsForm.languageCard.iconControlDesc")}
             </span>
           )}
         </CardDescription>
@@ -71,7 +74,7 @@ export const LanguageCard = memo(({
           onClick={onAddStep}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Process Step
+          {t("processStepsForm.stepForm.buttons.addStep")}
         </Button>
       </CardContent>
     </Card>

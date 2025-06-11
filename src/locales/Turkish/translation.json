@@ -2527,6 +2527,598 @@
     "descriptionLabel": "Açıklama",
     "descriptionPlaceholder": "Açıklama gir"
   },
+  "servicesPage": {
+    "title": "Hizmet Yönetimi",
+    "description": "Hizmet envanterinizi ve çok dilli içeriği yönetin",
+    "addButtonLabel": "Yeni Hizmet Ekle",
+    "emptyStateMessage": "Hizmet bulunamadı. \"Yeni Hizmet Ekle\" düğmesine tıklayarak ilk hizmetinizi oluşturun.",
+    "noSectionMessage": "Hizmet eklemeden önce lütfen bir hizmet bölümü oluşturun.",
+    "mainSectionRequiredMessage": "Hizmet eklemeden önce lütfen ana bölüm verilerinizi girin.",
+    "emptyFieldsMessage": "Hizmet eklemeden önce lütfen ana bölümdeki tüm gerekli alanları doldurun.",
+    "sectionIntegrationTitle": "Hizmet Bölümü İçeriği",
+    "sectionIntegrationDescription": "Hizmet bölümü içeriğinizi birden fazla dilde yönetin.",
+    "addSectionButtonLabel": "Hizmet Bölümü Ekle",
+    "editSectionButtonLabel": "Hizmet Bölümünü Düzenle",
+    "saveSectionButtonLabel": "Hizmet Bölümünü Kaydet",
+    "listTitle": "Hizmet Listesi",
+    "table": {
+      "columns": {
+        "name": "Ad",
+        "description": "Açıklama",
+        "status": "Durum",
+        "order": "Sıra",
+        "subsections": "Alt Bölümler"
+      },
+      "badges": {
+        "main": "Ana"
+      }
+    },
+    "dialogs": {
+      "createTitle": "Hizmet",
+      "deleteTitle": "Bölümü Sil",
+      "confirmText": "Onayla"
+    }
+  },
+  "addServicePage": {
+    "titles": {
+      "create": "Yeni Hizmet Oluştur",
+      "edit": "Hizmeti Düzenle"
+    },
+    "subtitles": {
+      "create": "Çok dilli içerikle yeni bir hizmet oluşturun",
+      "edit": "\"{{serviceName}}\" içeriğini birden fazla dilde düzenleme"
+    },
+    "tabs": {
+      "hero": "Ana Banner",
+      "benefits": "Avantajlar",
+      "overview": "Genel Bakış",
+      "features": "Özellikler",
+      "process": "Süreç",
+      "faq": "SSS"
+    },
+    "defaults": {
+      "serviceName": "Yeni Hizmet"
+    },
+    "navigation": {
+      "backToServices": "Hizmetlere Dön"
+    }
+  },
+  "heroForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "Hero Bölümü Oluşturuluyor",
+        "description": "Değişikliklerinizi kaydederken lütfen bekleyin..."
+      },
+      "updating": {
+        "title": "Hero Bölümü Güncelleniyor",
+        "description": "Değişikliklerinizi kaydederken lütfen bekleyin..."
+      },
+      "deleting": {
+        "title": "Hero Bölümü Siliniyor",
+        "description": "Hero bölümünü silerken lütfen bekleyin..."
+      },
+      "refreshing": {
+        "title": "Veriler Yenileniyor",
+        "description": "Silme işlemi sonrası arayüz güncelleniyor..."
+      }
+    },
+    "deleteDialog": {
+      "title": "Hero Bölümünü Sil",
+      "description": "Bu hero bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+    },
+    "buttons": {
+      "save": "Hero İçeriğini Kaydet",
+      "update": "Hero İçeriğini Güncelle",
+      "delete": "Hero Bölümünü Sil",
+      "saving": "Kaydediliyor..."
+    },
+    "toasts": {
+      "validation": {
+        "title": "Doğrulama Hatası",
+        "description": "Lütfen tüm gerekli alanları doğru şekilde doldurun"
+      },
+      "imageUpload": {
+        "success": {
+          "title": "Resim Yüklendi",
+          "description": "Arka plan resmi başarıyla yüklendi."
+        },
+        "error": {
+          "title": "Resim Yükleme Başarısız",
+          "description": "Resim yüklenemedi"
+        }
+      },
+      "save": {
+        "success": {
+          "created": "Hero bölümü başarıyla oluşturuldu!",
+          "updated": "Hero bölümü başarıyla güncellendi!",
+          "description": "Tüm içerik kaydedildi."
+        },
+        "error": {
+          "created": "Hero bölümü oluşturulurken hata",
+          "updated": "Hero bölümü güncellenirken hata"
+        }
+      }
+    },
+    "languageCard": {
+      "title": "Hero Bölümü",
+      "description": "{{language}} için hero içeriğini yönetin",
+      "fields": {
+        "title": {
+          "label": "Başlık",
+          "placeholder": "Başlık girin"
+        },
+        "description": {
+          "label": "Açıklama",
+          "placeholder": "Açıklama girin"
+        },
+        "backLinkText": {
+          "label": "Geri Düğme Metni",
+          "placeholder": "Başlayın"
+        }
+      }
+    }
+  },
+  "benefitsForm": {
+    "benefitCard": {
+      "title": "Avantaj {{number}}",
+      "deleteDialog": {
+        "title": "Avantajı Sil",
+        "description": "Bu avantajı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "cancel": "İptal",
+        "delete": "Sil"
+      },
+      "fields": {
+        "icon": {
+          "label": "İkon",
+          "placeholder": "Bir ikon seçin",
+          "controlledHint": "(Ana dil tarafından kontrol edilir)"
+        },
+        "title": {
+          "label": "Başlık",
+          "placeholder": "Başlık girin"
+        },
+        "description": {
+          "label": "Açıklama",
+          "placeholder": "Açıklama girin"
+        }
+      }
+    },
+    "languageCard": {
+      "title": "Avantajlar Bölümü",
+      "primaryLanguageBadge": "Ana Dil (İkon Kontrolü)",
+      "description": "{{language}} için avantaj içeriğini yönetin",
+      "addButton": "Avantaj Ekle"
+    }
+  },
+  "benefitsFormForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "Avantajlar Oluşturuluyor",
+        "description": "Değişikliklerinizi kaydederken lütfen bekleyin..."
+      },
+      "updating": {
+        "title": "Avantajlar Güncelleniyor",
+        "description": "Değişikliklerinizi kaydederken lütfen bekleyin..."
+      },
+      "deleting": {
+        "title": "Avantajlar Bölümü Siliniyor",
+        "description": "Avantajlar bölümünü silerken lütfen bekleyin..."
+      },
+      "refreshing": {
+        "title": "Veriler Yenileniyor",
+        "description": "Silme işlemi sonrası arayüz güncelleniyor..."
+      }
+    },
+    "deleteDialogs": {
+      "benefit": {
+        "title": "Avantajı Sil",
+        "confirmText": "Avantajı Sil"
+      },
+      "section": {
+        "title": "Avantajlar Bölümünü Sil",
+        "description": "Bu avantajlar bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+      }
+    },
+    "buttons": {
+      "save": "Avantajları Kaydet",
+      "update": "Avantajları Güncelle",
+      "delete": "Avantajlar Bölümünü Sil",
+      "saving": "Kaydediliyor..."
+    },
+    "validation": {
+      "countMismatch": "Her dil aynı sayıda avantaja sahip olmalıdır",
+      "minimumRequired": "En az bir avantaja ihtiyacınız var"
+    },
+    "toasts": {
+      "cannotRemove": {
+        "title": "Kaldırılamıyor",
+        "description": "En az bir avantaja ihtiyacınız var"
+      },
+      "benefitDeleted": {
+        "title": "Avantaj silindi",
+        "description": "Avantaj {{number}} veritabanından silindi"
+      },
+      "stepDeleted": {
+        "title": "Adım silindi",
+        "description": "Adım {{number}} veritabanından silindi"
+      },
+      "errorRemoving": {
+        "title": "Avantaj kaldırma hatası",
+        "description": "Avantajı veritabanından kaldırırken bir hata oluştu"
+      },
+      "errorRemovingStep": {
+        "title": "Adım kaldırma hatası",
+        "description": "Adımı veritabanından kaldırırken bir hata oluştu"
+      },
+      "success": {
+        "created": "Avantajlar bölümü başarıyla oluşturuldu!",
+        "updated": "Avantajlar bölümü başarıyla güncellendi!"
+      },
+      "error": {
+        "created": "Avantajlar bölümü oluşturulurken hata",
+        "updated": "Avantajlar bölümü güncellenirken hata"
+      }
+    },
+    "errors": {
+      "parentSectionRequired": "Alt bölüm oluşturmak için ana bölüm kimliği gereklidir",
+      "failedToCreateSection": "Alt bölüm kimliği oluşturulamadı veya alınamadı",
+      "unknownError": "Bilinmeyen hata oluştu"
+    }
+  },
+  "overviewForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "Genel Bakış Oluşturuluyor",
+        "description": "Değişikliklerinizi kaydederken lütfen bekleyin..."
+      },
+      "updating": {
+        "title": "Genel Bakış Güncelleniyor",
+        "description": "Değişikliklerinizi kaydederken lütfen bekleyin..."
+      },
+      "deleting": {
+        "title": "Genel Bakış Bölümü Siliniyor",
+        "description": "Genel bakış bölümünü silerken lütfen bekleyin..."
+      },
+      "refreshing": {
+        "title": "Veriler Yenileniyor",
+        "description": "Silme işlemi sonrası arayüz güncelleniyor..."
+      }
+    },
+    "deleteDialog": {
+      "title": "Genel Bakış Bölümünü Sil",
+      "description": "Bu genel bakış bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+    },
+    "buttons": {
+      "save": "Genel Bakışı Kaydet",
+      "update": "Genel Bakışı Güncelle",
+      "delete": "Genel Bakış Bölümünü Sil",
+      "saving": "Kaydediliyor..."
+    },
+    "validation": {
+      "error": {
+        "title": "Doğrulama Hatası",
+        "description": "Lütfen tüm gerekli alanları doğru şekilde doldurun"
+      }
+    },
+    "toasts": {
+      "success": {
+        "created": "Genel bakış başarıyla oluşturuldu!",
+        "updated": "Genel bakış başarıyla güncellendi!",
+        "description": "Tüm içerik kaydedildi."
+      },
+      "error": {
+        "created": "Genel bakış oluşturulurken hata",
+        "updated": "Genel bakış güncellenirken hata"
+      }
+    },
+    "errors": {
+      "parentSectionRequired": "Alt bölüm oluşturmak için ana bölüm kimliği gereklidir",
+      "failedToCreateSection": "Alt bölüm kimliği oluşturulamadı veya alınamadı",
+      "unknownError": "Bilinmeyen hata oluştu"
+    },
+    "overviewCard": {
+      "title": "Form Genel Bakışı",
+      "description": "{{language}} için genel bakış içeriğini yönetin",
+      "fields": {
+        "description": {
+          "label": "Açıklama",
+          "placeholder": "Açıklama girin"
+        }
+      }
+    }
+  },
+  "featuresForm": {
+    "featureForm": {
+      "featureTitle": "Özellik {{number}}",
+      "badges": {
+        "primary": "Birincil",
+        "items": "{{count}} öğe",
+        "primaryLanguageOnly": "Yalnızca birincil dil"
+      },
+      "sections": {
+        "basicInformation": "Temel Bilgiler",
+        "featureItems": "Özellik Öğeleri",
+        "featureImage": "Özellik Resmi"
+      },
+      "fields": {
+        "featureTitle": {
+          "label": "Özellik Başlığı",
+          "placeholder": "Özellik başlığını girin"
+        },
+        "sectionHeading": {
+          "label": "Bölüm Başlığı",
+          "placeholder": "Bölüm başlığını girin"
+        },
+        "description": {
+          "label": "Açıklama",
+          "placeholder": "Bu özelliği detaylı olarak açıklayın...",
+          "description": "Bu özellik için kapsamlı bir açıklama sağlayın"
+        }
+      },
+      "buttons": {
+        "addItem": "Öğe Ekle",
+        "removeFeature": "Özelliği Kaldır",
+        "removeItem": "Öğeyi Kaldır"
+      },
+      "emptyState": {
+        "title": "Henüz özellik öğesi yok",
+        "description": "Başlamak için \"Öğe Ekle\"ye tıklayın"
+      },
+      "actions": {
+        "save": "Özellik İçeriğini Kaydet",
+        "update": "Özellik İçeriğini Güncelle",
+        "delete": "Özellik Bölümünü Sil",
+        "saving": "Kaydediliyor...",
+        "deleting": "Siliniyor..."
+      },
+      "validation": {
+        "featureCountMismatch": "Her dilin aynı sayıda özelliğe sahip olması gerekir",
+        "fillRequiredFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+        "cannotRemove": "Kaldırılamaz",
+        "needAtLeastOneFeature": "En az bir özelliğe ihtiyacınız var",
+        "needAtLeastOneItem": "En az bir özellik öğesine ihtiyacınız var"
+      },
+      "dialogs": {
+        "deleteFeature": {
+          "title": "Özelliği Sil",
+          "description": "Bu özelliği silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "confirmText": "Özelliği Sil"
+        },
+        "deleteFeatureItem": {
+          "title": "Özellik Öğesini Sil",
+          "description": "Bu özellik öğesini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "confirmText": "Öğeyi Sil"
+        },
+        "deleteSection": {
+          "title": "Özellik Bölümünü Sil",
+          "description": "Tüm özellik bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "warnings": [
+            "Başlıklar, açıklamalar ve resimler dahil tüm özellik içeriği silinecektir",
+            "Tüm diller için özellik öğeleri ve listeler kaldırılacaktır",
+            "Yüklenen özellik resimleri kalıcı olarak silinecektir",
+            "Bu, web sitenizde özellik vitrinini etkileyebilir"
+          ]
+        },
+        "validationError": {
+          "title": "Özellik Sayısı Uyumsuzluğu",
+          "description": "Kaydetmeden önce her dilin aynı sayıda özelliğe sahip olması gerekir. Lütfen tüm dillerin aynı sayıya sahip olduğundan emin olmak için özellik ekleyin veya kaldırın:"
+        }
+      },
+      "loading": {
+        "creatingSection": "Özellik Bölümü Oluşturuluyor",
+        "updatingSection": "Özellik Bölümü Güncelleniyor",
+        "deletingSection": "Özellik Bölümü Siliniyor",
+        "refreshingData": "Veriler Yenileniyor",
+        "pleaseWait": "İsteğinizi işlerken lütfen bekleyin..."
+      },
+      "toast": {
+        "featureAdded": "Özellik eklendi",
+        "featureAddedDesc": "Yeni bir özellik eklendi. Lütfen detayları doldurun ve değişikliklerinizi kaydedin.",
+        "featureRemoved": "Özellik kaldırıldı",
+        "featureRemovedDesc": "Özellik başarıyla kaldırıldı.",
+        "itemAdded": "Özellik öğesi eklendi",
+        "itemAddedDesc": "Tüm dillere yeni bir özellik öğesi eklendi.",
+        "itemRemoved": "Öğe kaldırıldı",
+        "itemRemovedDesc": "Özellik öğesi başarıyla kaldırıldı.",
+        "sectionCreated": "Özellik bölümü başarıyla oluşturuldu!",
+        "sectionUpdated": "Özellik bölümü başarıyla güncellendi!",
+        "contentSaved": "Tüm içerik kaydedildi.",
+        "errorCreating": "Özellik bölümü oluşturulurken hata",
+        "errorUpdating": "Özellik bölümü güncellenirken hata",
+        "errorRemoving": "Özellik öğesi kaldırılırken hata oluştu.",
+        "errorLoading": "Özellik verileri yüklenemedi. Lütfen tekrar deneyin."
+      }
+    },
+    "featureItem": {
+      "placeholder": "Özellik {{number}}"
+    },
+    "languageCard": {
+      "title": "Özellik Bölümü",
+      "description": "{{language}} için özellik içeriğini yönetin",
+      "addFeature": "Özellik Ekle"
+    }
+  },
+  "processStepsForm": {
+      "stepForm": {
+        "stepTitle": "Adım {{number}}",
+        "badges": {
+          "iconControl": "İkon Kontrolü",
+          "primary": "Birincil"
+        },
+        "sections": {
+          "processStepsSection": "Süreç Adımları Bölümü"
+        },
+        "fields": {
+          "icon": {
+            "label": "İkon",
+            "placeholder": "Bir ikon seçin",
+            "controlledBy": "İkon ({{language}} tarafından kontrol edilir)"
+          },
+          "title": {
+            "label": "Başlık",
+            "placeholder": "Adım başlığını girin"
+          },
+          "description": {
+            "label": "Açıklama", 
+            "placeholder": "Adım açıklamasını girin"
+          }
+        },
+        "buttons": {
+          "addStep": "Süreç Adımı Ekle",
+          "deleteStep": "Adımı Sil"
+        },
+        "actions": {
+          "save": "Süreç Adımlarını Kaydet",
+          "update": "Süreç Adımlarını Güncelle",
+          "delete": "Süreç Adımlarını Sil",
+          "saving": "Kaydediliyor...",
+          "deleting": "Siliniyor..."
+        },
+        "validation": {
+          "stepCountMismatch": "Her dilin aynı sayıda adıma sahip olması gerekir",
+          "fillRequiredFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun", 
+          "cannotRemove": "Kaldırılamaz",
+          "needAtLeastOneStep": "En az bir süreç adımına ihtiyacınız var"
+        },
+        "dialogs": {
+          "deleteStep": {
+            "title": "Süreci Sil",
+            "description": "Bu adımı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            "confirmText": "Süreci Sil"
+          },
+          "deleteSection": {
+            "title": "Süreç Adımları Bölümünü Sil",
+            "description": "Tüm süreç adımları bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            "warnings": [
+              "Tüm süreç adımları kalıcı olarak kaldırılacaktır",
+              "Bu işlem geri alınamaz"
+            ]
+          },
+          "validationError": {
+            "title": "Adım Sayısı Uyumsuzluğu",
+            "description": "Kaydetmeden önce her dilin aynı sayıda süreç adımına sahip olması gerekir. Lütfen tüm dillerin aynı sayıya sahip olduğundan emin olmak için adım ekleyin veya kaldırın:",
+            "close": "Kapat"
+          }
+        },
+        "loading": {
+          "loadingData": "Süreç adımları verileri yükleniyor...",
+          "creatingSection": "Süreç Adımları Oluşturuluyor",
+          "updatingSection": "Süreç Adımları Güncelleniyor",
+          "deletingSection": "Süreç Adımları Siliniyor",
+          "refreshingData": "Veriler Yenileniyor", 
+          "pleaseWait": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+          "pleaseWaitDelete": "Süreç adımları bölümünü silerken lütfen bekleyin...",
+          "pleaseWaitRefresh": "Silme işleminden sonra arayüz güncelleniyor..."
+        },
+        "toast": {
+          "stepAdded": "Adım eklendi",
+          "stepAddedDesc": "Tüm dillere yeni bir süreç adımı eklendi.",
+          "stepDeleted": "Adım silindi",
+          "stepDeletedDesc": "Adım {{number}} veritabanından silindi",
+          "stepRemoved": "Adım kaldırıldı", 
+          "stepRemovedDesc": "Adım başarıyla kaldırıldı.",
+          "sectionCreated": "Süreç adımları başarıyla oluşturuldu!",
+          "sectionUpdated": "Süreç adımları başarıyla güncellendi!",
+          "contentSaved": "Tüm değişiklikler kaydedildi.",
+          "creatingSection": "Yeni süreç adımları bölümü oluşturuluyor...",
+          "creatingSectionDesc": "Yeni süreç adımları içeriğinizi ayarlıyoruz.",
+          "refreshingContent": "İçerik yenileniyor",
+          "refreshingContentDesc": "Güncellenmiş içerik yükleniyor...",
+          "errorCreating": "Süreç adımları oluşturulurken hata",
+          "errorUpdating": "Süreç adımları güncellenirken hata",
+          "errorRemoving": "Adım kaldırılırken hata",
+          "errorRemovingDesc": "Adımı veritabanından kaldırırken hata oluştu"
+        }
+      },
+      "languageCard": {
+        "title": "Süreç Adımları Bölümü",
+        "description": "{{language}} için süreç adımları içeriğini yönetin",
+        "iconControlDesc": "Burada tanımlanan ikonlar tüm diller için kullanılacaktır"
+      }
+  },
+   "faqForm": {
+      "section": {
+        "title": "SSS Bölümü",
+        "description": "{{language}} için SSS içeriğini yönetin"
+      },
+      "item": {
+        "defaultTitle": "SSS {{number}}",
+        "fields": {
+          "question": {
+            "label": "Soru",
+            "placeholder": "Soruyu girin"
+          },
+          "answer": {
+            "label": "Cevap",
+            "placeholder": "Cevabı girin"
+          }
+        }
+      },
+      "actions": {
+        "addFaq": "SSS Ekle",
+        "save": "SSS İçeriğini Kaydet",
+        "update": "SSS İçeriğini Güncelle",
+        "delete": "SSS Bölümünü Sil",
+        "saving": "Kaydediliyor...",
+        "deleting": "Siliniyor..."
+      },
+      "loading": {
+        "loadingData": "SSS bölümü verileri yükleniyor...",
+        "creatingSection": "SSS Bölümü Oluşturuluyor",
+        "updatingSection": "SSS Bölümü Güncelleniyor",
+        "deletingSection": "SSS Bölümü Siliniyor",
+        "refreshingData": "Veriler Yenileniyor",
+        "pleaseWait": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+        "pleaseWaitDelete": "SSS bölümünü silerken lütfen bekleyin...",
+        "pleaseWaitRefresh": "Silme işleminden sonra arayüz güncelleniyor..."
+      },
+      "validation": {
+        "faqCountMismatch": "Her dilin aynı sayıda SSS'ye sahip olması gerekir",
+        "fillRequiredFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+        "cannotRemove": "Kaldırılamaz",
+        "needAtLeastOneFaq": "En az bir SSS'ye ihtiyacınız var"
+      },
+      "dialogs": {
+        "deleteFaq": {
+          "title": "SSS'yi Sil",
+          "description": "Bu SSS'yi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "confirmText": "SSS'yi Sil"
+        },
+        "deleteSection": {
+          "title": "SSS Bölümünü Sil",
+          "description": "Tüm SSS bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "warnings": [
+            "Tüm SSS soruları ve cevapları kalıcı olarak kaldırılacaktır",
+            "Bu işlem geri alınamaz"
+          ]
+        },
+        "validationError": {
+          "title": "SSS Sayısı Uyumsuzluğu",
+          "description": "Kaydetmeden önce her dilin aynı sayıda SSS'ye sahip olması gerekir. Lütfen tüm dillerin aynı sayıya sahip olduğundan emin olmak için SSS ekleyin veya kaldırın:",
+          "close": "Kapat"
+        }
+      },
+      "toast": {
+        "faqAdded": "SSS eklendi",
+        "faqAddedDesc": "Bölüme yeni bir SSS eklendi.",
+        "faqDeleted": "SSS silindi",
+        "faqDeletedDesc": "SSS {{number}} veritabanından silindi",
+        "faqRemoved": "SSS kaldırıldı",
+        "faqRemovedDesc": "SSS başarıyla kaldırıldı.",
+        "sectionCreated": "SSS bölümü başarıyla oluşturuldu!",
+        "sectionUpdated": "SSS bölümü başarıyla güncellendi!",
+        "contentSaved": "Tüm değişiklikler kaydedildi.",
+        "creatingSection": "Yeni SSS bölümü oluşturuluyor...",
+        "creatingSectionDesc": "Yeni SSS içeriğinizi ayarlıyoruz.",
+        "refreshingContent": "İçerik yenileniyor",
+        "refreshingContentDesc": "Güncellenmiş içerik yükleniyor...",
+        "errorCreating": "SSS bölümü oluşturulurken hata",
+        "errorUpdating": "SSS bölümü güncellenirken hata",
+        "errorRemoving": "SSS kaldırılırken hata",
+        "errorRemovingDesc": "SSS'yi veritabanından kaldırırken hata oluştu",
+        "validationError": "Doğrulama Hatası"
+      }
+    },
   "common": {
     "welcome": "Hoş geldiniz",
     "logout": "Çıkış yap",

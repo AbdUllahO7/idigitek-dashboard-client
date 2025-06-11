@@ -1,10 +1,11 @@
-// Language Card Component
+// Language Card Component with i18n Integration
 
 import { Accordion } from "@/src/components/ui/accordion";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Plus } from "lucide-react";
 import { memo } from "react";
+import { useTranslation } from "react-i18next"; // or your i18n hook
 import { FeatureForm } from "./FeatureForm";
 
 interface LanguageCardProps {
@@ -31,6 +32,7 @@ const LanguageCard = memo(({
   onRemoveFeatureItem,
   FeatureImageUploader
 }: LanguageCardProps) => {
+  const { t } = useTranslation(); // i18n hook
   const features = form.watch(`${langCode}` as any) || [];
   
   return (
@@ -40,9 +42,11 @@ const LanguageCard = memo(({
           <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
             {langCode}
           </span>
-          Features Section
+          {t('featuresForm.languageCard.title')}
         </CardTitle>
-        <CardDescription>Manage features content for {langCode.toUpperCase()}</CardDescription>
+        <CardDescription>
+          {t('featuresForm.languageCard.description', { language: langCode.toUpperCase() })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Accordion type="single" collapsible className="w-full">
@@ -69,7 +73,7 @@ const LanguageCard = memo(({
           onClick={() => onAddFeature(langCode)}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Feature
+          {t('featuresForm.languageCard.addFeature')}
         </Button>
       </CardContent>
     </Card>

@@ -2589,6 +2589,598 @@
     "descriptionLabel": "الوصف",
     "descriptionPlaceholder": "أدخل الوصف"
   },
+  "servicesPage": {
+    "title": "إدارة الخدمات",
+    "description": "إدارة مخزون الخدمات والمحتوى متعدد اللغات",
+    "addButtonLabel": "إضافة خدمة جديدة",
+    "emptyStateMessage": "لم يتم العثور على خدمات. أنشئ خدمتك الأولى بالنقر على زر \"إضافة خدمة جديدة\".",
+    "noSectionMessage": "يرجى إنشاء قسم الخدمات أولاً قبل إضافة الخدمات.",
+    "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة الخدمات.",
+    "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة الخدمات.",
+    "sectionIntegrationTitle": "محتوى قسم الخدمات",
+    "sectionIntegrationDescription": "إدارة محتوى قسم الخدمات بلغات متعددة.",
+    "addSectionButtonLabel": "إضافة قسم الخدمات",
+    "editSectionButtonLabel": "تحرير قسم الخدمات",
+    "saveSectionButtonLabel": "حفظ قسم الخدمات",
+    "listTitle": "قائمة الخدمات",
+    "table": {
+      "columns": {
+        "name": "الاسم",
+        "description": "الوصف",
+        "status": "الحالة",
+        "order": "الترتيب",
+        "subsections": "الأقسام الفرعية"
+      },
+      "badges": {
+        "main": "رئيسي"
+      }
+    },
+    "dialogs": {
+      "createTitle": "خدمة",
+      "deleteTitle": "حذف القسم",
+      "confirmText": "تأكيد"
+    }
+  },
+  "addServicePage": {
+    "titles": {
+      "create": "إنشاء خدمة جديدة",
+      "edit": "تحرير الخدمة"
+    },
+    "subtitles": {
+      "create": "إنشاء خدمة جديدة مع محتوى متعدد اللغات",
+      "edit": "تحرير محتوى \"{{serviceName}}\" عبر لغات متعددة"
+    },
+    "tabs": {
+      "hero": "الشعار الرئيسي",
+      "benefits": "المزايا",
+      "overview": "نظرة عامة",
+      "features": "الميزات",
+      "process": "العملية",
+      "faq": "الأسئلة الشائعة"
+    },
+    "defaults": {
+      "serviceName": "خدمة جديدة"
+    },
+    "navigation": {
+      "backToServices": "العودة إلى الخدمات"
+    }
+  },
+  "heroForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "إنشاء قسم اللوح الرئيسي",
+        "description": "يرجى الانتظار بينما نحفظ تغييراتك..."
+      },
+      "updating": {
+        "title": "تحديث قسم اللوح الرئيسي",
+        "description": "يرجى الانتظار بينما نحفظ تغييراتك..."
+      },
+      "deleting": {
+        "title": "حذف قسم اللوح الرئيسي",
+        "description": "يرجى الانتظار بينما نحذف قسم اللوح الرئيسي..."
+      },
+      "refreshing": {
+        "title": "تحديث البيانات",
+        "description": "تحديث الواجهة بعد الحذف..."
+      }
+    },
+    "deleteDialog": {
+      "title": "حذف قسم اللوح الرئيسي",
+      "description": "هل أنت متأكد من أنك تريد حذف قسم اللوح الرئيسي هذا؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "buttons": {
+      "save": "حفظ محتوى اللوح الرئيسي",
+      "update": "تحديث محتوى اللوح الرئيسي",
+      "delete": "حذف قسم اللوح الرئيسي",
+      "saving": "جاري الحفظ..."
+    },
+    "toasts": {
+      "validation": {
+        "title": "خطأ في التحقق",
+        "description": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح"
+      },
+      "imageUpload": {
+        "success": {
+          "title": "تم رفع الصورة",
+          "description": "تم رفع صورة الخلفية بنجاح."
+        },
+        "error": {
+          "title": "فشل في رفع الصورة",
+          "description": "فشل في رفع الصورة"
+        }
+      },
+      "save": {
+        "success": {
+          "created": "تم إنشاء قسم اللوح الرئيسي بنجاح!",
+          "updated": "تم تحديث قسم اللوح الرئيسي بنجاح!",
+          "description": "تم حفظ جميع المحتويات."
+        },
+        "error": {
+          "created": "خطأ في إنشاء قسم اللوح الرئيسي",
+          "updated": "خطأ في تحديث قسم اللوح الرئيسي"
+        }
+      }
+    },
+    "languageCard": {
+      "title": "قسم اللوح الرئيسي",
+      "description": "إدارة محتوى اللوح الرئيسي لـ {{language}}",
+      "fields": {
+        "title": {
+          "label": "العنوان",
+          "placeholder": "أدخل العنوان"
+        },
+        "description": {
+          "label": "الوصف",
+          "placeholder": "أدخل الوصف"
+        },
+        "backLinkText": {
+          "label": "نص زر العودة",
+          "placeholder": "ابدأ الآن"
+        }
+      }
+    }
+  },
+  "benefitsForm": {
+    "benefitCard": {
+      "title": "الفائدة {{number}}",
+      "deleteDialog": {
+        "title": "حذف الفائدة",
+        "description": "هل أنت متأكد من أنك تريد حذف هذه الفائدة؟ لا يمكن التراجع عن هذا الإجراء.",
+        "cancel": "إلغاء",
+        "delete": "حذف"
+      },
+      "fields": {
+        "icon": {
+          "label": "الأيقونة",
+          "placeholder": "اختر أيقونة",
+          "controlledHint": "(يتم التحكم بها من اللغة الأساسية)"
+        },
+        "title": {
+          "label": "العنوان",
+          "placeholder": "أدخل العنوان"
+        },
+        "description": {
+          "label": "الوصف",
+          "placeholder": "أدخل الوصف"
+        }
+      }
+    },
+    "languageCard": {
+      "title": "قسم الفوائد",
+      "primaryLanguageBadge": "اللغة الأساسية (التحكم في الأيقونة)",
+      "description": "إدارة محتوى الفوائد لـ {{language}}",
+      "addButton": "إضافة فائدة"
+    }
+  },
+  "benefitsFormForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "إنشاء الفوائد",
+        "description": "يرجى الانتظار بينما نحفظ تغييراتك..."
+      },
+      "updating": {
+        "title": "تحديث الفوائد",
+        "description": "يرجى الانتظار بينما نحفظ تغييراتك..."
+      },
+      "deleting": {
+        "title": "حذف قسم الفوائد",
+        "description": "يرجى الانتظار بينما نحذف قسم الفوائد..."
+      },
+      "refreshing": {
+        "title": "تحديث البيانات",
+        "description": "تحديث الواجهة بعد الحذف..."
+      }
+    },
+    "deleteDialogs": {
+      "benefit": {
+        "title": "حذف الفائدة",
+        "confirmText": "حذف الفائدة"
+      },
+      "section": {
+        "title": "حذف قسم الفوائد",
+        "description": "هل أنت متأكد من أنك تريد حذف قسم الفوائد هذا؟ لا يمكن التراجع عن هذا الإجراء."
+      }
+    },
+    "buttons": {
+      "save": "حفظ الفوائد",
+      "update": "تحديث الفوائد",
+      "delete": "حذف قسم الفوائد",
+      "saving": "جاري الحفظ..."
+    },
+    "validation": {
+      "countMismatch": "يجب أن تحتوي كل لغة على نفس عدد الفوائد",
+      "minimumRequired": "تحتاج إلى فائدة واحدة على الأقل"
+    },
+    "toasts": {
+      "cannotRemove": {
+        "title": "لا يمكن الإزالة",
+        "description": "تحتاج إلى فائدة واحدة على الأقل"
+      },
+      "benefitDeleted": {
+        "title": "تم حذف الفائدة",
+        "description": "تم حذف الفائدة {{number}} من قاعدة البيانات"
+      },
+      "stepDeleted": {
+        "title": "تم حذف الخطوة",
+        "description": "تم حذف الخطوة {{number}} من قاعدة البيانات"
+      },
+      "errorRemoving": {
+        "title": "خطأ في إزالة الفائدة",
+        "description": "حدث خطأ أثناء إزالة الفائدة من قاعدة البيانات"
+      },
+      "errorRemovingStep": {
+        "title": "خطأ في إزالة الخطوة",
+        "description": "حدث خطأ أثناء إزالة الخطوة من قاعدة البيانات"
+      },
+      "success": {
+        "created": "تم إنشاء قسم الفوائد بنجاح!",
+        "updated": "تم تحديث قسم الفوائد بنجاح!"
+      },
+      "error": {
+        "created": "خطأ في إنشاء قسم الفوائد",
+        "updated": "خطأ في تحديث قسم الفوائد"
+      }
+    },
+    "errors": {
+      "parentSectionRequired": "معرف القسم الأساسي مطلوب لإنشاء قسم فرعي",
+      "failedToCreateSection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+      "unknownError": "حدث خطأ غير معروف"
+    }
+  },
+  "overviewForm": {
+    "loadingDialogs": {
+      "creating": {
+        "title": "إنشاء النظرة العامة",
+        "description": "يرجى الانتظار بينما نحفظ تغييراتك..."
+      },
+      "updating": {
+        "title": "تحديث النظرة العامة",
+        "description": "يرجى الانتظار بينما نحفظ تغييراتك..."
+      },
+      "deleting": {
+        "title": "حذف قسم النظرة العامة",
+        "description": "يرجى الانتظار بينما نحذف قسم النظرة العامة..."
+      },
+      "refreshing": {
+        "title": "تحديث البيانات",
+        "description": "تحديث الواجهة بعد الحذف..."
+      }
+    },
+    "deleteDialog": {
+      "title": "حذف قسم النظرة العامة",
+      "description": "هل أنت متأكد من أنك تريد حذف قسم النظرة العامة هذا؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "buttons": {
+      "save": "حفظ النظرة العامة",
+      "update": "تحديث النظرة العامة",
+      "delete": "حذف قسم النظرة العامة",
+      "saving": "جاري الحفظ..."
+    },
+    "validation": {
+      "error": {
+        "title": "خطأ في التحقق",
+        "description": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح"
+      }
+    },
+    "toasts": {
+      "success": {
+        "created": "تم إنشاء النظرة العامة بنجاح!",
+        "updated": "تم تحديث النظرة العامة بنجاح!",
+        "description": "تم حفظ جميع المحتويات."
+      },
+      "error": {
+        "created": "خطأ في إنشاء النظرة العامة",
+        "updated": "خطأ في تحديث النظرة العامة"
+      }
+    },
+    "errors": {
+      "parentSectionRequired": "معرف القسم الأساسي مطلوب لإنشاء قسم فرعي",
+      "failedToCreateSection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+      "unknownError": "حدث خطأ غير معروف"
+    },
+    "overviewCard": {
+      "title": "نظرة عامة على النموذج",
+      "description": "إدارة محتوى النظرة العامة لـ {{language}}",
+      "fields": {
+        "description": {
+          "label": "الوصف",
+          "placeholder": "أدخل الوصف"
+        }
+      }
+    }
+  },
+  "featuresForm": {
+      "featureForm": {
+        "featureTitle": "الميزة {{number}}",
+        "badges": {
+          "primary": "أساسي",
+          "items": "{{count}} عناصر",
+          "primaryLanguageOnly": "اللغة الأساسية فقط"
+        },
+        "sections": {
+          "basicInformation": "المعلومات الأساسية",
+          "featureItems": "عناصر الميزة",
+          "featureImage": "صورة الميزة"
+        },
+        "fields": {
+          "featureTitle": {
+            "label": "عنوان الميزة",
+            "placeholder": "أدخل عنوان الميزة"
+          },
+          "sectionHeading": {
+            "label": "عنوان القسم",
+            "placeholder": "أدخل عنوان القسم"
+          },
+          "description": {
+            "label": "الوصف",
+            "placeholder": "وصف هذه الميزة بالتفصيل...",
+            "description": "قدم وصفاً شاملاً لهذه الميزة"
+          }
+        },
+        "buttons": {
+          "addItem": "إضافة عنصر",
+          "removeFeature": "إزالة الميزة",
+          "removeItem": "إزالة العنصر"
+        },
+        "emptyState": {
+          "title": "لا توجد عناصر ميزة حتى الآن",
+          "description": "انقر على \"إضافة عنصر\" للبدء"
+        },
+        "actions": {
+          "save": "حفظ محتوى الميزات",
+          "update": "تحديث محتوى الميزات",
+          "delete": "حذف قسم الميزات",
+          "saving": "جاري الحفظ...",
+          "deleting": "جاري الحذف..."
+        },
+        "validation": {
+          "featureCountMismatch": "يجب أن يكون لكل لغة نفس عدد الميزات",
+          "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+          "cannotRemove": "لا يمكن الإزالة",
+          "needAtLeastOneFeature": "تحتاج إلى ميزة واحدة على الأقل",
+          "needAtLeastOneItem": "تحتاج إلى عنصر ميزة واحد على الأقل"
+        },
+        "dialogs": {
+          "deleteFeature": {
+            "title": "حذف الميزة",
+            "description": "هل أنت متأكد من رغبتك في حذف هذه الميزة؟ لا يمكن التراجع عن هذا الإجراء.",
+            "confirmText": "حذف الميزة"
+          },
+          "deleteFeatureItem": {
+            "title": "حذف عنصر الميزة",
+            "description": "هل أنت متأكد من رغبتك في حذف عنصر الميزة هذا؟ لا يمكن التراجع عن هذا الإجراء.",
+            "confirmText": "حذف العنصر"
+          },
+          "deleteSection": {
+            "title": "حذف قسم الميزات",
+            "description": "هل أنت متأكد من رغبتك في حذف قسم الميزات بالكامل؟ لا يمكن التراجع عن هذا الإجراء.",
+            "warnings": [
+              "سيتم حذف جميع محتوى الميزات بما في ذلك العناوين والأوصاف والصور",
+              "ستتم إزالة عناصر وقوائم الميزات لجميع اللغات",
+              "سيتم حذف صور الميزات المرفوعة نهائياً",
+              "قد يؤثر هذا على عرض الميزات في موقعك الإلكتروني"
+            ]
+          },
+          "validationError": {
+            "title": "عدم تطابق عدد الميزات",
+            "description": "يجب أن تحتوي كل لغة على نفس عدد الميزات قبل الحفظ. يرجى إضافة أو إزالة الميزات للتأكد من أن جميع اللغات لها نفس العدد:"
+          }
+        },
+        "loading": {
+          "creatingSection": "إنشاء قسم الميزات",
+          "updatingSection": "تحديث قسم الميزات",
+          "deletingSection": "حذف قسم الميزات",
+          "refreshingData": "تحديث البيانات",
+          "pleaseWait": "يرجى الانتظار بينما نعالج طلبك..."
+        },
+        "toast": {
+          "featureAdded": "تمت إضافة الميزة",
+          "featureAddedDesc": "تمت إضافة ميزة جديدة. يرجى ملء التفاصيل وحفظ التغييرات.",
+          "featureRemoved": "تمت إزالة الميزة",
+          "featureRemovedDesc": "تمت إزالة الميزة بنجاح.",
+          "itemAdded": "تمت إضافة عنصر الميزة",
+          "itemAddedDesc": "تمت إضافة عنصر ميزة جديد لجميع اللغات.",
+          "itemRemoved": "تمت إزالة العنصر",
+          "itemRemovedDesc": "تمت إزالة عنصر الميزة بنجاح.",
+          "sectionCreated": "تم إنشاء قسم الميزات بنجاح!",
+          "sectionUpdated": "تم تحديث قسم الميزات بنجاح!",
+          "contentSaved": "تم حفظ جميع المحتوى.",
+          "errorCreating": "خطأ في إنشاء قسم الميزات",
+          "errorUpdating": "خطأ في تحديث قسم الميزات",
+          "errorRemoving": "حدث خطأ في إزالة عنصر الميزة.",
+          "errorLoading": "فشل في تحميل بيانات الميزات. يرجى المحاولة مرة أخرى."
+        }
+      },
+      "featureItem": {
+        "placeholder": "الميزة {{number}}"
+      },
+      "languageCard": {
+        "title": "قسم الميزات",
+        "description": "إدارة محتوى الميزات لـ {{language}}",
+        "addFeature": "إضافة ميزة"
+      }
+  },
+  "processStepsForm": {
+      "stepForm": {
+        "stepTitle": "الخطوة {{number}}",
+        "badges": {
+          "iconControl": "تحكم الأيقونات",
+          "primary": "أساسي"
+        },
+        "sections": {
+          "processStepsSection": "قسم خطوات العملية"
+        },
+        "fields": {
+          "icon": {
+            "label": "الأيقونة",
+            "placeholder": "اختر أيقونة",
+            "controlledBy": "الأيقونة (محكومة بواسطة {{language}})"
+          },
+          "title": {
+            "label": "العنوان",
+            "placeholder": "أدخل عنوان الخطوة"
+          },
+          "description": {
+            "label": "الوصف",
+            "placeholder": "أدخل وصف الخطوة"
+          }
+        },
+        "buttons": {
+          "addStep": "إضافة خطوة عملية",
+          "deleteStep": "حذف الخطوة"
+        },
+        "actions": {
+          "save": "حفظ خطوات العملية",
+          "update": "تحديث خطوات العملية",
+          "delete": "حذف خطوات العملية", 
+          "saving": "جاري الحفظ...",
+          "deleting": "جاري الحذف..."
+        },
+        "validation": {
+          "stepCountMismatch": "يجب أن يكون لكل لغة نفس عدد الخطوات",
+          "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+          "cannotRemove": "لا يمكن الإزالة",
+          "needAtLeastOneStep": "تحتاج إلى خطوة عملية واحدة على الأقل"
+        },
+        "dialogs": {
+          "deleteStep": {
+            "title": "حذف العملية",
+            "description": "هل أنت متأكد من رغبتك في حذف هذه الخطوة؟ لا يمكن التراجع عن هذا الإجراء.",
+            "confirmText": "حذف العملية"
+          },
+          "deleteSection": {
+            "title": "حذف قسم خطوات العملية",
+            "description": "هل أنت متأكد من رغبتك في حذف قسم خطوات العملية بالكامل؟ لا يمكن التراجع عن هذا الإجراء.",
+            "warnings": [
+              "ستتم إزالة جميع خطوات العملية نهائياً",
+              "لا يمكن التراجع عن هذا الإجراء"
+            ]
+          },
+          "validationError": {
+            "title": "عدم تطابق عدد الخطوات",
+            "description": "يجب أن تحتوي كل لغة على نفس عدد خطوات العملية قبل الحفظ. يرجى إضافة أو إزالة الخطوات للتأكد من أن جميع اللغات لها نفس العدد:",
+            "close": "إغلاق"
+          }
+        },
+        "loading": {
+          "loadingData": "جاري تحميل بيانات خطوات العملية...",
+          "creatingSection": "إنشاء خطوات العملية",
+          "updatingSection": "تحديث خطوات العملية",
+          "deletingSection": "حذف خطوات العملية", 
+          "refreshingData": "تحديث البيانات",
+          "pleaseWait": "يرجى الانتظار بينما نحفظ التغييرات...",
+          "pleaseWaitDelete": "يرجى الانتظار بينما نحذف قسم خطوات العملية...",
+          "pleaseWaitRefresh": "تحديث الواجهة بعد الحذف..."
+        },
+        "toast": {
+          "stepAdded": "تمت إضافة الخطوة",
+          "stepAddedDesc": "تمت إضافة خطوة عملية جديدة لجميع اللغات.",
+          "stepDeleted": "تم حذف الخطوة",
+          "stepDeletedDesc": "تم حذف الخطوة {{number}} من قاعدة البيانات",
+          "stepRemoved": "تمت إزالة الخطوة",
+          "stepRemovedDesc": "تمت إزالة الخطوة بنجاح.",
+          "sectionCreated": "تم إنشاء خطوات العملية بنجاح!",
+          "sectionUpdated": "تم تحديث خطوات العملية بنجاح!",
+          "contentSaved": "تم حفظ جميع التغييرات.",
+          "creatingSection": "إنشاء قسم خطوات العملية الجديد...",
+          "creatingSectionDesc": "إعداد محتوى خطوات العملية الجديد.",
+          "refreshingContent": "تحديث المحتوى",
+          "refreshingContentDesc": "تحميل المحتوى المحدث...",
+          "errorCreating": "خطأ في إنشاء خطوات العملية",
+          "errorUpdating": "خطأ في تحديث خطوات العملية",
+          "errorRemoving": "خطأ في إزالة الخطوة",
+          "errorRemovingDesc": "حدث خطأ في إزالة الخطوة من قاعدة البيانات"
+        }
+      },
+      "languageCard": {
+        "title": "قسم خطوات العملية",
+        "description": "إدارة محتوى خطوات العملية لـ {{language}}",
+        "iconControlDesc": "الأيقونات المحددة هنا ستُستخدم لجميع اللغات"
+      }
+  },
+  "faqForm": {
+      "section": {
+        "title": "قسم الأسئلة الشائعة",
+        "description": "إدارة محتوى الأسئلة الشائعة لـ {{language}}"
+      },
+      "item": {
+        "defaultTitle": "السؤال الشائع {{number}}",
+        "fields": {
+          "question": {
+            "label": "السؤال",
+            "placeholder": "أدخل السؤال"
+          },
+          "answer": {
+            "label": "الإجابة",
+            "placeholder": "أدخل الإجابة"
+          }
+        }
+      },
+      "actions": {
+        "addFaq": "إضافة سؤال شائع",
+        "save": "حفظ محتوى الأسئلة الشائعة",
+        "update": "تحديث محتوى الأسئلة الشائعة",
+        "delete": "حذف قسم الأسئلة الشائعة",
+        "saving": "جاري الحفظ...",
+        "deleting": "جاري الحذف..."
+      },
+      "loading": {
+        "loadingData": "جاري تحميل بيانات قسم الأسئلة الشائعة...",
+        "creatingSection": "إنشاء قسم الأسئلة الشائعة",
+        "updatingSection": "تحديث قسم الأسئلة الشائعة",
+        "deletingSection": "حذف قسم الأسئلة الشائعة",
+        "refreshingData": "تحديث البيانات",
+        "pleaseWait": "يرجى الانتظار بينما نحفظ التغييرات...",
+        "pleaseWaitDelete": "يرجى الانتظار بينما نحذف قسم الأسئلة الشائعة...",
+        "pleaseWaitRefresh": "تحديث الواجهة بعد الحذف..."
+      },
+      "validation": {
+        "faqCountMismatch": "يجب أن يكون لكل لغة نفس عدد الأسئلة الشائعة",
+        "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+        "cannotRemove": "لا يمكن الإزالة",
+        "needAtLeastOneFaq": "تحتاج إلى سؤال شائع واحد على الأقل"
+      },
+      "dialogs": {
+        "deleteFaq": {
+          "title": "حذف السؤال الشائع",
+          "description": "هل أنت متأكد من رغبتك في حذف هذا السؤال الشائع؟ لا يمكن التراجع عن هذا الإجراء.",
+          "confirmText": "حذف السؤال الشائع"
+        },
+        "deleteSection": {
+          "title": "حذف قسم الأسئلة الشائعة",
+          "description": "هل أنت متأكد من رغبتك في حذف قسم الأسئلة الشائعة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.",
+          "warnings": [
+            "ستتم إزالة جميع الأسئلة والأجوبة الشائعة نهائياً",
+            "لا يمكن التراجع عن هذا الإجراء"
+          ]
+        },
+        "validationError": {
+          "title": "عدم تطابق عدد الأسئلة الشائعة",
+          "description": "يجب أن تحتوي كل لغة على نفس عدد الأسئلة الشائعة قبل الحفظ. يرجى إضافة أو إزالة الأسئلة الشائعة للتأكد من أن جميع اللغات لها نفس العدد:",
+          "close": "إغلاق"
+        }
+      },
+      "toast": {
+        "faqAdded": "تمت إضافة السؤال الشائع",
+        "faqAddedDesc": "تمت إضافة سؤال شائع جديد إلى القسم.",
+        "faqDeleted": "تم حذف السؤال الشائع",
+        "faqDeletedDesc": "تم حذف السؤال الشائع {{number}} من قاعدة البيانات",
+        "faqRemoved": "تمت إزالة السؤال الشائع",
+        "faqRemovedDesc": "تمت إزالة السؤال الشائع بنجاح.",
+        "sectionCreated": "تم إنشاء قسم الأسئلة الشائعة بنجاح!",
+        "sectionUpdated": "تم تحديث قسم الأسئلة الشائعة بنجاح!",
+        "contentSaved": "تم حفظ جميع التغييرات.",
+        "creatingSection": "إنشاء قسم أسئلة شائعة جديد...",
+        "creatingSectionDesc": "إعداد محتوى الأسئلة الشائعة الجديد.",
+        "refreshingContent": "تحديث المحتوى",
+        "refreshingContentDesc": "تحميل المحتوى المحدث...",
+        "errorCreating": "خطأ في إنشاء قسم الأسئلة الشائعة",
+        "errorUpdating": "خطأ في تحديث قسم الأسئلة الشائعة",
+        "errorRemoving": "خطأ في إزالة السؤال الشائع",
+        "errorRemovingDesc": "حدث خطأ في إزالة السؤال الشائع من قاعدة البيانات",
+        "validationError": "خطأ في التحقق"
+      }
+    },
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

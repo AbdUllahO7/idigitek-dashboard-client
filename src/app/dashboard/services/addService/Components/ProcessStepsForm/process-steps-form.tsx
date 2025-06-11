@@ -30,6 +30,7 @@ import { createProcessStepsSchema } from "../../Utils/language-specific-schemas"
 import { ContentElement } from "@/src/api/types/hooks/content.types"
 import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager"
 import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog"
+import { useTranslation } from "react-i18next"
 
 const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
   (props, ref) => {
@@ -42,8 +43,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       ParentSectionId, 
     } = props;
 
-
-      const { websiteId } = useWebsiteContext();
+    const { websiteId } = useWebsiteContext();
+    const { t } = useTranslation(); // Add translation hook
     
     const formSchema = useMemo(() => 
       createProcessStepsSchema(languageIds, activeLanguages), 
@@ -177,11 +178,11 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       subsectionId: existingSubSectionId,
       websiteId,
       slug,
-      sectionName: "process steps section",
+      sectionName: t("processStepsForm.stepForm.sections.processStepsSection"),
       contentElements,
       customWarnings: [
-        "All process steps will be permanently removed",
-        "This action cannot be undone"
+        t("processStepsForm.stepForm.dialogs.deleteSection.warnings.0"),
+        t("processStepsForm.stepForm.dialogs.deleteSection.warnings.1")
       ],
       shouldRefetch: !!slug,
       refetchFn: refetch,
@@ -275,8 +276,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       });
 
       toast({
-        title: "Step added",
-        description: "A new process step has been added to all languages.",
+        title: t("processStepsForm.stepForm.toast.stepAdded"),
+        description: t("processStepsForm.stepForm.toast.stepAddedDesc"),
       });
     };
 
@@ -296,8 +297,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       const currentSteps = form.getValues()[langCode] || [];
       if (currentSteps.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one process step",
+          title: t("processStepsForm.stepForm.validation.cannotRemove"),
+          description: t("processStepsForm.stepForm.validation.needAtLeastOneStep"),
           variant: "destructive",
         });
         setIsDeleting(false);
@@ -332,8 +333,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
             );
 
             toast({
-              title: "Step deleted",
-              description: `Step ${stepNumber} has been deleted from the database`,
+              title: t("processStepsForm.stepForm.toast.stepDeleted"),
+              description: t("processStepsForm.stepForm.toast.stepDeletedDesc", { number: stepNumber }),
             });
           }
 
@@ -367,8 +368,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
         } catch (error) {
           console.error("Error removing process step elements:", error);
           toast({
-            title: "Error removing step",
-            description: "There was an error removing the step from the database",
+            title: t("processStepsForm.stepForm.toast.errorRemoving"),
+            description: t("processStepsForm.stepForm.toast.errorRemovingDesc"),
             variant: "destructive",
           });
         }
@@ -408,8 +409,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
 
       if (!isValid) {
         toast({
-          title: "Validation Error",
-          description: "Please fill all required fields correctly",
+          title: t("processStepsForm.stepForm.validation.fillRequiredFields"),
+          description: t("processStepsForm.stepForm.validation.fillRequiredFields"),
           variant: "destructive",
         });
         return false;
@@ -438,8 +439,8 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
           };
 
           toast({
-            title: "Creating new process steps section...",
-            description: "Setting up your new process steps content.",
+            title: t("processStepsForm.stepForm.toast.creatingSection"),
+            description: t("processStepsForm.stepForm.toast.creatingSectionDesc"),
           });
 
           const newSubSection = await createSubSection.mutateAsync(subsectionData);
@@ -697,15 +698,15 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
         setContentElements(updatedContentElements);
 
         toast({
-          title: existingSubSectionId ? "Process steps updated successfully!" : "Process steps created successfully!",
-          description: "All changes have been saved.",
+          title: existingSubSectionId ? t("processStepsForm.stepForm.toast.sectionUpdated") : t("processStepsForm.stepForm.toast.sectionCreated"),
+          description: t("processStepsForm.stepForm.toast.contentSaved"),
           duration: 5000,
         });
 
         if (slug) {
           toast({
-            title: "Refreshing content",
-            description: "Loading the updated content...",
+            title: t("processStepsForm.stepForm.toast.refreshingContent"),
+            description: t("processStepsForm.stepForm.toast.refreshingContentDesc"),
           });
 
           const result = await refetch();
@@ -720,7 +721,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       } catch (error) {
         console.error("Operation failed:", error);
         toast({
-          title: existingSubSectionId ? "Error updating process steps" : "Error creating process steps",
+          title: existingSubSectionId ? t("processStepsForm.stepForm.toast.errorUpdating") : t("processStepsForm.stepForm.toast.errorCreating"),
           variant: "destructive",
           description: error instanceof Error ? error.message : "Unknown error occurred",
           duration: 5000,
@@ -734,6 +735,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       form,
       validateStepCounts,
       toast,
+      t,
       existingSubSectionId,
       slug,
       ParentSectionId,
@@ -781,7 +783,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
       return (
         <div className="flex items-center justify-center p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Loading process steps data...</p>
+          <p className="text-muted-foreground">{t("processStepsForm.stepForm.loading.loadingData")}</p>
         </div>
       );
     }
@@ -791,27 +793,27 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
         {/* Loading Dialogs */}
         <LoadingDialog 
           isOpen={isSaving} 
-          title={existingSubSectionId ? "Updating Process Steps" : "Creating Process Steps"} 
-          description="Please wait while we save your changes..."
+          title={existingSubSectionId ? t("processStepsForm.stepForm.loading.updatingSection") : t("processStepsForm.stepForm.loading.creatingSection")} 
+          description={t("processStepsForm.stepForm.loading.pleaseWait")}
         />
 
         <LoadingDialog
           isOpen={deleteManager.isDeleting}
-          title="Deleting Process Steps"
-          description="Please wait while we delete the process steps section..."
+          title={t("processStepsForm.stepForm.loading.deletingSection")}
+          description={t("processStepsForm.stepForm.loading.pleaseWaitDelete")}
         />
 
         <LoadingDialog
           isOpen={isRefreshingAfterDelete}
-          title="Refreshing Data"
-          description="Updating the interface after deletion..."
+          title={t("processStepsForm.stepForm.loading.refreshingData")}
+          description={t("processStepsForm.stepForm.loading.pleaseWaitRefresh")}
         />
         
         {/* Delete Confirmation Dialog for entire section */}
         <DeleteConfirmationDialog
           {...deleteManager.confirmationDialogProps}
-          title="Delete Process Steps Section"
-          description="Are you sure you want to delete this entire process steps section? This action cannot be undone."
+          title={t("processStepsForm.stepForm.dialogs.deleteSection.title")}
+          description={t("processStepsForm.stepForm.dialogs.deleteSection.description")}
         />
         
         {/* Main Form */}
@@ -854,7 +856,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
               className="flex items-center"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete Process Steps
+              {t("processStepsForm.stepForm.actions.delete")}
             </Button>
           )}
 
@@ -863,7 +865,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
             {stepCountMismatch && (
               <div className="flex items-center text-amber-500 mr-4 mb-2">
                 <AlertTriangle className="h-4 w-4 mr-2" />
-                <span className="text-sm">Each language must have the same number of steps</span>
+                <span className="text-sm">{t("processStepsForm.stepForm.validation.stepCountMismatch")}</span>
               </div>
             )}
             <Button
@@ -881,12 +883,12 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {t("processStepsForm.stepForm.actions.saving")}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {existingSubSectionId ? "Update Process Steps" : "Save Process Steps"}
+                  {existingSubSectionId ? t("processStepsForm.stepForm.actions.update") : t("processStepsForm.stepForm.actions.save")}
                 </>
               )}
             </Button>
@@ -897,11 +899,10 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
         <Dialog open={isValidationDialogOpen} onOpenChange={setIsValidationDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Step Count Mismatch</DialogTitle>
+              <DialogTitle>{t("processStepsForm.stepForm.dialogs.validationError.title")}</DialogTitle>
               <DialogDescription>
                 <div className="mt-4 mb-4">
-                  Each language must have the same number of process steps before saving. Please add or remove steps to
-                  ensure all languages have the same count:
+                  {t("processStepsForm.stepForm.dialogs.validationError.description")}
                 </div>
                 <ul className="list-disc pl-6 space-y-1">
                   {getStepCountsByLanguage.map(({ language, count }) => (
@@ -914,7 +915,7 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
             </DialogHeader>
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => setIsValidationDialogOpen(false)}>
-                Close
+                {t("processStepsForm.stepForm.dialogs.validationError.close")}
               </Button>
             </div>
           </DialogContent>
@@ -924,11 +925,11 @@ const ProcessStepsForm = forwardRef<HeroFormRef, HeroFormProps>(
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
-          serviceName={stepToDelete ? `Step ${stepToDelete.index + 1}` : ''}
+          serviceName={stepToDelete ? t("processStepsForm.stepForm.stepTitle", { number: stepToDelete.index + 1 }) : ''}
           onConfirm={removeProcessStep}
           isDeleting={isDeleting}
-          title="Delete Process"
-          confirmText="Delete Process"
+          title={t("processStepsForm.stepForm.dialogs.deleteStep.title")}
+          confirmText={t("processStepsForm.stepForm.dialogs.deleteStep.confirmText")}
         />
       </div>
     );
