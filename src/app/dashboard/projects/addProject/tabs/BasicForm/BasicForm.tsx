@@ -23,7 +23,7 @@ import { createFormRef } from "@/src/app/dashboard/services/addService/Utils/Exp
 import { BackgroundImageSection } from "@/src/app/dashboard/services/addService/Components/Hero/SimpleImageUploader";
 import { LanguageCard } from "./LanguageCard";
 import { createProjectBasicInfoSchema } from "@/src/app/dashboard/services/addService/Utils/language-specific-schemas";
-
+import { useTranslation } from "react-i18next";
 
 const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
   const { 
@@ -36,6 +36,7 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
   } = props;
 
   const { websiteId } = useWebsiteContext();
+  const { t } = useTranslation();
 
   // Setup form with schema validation
   const formSchema = createProjectBasicInfoSchema(languageIds, activeLanguages);
@@ -276,8 +277,8 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
       if (imageUrl) {
         form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
         toast({
-          title: "Image Uploaded",
-          description: "Background image has been successfully uploaded."
+          title: t('projectBasicForm.imageUploaded', 'Image Uploaded'),
+          description: t('projectBasicForm.imageUploadSuccess', 'Background image has been successfully uploaded.')
         });
         return imageUrl;
       } 
@@ -286,13 +287,13 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     } catch (error) {
       console.error("Image upload failed:", error);
       toast({
-        title: "Image Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload image",
+        title: t('projectBasicForm.imageUploadFailed', 'Image Upload Failed'),
+        description: error instanceof Error ? error.message : t('projectBasicForm.imageUploadError', 'Failed to upload image'),
         variant: "destructive"
       });
       throw error;
     }
-  }, [form, toast]);
+  }, [form, toast, t]);
 
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
@@ -300,8 +301,8 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please fill all required fields correctly",
+        title: t('projectBasicForm.validationError', 'Validation Error'),
+        description: t('projectBasicForm.fillAllFields', 'Please fill all required fields correctly'),
         variant: "destructive"
       });
       return false;
@@ -316,11 +317,11 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
       let sectionId = existingSubSectionId;
       if (!sectionId) {
         if (!ParentSectionId) {
-          throw new Error("Parent section ID is required to create a subsection");
+          throw new Error(t('projectBasicForm.parentSectionRequired', 'Parent section ID is required to create a subsection'));
         }
         
         const subsectionData = {
-          name: "Project Section",
+          name: t('projectBasicForm.projectSection', 'Project Section'),
           slug: slug || `hero-section-${Date.now()}`,
           description: "",
           isActive: true,
@@ -349,7 +350,7 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
       }
 
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID");
+        throw new Error(t('projectBasicForm.failedToCreateSection', 'Failed to create or retrieve subsection ID'));
       }
 
       // Step 2: Map language codes to IDs
@@ -480,8 +481,10 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
 
       // Show success message
       toast({
-        title: existingSubSectionId ? "Project section updated successfully!" : "Project section created successfully!",
-        description: "All content has been saved."
+        title: existingSubSectionId 
+          ? t('projectBasicForm.sectionUpdatedSuccess', 'Project section updated successfully!')
+          : t('projectBasicForm.sectionCreatedSuccess', 'Project section created successfully!'),
+        description: t('projectBasicForm.allContentSaved', 'All content has been saved.')
       });
 
       updateState({ hasUnsavedChanges: false });
@@ -515,9 +518,11 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     } catch (error) {
       console.error("Operation failed:", error);
       toast({
-        title: existingSubSectionId ? "Error updating hero section" : "Error creating hero section",
+        title: existingSubSectionId 
+          ? t('projectBasicForm.errorUpdatingSection', 'Error updating project section')
+          : t('projectBasicForm.errorCreatingSection', 'Error creating project section'),
         variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred"
+        description: error instanceof Error ? error.message : t('projectBasicForm.unknownError', 'Unknown error occurred')
       });
       return false;
     } finally {
@@ -530,6 +535,7 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     ParentSectionId, 
     slug, 
     toast, 
+    t,
     bulkUpsertTranslations, 
     contentElements, 
     createContentElement, 
@@ -569,7 +575,9 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading hero section data...</p>
+        <p className="ml-2 text-muted-foreground">
+          {t('projectBasicForm.loadingData', 'Loading project section data...')}
+        </p>
       </div>
     );
   }
@@ -578,8 +586,11 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     <div className="space-y-6">
       <LoadingDialog 
         isOpen={isSaving} 
-        title={existingSubSectionId ? "Updating Project Section" : "Creating Project Section"}
-        description="Please wait while we save your changes..."
+        title={existingSubSectionId 
+          ? t('projectBasicForm.savingUpdate', 'Updating Project Section')
+          : t('projectBasicForm.savingCreate', 'Creating Project Section')
+        }
+        description={t('projectBasicForm.savingDescription', 'Please wait while we save your changes...')}
       />
       
       <Form {...form}>
@@ -623,12 +634,15 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t('projectBasicForm.saving', 'Saving...')}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update Project Content" : "Save Project Content"}
+              {existingSubSectionId 
+                ? t('projectBasicForm.updateContent', 'Update Project Content')
+                : t('projectBasicForm.saveContent', 'Save Project Content')
+              }
             </>
           )}
         </Button>

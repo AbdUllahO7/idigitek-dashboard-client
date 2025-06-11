@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useGenericList } from "@/src/hooks/useGenericList"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
@@ -11,40 +11,23 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { projectSectionConfig } from "./ProjectSectionConfig"
+import { getProjectSectionConfig, projectSectionConfig } from "./ProjectSectionConfig"
+import { useTranslation } from "react-i18next"
 
-// Configuration for the Project page
-const PROJECTS_CONFIG = {
-  title: "Project Management",
-  description: "Manage your Project inventory and multilingual content",
-  addButtonLabel: "Add New Project item",
-  emptyStateMessage: "No Project found. Create your first Project by clicking the \"Add New Project\" button.",
-  noSectionMessage: "Please create a Project section first before adding Project.",
-  mainSectionRequiredMessage: "Please enter your main section data before adding Project.",
-  emptyFieldsMessage: "Please complete all required fields in the main section before adding Project.",
-  sectionIntegrationTitle: "Project Section Content",
-  sectionIntegrationDescription: "Manage your Project section content in multiple languages.",
-  addSectionButtonLabel: "Add Project Section",
-  editSectionButtonLabel: "Edit Project Section",
-  saveSectionButtonLabel: "Save Project Section",
-  listTitle: "Project List",
-  editPath: "projects/addProject"
-}
-
-// Project table column definitions
-const PROJECTS_COLUMNS = [
+// Project table column definitions with translation support
+const getProjectColumns = (t: any) => [
   {
-    header: "Name",
+    header: t('projectPage.name', 'Name'),
     accessor: "name",
     className: "font-medium"
   },
   {
-    header: "Description",
+    header: t('projectPage.tableDescription', 'Description'),
     accessor: "description",
     cell: TruncatedCell
   },
   {
-    header: "Status",
+    header: t('projectPage.status', 'Status'),
     accessor: "isActive",
     cell: (item: any, value: boolean) => (
       <div className="flex flex-col gap-2">
@@ -52,7 +35,7 @@ const PROJECTS_COLUMNS = [
           {StatusCell(item, value)}
           {item.isMain && (
             <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
+              {t('projectPage.main', 'Main')}
             </span>
           )}
         </div>
@@ -60,11 +43,11 @@ const PROJECTS_COLUMNS = [
     )
   },
   {
-    header: "Order",
+    header: t('projectPage.order', 'Order'),
     accessor: "order"
   },
   {
-    header: "Subsections",
+    header: t('projectPage.subsections', 'Subsections'),
     accessor: "subsections.length",
     cell: CountBadgeCell
   }
@@ -77,6 +60,36 @@ export default function ProjectPage() {
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
+  const { t, i18n } = useTranslation()
+
+  // Get current language from i18n
+  const currentLanguage = i18n.language || 'en'
+
+  // Get translated project section configuration using current language
+  const translatedProjectSectionConfig = useMemo(() => 
+    getProjectSectionConfig(currentLanguage), [currentLanguage]
+  )
+
+  // Configuration for the Project page with translations
+  const PROJECTS_CONFIG = useMemo(() => ({
+    title: t('projectPage.title', 'Project Management'),
+    description: t('projectPage.description', 'Manage your Project inventory and multilingual content'),
+    addButtonLabel: t('projectPage.addButtonLabel', 'Add New Project item'),
+    emptyStateMessage: t('projectPage.emptyStateMessage', 'No Project found. Create your first Project by clicking the "Add New Project" button.'),
+    noSectionMessage: t('projectPage.noSectionMessage', 'Please create a Project section first before adding Project.'),
+    mainSectionRequiredMessage: t('projectPage.mainSectionRequiredMessage', 'Please enter your main section data before adding Project.'),
+    emptyFieldsMessage: t('projectPage.emptyFieldsMessage', 'Please complete all required fields in the main section before adding Project.'),
+    sectionIntegrationTitle: t('projectPage.sectionIntegrationTitle', 'Project Section Content'),
+    sectionIntegrationDescription: t('projectPage.sectionIntegrationDescription', 'Manage your Project section content in multiple languages.'),
+    addSectionButtonLabel: t('projectPage.addSectionButtonLabel', 'Add Project Section'),
+    editSectionButtonLabel: t('projectPage.editSectionButtonLabel', 'Edit Project Section'),
+    saveSectionButtonLabel: t('projectPage.saveSectionButtonLabel', 'Save Project Section'),
+    listTitle: t('projectPage.listTitle', 'Project List'),
+    editPath: t('projectPage.editPath', 'projects/addProject')
+  }), [t]);
+
+  // Get translated column definitions
+  const PROJECTS_COLUMNS = useMemo(() => getProjectColumns(t), [t])
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
@@ -119,8 +132,6 @@ export default function ProjectPage() {
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {    
-
-    
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
       console.log("Still loading subsection data...");
@@ -132,8 +143,8 @@ export default function ProjectPage() {
     let foundMainSubSection = false;
     let mainSubSection = null;
     
-    // Get expected name from configuration
-    const expectedSlug = projectSectionConfig.name;
+    // Get expected name from translated configuration
+    const expectedSlug = translatedProjectSectionConfig.name;
     console.log("Expected subsection name:", expectedSlug);
     
     // If we have a sectionId, prioritize checking the section-specific subsections
@@ -217,15 +228,16 @@ export default function ProjectPage() {
     isLoadingSectionSubsections, 
     sectionId, 
     projectSection, 
-    setSection
+    setSection,
+    translatedProjectSectionConfig.name // Add this dependency
   ]);
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
     console.log("Main subsection created:", subsection);
     
-    // Check if subsection has the correct name
-    const expectedSlug = projectSectionConfig.name;
+    // Check if subsection has the correct name (using translated config)
+    const expectedSlug = translatedProjectSectionConfig.name;
     const hasCorrectSlug = subsection.name === expectedSlug;
     
     // Set that we have a main subsection now (only if it also has the correct name)
@@ -267,7 +279,6 @@ export default function ProjectPage() {
       ? PROJECTS_CONFIG.mainSectionRequiredMessage
       : PROJECTS_CONFIG.emptyStateMessage;
 
-
   // Components
   const ProjectTable = (
     <GenericTable
@@ -284,7 +295,7 @@ export default function ProjectPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Project"
+      title={t('projectPage.dialogTitle', 'Project')}
     />
   );
 
@@ -295,8 +306,8 @@ export default function ProjectPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Project Item"
-      confirmText="Confirm"
+      title={t('projectPage.deleteTitle', 'Delete Project Item')}
+      confirmText={t('projectPage.confirmText', 'Confirm')}
     />
   );
 
@@ -306,7 +317,7 @@ export default function ProjectPage() {
       <GenericListPage
         config={PROJECTS_CONFIG}
         sectionId={sectionId}
-        sectionConfig={projectSectionConfig}
+        sectionConfig={translatedProjectSectionConfig} // Use translated config with language parameter
         isAddButtonDisabled={isAddButtonDisabled}
         tableComponent={ProjectTable}
         createDialogComponent={CreateDialog}
@@ -322,7 +333,7 @@ export default function ProjectPage() {
       {sectionId && (
         <CreateMainSubSection 
           sectionId={sectionId}
-          sectionConfig={projectSectionConfig}
+          sectionConfig={translatedProjectSectionConfig} // Use translated config with language parameter
           onSubSectionCreated={handleMainSubSectionCreated}
           onFormValidityChange={() => {/* We don't need to track form validity */}}
         />

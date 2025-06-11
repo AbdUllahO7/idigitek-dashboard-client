@@ -2185,6 +2185,242 @@
       "deleteHero": "حذف اللوح الرئيسي",
       "expandCollapse": "توسيع/طي بطاقة اللوح الرئيسي"
   },
+  "projectPage": {
+      "// Page Configuration": "",
+      "title": "إدارة المشاريع",
+      "description": "إدارة مخزون المشاريع والمحتوى متعدد اللغات",
+      "listTitle": "قائمة المشاريع",
+      "editPath": "projects/addProject",
+      
+      "// Button Labels": "",
+      "addButtonLabel": "إضافة عنصر مشروع جديد",
+      "addSectionButtonLabel": "إضافة قسم المشروع",
+      "editSectionButtonLabel": "تحرير قسم المشروع",
+      "saveSectionButtonLabel": "حفظ قسم المشروع",
+      
+      "// Messages": "",
+      "emptyStateMessage": "لم يتم العثور على مشروع. أنشئ مشروعك الأول بالنقر على زر \"إضافة مشروع جديد\".",
+      "noSectionMessage": "يرجى إنشاء قسم المشروع أولاً قبل إضافة المشروع.",
+      "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة المشروع.",
+      "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة المشروع.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "محتوى قسم المشروع",
+      "sectionIntegrationDescription": "إدارة محتوى قسم المشروع بلغات متعددة.",
+      
+      "// Table Headers": "",
+      "name": "الاسم",
+      "tableDescription": "الوصف",
+      "status": "الحالة",
+      "order": "الترتيب",
+      "subsections": "الأقسام الفرعية",
+      "main": "رئيسي",
+      
+      "// Dialog Configuration": "",
+      "dialogTitle": "مشروع",
+      "deleteTitle": "حذف عنصر المشروع",
+      "confirmText": "تأكيد"
+  },
+  "addProject": {
+      "// Page Titles": "",
+      "createTitle": "إنشاء مشروع جديد",
+      "editTitle": "تحرير المشروع",
+      
+      "// Page Subtitles": "",
+      "createSubtitle": "إنشاء خدمة جديدة بمحتوى متعدد اللغات",
+      "editSubtitle": "تحرير محتوى \"{{projectName}}\" عبر لغات متعددة",
+      
+      "// Tab Labels": "",
+      "projectTab": "المشروع",
+      "moreInfoTab": "معلومات إضافية",
+      "imagesTab": "الصور",
+      
+      "// Default Values": "",
+      "newProjectName": "مشروع جديد",
+      
+      "// Loading States": "",
+      "loading": "جاري التحميل...",
+      
+      "// Navigation": "",
+      "backToProjects": "العودة إلى المشاريع"
+  },
+  "projectLanguageCard": {
+      "// Card Header": "",
+      "projectSection": "قسم المشروع",
+      "primaryLanguage": "اللغة الأساسية",
+      "manageContent": "إدارة محتوى المشروع لـ {{langCode}}",
+      "projectDateLabel": "تاريخ المشروع: {{date}}",
+      
+      "// Form Labels": "",
+      "projectTitle": "عنوان المشروع",
+      "projectDescription": "وصف المشروع",
+      "projectCategory": "فئة المشروع",
+      "galleryText": "نص المعرض",
+      "projectDate": "تاريخ المشروع",
+      "buttonText": "نص الزر",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "أدخل عنوان المشروع",
+      "descriptionPlaceholder": "أدخل وصف المشروع",
+      "categoryPlaceholder": "أدخل فئة المشروع",
+      "galleryTextPlaceholder": "أدخل نص المعرض",
+      "datePlaceholder": "اختر تاريخاً",
+      "buttonTextPlaceholder": "ابدأ الآن",
+      
+      "// Actions": "",
+      "expand": "توسيع",
+      "collapse": "طي",
+      "close": "إغلاق"
+  },
+  "projectBasicForm": {
+      "// Loading States": "",
+      "loadingData": "جاري تحميل بيانات قسم المشروع...",
+      "savingUpdate": "تحديث قسم المشروع",
+      "savingCreate": "إنشاء قسم المشروع",
+      "savingDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
+      "saving": "جاري الحفظ...",
+      
+      "// Section Names": "",
+      "projectSection": "قسم المشروع",
+      
+      "// Validation Messages": "",
+      "validationError": "خطأ في التحقق",
+      "fillAllFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+      "parentSectionRequired": "معرف القسم الأصلي مطلوب لإنشاء قسم فرعي",
+      "failedToCreateSection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+      
+      "// Image Upload": "",
+      "imageUploaded": "تم تحميل الصورة",
+      "imageUploadSuccess": "تم تحميل صورة الخلفية بنجاح.",
+      "imageUploadFailed": "فشل تحميل الصورة",
+      "imageUploadError": "فشل في تحميل الصورة",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "تم تحديث قسم المشروع بنجاح!",
+      "sectionCreatedSuccess": "تم إنشاء قسم المشروع بنجاح!",
+      "allContentSaved": "تم حفظ جميع المحتويات.",
+      
+      "// Error Messages": "",
+      "errorUpdatingSection": "خطأ في تحديث قسم المشروع",
+      "errorCreatingSection": "خطأ في إنشاء قسم المشروع",
+      "unknownError": "حدث خطأ غير معروف",
+      
+      "// Button Labels": "",
+      "updateContent": "تحديث محتوى المشروع",
+      "saveContent": "حفظ محتوى المشروع"
+  },
+  "projectMoreInfo": {
+      "// Loading States": "",
+      "loadingData": "جاري تحميل بيانات قسم المشروع...",
+      "savingUpdate": "تحديث قسم المشروع",
+      "savingCreate": "إنشاء قسم المشروع",
+      "savingDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
+      "saving": "جاري الحفظ...",
+      
+      "// Section Names": "",
+      "projectSection": "قسم المشروع",
+      
+      "// Validation Messages": "",
+      "validationError": "خطأ في التحقق",
+      "fillAllFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+      "parentSectionRequired": "معرف القسم الأصلي مطلوب لإنشاء قسم فرعي",
+      "failedToCreateSection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "تم تحديث قسم المشروع بنجاح!",
+      "sectionCreatedSuccess": "تم إنشاء قسم المشروع بنجاح!",
+      "allContentSaved": "تم حفظ جميع المحتويات.",
+      
+      "// Error Messages": "",
+      "errorUpdatingSection": "خطأ في تحديث قسم المشروع",
+      "errorCreatingSection": "خطأ في إنشاء قسم المشروع",
+      "unknownError": "حدث خطأ غير معروف",
+      
+      "// Button Labels": "",
+      "updateContent": "تحديث محتوى المشروع",
+      "saveContent": "حفظ محتوى المشروع"
+  },
+  "projectMoreInfoLanguageCard": {
+      "// Card Header": "",
+      "projectSection": "قسم المشروع",
+      "manageContent": "إدارة محتوى المشروع لـ {{langCode}}",
+      
+      "// Section Headers": "",
+      "client": "العميل",
+      "industry": "الصناعة",
+      "year": "السنة",
+      "technologies": "التقنيات",
+      
+      "// Custom Name Labels": "",
+      "clientCustomName": "اسم العميل المخصص",
+      "industryCustomName": "اسم الصناعة المخصص",
+      "yearCustomName": "اسم السنة المخصص",
+      "technologiesCustomName": "اسم التقنيات المخصص",
+      
+      "// Value Labels": "",
+      "clientValue": "قيمة العميل",
+      "industryValue": "قيمة الصناعة",
+      "yearValue": "قيمة السنة",
+      "technologiesValue": "قيمة التقنيات",
+      
+      "// Placeholders": "",
+      "clientCustomNamePlaceholder": "أدخل اسماً مخصصاً للعميل",
+      "clientValuePlaceholder": "أدخل اسم العميل",
+      "industryCustomNamePlaceholder": "أدخل اسماً مخصصاً للصناعة",
+      "industryValuePlaceholder": "أدخل الصناعة",
+      "yearCustomNamePlaceholder": "أدخل اسماً مخصصاً للسنة",
+      "yearValuePlaceholder": "أدخل السنة",
+      "technologiesCustomNamePlaceholder": "أدخل اسماً مخصصاً للتقنيات",
+      "technologiesValuePlaceholder": "أدخل التقنيات"
+  },
+  "projectMultiImage": {
+      "// Loading States": "",
+      "loadingData": "جاري تحميل بيانات قسم الصور المتعددة...",
+      "savingUpdate": "تحديث قسم الصور المتعددة",
+      "savingCreate": "إنشاء قسم الصور المتعددة",
+      "savingDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
+      "saving": "جاري الحفظ...",
+      
+      "// Section Names": "",
+      "multiImageSection": "قسم الصور المتعددة",
+      
+      "// Validation Messages": "",
+      "invalidFileType": "نوع ملف غير صالح",
+      "allowedFileTypes": "يُسمح فقط بملفات JPEG أو PNG أو GIF أو SVG",
+      "cannotRemove": "لا يمكن الإزالة",
+      "atLeastOneRequired": "مطلوب صورة واحدة على الأقل",
+      "validationError": "خطأ في التحقق",
+      "addAtLeastOneImage": "يرجى إضافة صورة واحدة على الأقل",
+      "parentSectionRequired": "معرف القسم الأصلي مطلوب لإنشاء قسم فرعي",
+      "failedToCreateSection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+      
+      "// Image Upload": "",
+      "imageUploaded": "تم تحميل الصورة",
+      "imageUploadSuccess": "تم تحميل الصورة بنجاح.",
+      "imageUploadFailed": "فشل تحميل الصورة",
+      "imageUploadError": "فشل في تحميل الصورة",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "تم تحديث قسم الصور المتعددة بنجاح!",
+      "sectionCreatedSuccess": "تم إنشاء قسم الصور المتعددة بنجاح!",
+      "allImagesSaved": "تم حفظ جميع الصور.",
+      
+      "// Error Messages": "",
+      "error": "خطأ",
+      "failedToLoadImages": "فشل في تحميل بيانات الصور",
+      "unknownError": "حدث خطأ غير معروف",
+      
+      "// Button Labels": "",
+      "change": "تغيير",
+      "upload": "تحميل",
+      "addImage": "إضافة صورة", 
+      "updateImages": "تحديث الصور",
+      "saveImages": "حفظ الصور",
+      
+      "// Image Display": "",
+      "imageAlt": "الصورة {{index}}",
+      "noImage": "لا توجد صورة"
+  },
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

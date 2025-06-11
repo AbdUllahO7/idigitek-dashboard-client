@@ -19,6 +19,7 @@ import * as z from "zod"
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { createFormRef } from "../../../services/addService/Utils/Expose-form-data"
+import { useTranslation } from "react-i18next"
 
 // Define the image schema
 const imageSchema = z
@@ -56,6 +57,7 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
   const { languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData } = props
 
   const { websiteId } = useWebsiteContext()
+  const { t } = useTranslation()
 
   // Setup form with schema validation
   const formSchema = createMultiImageSchema()
@@ -177,8 +179,8 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
       } catch (error) {
         console.error("Error processing multi-image data:", error)
         toast({
-          title: "Error",
-          description: "Failed to load image data",
+          title: t('projectMultiImage.error', 'Error'),
+          description: t('projectMultiImage.failedToLoadImages', 'Failed to load image data'),
           variant: "destructive",
         })
 
@@ -188,7 +190,7 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
         })
       }
     },
-    [form, toast, updateState],
+    [form, toast, updateState, t],
   )
 
   // Process initial data effect
@@ -232,8 +234,8 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
 
       if (!validTypes.includes(file.type)) {
         toast({
-          title: "Invalid File Type",
-          description: "Only JPEG, PNG, GIF, or SVG files are allowed",
+          title: t('projectMultiImage.invalidFileType', 'Invalid File Type'),
+          description: t('projectMultiImage.allowedFileTypes', 'Only JPEG, PNG, GIF, or SVG files are allowed'),
           variant: "destructive",
         })
         return
@@ -253,7 +255,7 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
         hasUnsavedChanges: true,
       })
     },
-    [form, imagePreviews, toast, updateState],
+    [form, imagePreviews, toast, updateState, t],
   )
 
   // Handle image removal
@@ -263,8 +265,8 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
 
       if (images.length <= 1) {
         toast({
-          title: "Cannot Remove",
-          description: "At least one image is required",
+          title: t('projectMultiImage.cannotRemove', 'Cannot Remove'),
+          description: t('projectMultiImage.atLeastOneRequired', 'At least one image is required'),
           variant: "destructive",
         })
         return
@@ -281,7 +283,7 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
         hasUnsavedChanges: true,
       })
     },
-    [form, imagePreviews, toast, updateState],
+    [form, imagePreviews, toast, updateState, t],
   )
 
   // Add new image field
@@ -311,8 +313,8 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
 
         if (imageUrl) {
           toast({
-            title: "Image Uploaded",
-            description: "Image has been successfully uploaded.",
+            title: t('projectMultiImage.imageUploaded', 'Image Uploaded'),
+            description: t('projectMultiImage.imageUploadSuccess', 'Image has been successfully uploaded.'),
           })
           return imageUrl
         }
@@ -321,14 +323,14 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
       } catch (error) {
         console.error("Image upload failed:", error)
         toast({
-          title: "Image Upload Failed",
-          description: error instanceof Error ? error.message : "Failed to upload image",
+          title: t('projectMultiImage.imageUploadFailed', 'Image Upload Failed'),
+          description: error instanceof Error ? error.message : t('projectMultiImage.imageUploadError', 'Failed to upload image'),
           variant: "destructive",
         })
         return null
       }
     },
-    [toast],
+    [toast, t],
   )
 
   // Save handler
@@ -337,8 +339,8 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
     const isValid = await form.trigger()
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please add at least one image",
+        title: t('projectMultiImage.validationError', 'Validation Error'),
+        description: t('projectMultiImage.addAtLeastOneImage', 'Please add at least one image'),
         variant: "destructive",
       })
       return false
@@ -353,11 +355,11 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
       let sectionId = existingSubSectionId
       if (!sectionId) {
         if (!ParentSectionId) {
-          throw new Error("Parent section ID is required to create a subsection")
+          throw new Error(t('projectMultiImage.parentSectionRequired', 'Parent section ID is required to create a subsection'))
         }
 
         const subsectionData = {
-          name: "Multi Image Section",
+          name: t('projectMultiImage.multiImageSection', 'Multi Image Section'),
           slug: slug || `multi-image-section-${Date.now()}`,
           description: "",
           isActive: true,
@@ -386,7 +388,7 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
       }
 
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID")
+        throw new Error(t('projectMultiImage.failedToCreateSection', 'Failed to create or retrieve subsection ID'))
       }
 
       // Step 2: Handle existing content elements
@@ -479,9 +481,9 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
       // Show success message
       toast({
         title: existingSubSectionId
-          ? "Multi-image section updated successfully!"
-          : "Multi-image section created successfully!",
-        description: "All images have been saved.",
+          ? t('projectMultiImage.sectionUpdatedSuccess', 'Multi-image section updated successfully!')
+          : t('projectMultiImage.sectionCreatedSuccess', 'Multi-image section created successfully!'),
+        description: t('projectMultiImage.allImagesSaved', 'All images have been saved.'),
       })
 
       updateState({ hasUnsavedChanges: false })
@@ -495,9 +497,9 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
     } catch (error) {
       console.error("Operation failed:", error)
       toast({
-        title: "Error",
+        title: t('projectMultiImage.error', 'Error'),
         variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
+        description: error instanceof Error ? error.message : t('projectMultiImage.unknownError', 'Unknown error occurred'),
       })
       return false
     } finally {
@@ -509,6 +511,7 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
     ParentSectionId,
     slug,
     toast,
+    t,
     contentElements,
     createContentElement,
     createSubSection,
@@ -547,7 +550,9 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading multi-image section data...</p>
+        <p className="ml-2 text-muted-foreground">
+          {t('projectMultiImage.loadingData', 'Loading multi-image section data...')}
+        </p>
       </div>
     )
   }
@@ -556,8 +561,11 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
     <div className="space-y-4">
       <LoadingDialog
         isOpen={isSaving}
-        title={existingSubSectionId ? "Updating Multi-Image Section" : "Creating Multi-Image Section"}
-        description="Please wait while we save your changes..."
+        title={existingSubSectionId 
+          ? t('projectMultiImage.savingUpdate', 'Updating Multi-Image Section')
+          : t('projectMultiImage.savingCreate', 'Creating Multi-Image Section')
+        }
+        description={t('projectMultiImage.savingDescription', 'Please wait while we save your changes...')}
       />
 
       <Form {...form}>
@@ -571,11 +579,13 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
                     {imagePreviews[index] ? (
                       <img
                         src={imagePreviews[index] || "/placeholder.svg"}
-                        alt={`Image ${index + 1}`}
+                        alt={t('projectMultiImage.imageAlt', 'Image {{index}}', { index: index + 1 })}
                         className="object-cover w-full h-full"
                       />
                     ) : (
-                      <div className="text-muted-foreground text-sm">No image</div>
+                      <div className="text-muted-foreground text-sm">
+                        {t('projectMultiImage.noImage', 'No image')}
+                      </div>
                     )}
                   </div>
 
@@ -594,7 +604,10 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
                       }}
                       className="flex-1 text-xs"
                     >
-                      {imagePreviews[index] ? "Change" : "Upload"}
+                      {imagePreviews[index] 
+                        ? t('projectMultiImage.change', 'Change')
+                        : t('projectMultiImage.upload', 'Upload')
+                      }
                     </Button>
 
                     <Button
@@ -622,7 +635,9 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
                 className="w-full h-full rounded-md flex flex-col items-center justify-center gap-2"
               >
                 <Plus className="h-5 w-5" />
-                <span className="text-xs">Add Image</span>
+                <span className="text-xs">
+                  {t('projectMultiImage.addImage', 'Add Image')}
+                </span>
               </Button>
             </CardContent>
           </Card>
@@ -635,12 +650,15 @@ const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t('projectMultiImage.saving', 'Saving...')}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update Images" : "Save Images"}
+              {existingSubSectionId 
+                ? t('projectMultiImage.updateImages', 'Update Images')
+                : t('projectMultiImage.saveImages', 'Save Images')
+              }
             </>
           )}
         </Button>

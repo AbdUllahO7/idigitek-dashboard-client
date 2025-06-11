@@ -12,6 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/src/components/ui/pop
 import { Button } from "@/src/components/ui/button"
 import { Calendar } from "@/src/components/ui/calendar"
 import { cn } from "@/src/lib/utils"
+import { useTranslation } from "react-i18next"
+import { useLanguage } from "@/src/context/LanguageContext"
 
 interface LanguageCardProps {
   langCode: string
@@ -23,7 +25,8 @@ interface LanguageCardProps {
 export const LanguageCard = memo(
   ({ langCode, form, isFirstLanguage = false, onClose }: LanguageCardProps) => {
     const [isCollapsed, setIsCollapsed] = useState(true)
-
+    const { t } = useTranslation()
+    const {language} = useLanguage()
     const currentTitle = form.watch(`${langCode}.title`) || ""
     const currentDate = form.watch(`${langCode}.date`)
 
@@ -36,6 +39,7 @@ export const LanguageCard = memo(
     return (
       <Card
         className={""}
+        dir={language === "ar" ? "rtl" : "ltr"}
       >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -52,10 +56,12 @@ export const LanguageCard = memo(
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-base font-semibold">Project Section</span>
+                <span className="text-base font-semibold">
+                  {t('projectLanguageCard.projectSection', 'Project Section')}
+                </span>
                 {isFirstLanguage && (
                   <span className="text-xs bg-purple-100 text-purple-700 rounded-md px-2 py-0.5 w-fit mt-1 font-medium">
-                    Primary Language
+                    {t('projectLanguageCard.primaryLanguage', 'Primary Language')}
                   </span>
                 )}
               </div>
@@ -67,6 +73,7 @@ export const LanguageCard = memo(
                 size="sm"
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="h-8 w-8 p-0"
+                title={isCollapsed ? t('projectLanguageCard.expand', 'Expand') : t('projectLanguageCard.collapse', 'Collapse')}
               >
                 {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
               </Button>
@@ -77,6 +84,7 @@ export const LanguageCard = memo(
                   size="sm"
                   onClick={handleClose}
                   className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 transition-colors"
+                  title={t('projectLanguageCard.close', 'Close')}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -85,13 +93,17 @@ export const LanguageCard = memo(
           </div>
 
           <CardDescription className="text-sm text-gray-600 mt-2">
-            Manage project content for {langCode.toUpperCase()}
+            {t('projectLanguageCard.manageContent', 'Manage project content for {{langCode}}', { 
+              langCode: langCode.toUpperCase() 
+            })}
             {currentTitle && (
-              <span className="block text-xs   mt-1 font-medium">"{currentTitle}"</span>
+              <span className="block text-xs mt-1 font-medium">"{currentTitle}"</span>
             )}
             {isFirstLanguage && currentDate && (
               <span className="block text-xs text-gray-500 mt-1">
-                Project Date: {format(new Date(currentDate), "PPP")}
+                {t('projectLanguageCard.projectDateLabel', 'Project Date: {{date}}', { 
+                  date: format(new Date(currentDate), "PPP") 
+                })}
               </span>
             )}
           </CardDescription>
@@ -110,10 +122,12 @@ export const LanguageCard = memo(
               name={`${langCode}.title`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Project Title</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    {t('projectLanguageCard.projectTitle', 'Project Title')}
+                  </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter project title"
+                      placeholder={t('projectLanguageCard.titlePlaceholder', 'Enter project title')}
                       className="h-11 hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20"
                       {...field}
                     />
@@ -129,10 +143,12 @@ export const LanguageCard = memo(
               name={`${langCode}.description`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Project Description</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    {t('projectLanguageCard.projectDescription', 'Project Description')}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter project description"
+                      placeholder={t('projectLanguageCard.descriptionPlaceholder', 'Enter project description')}
                       className="min-h-[120px] hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20 resize-none"
                       {...field}
                     />
@@ -148,10 +164,12 @@ export const LanguageCard = memo(
               name={`${langCode}.category`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Project Category</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    {t('projectLanguageCard.projectCategory', 'Project Category')}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter project category"
+                      placeholder={t('projectLanguageCard.categoryPlaceholder', 'Enter project category')}
                       className="min-h-[100px] hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20 resize-none"
                       {...field}
                     />
@@ -167,10 +185,12 @@ export const LanguageCard = memo(
               name={`${langCode}.galleryText`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Gallery Text</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    {t('projectLanguageCard.galleryText', 'Gallery Text')}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter gallery text"
+                      placeholder={t('projectLanguageCard.galleryTextPlaceholder', 'Enter gallery text')}
                       className="min-h-[100px] hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20 resize-none"
                       {...field}
                     />
@@ -187,7 +207,9 @@ export const LanguageCard = memo(
                 name={`${langCode}.date`}
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="text-sm font-medium">Project Date</FormLabel>
+                    <FormLabel className="text-sm font-medium">
+                      {t('projectLanguageCard.projectDate', 'Project Date')}
+                    </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -198,7 +220,11 @@ export const LanguageCard = memo(
                               !field.value && "text-muted-foreground",
                             )}
                           >
-                            {field.value ? format(new Date(field.value), "PPP") : <span>Select a date</span>}
+                            {field.value ? (
+                              format(new Date(field.value), "PPP")
+                            ) : (
+                              <span>{t('projectLanguageCard.datePlaceholder', 'Select a date')}</span>
+                            )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -224,10 +250,12 @@ export const LanguageCard = memo(
               name={`${langCode}.backLinkText`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Button Text</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    {t('projectLanguageCard.buttonText', 'Button Text')}
+                  </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Get Started"
+                      placeholder={t('projectLanguageCard.buttonTextPlaceholder', 'Get Started')}
                       className="h-11 hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20"
                       {...field}
                     />

@@ -20,7 +20,7 @@ import { processAndLoadData } from "@/src/app/dashboard/services/addService/Util
 import { createFormRef } from "@/src/app/dashboard/services/addService/Utils/Expose-form-data";
 import { createProjectMoreInfoInfoSchema } from "@/src/app/dashboard/services/addService/Utils/language-specific-schemas";
 import { MoreInfoLanguageCard } from "./MoreInfoLanguageCard";
-
+import { useTranslation } from "react-i18next";
 
 const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
   const { 
@@ -33,6 +33,7 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
   } = props;
 
   const { websiteId } = useWebsiteContext();
+  const { t } = useTranslation();
 
   // Setup form with schema validation
   const formSchema = createProjectMoreInfoInfoSchema(languageIds, activeLanguages);
@@ -40,7 +41,7 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: "onChange" // Enable validation on change for better UX
+    mode: "onChange"
   });
 
   // State management
@@ -48,17 +49,15 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     isLoadingData: !slug,
     dataLoaded: !slug,
     hasUnsavedChanges: false,
-    existingSubSectionId: null as string | null ,
+    existingSubSectionId: null as string | null,
     contentElements: [] as ContentElement[],
     isSaving: false
   });
 
-  // Use object state update for better performance and readability
   const updateState = useCallback((newState: { isLoadingData?: boolean; dataLoaded?: boolean; hasUnsavedChanges?: boolean; existingSubSectionId?: string | null; contentElements?: any[]; isSaving?: boolean; }) => {
     setState(prev => ({ ...prev, ...newState }));
   }, []);
 
-  // Extract state variables for readability
   const { 
     isLoadingData, 
     dataLoaded, 
@@ -106,12 +105,9 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
   // Process initial data from parent
   const processInitialData = useCallback(() => {
     if (initialData && !dataLoaded) {
-      
       if (initialData.description) {
         form.setValue(`${defaultLangCode}.description`, initialData.description);
       }
-      
-
       
       updateState({ 
         dataLoaded: true, 
@@ -120,71 +116,69 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     }
   }, [initialData, dataLoaded, defaultLangCode, form]);
 
-  // Process project data from API
- const processProjectData = useCallback((subsectionData: SubSection | null) => {
-  processAndLoadData(
-    subsectionData,
-    form,
-    languageIds,
-    activeLanguages,
-    {
-      groupElements: (elements) => ({
-        'project': elements.filter(el => el.type === 'text' || (el.name === 'Background Image' && el.type === 'image'))
-      }),
-      processElementGroup: (groupId, elements, langId, getTranslationContent) => {
-        const elementKeyMap: Record<string, keyof typeof result> = {
-            Client: "client",
-            ClientName: "clientName",
-            Industry: "industry",
-            IndustryName: "industryName",
-            Year: "year",
-            YearName: "yearName",
-            Technologies: "technologies",
-            TechnologiesName: "technologiesName",
+  // Process project data from API - SAME AS BASIC FORM
+  const processProjectData = useCallback((subsectionData: SubSection | null) => {
+    processAndLoadData(
+      subsectionData,
+      form,
+      languageIds,
+      activeLanguages,
+      {
+        groupElements: (elements) => ({
+          'project': elements.filter(el => el.type === 'text')
+        }),
+        processElementGroup: (groupId, elements, langId, getTranslationContent) => {
+          const elementKeyMap: Record<string, keyof typeof result> = {
+            'Client': 'client',
+            'ClientName': 'clientName',
+            'Industry': 'industry',
+            'IndustryName': 'industryName',
+            'Year': 'year',
+            'YearName': 'yearName',
+            'Technologies': 'technologies',
+            'TechnologiesName': 'technologiesName',
           };
-
-       const result = {
-          client: "",
-          clientName: "",
-          industry: "",
-          industryName: "",
-          year: "",
-          yearName: "",
-          technologies: "",
-          technologiesName: "",
-        };
-
-        elements
-          .filter((el) => el.type === "text")
-          .forEach((element) => {
+          
+          const result = {
+            client: '',
+            clientName: '',
+            industry: '',
+            industryName: '',
+            year: '',
+            yearName: '',
+            technologies: '',
+            technologiesName: '',
+          };
+          
+          elements.filter(el => el.type === 'text').forEach(element => {
             const key = elementKeyMap[element.name];
             if (key) {
-              result[key] = getTranslationContent(element, "") || ""; // Fallback to empty string
+              result[key] = getTranslationContent(element, '');
             }
           });
-
-        return result;
+          
+          return result;
+        },
+        getDefaultValue: () => ({
+          client: '',
+          clientName: '',
+          industry: '',
+          industryName: '',
+          year: '',
+          yearName: '',
+          technologies: '',
+          technologiesName: '',
+        })
       },
-      getDefaultValue: () => ({
-        client: '',
-        clientName: '', // New field
-        industry: '',
-        industryName: '', // New field
-        year: '',
-        yearName: '', // New field
-        technologies: '',
-        technologiesName: '', // New field
-      })
-    },
-    {
-      setExistingSubSectionId: (id) => updateState({ existingSubSectionId: id }),
-      setContentElements: (elements) => updateState({ contentElements: elements }),
-      setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
-      setHasUnsavedChanges: (hasChanges) => updateState({ hasUnsavedChanges: hasChanges }),
-      setIsLoadingData: (loading) => updateState({ isLoadingData: loading })
-    }
-  );
-}, [form, languageIds, activeLanguages]);
+      {
+        setExistingSubSectionId: (id) => updateState({ existingSubSectionId: id }),
+        setContentElements: (elements) => updateState({ contentElements: elements }),
+        setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
+        setHasUnsavedChanges: (hasChanges) => updateState({ hasUnsavedChanges: hasChanges }),
+        setIsLoadingData: (loading) => updateState({ isLoadingData: loading })
+      }
+    );
+  }, [form, languageIds, activeLanguages, updateState]);
 
   // Process initial data effect
   useEffect(() => {
@@ -222,13 +216,13 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     return () => subscription.unsubscribe();
   }, [form, isLoadingData, dataLoaded, updateState]);
 
-  // Save handler with optimized process
+  // Save handler with optimized process - SAME AS BASIC FORM
   const handleSave = useCallback(async () => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please fill all required fields correctly",
+        title: t('projectMoreInfo.validationError', 'Validation Error'),
+        description: t('projectMoreInfo.fillAllFields', 'Please fill all required fields correctly'),
         variant: "destructive"
       });
       return false;
@@ -239,15 +233,16 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     try {
       const allFormValues = form.getValues();
 
+      // Step 1: Create or update subsection
       let sectionId = existingSubSectionId;
       if (!sectionId) {
         if (!ParentSectionId) {
-          throw new Error("Parent section ID is required to create a subsection");
+          throw new Error(t('projectMoreInfo.parentSectionRequired', 'Parent section ID is required to create a subsection'));
         }
 
         const subsectionData = {
-          name: "Project Section",
-          slug: slug || `project-section-${Date.now()}`,
+          name: t('projectMoreInfo.projectSection', 'Project Section'),
+          slug: slug || `project-moreinfo-section-${Date.now()}`,
           description: "",
           isActive: true,
           isMain: false,
@@ -275,26 +270,29 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
       }
 
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID");
+        throw new Error(t('projectMoreInfo.failedToCreateSection', 'Failed to create or retrieve subsection ID'));
       }
 
+      // Step 2: Map language codes to IDs
       const langCodeToIdMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
         acc[lang.languageID] = lang._id;
         return acc;
       }, {});
 
+      // Step 3: Handle existing content or create new content
       if (contentElements.length > 0) {
+        // Update translations for text elements
         const textElements = contentElements.filter((e) => e.type === "text");
         const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
-        const elementNameToKeyMap: Record<string, keyof typeof allFormValues[string]> = {
+        const elementNameToKeyMap: Record<string, 'client' | 'clientName' | 'industry' | 'industryName' | 'year' | 'yearName' | 'technologies' | 'technologiesName'> = {
           'Client': 'client',
-          'ClientName': 'clientName', // New field
+          'ClientName': 'clientName',
           'Industry': 'industry',
-          'IndustryName': 'industryName', // New field
+          'IndustryName': 'industryName',
           'Year': 'year',
-          'YearName': 'yearName', // New field
+          'YearName': 'yearName',
           'Technologies': 'technologies',
-          'TechnologiesName': 'technologiesName', // New field
+          'TechnologiesName': 'technologiesName',
         };
 
         Object.entries(allFormValues).forEach(([langCode, values]) => {
@@ -318,6 +316,7 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
           await bulkUpsertTranslations.mutateAsync(translations);
         }
       } else {
+        // Create new content elements
         const elementTypes = [
           { type: "text", key: "client", name: "Client" },
           { type: "text", key: "clientName", name: "ClientName" }, 
@@ -354,6 +353,7 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
 
         updateState({ contentElements: createdElements.map((e) => ({ ...e, translations: [] })) });
 
+        // Create translations for new elements
         const textElements = createdElements.filter((e) => e.key !== "backgroundImage");
         const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
 
@@ -378,28 +378,45 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
         }
       }
 
+      // Show success message
       toast({
-        title: existingSubSectionId ? "Project section updated successfully!" : "Project section created successfully!",
-        description: "All content has been saved."
+        title: existingSubSectionId 
+          ? t('projectMoreInfo.sectionUpdatedSuccess', 'Project section updated successfully!')
+          : t('projectMoreInfo.sectionCreatedSuccess', 'Project section created successfully!'),
+        description: t('projectMoreInfo.allContentSaved', 'All content has been saved.')
       });
 
       updateState({ hasUnsavedChanges: false });
 
+      // Update form state with saved data
       if (slug) {
         const result = await refetch();
         if (result.data?.data) {
           updateState({ dataLoaded: false });
           await processProjectData(result.data.data);
         }
+      } else {
+        // For new subsections, manually update form
+        const updatedData = {
+          ...allFormValues
+        };
+        
+        Object.entries(updatedData).forEach(([key, value]) => {
+          Object.entries(value).forEach(([field, content]) => {
+            form.setValue(`${key}.${field}`, content, { shouldDirty: false });
+          });
+        });
       }
 
       return true;
     } catch (error) {
       console.error("Operation failed:", error);
       toast({
-        title: existingSubSectionId ? "Error updating project section" : "Error creating project section",
+        title: existingSubSectionId 
+          ? t('projectMoreInfo.errorUpdatingSection', 'Error updating project section')
+          : t('projectMoreInfo.errorCreatingSection', 'Error creating project section'),
         variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred"
+        description: error instanceof Error ? error.message : t('projectMoreInfo.unknownError', 'Unknown error occurred')
       });
       return false;
     } finally {
@@ -411,6 +428,7 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     ParentSectionId,
     slug,
     toast,
+    t,
     bulkUpsertTranslations,
     contentElements,
     createContentElement,
@@ -447,7 +465,9 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading project section data...</p>
+        <p className="ml-2 text-muted-foreground">
+          {t('projectMoreInfo.loadingData', 'Loading project section data...')}
+        </p>
       </div>
     );
   }
@@ -456,12 +476,14 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     <div className="space-y-6">
       <LoadingDialog 
         isOpen={isSaving} 
-        title={existingSubSectionId ? "Updating Project Section" : "Creating Project Section"}
-        description="Please wait while we save your changes..."
+        title={existingSubSectionId 
+          ? t('projectMoreInfo.savingUpdate', 'Updating Project Section')
+          : t('projectMoreInfo.savingCreate', 'Creating Project Section')
+        }
+        description={t('projectMoreInfo.savingDescription', 'Please wait while we save your changes...')}
       />
       
       <Form {...form}>
-        
         {/* Language Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {languageIds.map((langId, index) => {
@@ -471,7 +493,7 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
               key={langId}
               langCode={langCode}
               form={form}
-              isFirstLanguage={index === 0} // Only pass true for the first language
+              isFirstLanguage={index === 0}
             />
           );
         })}
@@ -489,12 +511,15 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t('projectMoreInfo.saving', 'Saving...')}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update Project Content" : "Save Project Content"}
+              {existingSubSectionId 
+                ? t('projectMoreInfo.updateContent', 'Update Project Content')
+                : t('projectMoreInfo.saveContent', 'Save Project Content')
+              }
             </>
           )}
         </Button>

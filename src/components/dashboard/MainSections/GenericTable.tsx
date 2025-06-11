@@ -206,8 +206,8 @@ export function GenericTable({
         </Table>
       </div>
 
-      {/* Pagination with translations */}
-      {data.length > 0 && (
+      {/* Pagination with translations - ONLY SHOW WHEN MORE THAN 10 ITEMS */}
+      {data.length > 10 && (
         <div className="flex justify-between items-center py-4 px-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {t('GenericTable.showingResults')} <span className="font-medium text-gray-900 dark:text-gray-100">{data.length}</span> {t('GenericTable.resultsText')}
