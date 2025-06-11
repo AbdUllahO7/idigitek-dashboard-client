@@ -3036,7 +3036,7 @@
         "iconControlDesc": "Burada tanımlanan ikonlar tüm diller için kullanılacaktır"
       }
   },
-   "faqForm": {
+  "faqForm": {
       "section": {
         "title": "SSS Bölümü",
         "description": "{{language}} için SSS içeriğini yönetin"
@@ -3118,7 +3118,179 @@
         "errorRemovingDesc": "SSS'yi veritabanından kaldırırken hata oluştu",
         "validationError": "Doğrulama Hatası"
       }
-    },
+  },
+  "faqFormSection": {
+      "section": {
+        "title": "SSS Bölümü",
+        "description": "Türkçe için SSS içeriğini yönetin"
+      },
+      "item": {
+        "defaultTitle": "SSS {{number}}",
+        "fields": {
+          "question": {
+            "label": "Soru",
+            "placeholder": "Soru girin"
+          },
+          "answer": {
+            "label": "Cevap",
+            "placeholder": "Cevap girin"
+          }
+        }
+      },
+      "actions": {
+        "addFaq": "SSS Ekle",
+        "save": "SSS İçeriğini Kaydet",
+        "update": "SSS İçeriğini Güncelle",
+        "delete": "SSS Bölümünü Sil",
+        "saving": "Kaydediliyor...",
+        "deleting": "Siliniyor..."
+      },
+      "loading": {
+        "loadingData": "SSS bölümü verileri yükleniyor...",
+        "creatingSection": "SSS Bölümü Oluşturuluyor",
+        "updatingSection": "SSS Bölümü Güncelleniyor",
+        "deletingSection": "SSS Bölümü Siliniyor",
+        "refreshingData": "Veriler Yenileniyor",
+        "pleaseWait": "Değişiklikler kaydedilirken lütfen bekleyin...",
+        "pleaseWaitDelete": "SSS bölümü silinirken lütfen bekleyin...",
+        "pleaseWaitRefresh": "Silme işleminden sonra arayüz güncelleniyor..."
+      },
+      "validation": {
+        "faqCountMismatch": "Her dilde aynı sayıda SSS olmalıdır",
+        "fillRequiredFields": "Lütfen tüm zorunlu alanları doğru şekilde doldurun",
+        "cannotRemove": "Kaldırılamaz",
+        "needAtLeastOneFaq": "En az bir SSS gerekli"
+      },
+      "dialogs": {
+        "deleteFaq": {
+          "title": "SSS Sil",
+          "description": "Bu SSS'yi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "confirmText": "SSS Sil"
+        },
+        "deleteSection": {
+          "title": "SSS Bölümünü Sil",
+          "description": "Tüm SSS bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "warnings": [
+            "Tüm SSS soruları ve cevapları kalıcı olarak kaldırılacak",
+            "Bu işlem geri alınamaz"
+          ]
+        },
+        "validationError": {
+          "title": "SSS Sayısı Uyumsuzluğu",
+          "description": "Kaydetmeden önce her dilde aynı sayıda SSS olmalıdır. Lütfen tüm dillerin aynı sayıda SSS'ye sahip olduğundan emin olmak için SSS ekleyin veya kaldırın:",
+          "close": "Kapat"
+        }
+      },
+      "toast": {
+        "faqAdded": "SSS eklendi",
+        "faqAddedDesc": "Bölüme yeni bir SSS eklendi.",
+        "faqDeleted": "SSS silindi",
+        "faqDeletedDesc": "SSS {{number}} veritabanından silindi",
+        "faqRemoved": "SSS kaldırıldı",
+        "faqRemovedDesc": "SSS başarıyla kaldırıldı.",
+        "sectionCreated": "SSS bölümü başarıyla oluşturuldu!",
+        "sectionUpdated": "SSS bölümü başarıyla güncellendi!",
+        "contentSaved": "Tüm değişiklikler kaydedildi.",
+        "creatingSection": "Yeni SSS bölümü oluşturuluyor...",
+        "creatingSectionDesc": "Yeni SSS içeriğiniz hazırlanıyor.",
+        "refreshingContent": "İçerik yenileniyor",
+        "refreshingContentDesc": "Güncellenmiş içerik yükleniyor...",
+        "errorCreating": "SSS bölümü oluştururken hata",
+        "errorUpdating": "SSS bölümü güncellenirken hata",
+        "errorRemoving": "SSS kaldırılırken hata",
+        "errorRemovingDesc": "SSS veritabanından kaldırılırken bir hata oluştu",
+        "validationError": "Doğrulama Hatası"
+      },
+      "table": {
+        "name": "Ad",
+        "description": "Açıklama",
+        "status": "Durum",
+        "order": "Sıra",
+        "subsections": "Alt bölümler",
+        "main": "Ana"
+      }
+  },
+  "addFaq": {
+      "createTitle": "Yeni SSS Öğesi Oluştur",
+      "editTitle": "SSS Öğesini Düzenle",
+      "createSubtitle": "Çok dilli içerikle yeni bir SSS öğesi oluştur",
+      "editSubtitle": "\"{{name}}\" içeriğini birden fazla dilde düzenleme",
+      "backUrl": "SSS Kontrol Paneline Geri Dön",
+      "tabs": {
+        "faqItems": "SSS Öğeleri"
+      },
+      "defaultHeaderName": "Yeni Başlık"
+  },
+  "addFaqForm": {
+      "loadingText": "SSS bölümü verileri yükleniyor...",
+      "saveButton": {
+        "create": "SSS İçeriğini Kaydet",
+        "update": "SSS İçeriğini Güncelle",
+        "saving": "Kaydediliyor..."
+      },
+      "validation": {
+        "errorTitle": "Doğrulama Hatası",
+        "errorDescription": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+        "mismatchTitle": "SSS Sayısı Uyuşmazlığı",
+        "mismatchDescription": "Kaydetmeden önce her dilde aynı sayıda SSS olmalıdır. Lütfen SSS ekleyin veya kaldırın.",
+        "mismatchWarning": "Her dilde aynı sayıda SSS olmalıdır",
+        "languageCount": "{language}: {count} SSS"
+      },
+      "dialog": {
+        "createTitle": "SSS Bölümü Oluşturuluyor",
+        "updateTitle": "SSS Bölümü Güncelleniyor",
+        "createDescription": "Değişiklikler kaydedilirken lütfen bekleyin...",
+        "deleteTitle": "SSS Sil",
+        "deleteConfirm": "SSS Sil"
+      },
+      "toast": {
+        "addFaq": "SSS eklendi",
+        "addFaqDescription": "Bölüme yeni bir SSS eklendi.",
+        "deleteFaq": "SSS silindi",
+        "deleteFaqDescription": "SSS {number} veritabanından silindi",
+        "cannotDelete": "Kaldırılamaz",
+        "cannotDeleteDescription": "En az bir SSS olmalıdır",
+        "createSection": "Yeni SSS bölümü oluşturuluyor...",
+        "createSectionDescription": "Yeni SSS içeriğiniz hazırlanıyor.",
+        "createSuccess": "SSS bölümü başarıyla oluşturuldu!",
+        "updateSuccess": "SSS bölümü başarıyla güncellendi!",
+        "saveSuccessDescription": "Tüm değişiklikler kaydedildi.",
+        "refreshing": "İçerik yenileniyor",
+        "refreshingDescription": "Güncellenmiş içerik yükleniyor...",
+        "createError": "SSS bölümü oluşturma hatası",
+        "updateError": "SSS bölümü güncelleme hatası",
+        "deleteError": "SSS kaldırma hatası",
+        "deleteErrorDescription": "SSS veritabanından kaldırılırken bir hata oluştu",
+        "errorDescription": "Bilinmeyen bir hata oluştu"
+      }
+  },
+  "faqItem": {
+      "title": "SSS {{number}}",
+      "questionLabel": "Soru",
+      "questionPlaceholder": "SSS sorunuzu girin",
+      "answerLabel": "Cevap",
+      "answerPlaceholder": "Bu sorunun ayrıntılı cevabını girin",
+      "socialLinks": {
+        "title": "Sosyal Bağlantılar",
+        "appliesToAll": "Tüm diller için geçerlidir",
+        "addButton": "Sosyal Bağlantı Ekle",
+        "platformLabel": "Platform Adı",
+        "platformPlaceholder": "örn. Twitter, Facebook",
+        "urlLabel": "URL",
+        "urlPlaceholder": "https://example.com",
+        "imageLabel": "Sosyal Bağlantı Görseli",
+        "imageNote": "Bu görsel tüm dillerde kullanılacak",
+        "noLinks": "Henüz sosyal bağlantı eklenmedi",
+        "noLinksDescription": "Başlamak için \"Sosyal Bağlantı Ekle\"ye tıklayın",
+        "linkCount": "{{count}} sosyal bağlantı"
+      }
+  },
+  "languageCard": {
+      "title": "SSS Bölümü",
+      "description": "{{language}} için SSS içeriğini yönet",
+      "addFaqButton": "SSS Ekle"
+
+  },
   "common": {
     "welcome": "Hoş geldiniz",
     "logout": "Çıkış yap",

@@ -1,22 +1,20 @@
-// Updated AddHeader.tsx to fix the edit mode data display issue
-
 "use client"
 import { Layout } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
-
 import { FormData } from "@/src/api/types/sections/service/serviceSections.types"
 import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import { useSearchParams } from "next/navigation"
 import FaqForm from "./FAQs/faq-form"
 
-
 // Form sections to collect data from
-const FORM_SECTIONS = ["FAQ Items" , "Have Questions Items"]
+const FORM_SECTIONS = ["faqItems", "haveQuestionsItems"]
 
-export default function AddHeader() {
+export default function AddFaq() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   
   // Get URL parameters
@@ -29,7 +27,7 @@ export default function AddHeader() {
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
   const { useGetById: useGetSectionItemById } = useSectionItems()
   const { useGetBySectionItemId: useGetSubSectionsBySectionItemId } = useSubSections()
-    const { websiteId } = useWebsiteContext();
+  const { websiteId } = useWebsiteContext()
   
   // Get languages
   const { 
@@ -64,75 +62,74 @@ export default function AddHeader() {
   
   // Helper function to find a subsection by slug - FIXED to be case-insensitive
   const findSubsection = (baseSlug: string) => {
-    if (!subsectionsData?.data) return undefined;
+    if (!subsectionsData?.data) return undefined
     
     // Normalize the baseSlug to lowercase and handle special cases
-    const normalizedBaseSlug = baseSlug.toLowerCase();
+    const normalizedBaseSlug = baseSlug.toLowerCase()
     
     // Create a mapping for known slug patterns
     const slugMappings: Record<string, string> = {
       'faq-section': 'faq-section',
       'faq-have-question': 'faq-have-question',
-
-    };
+    }
     
     // Get the normalized version of the slug
-    const normalizedSlug = slugMappings[normalizedBaseSlug] || normalizedBaseSlug;
+    const normalizedSlug = slugMappings[normalizedBaseSlug] || normalizedBaseSlug
     
     // Expected pattern is: normalizedSlug-sectionItemId
-    const expectedSlug = `${normalizedSlug}-${sectionItemId}`;
+    const expectedSlug = `${normalizedSlug}-${sectionItemId}`
     
     // Find subsection that matches in a case-insensitive way
     const subsection = subsectionsData.data.find((s: { slug: string }) => 
       s.slug.toLowerCase() === expectedSlug.toLowerCase()
-    );
+    )
     
     if (subsection) {
-      return subsection;
+      return subsection
     }
     
     // If no exact match, try partial matching (containing both the base slug and section ID)
     const partialMatch = subsectionsData.data.find((s: { slug: string }) => {
-      const lowerSlug = s.slug.toLowerCase();
+      const lowerSlug = s.slug.toLowerCase()
       // Check both with hyphen and without
       return (lowerSlug.includes(normalizedSlug.replace('-', '')) || 
               lowerSlug.includes(normalizedSlug)) && 
-              sectionItemId && lowerSlug.includes(sectionItemId.toLowerCase());
-    });
+              sectionItemId && lowerSlug.includes(sectionItemId.toLowerCase())
+    })
     
     if (partialMatch) {
-      return partialMatch;
+      return partialMatch
     }
     
-      return undefined;
-  };
+    return undefined
+  }
   
   // Generate proper slugs for subsections
   const getSlug = (baseSlug: string) => {
-    if (isCreateMode) return "";
+    if (isCreateMode) return ""
     
     // Special case handling for processSteps - correct the capitalization
     if (baseSlug === "process-Steps") {
-      baseSlug = "process-steps";
+      baseSlug = "process-steps"
     }
     
     // Find the subsection
-    const subsection = findSubsection(baseSlug);
+    const subsection = findSubsection(baseSlug)
     
     // If found, use its actual slug
     if (subsection) {
-      return subsection.slug;
+      return subsection.slug
     }
     
     // Default fallback - construct the expected slug format
-    return `${baseSlug.toLowerCase()}-${sectionItemId}`;
-  };
+    return `${baseSlug.toLowerCase()}-${sectionItemId}`
+  }
   
   // Define tabs configuration
   const tabs = [
     {
       id: "faqItems",
-      label: "FAQ Items",
+      label: t('addFaq.tabs.faqItems'),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <FaqForm
@@ -144,15 +141,15 @@ export default function AddHeader() {
         />
       )
     },
-   
   ]
+  
   // Define save handler for the header
   const handleSaveHeader = async (formData: FormData) => {
     // Extract header info from hero data for title/description
     const heroData = formData.hero || {}
     
-    // Get English title and description values or fallback to the first language
-    let headerName = "New Header"
+    // Get title and description values or fallback to the first language
+    let headerName = t('addFaq.defaultHeaderName')
     let headerDescription = ""
     
     // Loop through languages to find title and description
@@ -190,10 +187,10 @@ export default function AddHeader() {
   
   return (
     <FormShell
-      title={isCreateMode ? "Create New faq item " : "Edit faq item "}
+      title={isCreateMode ? t('addFaq.createTitle') : t('addFaq.editTitle')}
       subtitle={isCreateMode 
-        ? "Create a new faq item with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'faq item'}" content across multiple languages`}
+        ? t('addFaq.createSubtitle') 
+        : t('addFaq.editSubtitle', { name: sectionItemData?.data?.name || t('addFaq.defaultHeaderName') })}
       backUrl={`/dashboard/FAQ?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}
@@ -202,7 +199,7 @@ export default function AddHeader() {
       mode={mode}
       onSave={handleSaveHeader}
       tabs={tabs}
-      formSections={FORM_SECTIONS}
+      formSections={FORM_SECTIONS.map(section => t(`addFaq.tabs.${section}`))}
       isLoading={isLoading}
     />
   )

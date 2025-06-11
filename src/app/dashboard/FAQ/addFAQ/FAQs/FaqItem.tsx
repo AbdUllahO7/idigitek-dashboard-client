@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { memo, useState } from "react"
 import { Trash2, Plus, Minus, HelpCircle, ExternalLink, GripVertical } from "lucide-react"
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion"
@@ -11,6 +10,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/
 import { Input } from "@/src/components/ui/input"
 import { Textarea } from "@/src/components/ui/textarea"
 import { cn } from "@/src/lib/utils"
+import { useTranslation } from "react-i18next"
 
 interface FaqItemProps {
   langCode: string
@@ -34,6 +34,7 @@ export const FaqItem = memo(
     languageIds,
     SocialLinkImageUploader,
   }: FaqItemProps) => {
+    const { t } = useTranslation()
     const [isExpanded, setIsExpanded] = useState(false)
     const socialLinks = form.watch(`${langCode}.${index}.socialLinks`) || []
 
@@ -86,9 +87,7 @@ export const FaqItem = memo(
           className={cn(
             "transition-all duration-300 ease-in-out hover:shadow-md",
             "border-2",
-            isFirstLanguage
-              ? "border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50"
-              : "border-gray-200 bg-white",
+           
           )}
         >
           <CardHeader className="p-4 pb-2">
@@ -111,7 +110,9 @@ export const FaqItem = memo(
                   onClick={() => setIsExpanded(!isExpanded)}
                 >
                   <div className="flex flex-col items-start">
-                    <CardTitle className="text-base font-semibold">{currentQuestion || `FAQ ${index + 1}`}</CardTitle>
+                    <CardTitle className="text-base font-semibold">
+                      {currentQuestion || t('faqItem.title', { number: index + 1 })}
+                    </CardTitle>
                     {currentAnswer && (
                       <p className="text-xs text-gray-500 mt-1 line-clamp-1 text-left">
                         {currentAnswer.substring(0, 100)}
@@ -121,7 +122,7 @@ export const FaqItem = memo(
                     {socialLinks.length > 0 && isFirstLanguage && (
                       <div className="flex items-center gap-1 mt-1">
                         <ExternalLink className="h-3 w-3 text-blue-500" />
-                        <span className="text-xs text-blue-600">{socialLinks.length} social link(s)</span>
+                        <span className="text-xs text-blue-600">{t('faqItem.socialLinks.linkCount', { count: socialLinks.length })}</span>
                       </div>
                     )}
                   </div>
@@ -148,10 +149,10 @@ export const FaqItem = memo(
                 name={`${langCode}.${index}.question`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Question</FormLabel>
+                    <FormLabel className="text-sm font-medium">{t('faqItem.questionLabel')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your FAQ question"
+                        placeholder={t('faqItem.questionPlaceholder')}
                         className="h-11 hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20"
                         {...field}
                       />
@@ -167,10 +168,10 @@ export const FaqItem = memo(
                 name={`${langCode}.${index}.answer`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Answer</FormLabel>
+                    <FormLabel className="text-sm font-medium">{t('faqItem.answerLabel')}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter the detailed answer to this question"
+                        placeholder={t('faqItem.answerPlaceholder')}
                         className="min-h-[120px] hover:border-primary transition-colors focus:ring-2 focus:ring-primary/20 resize-none"
                         {...field}
                       />
@@ -181,14 +182,14 @@ export const FaqItem = memo(
               />
 
               {/* Social Links Section - Only for first language */}
-              {isFirstLanguage && (
+              {/* {isFirstLanguage && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <ExternalLink className="h-4 w-4 text-primary" />
-                      <h4 className="text-sm font-medium">Social Links</h4>
+                      <h4 className="text-sm font-medium">{t('faqItem.socialLinks.title')}</h4>
                       <span className="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5">
-                        Applies to all languages
+                        {t('faqItem.socialLinks.appliesToAll')}
                       </span>
                     </div>
                     <Button
@@ -199,7 +200,7 @@ export const FaqItem = memo(
                       className="hover:bg-primary hover:text-primary-foreground transition-colors"
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Add Social Link
+                      {t('faqItem.socialLinks.addButton')}
                     </Button>
                   </div>
 
@@ -216,7 +217,7 @@ export const FaqItem = memo(
                                 <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
                                   {socialLinkIndex + 1}
                                 </div>
-                                <h5 className="text-sm font-medium">Social Link {socialLinkIndex + 1}</h5>
+                                <h5 className="text-sm font-medium">{t('faqItem.socialLinks.title')} {socialLinkIndex + 1}</h5>
                               </div>
                               <Button
                                 type="button"
@@ -235,10 +236,10 @@ export const FaqItem = memo(
                                 name={`${langCode}.${index}.socialLinks.${socialLinkIndex}.name`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-sm font-medium">Platform Name</FormLabel>
+                                    <FormLabel className="text-sm font-medium">{t('faqItem.socialLinks.platformLabel')}</FormLabel>
                                     <FormControl>
                                       <Input
-                                        placeholder="e.g., Twitter, Facebook"
+                                        placeholder={t('faqItem.socialLinks.platformPlaceholder')}
                                         className="h-10 hover:border-primary transition-colors"
                                         {...field}
                                         onChange={(e) => {
@@ -257,10 +258,10 @@ export const FaqItem = memo(
                                 name={`${langCode}.${index}.socialLinks.${socialLinkIndex}.url`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel className="text-sm font-medium">URL</FormLabel>
+                                    <FormLabel className="text-sm font-medium">{t('faqItem.socialLinks.urlLabel')}</FormLabel>
                                     <FormControl>
                                       <Input
-                                        placeholder="https://example.com"
+                                        placeholder={t('faqItem.socialLinks.urlPlaceholder')}
                                         className="h-10 hover:border-primary transition-colors"
                                         {...field}
                                         onChange={(e) => {
@@ -280,7 +281,7 @@ export const FaqItem = memo(
                               name={`${langCode}.${index}.socialLinks.${socialLinkIndex}.image`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-sm font-medium">Social Link Image</FormLabel>
+                                  <FormLabel className="text-sm font-medium">{t('faqItem.socialLinks.imageLabel')}</FormLabel>
                                   <FormControl>
                                     <div className="space-y-3">
                                       {SocialLinkImageUploader ? (
@@ -315,7 +316,7 @@ export const FaqItem = memo(
                                             <div className="relative inline-block">
                                               <img
                                                 src={field.value || "/placeholder.svg"}
-                                                alt={`Social Link ${socialLinkIndex + 1}`}
+                                                alt={`${t('faqItem.socialLinks.title')} ${socialLinkIndex + 1}`}
                                                 className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
                                               />
                                               <Button
@@ -337,7 +338,7 @@ export const FaqItem = memo(
                                     </div>
                                   </FormControl>
                                   <p className="text-xs text-blue-600 italic">
-                                    This image will be used across all languages
+                                    {t('faqItem.socialLinks.imageNote')}
                                   </p>
                                   <FormMessage />
                                 </FormItem>
@@ -351,13 +352,13 @@ export const FaqItem = memo(
                     <Card className="border-2 border-dashed border-gray-200">
                       <CardContent className="text-center py-8 text-gray-500">
                         <ExternalLink className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                        <p className="text-sm font-medium">No social links added yet</p>
-                        <p className="text-xs text-gray-400 mt-1">Click "Add Social Link" to get started</p>
+                        <p className="text-sm font-medium">{t('faqItem.socialLinks.noLinks')}</p>
+                        <p className="text-xs text-gray-400 mt-1">{t('faqItem.socialLinks.noLinksDescription')}</p>
                       </CardContent>
                     </Card>
                   )}
                 </div>
-              )}
+              )} */}
             </CardContent>
           </AccordionContent>
         </Card>
