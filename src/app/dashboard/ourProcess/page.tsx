@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useGenericList } from "@/src/hooks/useGenericList"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
@@ -11,11 +11,11 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { processSectionConfig } from "./ProcessSectionConfig"
+import { getProcessSectionConfig, processSectionConfig } from "./ProcessSectionConfig"
 import { useTranslation } from "react-i18next"
 
 export default function ourProcess() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const sectionId = searchParams.get("sectionId")
   const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
@@ -23,38 +23,46 @@ export default function ourProcess() {
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
 
+  // Get current language from i18n
+  const currentLanguage = i18n.language || 'en'
+
+  // Get translated process section configuration using current language
+  const translatedProcessSectionConfig = useMemo(() => 
+    getProcessSectionConfig(currentLanguage), [currentLanguage]
+  )
+
   // Configuration for the Process page with translations
-  const PROCESS_CONFIG = {
-    title: t('process.title'),
-    description: t('process.description'),
-    addButtonLabel: t('process.addButtonLabel'),
-    emptyStateMessage: t('process.emptyStateMessage'),
-    noSectionMessage: t('process.noSectionMessage'),
-    mainSectionRequiredMessage: t('process.mainSectionRequiredMessage'),
-    emptyFieldsMessage: t('process.emptyFieldsMessage'),
-    sectionIntegrationTitle: t('process.sectionIntegrationTitle'),
-    sectionIntegrationDescription: t('process.sectionIntegrationDescription'),
-    addSectionButtonLabel: t('process.addSectionButtonLabel'),
-    editSectionButtonLabel: t('process.editSectionButtonLabel'),
-    saveSectionButtonLabel: t('process.saveSectionButtonLabel'),
-    listTitle: t('process.listTitle'),
-    editPath: t('process.editPath')
-  }
+  const PROCESS_CONFIG = useMemo(() => ({
+    title: t('process.title', 'Process Management'),
+    description: t('process.description', 'Manage your Process inventory and multilingual content'),
+    addButtonLabel: t('process.addButtonLabel', 'Add New Process Item'),
+    emptyStateMessage: t('process.emptyStateMessage', 'No Process found. Create your first Process by clicking the "Add New Process" button.'),
+    noSectionMessage: t('process.noSectionMessage', 'Please create a Process section first before adding Process.'),
+    mainSectionRequiredMessage: t('process.mainSectionRequiredMessage', 'Please enter your main section data before adding Process.'),
+    emptyFieldsMessage: t('process.emptyFieldsMessage', 'Please complete all required fields in the main section before adding Process.'),
+    sectionIntegrationTitle: t('process.sectionIntegrationTitle', 'Process Section Content'),
+    sectionIntegrationDescription: t('process.sectionIntegrationDescription', 'Manage your Process section content in multiple languages.'),
+    addSectionButtonLabel: t('process.addSectionButtonLabel', 'Add Process Section'),
+    editSectionButtonLabel: t('process.editSectionButtonLabel', 'Edit Process Section'),
+    saveSectionButtonLabel: t('process.saveSectionButtonLabel', 'Save Process Section'),
+    listTitle: t('process.listTitle', 'Process List'),
+    editPath: t('process.editPath', 'ourProcess/addProcess')
+  }), [t]);
 
   // Process table column definitions with translations
-  const PROCESS_COLUMNS = [
+  const PROCESS_COLUMNS = useMemo(() => [
     {
-      header: t('process.columnName'),
+      header: t('process.columnName', 'Name'),
       accessor: "name",
       className: "font-medium"
     },
     {
-      header: t('process.columnDescription'),
+      header: t('process.columnDescription', 'Description'),
       accessor: "description",
       cell: TruncatedCell
     },
     {
-      header: t('process.columnStatus'),
+      header: t('process.columnStatus', 'Status'),
       accessor: "isActive",
       cell: (item: any, value: boolean) => (
         <div className="flex flex-col gap-2">
@@ -62,7 +70,7 @@ export default function ourProcess() {
             {StatusCell(item, value)}
             {item.isMain && (
               <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                {t('process.statusMain')}
+                {t('process.statusMain', 'Main')}
               </span>
             )}
           </div>
@@ -70,15 +78,15 @@ export default function ourProcess() {
       )
     },
     {
-      header: t('process.columnOrder'),
+      header: t('process.columnOrder', 'Order'),
       accessor: "order"
     },
     {
-      header: t('process.columnSubsections'),
+      header: t('process.columnSubsections', 'Subsections'),
       accessor: "subsections.length",
       cell: CountBadgeCell
     }
-  ]
+  ], [t])
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
@@ -123,7 +131,7 @@ export default function ourProcess() {
   useEffect(() => {    
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
-      console.log(t('process.stillLoadingData'));
+      console.log(t('process.stillLoadingData', 'Still loading subsection data...'));
       setIsLoadingMainSubSection(true);
       return;
     }
@@ -132,9 +140,9 @@ export default function ourProcess() {
     let foundMainSubSection = false;
     let mainSubSection = null;
     
-    // Get expected name from configuration
-    const expectedSlug = processSectionConfig.name;
-    console.log(`${t('process.expectedSubsectionName')}:`, expectedSlug);
+    // Get expected name from translated configuration
+    const expectedSlug = translatedProcessSectionConfig.name;
+    console.log(`${t('process.expectedSubsectionName', 'Expected subsection name')}:`, expectedSlug);
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -186,7 +194,7 @@ export default function ourProcess() {
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
       
-      console.log(`${t('process.settingSectionData')}:`, sectionInfo);
+      console.log(`${t('process.settingSectionData', 'Setting section data')}:`, sectionInfo);
       
       // Set local section data
       setSectionData(sectionInfo);
@@ -205,15 +213,16 @@ export default function ourProcess() {
     sectionId, 
     processSection, 
     setSection,
+    translatedProcessSectionConfig.name, // Add this dependency
     t
   ]);
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log(`${t('process.mainSubsectionCreated')}:`, subsection);
+    console.log(`${t('process.mainSubsectionCreated', 'Main subsection created')}:`, subsection);
     
-    // Check if subsection has the correct name
-    const expectedSlug = processSectionConfig.name;
+    // Check if subsection has the correct name (using translated config)
+    const expectedSlug = translatedProcessSectionConfig.name;
     const hasCorrectSlug = subsection.name === expectedSlug;
     
     // Set that we have a main subsection now (only if it also has the correct name)
@@ -234,12 +243,12 @@ export default function ourProcess() {
         
       setSectionData(sectionInfo);
       setSection(sectionInfo);
-      console.log(t('process.sectionDataUpdated'));
+      console.log(t('process.sectionDataUpdated', 'Section data updated'));
     }
     
     // Refetch the main subsection data to ensure we have the latest
     if (refetchMainSubSection) {
-      console.log(t('process.refetchingData'));
+      console.log(t('process.refetchingData', 'Refetching data'));
       refetchMainSubSection();
     }
   };
@@ -265,7 +274,7 @@ export default function ourProcess() {
       onEdit={handleEdit}
       onDelete={showDeleteDialog}
       loading={isLoadingProcessItems}
-      emptyMessage={t('process.noDataMessage')}
+      emptyMessage={t('process.noDataMessage', 'No process data available')}
     />
   );
 
@@ -275,7 +284,7 @@ export default function ourProcess() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title={t('process.createDialogTitle')}
+      title={t('process.createDialogTitle', 'Process')}
     />
   );
 
@@ -286,8 +295,8 @@ export default function ourProcess() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title={t('process.deleteDialogTitle')}
-      confirmText={t('process.deleteConfirmText')}
+      title={t('process.deleteDialogTitle', 'Delete Process Item')}
+      confirmText={t('process.deleteConfirmText', 'Confirm')}
     />
   );
 
@@ -297,7 +306,7 @@ export default function ourProcess() {
       <GenericListPage
         config={PROCESS_CONFIG}
         sectionId={sectionId}
-        sectionConfig={processSectionConfig}
+        sectionConfig={translatedProcessSectionConfig} // Use translated config with language parameter
         isAddButtonDisabled={isAddButtonDisabled}
         tableComponent={ProcessTable}
         createDialogComponent={CreateDialog}
@@ -313,7 +322,7 @@ export default function ourProcess() {
       {sectionId && (
         <CreateMainSubSection 
           sectionId={sectionId}
-          sectionConfig={processSectionConfig}
+          sectionConfig={translatedProcessSectionConfig} // Use translated config with language parameter
           onSubSectionCreated={handleMainSubSectionCreated}
           onFormValidityChange={() => {/* We don't need to track form validity */}}
         />

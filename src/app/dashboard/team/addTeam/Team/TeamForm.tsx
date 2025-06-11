@@ -23,18 +23,13 @@ import { TeamLanguageCard } from "./TeamLanguageCard";
 import { useImageUploader } from "../../../services/addService/Utils/Image-uploader";
 import apiClient from "@/src/lib/api-client";
 import { BackgroundImageSection } from "../../../services/addService/Components/Hero/SimpleImageUploader";
+import { useTranslation } from "react-i18next";
 
 const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
-  const { 
-    languageIds, 
-    activeLanguages, 
-    onDataChange, 
-    slug, 
-    ParentSectionId, 
-    initialData 
-  } = props;
+  const { languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData } = props;
 
   const { websiteId } = useWebsiteContext();
+  const { t } = useTranslation(); // Use i18next translation hook
 
   // Setup form with schema validation
   const formSchema = createTeamSchema(languageIds, activeLanguages);
@@ -42,7 +37,7 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: "onChange" // Enable validation on change for better UX
+    mode: "onChange", // Enable validation on change for better UX
   });
 
   // State management
@@ -52,73 +47,72 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
     hasUnsavedChanges: false,
     existingSubSectionId: null as string | null,
     contentElements: [] as ContentElement[],
-    isSaving: false
+    isSaving: false,
   });
 
   // Use object state update for better performance and readability
-  const updateState = useCallback((newState: { isLoadingData?: boolean; dataLoaded?: boolean; hasUnsavedChanges?: boolean; existingSubSectionId?: string | null; contentElements?: any[]; isSaving?: boolean; }) => {
-    setState(prev => ({ ...prev, ...newState }));
-  }, []);
+  const updateState = useCallback(
+    (newState: {
+      isLoadingData?: boolean;
+      dataLoaded?: boolean;
+      hasUnsavedChanges?: boolean;
+      existingSubSectionId?: string | null;
+      contentElements?: any[];
+      isSaving?: boolean;
+    }) => {
+      setState((prev) => ({ ...prev, ...newState }));
+    },
+    []
+  );
 
   // Extract state variables for readability
-  const { 
-    isLoadingData, 
-    dataLoaded, 
-    hasUnsavedChanges, 
-    existingSubSectionId, 
-    contentElements, 
-    isSaving 
-  } = state;
+  const { isLoadingData, dataLoaded, hasUnsavedChanges, existingSubSectionId, contentElements, isSaving } = state;
 
   // Hooks
   const { toast } = useToast();
   const dataProcessed = useRef(false);
   const onDataChangeRef = useRef(onDataChange);
-  const defaultLangCode = activeLanguages[0]?.languageID || 'en';
-  
+  const defaultLangCode = activeLanguages[0]?.languageID || "en";
+
   // Services
-  const { 
-    useCreate: useCreateSubSection, 
-    useGetCompleteBySlug, 
-    useUpdate: useUpdateSubSection 
+  const {
+    useCreate: useCreateSubSection,
+    useGetCompleteBySlug,
+    useUpdate: useUpdateSubSection,
   } = useSubSections();
-  
+
   const { useCreate: useCreateContentElement } = useContentElements();
   const { useBulkUpsert: useBulkUpsertTranslations } = useContentTranslations();
-  
+
   const createSubSection = useCreateSubSection();
   const updateSubSection = useUpdateSubSection();
   const createContentElement = useCreateContentElement();
   const bulkUpsertTranslations = useBulkUpsertTranslations();
 
   // Image upload hook
-  const { 
-    imageFile, 
-    imagePreview, 
-    handleImageUpload, 
-    handleImageRemove 
+  const {
+    imageFile,
+    imagePreview,
+    handleImageUpload,
+    handleImageRemove,
   } = useImageUploader({
     form,
-    fieldPath: 'backgroundImage',
+    fieldPath: "backgroundImage",
     initialImageUrl: initialData?.image || form.getValues().backgroundImage,
-    onUpload: () => updateState({
-      hasUnsavedChanges: true,
-    }),
-    onRemove: () => updateState({
-      hasUnsavedChanges: true,
-    }),
-    validate: (file: { type: string; }) => {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-      return validTypes.includes(file.type) || 'Only JPEG, PNG, GIF, or SVG files are allowed';
-    }
+    onUpload: () => updateState({ hasUnsavedChanges: true }),
+    onRemove: () => updateState({ hasUnsavedChanges: true }),
+    validate: (file: { type: string }) => {
+      const validTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+      return validTypes.includes(file.type) || t("teamForm.imageValidationError");
+    },
   });
 
   // Data fetching from API
-  const { 
-    data: completeSubsectionData, 
-    isLoading: isLoadingSubsection, 
-    refetch 
-  } = useGetCompleteBySlug(slug || '', Boolean(slug));
+  const {
+    data: completeSubsectionData,
+    isLoading: isLoadingSubsection,
+    refetch,
+  } = useGetCompleteBySlug(slug || "", Boolean(slug));
 
   // Update reference when onDataChange changes
   useEffect(() => {
@@ -132,74 +126,77 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
         form.setValue(`${defaultLangCode}.description`, initialData.description);
       }
       if (initialData.image) {
-        form.setValue('backgroundImage', initialData.image);
+        form.setValue("backgroundImage", initialData.image);
       }
-      updateState({ 
-        dataLoaded: true, 
-        hasUnsavedChanges: false 
+      updateState({
+        dataLoaded: true,
+        hasUnsavedChanges: false,
       });
     }
   }, [initialData, dataLoaded, defaultLangCode, form]);
 
   // Process team data from API
-  const processTeamData = useCallback((subsectionData: SubSection | null) => {
-    processAndLoadData(
-      subsectionData,
-      form,
-      languageIds,
-      activeLanguages,
-      {
-        groupElements: (elements) => ({
-          'team': elements.filter(el => el.type === 'text' || (el.name === 'Logo' && el.type === 'image'))
-        }),
-        processElementGroup: (groupId, elements, langId, getTranslationContent) => {
-          const elementKeyMap: Record<string, keyof typeof result> = {
-            'Title': 'title',
-            'Job': 'job',
-            'Description': 'description',
-          };
-          
-          const result = {
-            title: '',
-            job: '',
-            description: '',
-          };
-          
-          elements.filter(el => el.type === 'text').forEach(element => {
-            const key = elementKeyMap[element.name];
-            if (key) {
-              result[key] = getTranslationContent(element, '');
-            }
-          });
-          
-          return result;
-        },
-        getDefaultValue: () => ({
-          title: '',
-          job: '',
-          description: '',
-        })
-      },
-      {
-        setExistingSubSectionId: (id) => updateState({ existingSubSectionId: id }),
-        setContentElements: (elements) => updateState({ contentElements: elements }),
-        setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
-        setHasUnsavedChanges: (hasChanges) => updateState({ hasUnsavedChanges: hasChanges }),
-        setIsLoadingData: (loading) => updateState({ isLoadingData: loading })
-      }
-    );
+  const processTeamData = useCallback(
+    (subsectionData: SubSection | null) => {
+      processAndLoadData(
+        subsectionData,
+        form,
+        languageIds,
+        activeLanguages,
+        {
+          groupElements: (elements) => ({
+            team: elements.filter((el) => el.type === "text" || (el.name === "Logo" && el.type === "image")),
+          }),
+          processElementGroup: (groupId, elements, langId, getTranslationContent) => {
+            const elementKeyMap: Record<string, keyof typeof result> = {
+              Title: "title",
+              Job: "job",
+              Description: "description",
+            };
 
-    // Handle background image
-    const bgImageElement = subsectionData?.elements?.find(
-      (el) => el.name === 'Logo' && el.type === 'image'
-    ) || subsectionData?.contentElements?.find(
-      (el) => el.name === 'Logo' && el.type === 'image'
-    );
-    
-    if (bgImageElement?.imageUrl) {
-      form.setValue('backgroundImage', bgImageElement.imageUrl);
-    }
-  }, [form, languageIds, activeLanguages]);
+            const result = {
+              title: "",
+              job: "",
+              description: "",
+            };
+
+            elements
+              .filter((el) => el.type === "text")
+              .forEach((element) => {
+                const key = elementKeyMap[element.name];
+                if (key) {
+                  result[key] = getTranslationContent(element, "");
+                }
+              });
+
+            return result;
+          },
+          getDefaultValue: () => ({
+            title: "",
+            job: "",
+            description: "",
+          }),
+        },
+        {
+          setExistingSubSectionId: (id) => updateState({ existingSubSectionId: id }),
+          setContentElements: (elements) => updateState({ contentElements: elements }),
+          setDataLoaded: (loaded) => updateState({ dataLoaded: loaded }),
+          setHasUnsavedChanges: (hasChanges) => updateState({ hasUnsavedChanges: hasChanges }),
+          setIsLoadingData: (loading) => updateState({ isLoadingData: loading }),
+        }
+      );
+
+      // Handle background image
+      const bgImageElement =
+        subsectionData?.elements?.find((el) => el.name === "Logo" && el.type === "image") ||
+        subsectionData?.contentElements?.find((el) => el.name === "Logo" && el.type === "image");
+
+      if (bgImageElement?.imageUrl) {
+        form.setValue("backgroundImage", bgImageElement.imageUrl);
+      }
+    },
+    [form, languageIds, activeLanguages]
+  );
 
   // Process initial data effect
   useEffect(() => {
@@ -211,13 +208,13 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
   // Process API data effect
   useEffect(() => {
     if (!slug || isLoadingSubsection || dataProcessed.current) return;
-    
+
     if (completeSubsectionData?.data) {
       updateState({ isLoadingData: true });
       processTeamData(completeSubsectionData.data);
-      updateState({ 
+      updateState({
         dataLoaded: true,
-        isLoadingData: false
+        isLoadingData: false,
       });
       dataProcessed.current = true;
     }
@@ -226,55 +223,55 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
   // Form watch effect for unsaved changes
   useEffect(() => {
     if (isLoadingData || !dataLoaded) return;
-    
+
     const subscription = form.watch((value) => {
       updateState({ hasUnsavedChanges: true });
       if (onDataChangeRef.current) {
         onDataChangeRef.current(value);
       }
     });
-    
+
     return () => subscription.unsubscribe();
   }, [form, isLoadingData, dataLoaded, updateState]);
 
   // Image upload handler
-  const uploadImage = useCallback(async (elementId: any, file: string | Blob) => {
-    if (!file) return null;
-    
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-      
-      const uploadResult = await apiClient.post(
-        `/content-elements/${elementId}/image`, 
-        formData, 
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      
-      const imageUrl = uploadResult.data?.imageUrl || 
-                      uploadResult.data?.url || 
-                      uploadResult.data?.data?.imageUrl;
-      
-      if (imageUrl) {
-        form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
-        toast({
-          title: "Image Uploaded",
-          description: "Background image has been successfully uploaded."
+  const uploadImage = useCallback(
+    async (elementId: any, file: string | Blob) => {
+      if (!file) return null;
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const uploadResult = await apiClient.post(`/content-elements/${elementId}/image`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        return imageUrl;
-      } 
-      
-      throw new Error("No image URL returned from server. Response: " + JSON.stringify(uploadResult.data));
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      toast({
-        title: "Image Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload image",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  }, [form, toast]);
+
+        const imageUrl =
+          uploadResult.data?.imageUrl || uploadResult.data?.url || uploadResult.data?.data?.imageUrl;
+
+        if (imageUrl) {
+          form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
+          toast({
+            title: t("teamForm.imageUploaded"),
+            description: t("teamForm.imageUploadedDescription"),
+          });
+          return imageUrl;
+        }
+
+        throw new Error("No image URL returned from server. Response: " + JSON.stringify(uploadResult.data));
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        toast({
+          title: t("teamForm.imageUploadFailed"),
+          description: error instanceof Error ? error.message : t("teamForm.imageUploadFailedDescription"),
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
+    [form, toast, t]
+  );
 
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
@@ -282,15 +279,15 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please fill all required fields correctly",
-        variant: "destructive"
+        title: t("teamForm.validationError"),
+        description: t("teamForm.validationErrorDescription"),
+        variant: "destructive",
       });
       return false;
     }
 
     updateState({ isSaving: true });
-    
+
     try {
       const allFormValues = form.getValues();
 
@@ -298,9 +295,9 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
       let sectionId = existingSubSectionId;
       if (!sectionId) {
         if (!ParentSectionId) {
-          throw new Error("Parent section ID is required to create a subsection");
+          throw new Error(t("teamForm.parentSectionIdRequired"));
         }
-        
+
         const subsectionData = {
           name: "Team Section",
           slug: slug || `team-section-${Date.now()}`,
@@ -308,12 +305,12 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
           isActive: true,
           isMain: false,
           order: 0,
-          defaultContent: '',
+          defaultContent: "",
           sectionItem: ParentSectionId,
           languages: languageIds,
-          WebSiteId: websiteId
+          WebSiteId: websiteId,
         };
-        
+
         const newSubSection = await createSubSection.mutateAsync(subsectionData);
         sectionId = newSubSection.data._id;
         updateState({ existingSubSectionId: sectionId });
@@ -321,17 +318,17 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
         const updateData = {
           isActive: true,
           isMain: false,
-          languages: languageIds
+          languages: languageIds,
         };
-        
+
         await updateSubSection.mutateAsync({
           id: sectionId,
-          data: updateData
+          data: updateData,
         });
       }
 
       if (!sectionId) {
-        throw new Error("Failed to create or retrieve subsection ID");
+        throw new Error(t("teamForm.failedToCreateSubsection"));
       }
 
       // Step 2: Map language codes to IDs
@@ -352,19 +349,19 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
 
         // Update translations for text elements
         const textElements = contentElements.filter((e) => e.type === "text");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
-        const elementNameToKeyMap: Record<string, 'title' | 'description' | 'job'> = {
-          'Title': 'title',
-          'Job': 'job',
-          'Description': 'description',
+        const translations: (Omit<ContentTranslation, "_id"> & { id?: string })[] = [];
+        const elementNameToKeyMap: Record<string, "title" | "description" | "job"> = {
+          Title: "title",
+          Job: "job",
+          Description: "description",
         };
 
         Object.entries(allFormValues).forEach(([langCode, values]) => {
           if (langCode === "backgroundImage") return;
-          
+
           const langId = langCodeToIdMap[langCode];
           if (!langId) return;
-          
+
           textElements.forEach((element) => {
             const key = elementNameToKeyMap[element.name];
             if (key && values && typeof values === "object" && key in values) {
@@ -372,7 +369,7 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
                 content: values[key],
                 language: langId,
                 contentElement: element._id,
-                isActive: true
+                isActive: true,
               });
             }
           });
@@ -397,9 +394,8 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
             defaultContent = "image-placeholder";
           } else if (el.type === "text" && typeof allFormValues[defaultLangCode] === "object") {
             const langValues = allFormValues[defaultLangCode];
-            defaultContent = langValues && typeof langValues === "object" && el.key in langValues
-              ? langValues[el.key]
-              : "";
+            defaultContent =
+              langValues && typeof langValues === "object" && el.key in langValues ? langValues[el.key] : "";
           }
 
           const elementData = {
@@ -408,7 +404,7 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
             parent: sectionId,
             isActive: true,
             order: index,
-            defaultContent: defaultContent
+            defaultContent: defaultContent,
           };
 
           const newElement = await createContentElement.mutateAsync(elementData);
@@ -425,21 +421,21 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
 
         // Create translations for new elements
         const textElements = createdElements.filter((e) => e.key !== "backgroundImage");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
-        
+        const translations: (Omit<ContentTranslation, "_id"> & { id?: string })[] = [];
+
         Object.entries(allFormValues).forEach(([langCode, langValues]) => {
           if (langCode === "backgroundImage") return;
-          
+
           const langId = langCodeToIdMap[langCode];
           if (!langId) return;
-          
+
           for (const element of textElements) {
             if (langValues && typeof langValues === "object" && element.key in langValues) {
               translations.push({
                 content: langValues[element.key],
                 language: langId,
                 contentElement: element._id,
-                isActive: true
+                isActive: true,
               });
             }
           }
@@ -452,8 +448,8 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
 
       // Show success message
       toast({
-        title: existingSubSectionId ? "Team section updated successfully!" : "Team section created successfully!",
-        description: "All content has been saved."
+        title: existingSubSectionId ? t("teamForm.teamSectionUpdated") : t("teamForm.teamSectionCreated"),
+        description: t("teamForm.contentSaved"),
       });
 
       updateState({ hasUnsavedChanges: false });
@@ -469,9 +465,9 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
         // For new subsections, manually update form
         const updatedData = {
           ...allFormValues,
-          backgroundImage: form.getValues("backgroundImage")
+          backgroundImage: form.getValues("backgroundImage"),
         };
-        
+
         Object.entries(updatedData).forEach(([key, value]) => {
           if (key !== "backgroundImage") {
             Object.entries(value).forEach(([field, content]) => {
@@ -479,7 +475,7 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
             });
           }
         });
-        
+
         form.setValue("backgroundImage", updatedData.backgroundImage, { shouldDirty: false });
       }
 
@@ -487,33 +483,36 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
     } catch (error) {
       console.error("Operation failed:", error);
       toast({
-        title: existingSubSectionId ? "Error updating team section" : "Error creating team section",
+        title: existingSubSectionId
+          ? t("teamForm.errorUpdatingTeamSection")
+          : t("teamForm.errorCreatingTeamSection"),
         variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred"
+        description: error instanceof Error ? error.message : t("teamForm.unknownError"),
       });
       return false;
     } finally {
       updateState({ isSaving: false });
     }
   }, [
-    existingSubSectionId, 
-    form, 
-    imageFile, 
-    ParentSectionId, 
-    slug, 
-    toast, 
-    bulkUpsertTranslations, 
-    contentElements, 
-    createContentElement, 
-    createSubSection, 
-    defaultLangCode, 
-    languageIds, 
-    processTeamData, 
-    refetch, 
-    updateState, 
-    updateSubSection, 
-    uploadImage, 
-    activeLanguages
+    existingSubSectionId,
+    form,
+    imageFile,
+    ParentSectionId,
+    slug,
+    toast,
+    bulkUpsertTranslations,
+    contentElements,
+    createContentElement,
+    createSubSection,
+    defaultLangCode,
+    languageIds,
+    processTeamData,
+    refetch,
+    updateState,
+    updateSubSection,
+    uploadImage,
+    activeLanguages,
+    t,
   ]);
 
   // Create form ref for parent component
@@ -523,15 +522,15 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
     setHasUnsavedChanges: (value) => updateState({ hasUnsavedChanges: value }),
     existingSubSectionId,
     contentElements,
-    componentName: 'Team',
+    componentName: "Team",
     extraMethods: {
       getImageFile: () => imageFile,
-      saveData: handleSave
+      saveData: handleSave,
     },
     extraData: {
       imageFile,
-      existingSubSectionId
-    }
+      existingSubSectionId,
+    },
   });
 
   const languageCodes = createLanguageCodeMap(activeLanguages);
@@ -541,23 +540,23 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading team section data...</p>
+        <p className="ml-2 text-muted-foreground">{t("teamForm.loadingTeamSectionData")}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <LoadingDialog 
-        isOpen={isSaving} 
-        title={existingSubSectionId ? "Updating Team Section" : "Creating Team Section"}
-        description="Please wait while we save your changes..."
+      <LoadingDialog
+        isOpen={isSaving}
+        title={existingSubSectionId ? t("teamForm.updatingTeamSection") : t("teamForm.creatingTeamSection")}
+        description={t("teamForm.pleaseWaitSaving")}
       />
-      
+
       <Form {...form}>
         {/* Logo Section */}
-        <BackgroundImageSection 
-          imagePreview={imagePreview || undefined} 
+        <BackgroundImageSection
+          imagePreview={imagePreview || undefined}
           imageValue={form.getValues().backgroundImage}
           onUpload={(event: React.ChangeEvent<HTMLInputElement>) => {
             if (event.target.files && event.target.files.length > 0) {
@@ -567,39 +566,33 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
           onRemove={handleImageRemove}
           imageType="logo"
         />
-        
+
         {/* Language Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {languageIds.map((langId) => {
             const langCode = languageCodes[langId] || langId;
-            return (
-              <TeamLanguageCard 
-                key={langId}
-                langCode={langCode}
-                form={form}
-              />
-            );
+            return <TeamLanguageCard key={langId} langCode={langCode} form={form} />;
           })}
         </div>
       </Form>
-      
+
       {/* Save Button */}
       <div className="flex justify-end mt-6">
-        <Button 
-          type="button" 
-          onClick={handleSave} 
+        <Button
+          type="button"
+          onClick={handleSave}
           disabled={isLoadingData || isSaving}
           className="flex items-center"
         >
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t("teamForm.pleaseWaitSaving")}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update Team Content" : "Save Team Content"}
+              {existingSubSectionId ? t("teamForm.updateTeamContent") : t("teamForm.saveTeamContent")}
             </>
           )}
         </Button>

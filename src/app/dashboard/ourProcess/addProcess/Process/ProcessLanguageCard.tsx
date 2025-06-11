@@ -1,6 +1,7 @@
 "use client"
 
 import { memo } from "react"
+import { useTranslation } from "react-i18next"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
 import { Input } from "@/src/components/ui/input"
@@ -13,16 +14,20 @@ interface LanguageCardProps {
 }
 
 export const ProcessLanguageCard = memo(({ langCode, form }: LanguageCardProps) => {
+  const { t } = useTranslation()
+
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="flex items-center">
-          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
+          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 ml-2 mr-2">
             {langCode}
           </span>
-          Process Section
+          {t('processLanguageCard.processSection')}
         </CardTitle>
-        <CardDescription>Manage process content for {langCode.toUpperCase()}</CardDescription>
+        <CardDescription>
+          {t('processLanguageCard.manageProcessContent', { language: langCode.toUpperCase() })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Title Field */}
@@ -31,9 +36,9 @@ export const ProcessLanguageCard = memo(({ langCode, form }: LanguageCardProps) 
           name={`${langCode}.title`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>{t('processLanguageCard.title')}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter title" {...field} />
+                <Input placeholder={t('processLanguageCard.enterTitle')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -46,9 +51,9 @@ export const ProcessLanguageCard = memo(({ langCode, form }: LanguageCardProps) 
           name={`${langCode}.description`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{t('processLanguageCard.description')}</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter description" className="min-h-[100px]" {...field} />
+                <Textarea placeholder={t('processLanguageCard.enterDescription')} className="min-h-[100px]" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

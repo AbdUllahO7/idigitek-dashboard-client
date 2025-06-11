@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useGenericList } from "@/src/hooks/useGenericList"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
@@ -11,64 +12,7 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { teamSectionConfig } from "./TeamSectionConfig"
-
-// Configuration for the Team page
-const TEAM_CONFIG = {
-  title: "Team Management",
-  description: "Manage your Team inventory and multilingual content",
-  addButtonLabel: "Add New Team item",
-  emptyStateMessage: "No Team found. Create your first Team by clicking the \"Add New Team\" button.",
-  noSectionMessage: "Please create a Team section first before adding Team.",
-  mainSectionRequiredMessage: "Please enter your main section data before adding Team.",
-  emptyFieldsMessage: "Please complete all required fields in the main section before adding Team.",
-  sectionIntegrationTitle: "Team Section Content",
-  sectionIntegrationDescription: "Manage your Team section content in multiple languages.",
-  addSectionButtonLabel: "Add Team Section",
-  editSectionButtonLabel: "Edit Team Section",
-  saveSectionButtonLabel: "Save Team Section",
-  listTitle: "Team List",
-  editPath: "team/addTeam"
-}
-
-// Team table column definitions
-const TEAM_COLUMNS = [
-  {
-    header: "Name",
-    accessor: "name",
-    className: "font-medium"
-  },
-  {
-    header: "Description",
-    accessor: "description",
-    cell: TruncatedCell
-  },
-  {
-    header: "Status",
-    accessor: "isActive",
-    cell: (item: any, value: boolean) => (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center">
-          {StatusCell(item, value)}
-          {item.isMain && (
-            <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  },
-  {
-    header: "Order",
-    accessor: "order"
-  },
-  {
-    header: "Subsections",
-    accessor: "subsections.length",
-    cell: CountBadgeCell
-  }
-]
+import { getTeamSectionConfig } from "./TeamSectionConfig"
 
 export default function Team() {
   const searchParams = useSearchParams()
@@ -77,6 +21,67 @@ export default function Team() {
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
+  const { t, i18n } = useTranslation();
+
+  // Get translated configuration based on current language
+  const teamSectionConfig = getTeamSectionConfig(i18n.language);
+
+  // Configuration for the Team page using translations
+  const TEAM_CONFIG = {
+    title: t('teamManagement.title'),
+    description: t('teamManagement.description'),
+    addButtonLabel: t('teamManagement.addButtonLabel'),
+    emptyStateMessage: t('teamManagement.emptyStateMessage'),
+    noSectionMessage: t('teamManagement.noSectionMessage'),
+    mainSectionRequiredMessage: t('teamManagement.mainSectionRequiredMessage'),
+    emptyFieldsMessage: t('teamManagement.emptyFieldsMessage'),
+    sectionIntegrationTitle: t('teamManagement.sectionIntegrationTitle'),
+    sectionIntegrationDescription: t('teamManagement.sectionIntegrationDescription'),
+    addSectionButtonLabel: t('teamManagement.addSectionButtonLabel'),
+    editSectionButtonLabel: t('teamManagement.editSectionButtonLabel'),
+    saveSectionButtonLabel: t('teamManagement.saveSectionButtonLabel'),
+    listTitle: t('teamManagement.listTitle'),
+    editPath: "team/addTeam"
+  };
+
+  // Team table column definitions with translations
+  const TEAM_COLUMNS = [
+    {
+      header: t('teamManagement.name'),
+      accessor: "name",
+      className: "font-medium"
+    },
+    {
+      header: t('teamManagement.description'),
+      accessor: "description",
+      cell: TruncatedCell
+    },
+    {
+      header: t('teamManagement.status'),
+      accessor: "isActive",
+      cell: (item: any, value: boolean) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center">
+            {StatusCell(item, value)}
+            {item.isMain && (
+              <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                {t('teamManagement.main')}
+              </span>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: t('teamManagement.order'),
+      accessor: "order"
+    },
+    {
+      header: t('teamManagement.subsections'),
+      accessor: "subsections.length",
+      cell: CountBadgeCell
+    }
+  ];
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
@@ -114,7 +119,7 @@ export default function Team() {
   } = useGenericList({
     sectionId,
     apiHooks: useSectionItems(),
-    editPath:  TEAM_CONFIG.editPath
+    editPath: TEAM_CONFIG.editPath
   })
 
   // Determine if main subsection exists when data loads & set section data if needed
@@ -163,11 +168,7 @@ export default function Team() {
         foundMainSubSection = websiteData.isMain === true && websiteData.name === expectedSlug;
         mainSubSection = foundMainSubSection ? websiteData : null;
       }
-      
-
     }
-    
-  
     
     // Update state based on what we found
     setHasMainSubSection(foundMainSubSection);
@@ -178,7 +179,6 @@ export default function Team() {
       const sectionInfo = typeof mainSubSection.section === 'string' 
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
-      
       
       // Set local section data
       setSectionData(sectionInfo);
@@ -196,20 +196,18 @@ export default function Team() {
     isLoadingSectionSubsections, 
     sectionId, 
     teamSection, 
-    setSection
+    setSection,
+    teamSectionConfig.name
   ]);
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    
     // Check if subsection has the correct name
     const expectedSlug = teamSectionConfig.name;
     const hasCorrectSlug = subsection.name === expectedSlug;
     
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
-    
-
     
     // If we have section data from the subsection, update it
     if (subsection.section) {
@@ -240,7 +238,6 @@ export default function Team() {
       ? TEAM_CONFIG.mainSectionRequiredMessage
       : TEAM_CONFIG.emptyStateMessage;
 
-
   // Components
   const TeamTable = (
     <GenericTable
@@ -257,7 +254,7 @@ export default function Team() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Team"
+      title={t('teamManagement.team')}
     />
   );
 
@@ -268,8 +265,8 @@ export default function Team() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Team Item"
-      confirmText="Confirm"
+      title={t('teamManagement.deleteTeamItem')}
+      confirmText={t('teamManagement.confirm')}
     />
   );
 

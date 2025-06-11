@@ -1,21 +1,20 @@
-
 "use client"
 import { useSearchParams } from "next/navigation"
 import { Layout } from "lucide-react"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
-
 import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import ProcessForm from "./Process/ProcessForm"
 import { FormDataProcess } from "@/src/api/types/sections/Process/processSection.type"
-
+import { useTranslation } from "react-i18next"
 
 // Form sections to collect data from
 const FORM_SECTIONS = ["process"]
 
 export default function AddProcess() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   
   // Get URL parameters
@@ -23,7 +22,7 @@ export default function AddProcess() {
   const sectionItemId = searchParams.get('sectionItemId')
   const mode = searchParams.get('mode') || 'edit'
   const isCreateMode = mode === 'create'
-    const { websiteId } = useWebsiteContext();
+  const { websiteId } = useWebsiteContext();
 
   // API hooks
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
@@ -61,20 +60,21 @@ export default function AddProcess() {
   // Filter active languages
   const activeLanguages = languagesData?.data?.filter((lang: { isActive: any }) => lang.isActive) || []
   
-  // Helper function to find a subsection by slug - FIXED to be case-insensitive
+  // Helper function to find a subsection by slug - FIXED to be case-insensitive and process-specific
   const findSubsection = (baseSlug: string) => {
     if (!subsectionsData?.data) return undefined;
     
     // Normalize the baseSlug to lowercase and handle special cases
     const normalizedBaseSlug = baseSlug.toLowerCase();
     
-    // Create a mapping for known slug patterns
+    // Create a mapping for known process slug patterns
     const slugMappings: Record<string, string> = {
       'process-steps': 'process-steps',
-      'news-section': 'news-section',
-      'benefits': 'benefits',
-      'features': 'features',
-      'faq-section': 'faq-section'
+      'process-section': 'process-section',
+      'process-details': 'process-details',
+      'process-benefits': 'process-benefits',
+      'process-features': 'process-features',
+      'process-faq': 'process-faq'
     };
     
     // Get the normalized version of the slug
@@ -105,14 +105,14 @@ export default function AddProcess() {
       return partialMatch;
     }
     
-      return undefined;
+    return undefined;
   };
   
   // Generate proper slugs for subsections
   const getSlug = (baseSlug: string) => {
     if (isCreateMode) return "";
     
-    // Special case handling for processSteps - correct the capitalization
+    // Special case handling for process steps - correct the capitalization
     if (baseSlug === "process-Steps") {
       baseSlug = "process-steps";
     }
@@ -129,36 +129,37 @@ export default function AddProcess() {
     return `${baseSlug.toLowerCase()}-${sectionItemId}`;
   };
   
-  // Define tabs configuration
+  // Define tabs configuration with translations
   const tabs = [
     {
       id: "process",
-      label: "Process",
+      label: t('addProcess.processTabLabel', 'Process'),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <ProcessForm
           languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
           activeLanguages={activeLanguages}
-          slug={getSlug('news-section')}
+          slug={getSlug('process-section')} // Changed from 'news-section' to 'process-section'
           ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
-          initialData={findSubsection('news-section')}
+          initialData={findSubsection('process-section')} // Changed from 'news-section' to 'process-section'
         />
       )
     }
   ]
-  // Define save handler for the service
+  
+  // Define save handler for the process with translations
   const handleSaveProcess = async (formData: FormDataProcess) => {
-    // Extract service info from news data for title/description
-    const newsData = formData.process || {}
+    // Extract process info from process data for title/description
+    const processData = formData.process || {}
     
     // Get English title and description values or fallback to the first language
-    let serviceName = "New Process"
+    let serviceName = t('addProcess.defaultProcessName', 'New Process')
     let serviceDescription = ""
     
     // Loop through languages to find title and description
-    for (const langCode in newsData) {
-      if (langCode !== 'backgroundImage' && typeof newsData[langCode] === 'object') {
-        const langValues = newsData[langCode] as Record<string, any>
+    for (const langCode in processData) {
+      if (langCode !== 'backgroundImage' && typeof processData[langCode] === 'object') {
+        const langValues = processData[langCode] as Record<string, any>
         if (langValues?.title) {
           serviceName = langValues.title
         }
@@ -176,7 +177,7 @@ export default function AddProcess() {
     const servicePayload = {
       name: serviceName,
       description: serviceDescription,
-      image: newsData.backgroundImage || null,
+      image: processData.backgroundImage || null,
       isActive: true,
       section: sectionId
     }
@@ -188,12 +189,23 @@ export default function AddProcess() {
   // Loading state
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
+  // Get translated title and subtitle
+  const getTitle = () => {
+    return isCreateMode 
+      ? t('addProcess.createTitle', 'Create New Process')
+      : t('addProcess.editTitle', 'Edit Process')
+  }
+  
+  const getSubtitle = () => {
+    return isCreateMode 
+      ? t('addProcess.createSubtitle', 'Create a new process with multilingual content')
+      : t('addProcess.editSubtitle', `Editing "${sectionItemData?.data?.name || t('addProcess.processPlaceholder', 'Process')}" content across multiple languages`)
+  }
+  
   return (
     <FormShell
-      title={isCreateMode ? "Create New Process" : "Edit Process"}
-      subtitle={isCreateMode 
-        ? "Create a new service with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'Process'}" content across multiple languages`}
+      title={getTitle()}
+      subtitle={getSubtitle()}
       backUrl={`/dashboard/ourProcess?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}

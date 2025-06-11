@@ -22,12 +22,14 @@ import {
 import { IconComponent, type IconNames } from "@/src/utils/MainSectionComponents"
 import type { ClientCommentsCardCardProps } from "@/src/api/types/sections/clientComments/clientComments.type"
 import { cn } from "@/src/lib/utils"
+import { useTranslation } from "react-i18next"
 
 /**
  * ClientCommentsCard - Component for a single client comment within a language
  */
 export const ClientCommentsCard = memo(
   ({ langCode, index, form, isFirstLanguage, syncIcons, availableIcons, onDelete }: ClientCommentsCardCardProps) => {
+    const { t } = useTranslation() // Use clientCommentsCard namespace
     const [isCollapsed, setIsCollapsed] = useState(true)
 
     const handleDelete = () => onDelete(langCode, index)
@@ -39,14 +41,18 @@ export const ClientCommentsCard = memo(
     return (
       <Card className="border border-muted">
         <CardHeader className="p-4 flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Comment {index + 1}</CardTitle>
+          <CardTitle className="text-base">
+            {t('clientCommentsCard.commentTitle', 'Comment {{number}}', { number: index + 1 })}
+          </CardTitle>
           <div className="flex items-center space-x-1">
             {/* Collapse/Expand Button */}
             <Button type="button" variant="ghost" size="icon" onClick={toggleCollapse} className="h-8 w-8">
               {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
             </Button>
 
-            <Button type="button" variant="destructive" size="icon" onClick={handleDelete} > <Trash2 className="h-4 w-4" /> </Button>
+            <Button type="button" variant="destructive" size="icon" onClick={handleDelete}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </CardHeader>
 
@@ -65,7 +71,7 @@ export const ClientCommentsCard = memo(
                 name={`${langCode}.${index}.icon`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Icon</FormLabel>
+                    <FormLabel>{t('clientCommentsCard.iconLabel', 'Icon')}</FormLabel>
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value)
@@ -76,7 +82,7 @@ export const ClientCommentsCard = memo(
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an icon">
+                          <SelectValue placeholder={t('clientCommentsCard.iconPlaceholder', 'Select an icon')}>
                             <div className="flex items-center">
                               <span className="mr-2">
                                 <IconComponent iconName={field.value || "Clock"} />
@@ -105,13 +111,15 @@ export const ClientCommentsCard = memo(
               />
             ) : (
               <div className="mb-4">
-                <FormLabel className="block mb-2">Icon</FormLabel>
+                <FormLabel className="block mb-2">{t('clientCommentsCard.iconLabel', 'Icon')}</FormLabel>
                 <div className="flex items-center h-10 px-3 rounded-md border border-input bg-muted/50 text-muted-foreground">
                   <span className="mr-2">
                     <IconComponent iconName={form.watch(`${langCode}.${index}.icon`) || "Clock"} />
                   </span>
                   {form.watch(`${langCode}.${index}.icon`) || "Clock"}
-                  <span className="ml-2 text-xs text-muted-foreground">(Controlled by primary language)</span>
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {t('clientCommentsCard.iconControlledByPrimary', '(Controlled by primary language)')}
+                  </span>
                 </div>
               </div>
             )}
@@ -122,9 +130,9 @@ export const ClientCommentsCard = memo(
               name={`${langCode}.${index}.title`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>{t('clientCommentsCard.titleLabel', 'Title')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter title" {...field} />
+                    <Input placeholder={t('clientCommentsCard.titlePlaceholder', 'Enter title')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,9 +145,13 @@ export const ClientCommentsCard = memo(
               name={`${langCode}.${index}.description`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('clientCommentsCard.descriptionLabel', 'Description')}</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter description" className="min-h-[80px]" {...field} />
+                    <Textarea
+                      placeholder={t('clientCommentsCard.descriptionPlaceholder', 'Enter description')}
+                      className="min-h-[80px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

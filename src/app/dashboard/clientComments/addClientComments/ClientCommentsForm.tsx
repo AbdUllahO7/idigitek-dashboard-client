@@ -30,13 +30,14 @@ import { clientCommentFormRef, clientCommentsFormProps, ClientCommentsFormState 
 import { ClientCommentsLanguageCardCard } from "./ClientCommentsLanguageCard";
 import { ValidationDialog } from "../../services/addService/Components/BenefitsForm/ValidationDialog";
 import { createClientCommentsUsSchema } from "../../services/addService/Utils/language-specific-schemas";
+import { useTranslation } from "react-i18next";
 
 // Main Component
 const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId, subSectionId }, ref) => {
     const { websiteId } = useWebsiteContext();
     const formSchema = createClientCommentsUsSchema(languageIds, activeLanguages);
-
+    const {t} = useTranslation()
     const defaultValues = createClientCommentsDefaultValues(
       languageIds,
       activeLanguages
@@ -171,8 +172,8 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
       const currentSteps = form.getValues()[langCode] || [];
       if (currentSteps.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one process step",
+          title: t('clientCommentsForm.cannotRemove', 'Cannot remove'),
+          description: t('clientCommentsForm.needOneClientComment', 'You need at least one process step'),
           variant: "destructive",
         });
         setIsDeleting(false);
@@ -203,9 +204,9 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
             });
 
             toast({
-              title: "Step deleted",
-              description: `Step ${stepNumber} has been deleted from the database`,
-            });
+              title: t('clientCommentsForm.stepDeleted', 'Step deleted'),
+              description: t('clientCommentsForm.stepDeletedDescription', 'Step {{number}} has been deleted from the database', { number: stepNumber }),
+              });
           }
 
           const remainingElements = contentElements.filter((element) => {
@@ -235,8 +236,8 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
         } catch (error) {
           console.error("Error removing process step elements:", error);
           toast({
-            title: "Error removing step",
-            description: "There was an error removing the step from the database",
+            title: t('clientCommentsForm.errorRemovingStep', 'Error removing step'),
+            description: t('clientCommentsForm.errorRemovingStepDescription', 'There was an error removing the step from the database'),
             variant: "destructive",
           });
         }
@@ -414,8 +415,8 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
         const currentClientComments = form.getValues()[langCode] || [];
         if (currentClientComments.length <= 1) {
           toast({
-            title: "Cannot remove",
-            description: "You need at least one benefit",
+            title: t('clientCommentsForm.cannotRemove', 'Cannot remove'),
+            description: t('clientCommentsForm.needOneClientComment', 'You need at least one benefit'),
             variant: "destructive",
           });
           return;
@@ -445,10 +446,9 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
                   return !(match && Number.parseInt(match[1]) === benefitNumber);
                 }),
               });
-
-              toast({
-                title: "ClientComments deleted",
-                description: `ClientComments ${benefitNumber} has been deleted from the database`,
+            toast({
+                title: t('clientCommentsForm.clientCommentsDeleted', 'Client Comments deleted'),
+                description: t('clientCommentsForm.clientCommentsDeletedDescription', 'Client Comments {{number}} has been deleted from the database', { number: benefitNumber }),
               });
             }
 
@@ -477,8 +477,8 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
           } catch (error) {
             console.error("Error removing clientComments elements:", error);
             toast({
-              title: "Error removing benefit",
-              description: "There was an error removing the clientComments from the database",
+              title: t('clientCommentsForm.errorRemovingClientComments', 'Error removing client comments'),
+              description: t('clientCommentsForm.errorRemovingClientCommentsDescription', 'There was an error removing the client comments from the database'),
               variant: "destructive",
             });
           }
@@ -533,8 +533,8 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
 
       if (!isValid) {
         toast({
-          title: "Validation Error",
-          description: "Please fill all required fields correctly",
+          title: t('clientCommentsForm.validationError', 'Validation Error'),
+          description: t('clientCommentsForm.fillRequiredFields', 'Please fill all required fields correctly'),
           variant: "destructive",
         });
         return;
@@ -688,8 +688,8 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
 
         toast({
           title: existingSubSectionId
-            ? "ClientComments section updated successfully!"
-            : "ClientComments section created successfully!",
+            ? t('clientCommentsForm.clientCommentsUpdated', 'Client Comments section updated successfully!')
+            : t('clientCommentsForm.clientCommentsCreated', 'Client Comments section created successfully!'),
         });
 
         updateState({ hasUnsavedChanges: false });
@@ -711,13 +711,14 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
 
       } catch (error) {
         console.error("Operation failed:", error);
-        toast({
+      toast({
           title: existingSubSectionId
-            ? "Error updating clientComments section"
-            : "Error creating clientComments section",
+            ? t('clientCommentsForm.errorUpdatingClientComments', 'Error updating client comments section')
+            : t('clientCommentsForm.errorCreatingClientComments', 'Error creating client comments section'),
           variant: "destructive",
-          description:
-            error instanceof Error ? error.message : "Unknown error occurred",
+          description: error instanceof Error 
+            ? error.message 
+            : t('clientCommentsForm.unknownError', 'Unknown error occurred'),
         });
       } finally {
         updateState({ isSaving: false });
@@ -779,7 +780,7 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
         {isLoading ? (
           <div className="flex items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-            <p className="text-muted-foreground">Loading clientComments section data...</p>
+                  <p className="text-muted-foreground">{t('clientCommentsForm.loadingData', 'Loading client comments section data...')}</p>
           </div>
         ) : (
           <>
@@ -817,7 +818,7 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
                 <div className="flex items-center text-amber-500 mr-4">
                   <AlertTriangle className="h-4 w-4 mr-2" />
                   <span className="text-sm">
-                    Each language must have the same number of clientComments
+                    {t('clientCommentsForm.sameNumberClientComments', 'Each language must have the same number of client comments')}
                   </span>
                 </div>
               )}
@@ -830,25 +831,25 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
                 {isSaving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                              {t('clientCommentsForm.saving', 'Saving...')}
                   </>
                 ) : (
                   <>
                     <Save className="mr-2 h-4 w-4" />
-                    {existingSubSectionId ? "Update ClientComments" : "Save ClientComments"}
+                    {existingSubSectionId
+                      ? t('clientCommentsForm.updateClientComments', 'Update Client Comments')
+                      : t('clientCommentsForm.saveClientComments', 'Save Client Comments')}
                   </>
                 )}
               </Button>
             </div>
-        <DeleteSectionDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          serviceName={stepToDelete ? `Comment ${stepToDelete.index + 1}` : ""}
-          onConfirm={removeProcessStep}
-          isDeleting={isDeleting}
-          title="Delete Comment"
-          confirmText="Delete Comment"
-        />
+            <DeleteSectionDialog
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              serviceName={stepToDelete ? `Comment ${stepToDelete.index + 1}` : ""}
+              onConfirm={removeProcessStep}
+              isDeleting={isDeleting}
+            />
 
             <ValidationDialog
               isOpen={isValidationDialogOpen}
