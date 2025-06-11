@@ -11,6 +11,7 @@ import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import TeamForm from "./Team/TeamForm"
 import { FormDataTeam } from "@/src/api/types/sections/team/teamSection.type"
+import { useTranslation } from "react-i18next"
 
 
 // Form sections to collect data from
@@ -18,7 +19,7 @@ const FORM_SECTIONS = ["team"]
 
 export default function AddTeam() {
   const searchParams = useSearchParams()
-  
+  const {t} = useTranslation()
   // Get URL parameters
   const sectionId = searchParams.get('sectionId')
   const sectionItemId = searchParams.get('sectionItemId')
@@ -187,11 +188,13 @@ export default function AddTeam() {
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
   return (
-    <FormShell
-      title={isCreateMode ? "Create New Team" : "Edit Team"}
-      subtitle={isCreateMode 
-        ? "Create a new service with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'Team'}" content across multiple languages`}
+   <FormShell
+      title={isCreateMode ? t("teamForm.addTeam.createTitle") : t("teamForm.addTeam.editTitle")}
+      subtitle={
+        isCreateMode
+          ? t("teamForm.addTeam.createSubtitle")
+          : t("teamForm.addTeam.editSubtitle", { name: sectionItemData?.data?.name || t("teamForm.addTeam.defaultTeamName") })
+      }
       backUrl={`/dashboard/team?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}

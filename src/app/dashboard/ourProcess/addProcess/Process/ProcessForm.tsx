@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useState, useRef, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next"; // Add this import
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
@@ -24,7 +25,6 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content
 import { ProcessLanguageCard } from "./ProcessLanguageCard";
 import { processFormProps } from "@/src/api/types/sections/Process/processSection.type";
 
-
 const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
   const { 
     languageIds, 
@@ -36,6 +36,7 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
   } = props;
 
   const { websiteId } = useWebsiteContext();
+  const { t } = useTranslation(); // Add i18n hook
 
   // Setup form with schema validation
   const formSchema = createProcessSchema(languageIds, activeLanguages);
@@ -261,8 +262,8 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
       if (imageUrl) {
         form.setValue("backgroundImage", imageUrl, { shouldDirty: false });
         toast({
-          title: "Image Uploaded",
-          description: "Background image has been successfully uploaded."
+          title: t('processForm.imageUploaded'),
+          description: t('processForm.backgroundImageUploaded')
         });
         return imageUrl;
       } 
@@ -271,13 +272,13 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
     } catch (error) {
       console.error("Image upload failed:", error);
       toast({
-        title: "Image Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload image",
+        title: t('processForm.imageUploadFailed'),
+        description: error instanceof Error ? error.message : t('processForm.failedToUploadImage'),
         variant: "destructive"
       });
       throw error;
     }
-  }, [form, toast]);
+  }, [form, toast, t]);
 
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
@@ -285,8 +286,8 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
     const isValid = await form.trigger();
     if (!isValid) {
       toast({
-        title: "Validation Error",
-        description: "Please fill all required fields correctly",
+        title: t('processForm.validationError'),
+        description: t('processForm.fillRequiredFields'),
         variant: "destructive"
       });
       return false;
@@ -453,8 +454,8 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
 
       // Show success message
       toast({
-        title: existingSubSectionId ? "Process section updated successfully!" : "Process section created successfully!",
-        description: "All content has been saved."
+        title: existingSubSectionId ? t('processForm.processUpdatedSuccess') : t('processForm.processCreatedSuccess'),
+        description: t('processForm.allContentSaved')
       });
 
       updateState({ hasUnsavedChanges: false });
@@ -488,9 +489,9 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
     } catch (error) {
       console.error("Operation failed:", error);
       toast({
-        title: existingSubSectionId ? "Error updating hero section" : "Error creating hero section",
+        title: existingSubSectionId ? t('processForm.errorUpdatingProcess') : t('processForm.errorCreatingProcess'),
         variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred"
+        description: error instanceof Error ? error.message : t('processForm.unknownError')
       });
       return false;
     } finally {
@@ -503,6 +504,7 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
     ParentSectionId, 
     slug, 
     toast, 
+    t, // Add t to dependencies
     bulkUpsertTranslations, 
     contentElements, 
     createContentElement, 
@@ -542,7 +544,7 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-2 text-muted-foreground">Loading hero section data...</p>
+        <p className="ml-2 text-muted-foreground">{t('processForm.loadingProcessData')}</p>
       </div>
     );
   }
@@ -551,8 +553,8 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
     <div className="space-y-6">
       <LoadingDialog 
         isOpen={isSaving} 
-        title={existingSubSectionId ? "Updating Process Section" : "Creating Process Section"}
-        description="Please wait while we save your changes..."
+        title={existingSubSectionId ? t('processForm.updatingProcessSection') : t('processForm.creatingProcessSection')}
+        description={t('processForm.pleaseWaitSaving')}
       />
       
       <Form {...form}>
@@ -595,12 +597,12 @@ const ProcessForm = forwardRef<any, processFormProps>((props, ref) => {
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t('processForm.saving')}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {existingSubSectionId ? "Update Process Content" : "Save Process Content"}
+              {existingSubSectionId ? t('processForm.updateProcessContent') : t('processForm.saveProcessContent')}
             </>
           )}
         </Button>

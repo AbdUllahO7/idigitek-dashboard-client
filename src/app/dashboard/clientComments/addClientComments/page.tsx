@@ -1,22 +1,21 @@
-// Updated AddIndustry.tsx to fix the edit mode data display issue
-
 "use client"
 
 import { Layout } from "lucide-react"
 import { useLanguages } from "@/src/hooks/webConfiguration/use-language"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
-
 import { FormData } from "@/src/api/types/sections/service/serviceSections.types"
 import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import { useSearchParams } from "next/navigation"
 import ClientCommentsForm from "./ClientCommentsForm"
+import { useTranslation } from "react-i18next"
 
 // Form sections to collect data from
 const FORM_SECTIONS = ["Client Comments"]
 
 export default function AddIndustry() {
+  const { t } = useTranslation() 
   const searchParams = useSearchParams()
   
   // Get URL parameters
@@ -29,7 +28,7 @@ export default function AddIndustry() {
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
   const { useGetById: useGetSectionItemById } = useSectionItems()
   const { useGetBySectionItemId: useGetSubSectionsBySectionItemId } = useSubSections()
-    const { websiteId } = useWebsiteContext();
+  const { websiteId } = useWebsiteContext();
   
   // Get languages
   const { 
@@ -71,7 +70,7 @@ export default function AddIndustry() {
     
     // Create a mapping for known slug patterns
     const slugMappings: Record<string, string> = {
-      'ClientComments-section': 'ClientComments-section',
+      'clientcomments-section': 'clientcomments-section',
     };
     
     // Get the normalized version of the slug
@@ -102,7 +101,7 @@ export default function AddIndustry() {
       return partialMatch;
     }
     
-      return undefined;
+    return undefined;
   };
   
   // Generate proper slugs for subsections
@@ -130,14 +129,14 @@ export default function AddIndustry() {
   const tabs = [
     {
       id: "ClientComments",
-      label: "Client Comments",
+      label: t('AddClientComment.clientCommentsTabLabel', 'Client Comments'),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <ClientCommentsForm
           languageIds={activeLanguages.map((lang: { _id: any }) => lang._id)}
           activeLanguages={activeLanguages}
           slug={getSlug('ClientComments')}
-          subSectionId = {sectionItemId}
+          subSectionId={sectionItemId}
           ParentSectionId={isCreateMode ? sectionId || "" : (sectionItemId || "")}
           initialData={findSubsection('ClientComments')}
         />
@@ -151,7 +150,7 @@ export default function AddIndustry() {
     const heroData = formData.hero || {}
     
     // Get English title and description values or fallback to the first language
-    let ClientCommentName = "New Comment"
+    let ClientCommentName = t('AddClientComment.defaultClientCommentName', 'New Comment')
     let ClientCommentDescription = ""
     
     // Loop through languages to find title and description
@@ -189,10 +188,12 @@ export default function AddIndustry() {
   
   return (
     <FormShell
-      title={isCreateMode ? "Create New Client Comment item " : "Edit Client Comment item "}
+      title={isCreateMode 
+        ? t('AddClientComment.createTitle', 'Create New Client Comment item') 
+        : t('AddClientComment.editTitle', 'Edit Client Comment item')}
       subtitle={isCreateMode 
-        ? "Create a new Client Comment item with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'Client Comment item'}" content across multiple languages`}
+        ? t('AddClientComment.createSubtitle', 'Create a new Client Comment item with multilingual content') 
+        : t('AddClientComment.editSubtitle', 'Editing "{{name}}" content across multiple languages', { name: sectionItemData?.data?.name || 'Client Comment item' })}
       backUrl={`/dashboard/clientComments?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}

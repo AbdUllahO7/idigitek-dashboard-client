@@ -1,28 +1,33 @@
-"use client"
+"use client";
 
-import { memo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form"
-import { Input } from "@/src/components/ui/input"
-import { Textarea } from "@/src/components/ui/textarea"
-import type { UseFormReturn } from "react-hook-form"
+import { memo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/src/components/ui/form";
+import { Input } from "@/src/components/ui/input";
+import { Textarea } from "@/src/components/ui/textarea";
+import { useTranslation } from "react-i18next";
+import type { UseFormReturn } from "react-hook-form";
 
 interface LanguageCardProps {
-  langCode: string
-  form: UseFormReturn<any>
+  langCode: string;
+  form: UseFormReturn<any>;
 }
 
 export const TeamLanguageCard = memo(({ langCode, form }: LanguageCardProps) => {
+  const { t } = useTranslation();
+
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="flex items-center">
-          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
+          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 ml-2 mr-2">
             {langCode}
           </span>
-          Team Section
+          {t("teamForm.languageCard.teamSectionTitle")}
         </CardTitle>
-        <CardDescription>Manage team content for {langCode.toUpperCase()}</CardDescription>
+        <CardDescription>
+          {t("teamForm.languageCard.manageContentDescription", { langCode: langCode.toUpperCase() })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Title Field */}
@@ -31,23 +36,23 @@ export const TeamLanguageCard = memo(({ langCode, form }: LanguageCardProps) => 
           name={`${langCode}.title`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>{t("teamForm.languageCard.titleLabel")}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter title" {...field} />
+                <Input placeholder={t("teamForm.languageCard.titlePlaceholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-      {/* Title Field */}
+        {/* Job Field */}
         <FormField
           control={form.control}
           name={`${langCode}.job`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Job</FormLabel>
+              <FormLabel>{t("teamForm.languageCard.jobLabel")}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter job" {...field} />
+                <Input placeholder={t("teamForm.languageCard.jobPlaceholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -59,19 +64,21 @@ export const TeamLanguageCard = memo(({ langCode, form }: LanguageCardProps) => 
           name={`${langCode}.description`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{t("teamForm.languageCard.descriptionLabel")}</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter description" className="min-h-[100px]" {...field} />
+                <Textarea
+                  placeholder={t("teamForm.languageCard.descriptionPlaceholder")}
+                  className="min-h-[100px]"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-      
       </CardContent>
     </Card>
-  )
-})
+  );
+});
 
-TeamLanguageCard.displayName = "TeamLanguageCard"
+TeamLanguageCard.displayName = "TeamLanguageCard";

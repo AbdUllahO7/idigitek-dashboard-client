@@ -1,62 +1,84 @@
-import { useTranslation } from "react-i18next"
+// src/hooks/service/process-section-config.ts
 
-// Hook to get process section config with translated labels
-export const useProcessSectionConfig = () => {
-  const { t } = useTranslation()
+import { FieldConfig } from "@/src/api/types/hooks/MultilingualSection.types";
+
+// Translation keys for process section
+export const processSectionTranslations = {
+  en: {
+    sectionName: "Process Section Basic",
+    sectionDescription: "Process section for managing service information",
+    sectionBadgeLabel: "Section Badge",
+    sectionTitleLabel: "Section Title",
+    sectionDescriptionLabel: "Section Description",
+    type: "Process",
+    badgeElement: "Badge",
+    titleElement: "Title",
+    descriptionElement: "Description"
+  },
+  ar: {
+    sectionName: "قسم العملية الأساسي",
+    sectionDescription: "قسم العملية لإدارة معلومات الخدمة",
+    sectionBadgeLabel: "شارة القسم",
+    sectionTitleLabel: "عنوان القسم",
+    sectionDescriptionLabel: "وصف القسم",
+    type: "عملية",
+    badgeElement: "الشارة",
+    titleElement: "العنوان",
+    descriptionElement: "الوصف"
+  },
+  tr: {
+    sectionName: "Temel Süreç Bölümü",
+    sectionDescription: "Hizmet bilgilerini yönetmek için süreç bölümü",
+    sectionBadgeLabel: "Bölüm Rozeti",
+    sectionTitleLabel: "Bölüm Başlığı",
+    sectionDescriptionLabel: "Bölüm Açıklaması",
+    type: "Süreç",
+    badgeElement: "Rozet",
+    titleElement: "Başlık",
+    descriptionElement: "Açıklama"
+  }
+};
+
+// Function to get translated process section config
+export const getProcessSectionConfig = (language: string = 'en') => {
+  const translations = processSectionTranslations[language as keyof typeof processSectionTranslations] || processSectionTranslations.en;
   
   return {
-    name: "Process Section Basic",
+    name: translations.sectionName,
     slug: "Process-main",
-    subSectionName: "Process Section Basic",
-    description: "Process section for managing service information",
+    subSectionName: translations.sectionName,
+    description: translations.sectionDescription,
     isMain: true,
-    type: 'Process',
+    type: translations.type,
     // Define fields with translated labels
     fields: [
       { 
         id: "sectionBadge", 
-        label: t('sectionFields.sectionBadge'), 
+        label: translations.sectionBadgeLabel, 
         type: "text", 
         required: true 
       },
       { 
         id: "sectionTitle", 
-        label: t('sectionFields.sectionTitle'), 
+        label: translations.sectionTitleLabel, 
         type: "text", 
         required: true 
       },
       { 
         id: "sectionDescription", 
-        label: t('sectionFields.sectionDescription'), 
+        label: translations.sectionDescriptionLabel, 
         type: "textarea", 
         required: false 
       },
-    ],
-    // Define element mapping
+    ] as FieldConfig[],
+    // Define element mapping with translated values
     elementsMapping: {
-      "sectionBadge": "Badge",
-      "sectionTitle": "Title", 
-      "sectionDescription": "Description",
+      "sectionBadge": translations.badgeElement,
+      "sectionTitle": translations.titleElement, 
+      "sectionDescription": translations.descriptionElement,
     }
-  }
-}
-
-// Static config (fallback for when hooks can't be used)
-export const processSectionConfig = {
-  name: "Process Section Basic",
-  slug: "Process-main",
-  subSectionName: "Process Section Basic",
-  description: "Process section for managing service information",
-  isMain: true,
-  type: 'Process',
-  fields: [
-    { id: "sectionBadge", label: "Section Badge", type: "text", required: true },
-    { id: "sectionTitle", label: "Section Title", type: "text", required: true },
-    { id: "sectionDescription", label: "Section Description", type: "textarea", required: false },
-  ],
-  elementsMapping: {
-    "sectionBadge": "Badge",
-    "sectionTitle": "Title", 
-    "sectionDescription": "Description",
-  }
+  };
 };
+
+// Default export for backward compatibility
+export const processSectionConfig = getProcessSectionConfig();
