@@ -11,7 +11,7 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { projectSectionConfig } from "./ProjectSectionConfig"
+import { getProjectSectionConfig, projectSectionConfig } from "./ProjectSectionConfig"
 import { useTranslation } from "react-i18next"
 
 // Project table column definitions with translation support
@@ -60,7 +60,15 @@ export default function ProjectPage() {
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  // Get current language from i18n
+  const currentLanguage = i18n.language || 'en'
+
+  // Get translated project section configuration using current language
+  const translatedProjectSectionConfig = useMemo(() => 
+    getProjectSectionConfig(currentLanguage), [currentLanguage]
+  )
 
   // Configuration for the Project page with translations
   const PROJECTS_CONFIG = useMemo(() => ({
@@ -135,8 +143,8 @@ export default function ProjectPage() {
     let foundMainSubSection = false;
     let mainSubSection = null;
     
-    // Get expected name from configuration
-    const expectedSlug = projectSectionConfig.name;
+    // Get expected name from translated configuration
+    const expectedSlug = translatedProjectSectionConfig.name;
     console.log("Expected subsection name:", expectedSlug);
     
     // If we have a sectionId, prioritize checking the section-specific subsections
@@ -220,15 +228,16 @@ export default function ProjectPage() {
     isLoadingSectionSubsections, 
     sectionId, 
     projectSection, 
-    setSection
+    setSection,
+    translatedProjectSectionConfig.name // Add this dependency
   ]);
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
     console.log("Main subsection created:", subsection);
     
-    // Check if subsection has the correct name
-    const expectedSlug = projectSectionConfig.name;
+    // Check if subsection has the correct name (using translated config)
+    const expectedSlug = translatedProjectSectionConfig.name;
     const hasCorrectSlug = subsection.name === expectedSlug;
     
     // Set that we have a main subsection now (only if it also has the correct name)
@@ -308,7 +317,7 @@ export default function ProjectPage() {
       <GenericListPage
         config={PROJECTS_CONFIG}
         sectionId={sectionId}
-        sectionConfig={projectSectionConfig}
+        sectionConfig={translatedProjectSectionConfig} // Use translated config with language parameter
         isAddButtonDisabled={isAddButtonDisabled}
         tableComponent={ProjectTable}
         createDialogComponent={CreateDialog}
@@ -324,7 +333,7 @@ export default function ProjectPage() {
       {sectionId && (
         <CreateMainSubSection 
           sectionId={sectionId}
-          sectionConfig={projectSectionConfig}
+          sectionConfig={translatedProjectSectionConfig} // Use translated config with language parameter
           onSubSectionCreated={handleMainSubSectionCreated}
           onFormValidityChange={() => {/* We don't need to track form validity */}}
         />

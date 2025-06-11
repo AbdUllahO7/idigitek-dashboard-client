@@ -1,73 +1,73 @@
-"use client";
+"use client"
 
-import { forwardRef, useEffect, useState, useRef, useCallback } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Form } from "@/src/components/ui/form";
-import { Button } from "@/src/components/ui/button";
-import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
-import { useContentElements } from "@/src/hooks/webConfiguration/use-content-elements";
-import { useToast } from "@/src/hooks/use-toast";
-import { Loader2, Save } from "lucide-react";
-import { LoadingDialog } from "@/src/utils/MainSectionComponents";
-import { ContentElement, ContentTranslation } from "@/src/api/types/hooks/content.types";
-import { SubSection } from "@/src/api/types/hooks/section.types";
-import { useWebsiteContext } from "@/src/providers/WebsiteContext";
-import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations";
-import { ProjectFormProps } from "@/src/api/types/sections/project/porjectSection.type";
-import { createLanguageCodeMap, createProjectDefaultValues } from "@/src/app/dashboard/services/addService/Utils/Language-default-values";
-import { processAndLoadData } from "@/src/app/dashboard/services/addService/Utils/load-form-data";
-import { createFormRef } from "@/src/app/dashboard/services/addService/Utils/Expose-form-data";
-import { createProjectMoreInfoInfoSchema } from "@/src/app/dashboard/services/addService/Utils/language-specific-schemas";
-import { useTranslation } from "react-i18next";
-import { MoreInfoLanguageCard } from "./MoreInfo/MoreInfoLanguageCard";
+import type React from "react"
+import { forwardRef, useEffect, useState, useRef, useCallback } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { Form } from "@/src/components/ui/form"
+import { Button } from "@/src/components/ui/button"
+import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
+import { useContentElements } from "@/src/hooks/webConfiguration/use-content-elements"
+import apiClient from "@/src/lib/api-client"
+import { useToast } from "@/src/hooks/use-toast"
+import { Loader2, Save, Plus, Trash2 } from "lucide-react"
+import { LoadingDialog } from "@/src/utils/MainSectionComponents"
+import type { ContentElement } from "@/src/api/types/hooks/content.types"
+import type { SubSection } from "@/src/api/types/hooks/section.types"
+import { useWebsiteContext } from "@/src/providers/WebsiteContext"
+import * as z from "zod"
+import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations"
+import { Card, CardContent } from "@/src/components/ui/card"
+import { createFormRef } from "../../../services/addService/Utils/Expose-form-data"
+import { useTranslation } from "react-i18next"
 
-// Helper function to find element by field across different naming conventions
-const findElementByField = (contentElements: any[], fieldKey: string) => {
-  // Define possible element names for each field
-  const fieldToElementNames: Record<string, string[]> = {
-    'client': ['Client', 'client', 'CLIENT'],
-    'clientName': ['ClientName', 'clientName', 'CLIENT_NAME', 'Client Name'],
-    'industry': ['Industry', 'industry', 'INDUSTRY'],
-    'industryName': ['IndustryName', 'industryName', 'INDUSTRY_NAME', 'Industry Name'],
-    'year': ['Year', 'year', 'YEAR'],
-    'yearName': ['YearName', 'yearName', 'YEAR_NAME', 'Year Name'],
-    'technologies': ['Technologies', 'technologies', 'TECHNOLOGIES'],
-    'technologiesName': ['TechnologiesName', 'technologiesName', 'TECHNOLOGIES_NAME', 'Technologies Name']
-  };
+// Define the image schema
+const imageSchema = z
+  .object({
+    imageUrl: z.string().optional(),
+    file: z.custom<File>((file) => file instanceof File).optional(),
+  })
+  .strict()
 
-  const possibleNames = fieldToElementNames[fieldKey] || [fieldKey];
-  
-  // Try to find element by any of the possible names
-  for (const name of possibleNames) {
-    const element = contentElements.find(el => el.name === name);
-    if (element) return element;
+type ImageType = {
+  imageUrl?: string;
+  file?: File;
+}
+
+// Define the form schema with multiple images
+const createMultiImageSchema = () => {
+  return z.object({
+    images: z.array(imageSchema).min(1, "At least one image is required"),
+  })
+}
+
+// Props interface for the MultiImageForm component
+interface MultiImageFormProps {
+  languageIds: string[]
+  activeLanguages: Array<{ _id: string; languageID: string }>
+  onDataChange?: (data: any) => void
+  slug?: string
+  ParentSectionId?: string
+  initialData?: {
+    images?: string[]
   }
-  
-  return null;
-};
+}
 
-const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
-  const { 
-    languageIds, 
-    activeLanguages, 
-    onDataChange, 
-    slug, 
-    ParentSectionId, 
-    initialData 
-  } = props;
+const MultiImageForm = forwardRef<any, MultiImageFormProps>((props, ref) => {
+  const { languageIds, activeLanguages, onDataChange, slug, ParentSectionId, initialData } = props
 
-  const { websiteId } = useWebsiteContext();
-  const { t } = useTranslation();
+  const { websiteId } = useWebsiteContext()
+  const { t } = useTranslation()
 
   // Setup form with schema validation
-  const formSchema = createProjectMoreInfoInfoSchema(languageIds, activeLanguages);
-  const defaultValues = createProjectDefaultValues(languageIds, activeLanguages);
+  const formSchema = createMultiImageSchema()
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues,
-    mode: "onChange"
-  });
+    defaultValues: {
+      images: [{ imageUrl: "" }],
+    },
+    mode: "onChange",
+  })
 
   // State management
   const [state, setState] = useState({
@@ -76,351 +76,434 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     hasUnsavedChanges: false,
     existingSubSectionId: null as string | null,
     contentElements: [] as ContentElement[],
-    isSaving: false
-  });
+    isSaving: false,
+    imagePreviews: [] as string[],
+  })
 
-  const updateState = useCallback((newState: { isLoadingData?: boolean; dataLoaded?: boolean; hasUnsavedChanges?: boolean; existingSubSectionId?: string | null; contentElements?: any[]; isSaving?: boolean; }) => {
-    setState(prev => ({ ...prev, ...newState }));
-  }, []);
+  // Use object state update for better performance and readability
+  const updateState = useCallback((newState: Partial<typeof state>) => {
+    setState((prev) => ({ ...prev, ...newState }))
+  }, [])
 
-  const { 
-    isLoadingData, 
-    dataLoaded, 
-    hasUnsavedChanges, 
-    existingSubSectionId, 
-    contentElements, 
-    isSaving 
-  } = state;
+  // Extract state variables for readability
+  const {
+    isLoadingData,
+    dataLoaded,
+    hasUnsavedChanges,
+    existingSubSectionId,
+    contentElements,
+    isSaving,
+    imagePreviews,
+  } = state
 
   // Hooks
-  const { toast } = useToast();
-  const dataProcessed = useRef(false);
-  const onDataChangeRef = useRef(onDataChange);
-  const defaultLangCode = activeLanguages[0]?.languageID || 'en';
-  
+  const { toast } = useToast()
+  const dataProcessed = useRef(false)
+  const onDataChangeRef = useRef(onDataChange)
+
   // Services
-  const { 
-    useCreate: useCreateSubSection, 
-    useGetCompleteBySlug, 
-    useUpdate: useUpdateSubSection 
-  } = useSubSections();
-  
-  const { useCreate: useCreateContentElement } = useContentElements();
-  const { useBulkUpsert: useBulkUpsertTranslations } = useContentTranslations();
-  
-  const createSubSection = useCreateSubSection();
-  const updateSubSection = useUpdateSubSection();
-  const createContentElement = useCreateContentElement();
-  const bulkUpsertTranslations = useBulkUpsertTranslations();
+  const { useCreate: useCreateSubSection, useGetCompleteBySlug, useUpdate: useUpdateSubSection } = useSubSections()
+
+  const { useCreate: useCreateContentElement } = useContentElements()
+  const { useBulkUpsert: useBulkUpsertTranslations } = useContentTranslations()
+
+  const createSubSection = useCreateSubSection()
+  const updateSubSection = useUpdateSubSection()
+  const createContentElement = useCreateContentElement()
 
   // Data fetching from API
-  const { 
-    data: completeSubsectionData, 
-    isLoading: isLoadingSubsection, 
-    refetch 
-  } = useGetCompleteBySlug(slug || '', Boolean(slug));
-
-  console.log("completeSubsectionData", completeSubsectionData)
+  const {
+    data: completeSubsectionData,
+    isLoading: isLoadingSubsection,
+    refetch,
+  } = useGetCompleteBySlug(slug || "", Boolean(slug))
 
   // Update reference when onDataChange changes
   useEffect(() => {
-    onDataChangeRef.current = onDataChange;
-  }, [onDataChange]);
+    onDataChangeRef.current = onDataChange
+  }, [onDataChange])
 
   // Process initial data from parent
   const processInitialData = useCallback(() => {
-    if (initialData && !dataLoaded) {
-      if (initialData.description) {
-        form.setValue(`${defaultLangCode}.description`, initialData.description);
+    if (initialData && !dataLoaded && initialData.images && initialData.images.length > 0) {
+      const formattedImages = initialData.images.map((imageUrl) => ({ imageUrl }))
+      form.setValue("images", formattedImages)
+
+      updateState({
+        dataLoaded: true,
+        hasUnsavedChanges: false,
+        imagePreviews: initialData.images,
+      })
+    }
+  }, [initialData, dataLoaded, form, updateState])
+
+  // Process data from API
+  const processMultiImageData = useCallback(
+    (subsectionData: SubSection | null) => {
+      if (!subsectionData) return
+
+      try {
+        updateState({ isLoadingData: true })
+
+        // Set existing subsection ID
+        updateState({ existingSubSectionId: subsectionData._id })
+
+        // Find all image elements
+        const imageElements =
+          subsectionData.elements?.filter((el) => el.type === "image") ||
+          subsectionData.contentElements?.filter((el) => el.type === "image") ||
+          []
+
+        updateState({ contentElements: imageElements })
+
+        // Set image URLs and previews
+        if (imageElements.length > 0) {
+          const imagesData = imageElements.map((element) => ({
+            imageUrl: element.imageUrl || "",
+          }))
+
+          form.setValue("images", imagesData)
+
+          const previews = imageElements
+            .map((element) => element.imageUrl)
+            .filter((url): url is string => typeof url === "string")
+
+          updateState({ imagePreviews: previews })
+        }
+
+        updateState({
+          dataLoaded: true,
+          isLoadingData: false,
+          hasUnsavedChanges: false,
+        })
+      } catch (error) {
+        console.error("Error processing multi-image data:", error)
+        toast({
+          title: t('projectMultiImage.error', 'Error'),
+          description: t('projectMultiImage.failedToLoadImages', 'Failed to load image data'),
+          variant: "destructive",
+        })
+
+        updateState({
+          dataLoaded: true,
+          isLoadingData: false,
+        })
       }
-      
-      updateState({ 
-        dataLoaded: true, 
-        hasUnsavedChanges: false 
-      });
-    }
-  }, [initialData, dataLoaded, defaultLangCode, form]);
-
-  // FIXED: Process project data from API with better element matching
-  const processProjectData = useCallback((subsectionData: SubSection | null) => {
-    if (!subsectionData) return;
-
-    try {
-      updateState({ isLoadingData: true });
-
-      // Set existing subsection ID
-      updateState({ existingSubSectionId: subsectionData._id });
-
-      // Get all elements
-      const elements = subsectionData.elements || subsectionData.contentElements || [];
-      updateState({ contentElements: elements });
-
-      // Define the fields we're looking for
-      const fieldKeys = ['client', 'clientName', 'industry', 'industryName', 'year', 'yearName', 'technologies', 'technologiesName'];
-
-      // Process each language
-      activeLanguages.forEach(lang => {
-        const langCode = lang.languageID;
-        const fieldValues: Record<string, string> = {};
-
-        // Process each field
-        fieldKeys.forEach(fieldKey => {
-          // Find the element for this field
-          const element = findElementByField(elements, fieldKey);
-          
-          if (element) {
-            // Find the translation for this language
-            const translations = element.translations || [];
-            const translation = translations.find((t: any) => {
-              const translationLangId = typeof t.language === 'string' ? t.language : (t.language?._id || t.language);
-              return translationLangId === lang._id;
-            });
-
-            // Set the field value
-            fieldValues[fieldKey] = translation?.content || element.defaultContent || '';
-          } else {
-            fieldValues[fieldKey] = '';
-          }
-        });
-
-        // Set all field values for this language
-        Object.entries(fieldValues).forEach(([field, value]) => {
-          form.setValue(`${langCode}.${field}`, value);
-        });
-      });
-
-      updateState({ 
-        dataLoaded: true, 
-        isLoadingData: false,
-        hasUnsavedChanges: false 
-      });
-
-    } catch (error) {
-      console.error("Error processing project data:", error);
-      updateState({ 
-        dataLoaded: true, 
-        isLoadingData: false 
-      });
-    }
-  }, [form, activeLanguages, updateState]);
+    },
+    [form, toast, updateState, t],
+  )
 
   // Process initial data effect
   useEffect(() => {
     if (!dataLoaded && initialData) {
-      processInitialData();
+      processInitialData()
     }
-  }, [initialData, dataLoaded, processInitialData]);
+  }, [initialData, dataLoaded, processInitialData])
 
   // Process API data effect
   useEffect(() => {
-    if (!slug || isLoadingSubsection || dataProcessed.current) return;
-    
+    if (!slug || isLoadingSubsection || dataProcessed.current) return
+
     if (completeSubsectionData?.data) {
-      processProjectData(completeSubsectionData.data);
-      dataProcessed.current = true;
+      processMultiImageData(completeSubsectionData.data)
+      dataProcessed.current = true
     }
-  }, [completeSubsectionData, isLoadingSubsection, slug, processProjectData]);
+  }, [completeSubsectionData, isLoadingSubsection, slug, processMultiImageData])
 
   // Form watch effect for unsaved changes
   useEffect(() => {
-    if (isLoadingData || !dataLoaded) return;
-    
-    const subscription = form.watch((value) => {
-      updateState({ hasUnsavedChanges: true });
-      if (onDataChangeRef.current) {
-        onDataChangeRef.current(value);
-      }
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [form, isLoadingData, dataLoaded, updateState]);
+    if (isLoadingData || !dataLoaded) return
 
-  // Save handler with optimized process
+    const subscription = form.watch((value) => {
+      updateState({ hasUnsavedChanges: true })
+      if (onDataChangeRef.current) {
+        onDataChangeRef.current(value)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [form, isLoadingData, dataLoaded, updateState])
+
+  // Handle image upload
+  const handleImageUpload = useCallback(
+    (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!event.target.files || event.target.files.length === 0) return
+
+      const file = event.target.files[0]
+      const validTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"]
+
+      if (!validTypes.includes(file.type)) {
+        toast({
+          title: t('projectMultiImage.invalidFileType', 'Invalid File Type'),
+          description: t('projectMultiImage.allowedFileTypes', 'Only JPEG, PNG, GIF, or SVG files are allowed'),
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Update form state
+      const images = form.getValues().images
+      images[index] = { ...images[index], file }
+      form.setValue("images", images, { shouldDirty: true })
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file)
+      const newPreviews = [...imagePreviews]
+      newPreviews[index] = previewUrl
+      updateState({
+        imagePreviews: newPreviews,
+        hasUnsavedChanges: true,
+      })
+    },
+    [form, imagePreviews, toast, updateState, t],
+  )
+
+  // Handle image removal
+  const handleImageRemove = useCallback(
+    (index: number) => {
+      const images = form.getValues().images
+
+      if (images.length <= 1) {
+        toast({
+          title: t('projectMultiImage.cannotRemove', 'Cannot Remove'),
+          description: t('projectMultiImage.atLeastOneRequired', 'At least one image is required'),
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Remove image at index
+      const newImages = images.filter((_, i) => i !== index)
+      form.setValue("images", newImages, { shouldDirty: true })
+
+      // Remove preview
+      const newPreviews = imagePreviews.filter((_, i) => i !== index)
+      updateState({
+        imagePreviews: newPreviews,
+        hasUnsavedChanges: true,
+      })
+    },
+    [form, imagePreviews, toast, updateState, t],
+  )
+
+  // Add new image field
+  const addImageField = useCallback(() => {
+    const images = form.getValues().images
+    form.setValue("images", [...images, { imageUrl: "" }], { shouldDirty: true })
+    updateState({
+      imagePreviews: [...imagePreviews, ""],
+      hasUnsavedChanges: true,
+    })
+  }, [form, imagePreviews, updateState])
+
+  // Upload image to server
+  const uploadImage = useCallback(
+    async (elementId: string, file: File) => {
+      if (!file) return null
+
+      try {
+        const formData = new FormData()
+        formData.append("image", file)
+
+        const uploadResult = await apiClient.post(`/content-elements/${elementId}/image`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+
+        const imageUrl = uploadResult.data?.imageUrl || uploadResult.data?.url || uploadResult.data?.data?.imageUrl
+
+        if (imageUrl) {
+          toast({
+            title: t('projectMultiImage.imageUploaded', 'Image Uploaded'),
+            description: t('projectMultiImage.imageUploadSuccess', 'Image has been successfully uploaded.'),
+          })
+          return imageUrl
+        }
+
+        throw new Error("No image URL returned from server")
+      } catch (error) {
+        console.error("Image upload failed:", error)
+        toast({
+          title: t('projectMultiImage.imageUploadFailed', 'Image Upload Failed'),
+          description: error instanceof Error ? error.message : t('projectMultiImage.imageUploadError', 'Failed to upload image'),
+          variant: "destructive",
+        })
+        return null
+      }
+    },
+    [toast, t],
+  )
+
+  // Save handler
   const handleSave = useCallback(async () => {
-    const isValid = await form.trigger();
+    // Validate form
+    const isValid = await form.trigger()
     if (!isValid) {
       toast({
-        title: t('projectMoreInfo.validationError', 'Validation Error'),
-        description: t('projectMoreInfo.fillAllFields', 'Please fill all required fields correctly'),
-        variant: "destructive"
-      });
-      return false;
+        title: t('projectMultiImage.validationError', 'Validation Error'),
+        description: t('projectMultiImage.addAtLeastOneImage', 'Please add at least one image'),
+        variant: "destructive",
+      })
+      return false
     }
 
-    updateState({ isSaving: true });
+    updateState({ isSaving: true })
 
     try {
-      const allFormValues = form.getValues();
+      const images = form.getValues().images
 
-      let sectionId = existingSubSectionId;
+      // Step 1: Create or update subsection
+      let sectionId = existingSubSectionId
       if (!sectionId) {
         if (!ParentSectionId) {
-          throw new Error(t('projectMoreInfo.parentSectionRequired', 'Parent section ID is required to create a subsection'));
+          throw new Error(t('projectMultiImage.parentSectionRequired', 'Parent section ID is required to create a subsection'))
         }
 
         const subsectionData = {
-          name: t('projectMoreInfo.projectSection', 'Project Section'),
-          slug: slug || `project-section-${Date.now()}`,
+          name: t('projectMultiImage.multiImageSection', 'Multi Image Section'),
+          slug: slug || `multi-image-section-${Date.now()}`,
           description: "",
           isActive: true,
           isMain: false,
           order: 0,
-          defaultContent: '',
+          defaultContent: "",
           sectionItem: ParentSectionId,
           languages: languageIds,
-          WebSiteId: websiteId
-        };
+          WebSiteId: websiteId,
+        }
 
-        const newSubSection = await createSubSection.mutateAsync(subsectionData);
-        sectionId = newSubSection.data._id;
-        updateState({ existingSubSectionId: sectionId });
+        const newSubSection = await createSubSection.mutateAsync(subsectionData)
+        sectionId = newSubSection.data._id
+        updateState({ existingSubSectionId: sectionId })
       } else {
         const updateData = {
           isActive: true,
           isMain: false,
-          languages: languageIds
-        };
+          languages: languageIds,
+        }
 
         await updateSubSection.mutateAsync({
           id: sectionId,
-          data: updateData
-        });
+          data: updateData,
+        })
       }
 
       if (!sectionId) {
-        throw new Error(t('projectMoreInfo.failedToCreateSection', 'Failed to create or retrieve subsection ID'));
+        throw new Error(t('projectMultiImage.failedToCreateSection', 'Failed to create or retrieve subsection ID'))
       }
 
-      const langCodeToIdMap = activeLanguages.reduce<Record<string, string>>((acc, lang) => {
-        acc[lang.languageID] = lang._id;
-        return acc;
-      }, {});
-
+      // Step 2: Handle existing content elements
       if (contentElements.length > 0) {
-        // Handle existing content elements
-        const textElements = contentElements.filter((e) => e.type === "text");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
+        // For existing elements, update them with new images
+        const existingElements = [...contentElements]
+        const updatedImageUrls = []
 
-        // Define consistent mapping
-        const fieldKeys = ['client', 'clientName', 'industry', 'industryName', 'year', 'yearName', 'technologies', 'technologiesName'];
-
-        Object.entries(allFormValues).forEach(([langCode, values]) => {
-          const langId = langCodeToIdMap[langCode];
-          if (!langId || !values || typeof values !== "object") return;
-
-          fieldKeys.forEach(fieldKey => {
-            if (fieldKey in values) {
-              // Find the element for this field
-              const element = findElementByField(textElements, fieldKey);
-              
-              if (element) {
-                translations.push({
-                  content: values[fieldKey],
-                  language: langId,
-                  contentElement: element._id,
-                  isActive: true
-                });
-              }
+        // Process elements that need updating
+        for (let i = 0; i < Math.min(images.length, existingElements.length); i++) {
+          const image = images[i] as ImageType;
+          if (image.file) {
+            const imageUrl = await uploadImage(existingElements[i]._id, image.file)
+            if (imageUrl) {
+              updatedImageUrls[i] = imageUrl
+            } else {
+              updatedImageUrls[i] = existingElements[i].imageUrl || ""
             }
-          });
-        });
-
-        if (translations.length > 0) {
-          await bulkUpsertTranslations.mutateAsync(translations);
-        }
-      } else {
-        // Create new content elements with consistent naming
-        const elementTypes = [
-          { type: "text", key: "client", name: "client" },
-          { type: "text", key: "clientName", name: "clientName" }, 
-          { type: "text", key: "industry", name: "industry" },
-          { type: "text", key: "industryName", name: "industryName" }, 
-          { type: "text", key: "year", name: "year" },
-          { type: "text", key: "yearName", name: "yearName" }, 
-          { type: "text", key: "technologies", name: "technologies" },
-          { type: "text", key: "technologiesName", name: "technologiesName" }, 
-        ];
-
-        const createdElements = [];
-        for (const [index, el] of elementTypes.entries()) {
-          let defaultContent = "";
-          if (el.type === "text" && typeof allFormValues[defaultLangCode] === "object") {
-            const langValues = allFormValues[defaultLangCode];
-            defaultContent = langValues && typeof langValues === "object" && el.key in langValues
-              ? langValues[el.key]
-              : "";
+          } else {
+            updatedImageUrls[i] = images[i].imageUrl || existingElements[i].imageUrl || ""
           }
+        }
 
+        // Create new elements if we have more images than existing elements
+        for (let i = existingElements.length; i < images.length; i++) {
           const elementData = {
-            name: el.name, // Use consistent lowercase naming
-            type: el.type,
+            name: `Image ${i + 1}`,
+            type: "image",
             parent: sectionId,
             isActive: true,
-            order: index,
-            defaultContent: defaultContent
-          };
-
-          const newElement = await createContentElement.mutateAsync(elementData);
-          createdElements.push({ ...newElement.data, key: el.key });
-        }
-
-        updateState({ contentElements: createdElements.map((e) => ({ ...e, translations: [] })) });
-
-        const textElements = createdElements.filter((e) => e.key !== "backgroundImage");
-        const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
-
-        Object.entries(allFormValues).forEach(([langCode, langValues]) => {
-          const langId = langCodeToIdMap[langCode];
-          if (!langId) return;
-
-          for (const element of textElements) {
-            if (langValues && typeof langValues === "object" && element.key in langValues) {
-              translations.push({
-                content: langValues[element.key],
-                language: langId,
-                contentElement: element._id,
-                isActive: true
-              });
-            }
+            order: i,
+            defaultContent: "image-placeholder",
           }
-        });
 
-        if (translations.length > 0) {
-          await bulkUpsertTranslations.mutateAsync(translations);
+          const newElement = await createContentElement.mutateAsync(elementData)
+          existingElements.push(newElement.data)
+
+          const image = images[i] as ImageType;
+        if (image.file) {
+            const imageUrl = await uploadImage(newElement.data._id, image.file)            
+            updatedImageUrls[i] = imageUrl || ""
+          } else {
+            updatedImageUrls[i] = images[i].imageUrl || ""
+          }
         }
+
+        // Update form values and previews
+        const updatedImages = updatedImageUrls.map((imageUrl) => ({ imageUrl }))
+        form.setValue("images", updatedImages, { shouldDirty: false })
+        updateState({
+          imagePreviews: updatedImageUrls,
+          contentElements: existingElements.slice(0, images.length),
+        })
+      } else {
+        // Create new content elements for all images
+        const createdElements = []
+        const uploadedUrls = []
+
+        for (let i = 0; i < images.length; i++) {
+          const elementData = {
+            name: `Image ${i + 1}`,
+            type: "image",
+            parent: sectionId,
+            isActive: true,
+            order: i,
+            defaultContent: "image-placeholder",
+          }
+
+          const newElement = await createContentElement.mutateAsync(elementData)
+          createdElements.push(newElement.data)
+
+          const image = images[i] as ImageType;
+          if (image.file) {
+            const imageUrl = await uploadImage(newElement.data._id, image.file)
+            uploadedUrls[i] = imageUrl || ""
+          } else {
+            uploadedUrls[i] = image.imageUrl || ""
+          }
+        }
+
+        // Update form values and previews
+        const updatedImages = uploadedUrls.map((imageUrl) => ({ imageUrl }))
+        form.setValue("images", updatedImages, { shouldDirty: false })
+        updateState({
+          imagePreviews: uploadedUrls,
+          contentElements: createdElements,
+        })
       }
 
+      // Show success message
       toast({
-        title: existingSubSectionId 
-          ? t('projectMoreInfo.sectionUpdatedSuccess', 'Project section updated successfully!')
-          : t('projectMoreInfo.sectionCreatedSuccess', 'Project section created successfully!'),
-        description: t('projectMoreInfo.allContentSaved', 'All content has been saved.')
-      });
+        title: existingSubSectionId
+          ? t('projectMultiImage.sectionUpdatedSuccess', 'Multi-image section updated successfully!')
+          : t('projectMultiImage.sectionCreatedSuccess', 'Multi-image section created successfully!'),
+        description: t('projectMultiImage.allImagesSaved', 'All images have been saved.'),
+      })
 
-      updateState({ hasUnsavedChanges: false });
+      updateState({ hasUnsavedChanges: false })
 
+      // Refetch data if needed
       if (slug) {
-        const result = await refetch();
-        if (result.data?.data) {
-          updateState({ dataLoaded: false });
-          dataProcessed.current = false; // Reset the flag to allow reprocessing
-          await processProjectData(result.data.data);
-        }
+        await refetch()
       }
 
-      return true;
+      return true
     } catch (error) {
-      console.error("Operation failed:", error);
+      console.error("Operation failed:", error)
       toast({
-        title: existingSubSectionId 
-          ? t('projectMoreInfo.errorUpdatingSection', 'Error updating project section')
-          : t('projectMoreInfo.errorCreatingSection', 'Error creating project section'),
+        title: t('projectMultiImage.error', 'Error'),
         variant: "destructive",
-        description: error instanceof Error ? error.message : t('projectMoreInfo.unknownError', 'Unknown error occurred')
-      });
-      return false;
+        description: error instanceof Error ? error.message : t('projectMultiImage.unknownError', 'Unknown error occurred'),
+      })
+      return false
     } finally {
-      updateState({ isSaving: false });
+      updateState({ isSaving: false })
     }
   }, [
     existingSubSectionId,
@@ -429,18 +512,16 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     slug,
     toast,
     t,
-    bulkUpsertTranslations,
     contentElements,
     createContentElement,
     createSubSection,
-    defaultLangCode,
     languageIds,
-    processProjectData,
     refetch,
     updateState,
     updateSubSection,
-    activeLanguages
-  ]);
+    uploadImage,
+    websiteId,
+  ])
 
   // Create form ref for parent component
   createFormRef(ref, {
@@ -449,16 +530,20 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     setHasUnsavedChanges: (value) => updateState({ hasUnsavedChanges: value }),
     existingSubSectionId,
     contentElements,
-    componentName: 'Project',
+    componentName: "MultiImage",
     extraMethods: {
-      saveData: handleSave
+      getImageFiles: () =>
+        form
+          .getValues()
+          .images.map((img: ImageType) => img.file)
+          .filter(Boolean),
+      saveData: handleSave,
     },
     extraData: {
-      existingSubSectionId
-    }
-  });
-
-  const languageCodes = createLanguageCodeMap(activeLanguages);
+      images: form.getValues().images,
+      existingSubSectionId,
+    },
+  })
 
   // Loading state
   if (slug && (isLoadingData || isLoadingSubsection) && !dataLoaded) {
@@ -466,67 +551,121 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="ml-2 text-muted-foreground">
-          {t('projectMoreInfo.loadingData', 'Loading project section data...')}
+          {t('projectMultiImage.loadingData', 'Loading multi-image section data...')}
         </p>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="space-y-6">
-      <LoadingDialog 
-        isOpen={isSaving} 
+    <div className="space-y-4">
+      <LoadingDialog
+        isOpen={isSaving}
         title={existingSubSectionId 
-          ? t('projectMoreInfo.savingUpdate', 'Updating Project Section')
-          : t('projectMoreInfo.savingCreate', 'Creating Project Section')
+          ? t('projectMultiImage.savingUpdate', 'Updating Multi-Image Section')
+          : t('projectMultiImage.savingCreate', 'Creating Multi-Image Section')
         }
-        description={t('projectMoreInfo.savingDescription', 'Please wait while we save your changes...')}
+        description={t('projectMultiImage.savingDescription', 'Please wait while we save your changes...')}
       />
-      
+
       <Form {...form}>
-        {/* Language Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {languageIds.map((langId, index) => {
-          const langCode = languageCodes[langId] || langId;
-          return (
-            <MoreInfoLanguageCard 
-              key={langId}
-              langCode={langCode}
-              form={form}
-              isFirstLanguage={index === 0}
-            />
-          );
-        })}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {form.getValues().images.map((_, index) => (
+            <Card key={index} className="overflow-hidden border border-muted">
+              <CardContent className="p-3">
+                <div className="space-y-3">
+                  {/* Smaller image preview */}
+                  <div className="relative h-32 bg-muted rounded-md overflow-hidden flex items-center justify-center">
+                    {imagePreviews[index] ? (
+                      <img
+                        src={imagePreviews[index] || "/placeholder.svg"}
+                        alt={t('projectMultiImage.imageAlt', 'Image {{index}}', { index: index + 1 })}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground text-sm">
+                        {t('projectMultiImage.noImage', 'No image')}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const input = document.createElement("input")
+                        input.type = "file"
+                        input.accept = "image/jpeg,image/png,image/gif,image/svg+xml"
+                        input.onchange = (e) =>
+                          handleImageUpload(index, e as unknown as React.ChangeEvent<HTMLInputElement>)
+                        input.click()
+                      }}
+                      className="flex-1 text-xs"
+                    >
+                      {imagePreviews[index] 
+                        ? t('projectMultiImage.change', 'Change')
+                        : t('projectMultiImage.upload', 'Upload')
+                      }
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleImageRemove(index)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Add image button as a card */}
+          <Card className="border border-dashed border-muted hover:border-primary/50 transition-colors cursor-pointer h-[132px]">
+            <CardContent className="p-0 h-full">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={addImageField}
+                className="w-full h-full rounded-md flex flex-col items-center justify-center gap-2"
+              >
+                <Plus className="h-5 w-5" />
+                <span className="text-xs">
+                  {t('projectMultiImage.addImage', 'Add Image')}
+                </span>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </Form>
-      
+
       {/* Save Button */}
-      <div className="flex justify-end mt-6">
-        <Button 
-          type="button" 
-          onClick={handleSave} 
-          disabled={isLoadingData || isSaving}
-          className="flex items-center"
-        >
+      <div className="flex justify-end mt-4">
+        <Button type="button" onClick={handleSave} disabled={isLoadingData || isSaving} className="flex items-center">
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t('projectMoreInfo.saving', 'Saving...')}
+              {t('projectMultiImage.saving', 'Saving...')}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
               {existingSubSectionId 
-                ? t('projectMoreInfo.updateContent', 'Update Project Content')
-                : t('projectMoreInfo.saveContent', 'Save Project Content')
+                ? t('projectMultiImage.updateImages', 'Update Images')
+                : t('projectMultiImage.saveImages', 'Save Images')
               }
             </>
           )}
         </Button>
       </div>
     </div>
-  );
-});
+  )
+})
 
-MoreInfoForm.displayName = "MoreInfoForm";
-export default MoreInfoForm;
+MultiImageForm.displayName = "MultiImageForm"
+export default MultiImageForm

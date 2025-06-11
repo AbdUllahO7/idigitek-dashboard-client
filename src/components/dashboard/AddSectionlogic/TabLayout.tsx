@@ -60,6 +60,7 @@ export function TabLayout({
 }: TabLayoutProps) {
   const [activeTab, setActiveTab] = useState<string>(initialTab || tabs[0]?.id || "")
   const {t} = useTranslation()
+  const {language} = useLanguage()
   // Get tab IDs in order
   const tabOrder = tabs.map(tab => tab.id)
   
@@ -138,7 +139,7 @@ export function TabLayout({
                   transition={{ duration: 0.3 }}
                 >
                   {tabs.map((tab) => (
-                    <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                    <TabsContent key={tab.id} value={tab.id} className="mt-0" dir ={language === 'ar' ? 'rtl' : 'ltr'}>
                       {tab.content}
                     </TabsContent>
                   ))}
