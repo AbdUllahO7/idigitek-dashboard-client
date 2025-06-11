@@ -2119,6 +2119,243 @@
       "deleteHero": "Delete Hero",
       "expandCollapse": "Expand/Collapse Hero Card"
   },
+  "projectPage": {
+      "// Page Configuration": "",
+      "title": "Project Management",
+      "description": "Manage your Project inventory and multilingual content",
+      "listTitle": "Project List",
+      "editPath": "projects/addProject",
+      
+      "// Button Labels": "",
+      "addButtonLabel": "Add New Project item",
+      "addSectionButtonLabel": "Add Project Section",
+      "editSectionButtonLabel": "Edit Project Section",
+      "saveSectionButtonLabel": "Save Project Section",
+      
+      "// Messages": "",
+      "emptyStateMessage": "No Project found. Create your first Project by clicking the \"Add New Project\" button.",
+      "noSectionMessage": "Please create a Project section first before adding Project.",
+      "mainSectionRequiredMessage": "Please enter your main section data before adding Project.",
+      "emptyFieldsMessage": "Please complete all required fields in the main section before adding Project.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "Project Section Content",
+      "sectionIntegrationDescription": "Manage your Project section content in multiple languages.",
+      
+      "// Table Headers": "",
+      "name": "Name",
+      "tableDescription": "Description",
+      "status": "Status",
+      "order": "Order",
+      "subsections": "Subsections",
+      "main": "Main",
+      
+      "// Dialog Configuration": "",
+      "dialogTitle": "Project",
+      "deleteTitle": "Delete Project Item",
+      "confirmText": "Confirm"
+  },
+  "addProject": {
+      "// Page Titles": "",
+      "createTitle": "Create New Project",
+      "editTitle": "Edit Project",
+      
+      "// Page Subtitles": "",
+      "createSubtitle": "Create a new service with multilingual content",
+      "editSubtitle": "Editing \"{{projectName}}\" content across multiple languages",
+      
+      "// Tab Labels": "",
+      "projectTab": "Project",
+      "moreInfoTab": "More Info", 
+      "imagesTab": "Images",
+      
+      "// Default Values": "",
+      "newProjectName": "New Project",
+      
+      "// Loading States": "",
+      "loading": "Loading...",
+      
+      "// Navigation": "",
+      "backToProjects": "Back to Projects"
+  },
+  "projectLanguageCard": {
+      "// Card Header": "",
+      "projectSection": "Project Section",
+      "primaryLanguage": "Primary Language",
+      "manageContent": "Manage project content for {{langCode}}",
+      "projectDateLabel": "Project Date: {{date}}",
+      
+      "// Form Labels": "",
+      "projectTitle": "Project Title",
+      "projectDescription": "Project Description", 
+      "projectCategory": "Project Category",
+      "galleryText": "Gallery Text",
+      "projectDate": "Project Date",
+      "buttonText": "Button Text",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "Enter project title",
+      "descriptionPlaceholder": "Enter project description",
+      "categoryPlaceholder": "Enter project category", 
+      "galleryTextPlaceholder": "Enter gallery text",
+      "datePlaceholder": "Select a date",
+      "buttonTextPlaceholder": "Get Started",
+      
+      "// Actions": "",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "close": "Close"
+  },
+  "projectBasicForm": {
+      "// Loading States": "",
+      "loadingData": "Loading project section data...",
+      "savingUpdate": "Updating Project Section",
+      "savingCreate": "Creating Project Section",
+      "savingDescription": "Please wait while we save your changes...",
+      "saving": "Saving...",
+      
+      "// Section Names": "",
+      "projectSection": "Project Section",
+      
+      "// Validation Messages": "",
+      "validationError": "Validation Error",
+      "fillAllFields": "Please fill all required fields correctly",
+      "parentSectionRequired": "Parent section ID is required to create a subsection",
+      "failedToCreateSection": "Failed to create or retrieve subsection ID",
+      
+      "// Image Upload": "",
+      "imageUploaded": "Image Uploaded",
+      "imageUploadSuccess": "Background image has been successfully uploaded.",
+      "imageUploadFailed": "Image Upload Failed",
+      "imageUploadError": "Failed to upload image",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "Project section updated successfully!",
+      "sectionCreatedSuccess": "Project section created successfully!",
+      "allContentSaved": "All content has been saved.",
+      
+      "// Error Messages": "",
+      "errorUpdatingSection": "Error updating project section",
+      "errorCreatingSection": "Error creating project section", 
+      "unknownError": "Unknown error occurred",
+      
+      "// Button Labels": "",
+      "updateContent": "Update Project Content",
+      "saveContent": "Save Project Content"
+  },
+  "projectMoreInfo": {
+      "// Loading States": "",
+      "loadingData": "Loading project section data...",
+      "savingUpdate": "Updating Project Section",
+      "savingCreate": "Creating Project Section",
+      "savingDescription": "Please wait while we save your changes...",
+      "saving": "Saving...",
+      
+      "// Section Names": "",
+      "projectSection": "Project Section",
+      
+      "// Validation Messages": "",
+      "validationError": "Validation Error",
+      "fillAllFields": "Please fill all required fields correctly",
+      "parentSectionRequired": "Parent section ID is required to create a subsection",
+      "failedToCreateSection": "Failed to create or retrieve subsection ID",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "Project section updated successfully!",
+      "sectionCreatedSuccess": "Project section created successfully!",
+      "allContentSaved": "All content has been saved.",
+      
+      "// Error Messages": "",
+      "errorUpdatingSection": "Error updating project section",
+      "errorCreatingSection": "Error creating project section",
+      "unknownError": "Unknown error occurred",
+      
+      "// Button Labels": "",
+      "updateContent": "Update Project Content",
+      "saveContent": "Save Project Content"
+  },
+  "projectMoreInfoLanguageCard": {
+      "// Card Header": "",
+      "projectSection": "Project Section",
+      "manageContent": "Manage project content for {{langCode}}",
+      
+      "// Section Headers": "",
+      "client": "Client",
+      "industry": "Industry", 
+      "year": "Year",
+      "technologies": "Technologies",
+      
+      "// Custom Name Labels": "",
+      "clientCustomName": "Client Custom Name",
+      "industryCustomName": "Industry Custom Name",
+      "yearCustomName": "Year Custom Name",
+      "technologiesCustomName": "Technologies Custom Name",
+      
+      "// Value Labels": "",
+      "clientValue": "Client Value",
+      "industryValue": "Industry Value",
+      "yearValue": "Year Value",
+      "technologiesValue": "Technologies Value",
+      
+      "// Placeholders": "",
+      "clientCustomNamePlaceholder": "Enter custom name for client",
+      "clientValuePlaceholder": "Enter client name",
+      "industryCustomNamePlaceholder": "Enter custom name for industry",
+      "industryValuePlaceholder": "Enter industry",
+      "yearCustomNamePlaceholder": "Enter custom name for year",
+      "yearValuePlaceholder": "Enter year",
+      "technologiesCustomNamePlaceholder": "Enter custom name for technologies",
+      "technologiesValuePlaceholder": "Enter technologies"
+  },
+  "projectMultiImage": {
+      "// Loading States": "",
+      "loadingData": "Loading multi-image section data...",
+      "savingUpdate": "Updating Multi-Image Section",
+      "savingCreate": "Creating Multi-Image Section",
+      "savingDescription": "Please wait while we save your changes...",
+      "saving": "Saving...",
+      
+      "// Section Names": "",
+      "multiImageSection": "Multi Image Section",
+      
+      "// Validation Messages": "",
+      "invalidFileType": "Invalid File Type",
+      "allowedFileTypes": "Only JPEG, PNG, GIF, or SVG files are allowed",
+      "cannotRemove": "Cannot Remove",
+      "atLeastOneRequired": "At least one image is required",
+      "validationError": "Validation Error",
+      "addAtLeastOneImage": "Please add at least one image",
+      "parentSectionRequired": "Parent section ID is required to create a subsection",
+      "failedToCreateSection": "Failed to create or retrieve subsection ID",
+      
+      "// Image Upload": "",
+      "imageUploaded": "Image Uploaded",
+      "imageUploadSuccess": "Image has been successfully uploaded.",
+      "imageUploadFailed": "Image Upload Failed",
+      "imageUploadError": "Failed to upload image",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "Multi-image section updated successfully!",
+      "sectionCreatedSuccess": "Multi-image section created successfully!",
+      "allImagesSaved": "All images have been saved.",
+      
+      "// Error Messages": "",
+      "error": "Error",
+      "failedToLoadImages": "Failed to load image data",
+      "unknownError": "Unknown error occurred",
+      
+      "// Button Labels": "",
+      "change": "Change",
+      "upload": "Upload", 
+      "addImage": "Add Image",
+      "updateImages": "Update Images",
+      "saveImages": "Save Images",
+      
+      "// Image Display": "",
+      "imageAlt": "Image {{index}}",
+      "noImage": "No image"
+  },
+ 
   "common": {
     "welcome": "Welcome",
     "logout": "Log out",

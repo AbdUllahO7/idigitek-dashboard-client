@@ -1,4 +1,3 @@
-
 "use client"
 import { useSearchParams } from "next/navigation"
 import { Layout, Sparkles } from "lucide-react"
@@ -11,13 +10,14 @@ import { FormDataProject } from "@/src/api/types/sections/project/porjectSection
 import MoreInfoForm from "./tabs/MoreInfo/MoreInfoForm"
 import BasicForm from "./tabs/BasicForm/BasicForm"
 import MultiImageForm from "./tabs/MultiImageForm"
-
+import { useTranslation } from "react-i18next"
 
 // Form sections to collect data from
 const FORM_SECTIONS = ["" ]
 
 export default function AddProject() {
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
   
   // Get URL parameters
   const sectionId = searchParams.get('sectionId')
@@ -127,7 +127,7 @@ export default function AddProject() {
   const tabs = [
     {
       id: "project",
-      label: "Project",
+      label: t('addProject.projectTab', 'Project'),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <BasicForm
@@ -141,7 +141,7 @@ export default function AddProject() {
     },
     {
       id: "moreInfo",
-      label: "More Info",
+      label: t('addProject.moreInfoTab', 'More Info'),
       icon: <Sparkles className="h-4 w-4" />,
       component: (
         <MoreInfoForm
@@ -155,7 +155,7 @@ export default function AddProject() {
     },
     {
       id: "images",
-      label: "Images",
+      label: t('addProject.imagesTab', 'Images'),
       icon: <Sparkles className="h-4 w-4" />,
       component: (
         <MultiImageForm
@@ -175,7 +175,7 @@ export default function AddProject() {
     const projectData = formData.project || {}
     
     // Get English title and description values or fallback to the first language
-    let serviceName = "New Project"
+    let serviceName = t('addProject.newProjectName', 'New Project')
     let serviceDescription = ""
     
     // Loop through languages to find title and description
@@ -211,12 +211,16 @@ export default function AddProject() {
   // Loading state
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
+  // Get project name for subtitle
+  const projectName = sectionItemData?.data?.name || t('addProject.newProjectName', 'New Project')
+  
   return (
     <FormShell
-      title={isCreateMode ? "Create New Project" : "Edit Project"}
+      title={isCreateMode ? t('addProject.createTitle', 'Create New Project') : t('addProject.editTitle', 'Edit Project')}
       subtitle={isCreateMode 
-        ? "Create a new service with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'Project'}" content across multiple languages`}
+        ? t('addProject.createSubtitle', 'Create a new service with multilingual content')
+        : t('addProject.editSubtitle', 'Editing "{{projectName}}" content across multiple languages', { projectName })
+      }
       backUrl={`/dashboard/projects?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}

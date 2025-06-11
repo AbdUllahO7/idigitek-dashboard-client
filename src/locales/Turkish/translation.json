@@ -2114,6 +2114,242 @@
       "deleteHero": "Ana Sil",
       "expandCollapse": "Ana Kartını Genişlet/Daralt"
   },
+  "projectPage": {
+      "// Page Configuration": "",
+      "title": "Proje Yönetimi",
+      "description": "Proje envanterinizi ve çok dilli içeriğinizi yönetin",
+      "listTitle": "Proje Listesi",
+      "editPath": "projects/addProject",
+      
+      "// Button Labels": "",
+      "addButtonLabel": "Yeni Proje öğesi ekle",
+      "addSectionButtonLabel": "Proje Bölümü Ekle",
+      "editSectionButtonLabel": "Proje Bölümünü Düzenle",
+      "saveSectionButtonLabel": "Proje Bölümünü Kaydet",
+      
+      "// Messages": "",
+      "emptyStateMessage": "Proje bulunamadı. \"Yeni Proje Ekle\" düğmesine tıklayarak ilk projenizi oluşturun.",
+      "noSectionMessage": "Proje eklemeden önce lütfen bir Proje bölümü oluşturun.",
+      "mainSectionRequiredMessage": "Proje eklemeden önce lütfen ana bölüm verilerinizi girin.",
+      "emptyFieldsMessage": "Proje eklemeden önce lütfen ana bölümdeki tüm gerekli alanları doldurun.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "Proje Bölümü İçeriği",
+      "sectionIntegrationDescription": "Proje bölümü içeriğinizi birden fazla dilde yönetin.",
+      
+      "// Table Headers": "",
+      "name": "Ad",
+      "tableDescription": "Açıklama",
+      "status": "Durum",
+      "order": "Sıra",
+      "subsections": "Alt Bölümler",
+      "main": "Ana",
+      
+      "// Dialog Configuration": "",
+      "dialogTitle": "Proje",
+      "deleteTitle": "Proje Öğesini Sil",
+      "confirmText": "Onayla"
+  },
+  "addProject": {
+      "// Page Titles": "",
+      "createTitle": "Yeni Proje Oluştur",
+      "editTitle": "Projeyi Düzenle",
+      
+      "// Page Subtitles": "",
+      "createSubtitle": "Çok dilli içerikle yeni hizmet oluşturun",
+      "editSubtitle": "\"{{projectName}}\" içeriğini birden fazla dilde düzenleme",
+      
+      "// Tab Labels": "",
+      "projectTab": "Proje",
+      "moreInfoTab": "Daha Fazla Bilgi",
+      "imagesTab": "Görseller",
+      
+      "// Default Values": "",
+      "newProjectName": "Yeni Proje",
+      
+      "// Loading States": "",
+      "loading": "Yükleniyor...",
+      
+      "// Navigation": "",
+      "backToProjects": "Projelere Dön"
+  },
+  "projectLanguageCard": {
+      "// Card Header": "",
+      "projectSection": "Proje Bölümü",
+      "primaryLanguage": "Birincil Dil",
+      "manageContent": "{{langCode}} için proje içeriğini yönet",
+      "projectDateLabel": "Proje Tarihi: {{date}}",
+      
+      "// Form Labels": "",
+      "projectTitle": "Proje Başlığı",
+      "projectDescription": "Proje Açıklaması",
+      "projectCategory": "Proje Kategorisi",
+      "galleryText": "Galeri Metni",
+      "projectDate": "Proje Tarihi",
+      "buttonText": "Düğme Metni",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "Proje başlığını girin",
+      "descriptionPlaceholder": "Proje açıklamasını girin",
+      "categoryPlaceholder": "Proje kategorisini girin",
+      "galleryTextPlaceholder": "Galeri metnini girin",
+      "datePlaceholder": "Bir tarih seçin",
+      "buttonTextPlaceholder": "Başlayın",
+      
+      "// Actions": "",
+      "expand": "Genişlet",
+      "collapse": "Daralt",
+      "close": "Kapat"
+  },
+  "projectBasicForm": {
+      "// Loading States": "",
+      "loadingData": "Proje bölümü verileri yükleniyor...",
+      "savingUpdate": "Proje Bölümü Güncelleniyor",
+      "savingCreate": "Proje Bölümü Oluşturuluyor",
+      "savingDescription": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+      "saving": "Kaydediliyor...",
+      
+      "// Section Names": "",
+      "projectSection": "Proje Bölümü",
+      
+      "// Validation Messages": "",
+      "validationError": "Doğrulama Hatası",
+      "fillAllFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+      "parentSectionRequired": "Alt bölüm oluşturmak için ana bölüm kimliği gereklidir",
+      "failedToCreateSection": "Bölüm kimliği oluşturma veya alma başarısız",
+      
+      "// Image Upload": "",
+      "imageUploaded": "Görsel Yüklendi",
+      "imageUploadSuccess": "Arka plan görseli başarıyla yüklendi.",
+      "imageUploadFailed": "Görsel Yükleme Başarısız",
+      "imageUploadError": "Görsel yükleme başarısız",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "Proje bölümü başarıyla güncellendi!",
+      "sectionCreatedSuccess": "Proje bölümü başarıyla oluşturuldu!",
+      "allContentSaved": "Tüm içerik kaydedildi.",
+      
+      "// Error Messages": "",
+      "errorUpdatingSection": "Proje bölümü güncelleme hatası",
+      "errorCreatingSection": "Proje bölümü oluşturma hatası",
+      "unknownError": "Bilinmeyen hata oluştu",
+      
+      "// Button Labels": "",
+      "updateContent": "Proje İçeriğini Güncelle",
+      "saveContent": "Proje İçeriğini Kaydet"
+  },
+  "projectMoreInfo": {
+      "// Loading States": "",
+      "loadingData": "Proje bölümü verileri yükleniyor...",
+      "savingUpdate": "Proje Bölümü Güncelleniyor",
+      "savingCreate": "Proje Bölümü Oluşturuluyor",
+      "savingDescription": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+      "saving": "Kaydediliyor...",
+      
+      "// Section Names": "",
+      "projectSection": "Proje Bölümü",
+      
+      "// Validation Messages": "",
+      "validationError": "Doğrulama Hatası",
+      "fillAllFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
+      "parentSectionRequired": "Alt bölüm oluşturmak için ana bölüm kimliği gereklidir",
+      "failedToCreateSection": "Bölüm kimliği oluşturma veya alma başarısız",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "Proje bölümü başarıyla güncellendi!",
+      "sectionCreatedSuccess": "Proje bölümü başarıyla oluşturuldu!",
+      "allContentSaved": "Tüm içerik kaydedildi.",
+      
+      "// Error Messages": "",
+      "errorUpdatingSection": "Proje bölümü güncelleme hatası",
+      "errorCreatingSection": "Proje bölümü oluşturma hatası",
+      "unknownError": "Bilinmeyen hata oluştu",
+      
+      "// Button Labels": "",
+      "updateContent": "Proje İçeriğini Güncelle",
+      "saveContent": "Proje İçeriğini Kaydet"
+  },
+  "projectMoreInfoLanguageCard": {
+      "// Card Header": "",
+      "projectSection": "Proje Bölümü",
+      "manageContent": "{{langCode}} için proje içeriğini yönet",
+      
+      "// Section Headers": "",
+      "client": "Müşteri",
+      "industry": "Sektör",
+      "year": "Yıl",
+      "technologies": "Teknolojiler",
+      
+      "// Custom Name Labels": "",
+      "clientCustomName": "Müşteri Özel Adı",
+      "industryCustomName": "Sektör Özel Adı",
+      "yearCustomName": "Yıl Özel Adı",
+      "technologiesCustomName": "Teknolojiler Özel Adı",
+      
+      "// Value Labels": "",
+      "clientValue": "Müşteri Değeri",
+      "industryValue": "Sektör Değeri",
+      "yearValue": "Yıl Değeri",
+      "technologiesValue": "Teknolojiler Değeri",
+      
+      "// Placeholders": "",
+      "clientCustomNamePlaceholder": "Müşteri için özel ad girin",
+      "clientValuePlaceholder": "Müşteri adını girin",
+      "industryCustomNamePlaceholder": "Sektör için özel ad girin",
+      "industryValuePlaceholder": "Sektörü girin",
+      "yearCustomNamePlaceholder": "Yıl için özel ad girin",
+      "yearValuePlaceholder": "Yılı girin",
+      "technologiesCustomNamePlaceholder": "Teknolojiler için özel ad girin",
+      "technologiesValuePlaceholder": "Teknolojileri girin"
+  },
+  "projectMultiImage": {
+      "// Loading States": "",
+      "loadingData": "Çoklu görsel bölümü verileri yükleniyor...",
+      "savingUpdate": "Çoklu Görsel Bölümü Güncelleniyor",
+      "savingCreate": "Çoklu Görsel Bölümü Oluşturuluyor",
+      "savingDescription": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+      "saving": "Kaydediliyor...",
+      
+      "// Section Names": "",
+      "multiImageSection": "Çoklu Görsel Bölümü",
+      
+      "// Validation Messages": "",
+      "invalidFileType": "Geçersiz Dosya Türü",
+      "allowedFileTypes": "Sadece JPEG, PNG, GIF veya SVG dosyalarına izin verilir",
+      "cannotRemove": "Kaldırılamıyor",
+      "atLeastOneRequired": "En az bir görsel gereklidir",
+      "validationError": "Doğrulama Hatası",
+      "addAtLeastOneImage": "Lütfen en az bir görsel ekleyin",
+      "parentSectionRequired": "Alt bölüm oluşturmak için ana bölüm kimliği gereklidir",
+      "failedToCreateSection": "Bölüm kimliği oluşturma veya alma başarısız",
+      
+      "// Image Upload": "",
+      "imageUploaded": "Görsel Yüklendi",
+      "imageUploadSuccess": "Görsel başarıyla yüklendi.",
+      "imageUploadFailed": "Görsel Yükleme Başarısız",
+      "imageUploadError": "Görsel yükleme başarısız",
+      
+      "// Success Messages": "",
+      "sectionUpdatedSuccess": "Çoklu görsel bölümü başarıyla güncellendi!",
+      "sectionCreatedSuccess": "Çoklu görsel bölümü başarıyla oluşturuldu!",
+      "allImagesSaved": "Tüm görseller kaydedildi.",
+      
+      "// Error Messages": "",
+      "error": "Hata",
+      "failedToLoadImages": "Görsel verileri yükleme başarısız",
+      "unknownError": "Bilinmeyen hata oluştu",
+      
+      "// Button Labels": "",
+      "change": "Değiştir",
+      "upload": "Yükle",
+      "addImage": "Görsel Ekle",
+      "updateImages": "Görselleri Güncelle", 
+      "saveImages": "Görselleri Kaydet",
+      
+      "// Image Display": "",
+      "imageAlt": "Görsel {{index}}",
+      "noImage": "Görsel yok"
+  },
   "common": {
     "welcome": "Hoş geldiniz",
     "logout": "Çıkış yap",
