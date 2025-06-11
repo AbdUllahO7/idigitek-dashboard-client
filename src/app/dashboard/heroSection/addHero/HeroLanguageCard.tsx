@@ -1,9 +1,11 @@
 "use client";
 import { memo } from "react";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import { HeroCard } from "./HeroCard";
+import { useLanguage } from "@/src/context/LanguageContext";
 
 interface LanguageCardProps {
   langCode: string;
@@ -24,27 +26,28 @@ export const LanguageCard = memo(({
   HeroImageUploader,
 }: LanguageCardProps) => {
   const hero = form.watch(langCode) || [];
-  
+  const { t } = useTranslation();
+  const {language} = useLanguage()
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center">
-          <span className="uppercase font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
+          <span className="uppercase ml-2 font-bold text-sm bg-primary text-primary-foreground rounded-md px-2 py-1 mr-2">
             {langCode}
           </span>
-          Hero Section
+          {t("HeroLanguageCard.heroSection")}
           {isFirstLanguage && (
-            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-              Primary
+            <span className="ml-2 mr-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+              {t("HeroLanguageCard.primaryBadge")}
             </span>
           )}
         </CardTitle>
         <CardDescription>
-          Manage hero content for {langCode.toUpperCase()}
-          {isFirstLanguage && " (URL settings configured here apply to all languages)"}
+          {t("HeroLanguageCard.manageContentPrefix")} {langCode.toUpperCase()}
+          {isFirstLanguage && ` ${t("HeroLanguageCard.urlSettingsNote")}`}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         {hero.map((_: any, index: number) => (
           <HeroCard
             key={`${langCode}-hero-${index}`}
@@ -64,7 +67,7 @@ export const LanguageCard = memo(({
           className="mt-2"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Add Hero
+          {t("HeroLanguageCard.addHeroButton")}
         </Button>
       </CardContent>
     </Card>

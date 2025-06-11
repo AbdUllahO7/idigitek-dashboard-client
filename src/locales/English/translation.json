@@ -1668,6 +1668,71 @@
     "industryUpdated": "Industry item updated successfully",
     "dataLoaded": "Data loaded successfully"
   },
+  "industryPage": {
+  "// Page Configuration": "",
+  "title": "Industry Management",
+  "description": "Manage industry inventory and multilingual content",
+  "addButtonLabel": "Add a new industry item",
+  "emptyStateMessage": "No industry was found. Create your first industry by clicking the 'Add New Industry' button.",
+  "noSectionMessage": "Please create an industry section first before adding an industry.",
+  "mainSectionRequiredMessage": "Please enter the main section information before adding an industry.",
+  "emptyFieldsMessage": "Please complete all required fields in the main section before adding an industry.",
+  "sectionIntegrationTitle": "Industry Section Content",
+  "sectionIntegrationDescription": "Manage industry section content in multiple languages.",
+  "addSectionButtonLabel": "Add an industry section",
+  "editSectionButtonLabel": "Edit an industry section",
+  "saveSectionButtonLabel": "Save Industry Section",
+  "listTitle": "Industry List",
+
+  "// Table Columns": "",
+  "columnName": "Name",
+  "columnDescription": "Description",
+  "columnStatus": "Status",
+  "columnOrder": "Order",
+  "columnSubsections": "Subsections",
+  "main": "Main",
+
+  "// Dialog Titles": "",
+  "createIndustryTitle": "Industry",
+  "deleteIndustryItem": "Delete Industry Item",
+  "confirmDelete": "Confirm",
+
+  "// Loading States": "",
+  "loadingData": "Loading Industry Data...",
+  "loadingSubsections": "Still loading Subsection Data...",
+  "loadingItems": "Loading Industry Items...",
+
+  "// Messages": "",
+  "expectedSubsectionName": "Expected Subsection Name:",
+  "subsectionCreated": "Main Subsection Created:",
+  "subsectionNameCheck": "Main Subsection Name Checked:",
+  "finalSubsectionResult": "Final Subsection Result:",
+  "settingSectionData": "Set Section Data:",
+
+  "//Actions": "",
+  "addNew": "Add New",
+  "edit": "Modify",
+  "delete": "Delete",
+  "save": "Save",
+  "cancel": "Cancel",
+  "create": "Create",
+
+  "//Status": "",
+  "active": "Active",
+  "inactive": "Inactive",
+  "published": "Published",
+  "draft": "Draft",
+
+  "//Navigation": "",
+  "backToList": "Back to List",
+  "viewDetails": "View Details",
+
+  "// Configuration Info": "",
+  "currentConfig": "Current Configuration",
+  "language": "Language",
+  "sectionName": "Section Name",
+  "sectionType": "Section Type"
+  },
   "industryLanguageCard": {
     "// Card Header": "",
     "sectionTitle": "Industry Section",
@@ -1795,6 +1860,264 @@
     "validationPassed": "Validation Passed",
     "savingInProgress": "Saving In Progress",
     "saveCompleted": "Save Completed"
+  },
+  "heroPage": {
+      "// Loading States": "",
+      "loadingHeroData": "Loading Hero section data...",
+      "loadingData": "Loading data...",
+      "loadingSubsection": "Loading subsection...",
+      "saving": "Saving...",
+      
+      "// Page Configuration": "",
+      "title": "Hero Management",
+      "description": "Manage your Hero inventory and multilingual content",
+      "addButtonLabel": "Add New Nav Item",
+      "listTitle": "Hero List",
+      "editPath": "heroSection/addHero",
+      
+      "// Messages": "",
+      "emptyStateMessage": "No Hero found. Create your first Hero by clicking the \"Add New Hero\" button.",
+      "noSectionMessage": "Please create a Hero section first before adding Hero.",
+      "mainSectionRequiredMessage": "Please enter your main section data before adding Hero.",
+      "emptyFieldsMessage": "Please complete all required fields in the main section before adding Hero.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "Hero Section Content",
+      "sectionIntegrationDescription": "Manage your Hero section content in multiple languages.",
+      "addSectionButtonLabel": "Add Hero Section",
+      "editSectionButtonLabel": "Edit Hero Section",
+      "saveSectionButtonLabel": "Save Hero Section",
+      
+      "// Table Columns": "",
+      "nameColumn": "Name",
+      "descriptionColumn": "Description",
+      "statusColumn": "Status",
+      "orderColumn": "Order",
+      "subsectionsColumn": "Subsections",
+      "mainBadge": "Main",
+      
+      "// Dialog Titles": "",
+      "createDialogTitle": "Hero",
+      "deleteDialogTitle": "Delete Section",
+      "deleteDialogConfirm": "Confirm",
+      
+      "// Debug Messages": "",
+      "hasMainSubSectionChanged": "hasMainSubSection changed from",
+      "websiteSubsectionsCheck": "Website subsections check:",
+      "mainSubsectionCreated": "Main subsection created:",
+      "mainSubsectionNameCheck": "Main subsection name check:",
+      
+      "// Component Status": "",
+      "componentReady": "Component Ready",
+      "dataLoaded": "Data Loaded",
+      "validationPassed": "Validation Passed",
+      "processingComplete": "Processing Complete"
+  },
+  "addHero": {
+      "// Page Titles": "",
+      "createTitle": "Create New Hero",
+      "editTitle": "Edit Hero",
+      
+      "// Page Subtitles": "",
+      "createSubtitle": "Create a new service with multilingual content",
+      "editSubtitle": "content across multiple languages",
+      "editingPrefix": "Editing",
+      
+      "// Tab Labels": "",
+      "heroTabLabel": "Hero",
+      
+      "// Default Values": "",
+      "defaultServiceName": "New Hero",
+      "defaultServiceDescription": "",
+      
+      "// URL Paths": "",
+      "backUrlPath": "/dashboard/heroSection",
+      
+      "// Form Sections": "",
+      "heroFormSection": "hero",
+      
+      "// Loading States": "",
+      "loadingLanguages": "Loading languages...",
+      "loadingSectionItem": "Loading section item...",
+      "loadingSubsections": "Loading subsections...",
+      "loadingData": "Loading data...",
+      
+      "// Slugs and Identifiers": "",
+      "heroSectionSlug": "hero-section",
+      "slugGeneration": "Generating slug...",
+      "subsectionLookup": "Looking up subsection...",
+      
+      "// Form Processing": "",
+      "processingFormData": "Processing form data...",
+      "extractingHeroData": "Extracting hero data...",
+      "creatingServicePayload": "Creating service payload...",
+      "savingData": "Saving data...",
+      
+      "// Mode Handling": "",
+      "createMode": "create",
+      "editMode": "edit",
+      "modeDetection": "Detecting mode...",
+      
+      "// API Operations": "",
+      "fetchingLanguages": "Fetching languages...",
+      "fetchingSectionItem": "Fetching section item...",
+      "fetchingSubsections": "Fetching subsections...",
+      "savingService": "Saving service..."
+  },
+  "HeroLanguageCard": {
+      "// Card Header": "",
+      "heroSection": "Hero Section",
+      "primaryBadge": "Primary",
+      
+      "// Card Description": "",
+      "manageContentPrefix": "Manage hero content for",
+      "urlSettingsNote": "(URL settings configured here apply to all languages)",
+      
+      "// Button Labels": "",
+      "addHeroButton": "Add Hero",
+      
+      "// Accessibility": "",
+      "heroCardTitle": "Hero content for language",
+      "primaryLanguageNote": "Primary language settings"
+  },
+  "heroesForm": {
+      "// Loading States": "",
+      "loadingHeroData": "Loading heroes section data...",
+      "saving": "Saving...",
+      "updatingHeroes": "Updating Heroes",
+      "creatingHeroes": "Creating Heroes",
+      "saveDescription": "Please wait while we save your changes...",
+      
+      "// Section Names": "",
+      "sectionName": "Heroes Section",
+      "sectionDescription": "Heroes section for the website",
+      
+      "// Element Names": "",
+      "heroTitle": "Hero {{heroIndex}} - Title",
+      "heroDescription": "Hero {{heroIndex}} - Description",
+      "heroExploreButton": "Hero {{heroIndex}} - ExploreButton",
+      "heroExploreButtonType": "Hero {{heroIndex}} - ExploreButtonType",
+      "heroExploreButtonUrl": "Hero {{heroIndex}} - ExploreButtonUrl",
+      "heroRequestButton": "Hero {{heroIndex}} - RequestButton",
+      "heroRequestButtonType": "Hero {{heroIndex}} - RequestButtonType",
+      "heroRequestButtonUrl": "Hero {{heroIndex}} - RequestButtonUrl",
+      "heroImage": "Hero {{heroIndex}} - Image",
+      
+      "// Toast Messages - Remove": "",
+      "cannotRemove": "Cannot remove",
+      "needAtLeastOneHero": "You need at least one hero",
+      "heroDeleted": "Hero deleted",
+      "heroDeletedFromDatabase": "Hero {{heroNumber}} has been deleted from the database",
+      "heroRemoved": "Hero removed",
+      "heroRemovedSuccessfully": "The hero has been removed successfully.",
+      "errorRemoving": "Error",
+      "errorRemovingHero": "There was an error removing the hero.",
+      
+      "// Toast Messages - Add": "",
+      "heroAdded": "Hero added",
+      "heroAddedDescription": "A new hero has been added. Please fill in the details and save your changes.",
+      
+      "// Toast Messages - Validation": "",
+      "validationError": "Validation Error",
+      "allLanguagesSameCount": "All languages must have the same number of heroes.",
+      "fillAllRequiredFields": "Please fill all required fields correctly.",
+      
+      "// Toast Messages - Loading": "",
+      "errorLoadingData": "Error loading data",
+      "failedToLoadHeroData": "Failed to load hero data. Please try again.",
+      
+      "// Toast Messages - Image Upload": "",
+      "imageUploadError": "Image Upload Error",
+      "failedToUploadImage": "Failed to upload image for Hero {{heroIndex}}. Please try again.",
+      "configurationError": "Configuration Error",
+      "imageMissingForHero": "Image content element missing for Hero {{heroIndex}}.",
+      
+      "// Toast Messages - Save Success": "",
+      "heroesUpdatedSuccessfully": "Heroes section updated successfully!",
+      "heroesCreatedSuccessfully": "Heroes section created successfully!",
+      "allContentSaved": "All content has been saved.",
+      
+      "// Toast Messages - Save Error": "",
+      "warning": "Warning",
+      "failedToReloadData": "Failed to reload data after save.",
+      "errorUpdatingHeroes": "Error updating heroes section",
+      "errorCreatingHeroes": "Error creating heroes section",
+      
+      "// Button Labels": "",
+      "saveHeroes": "Save Heroes",
+      "updateHeroes": "Update Heroes",
+      
+      "// Validation Messages": "",
+      "samNumberOfHeroes": "Each language must have the same number of heroes",
+      
+      "// Dialog Titles": "",
+      "deleteHero": "Delete Hero",
+      "deleteHeroConfirm": "Delete Hero",
+      "deleteHeroService": "Hero {{index}}",
+      
+      "// Default Values": "",
+      "defaultButtonType": "default",
+      "imagePlaceholder": "image-placeholder",
+      
+      "// Console Messages": "",
+      "formValuesAfterProcess": "Form values after processHeroesData:",
+      "refetchingData": "Refetching data:",
+      "formValuesBeforeSave": "Form values before save:",
+      "uploadingImageForHero": "Uploading image for hero",
+      "uploadResult": "Upload result:",
+      "noImageFileProvided": "No image file provided for Hero {{heroIndex}}",
+      "imageElementNotFound": "Image content element not found for Hero {{heroIndex}}",
+      "formValuesAfterSave": "Form values after save:",
+      "refetchedData": "Refetched data:",
+      "saveOperationFailed": "Save operation failed:",
+      "errorRemovingHeroConsole": "Error removing hero:",
+      "errorProcessingHeroData": "Error processing hero data:",
+      
+      "// Error Messages": "",
+      "parentSectionRequired": "Parent section ID is required to create a subsection",
+      "failedToCreateSubsection": "Failed to create or retrieve subsection ID",
+      "unknownError": "An unknown error occurred"
+  },
+  "heroCard": {
+      "// Card Title": "",
+      "heroTitle": "Hero {{index}}",
+      
+      "// Form Labels": "",
+      "titleLabel": "Title",
+      "descriptionLabel": "Description",
+      "exploreButtonTextLabel": "Explore Button Text",
+      "exploreButtonLinkTypeLabel": "Explore Button Link Type",
+      "exploreButtonUrlLabel": "Explore Button URL",
+      "requestButtonTextLabel": "Request Button Text",
+      "requestButtonLinkTypeLabel": "Request Button Link Type",
+      "requestButtonUrlLabel": "Request Button URL",
+      "heroImageLabel": "Hero Image",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "Enter title",
+      "descriptionPlaceholder": "Enter description",
+      "exploreButtonPlaceholder": "Enter Explore Button text",
+      "requestButtonPlaceholder": "Enter Request Button text",
+      "urlPlaceholder": "https://example.com",
+      
+      "// Radio Options": "",
+      "defaultOption": "Default",
+      "specialLinkOption": "Special Link",
+      
+      "// Helper Text": "",
+      "optionalText": "(optional)",
+      "appliesToAllLanguages": "(applies to all languages)",
+      "uploadImageText": "Upload Image",
+      
+      "// Validation Messages": "",
+      "imageSizeError": "Image must be less than 2MB",
+      
+      "// Alt Text": "",
+      "heroImageAlt": "Hero {{index}} image",
+      
+      "// Button Labels": "",
+      "deleteHero": "Delete Hero",
+      "expandCollapse": "Expand/Collapse Hero Card"
   },
   "common": {
     "welcome": "Welcome",

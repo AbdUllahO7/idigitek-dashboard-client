@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useSearchParams } from "next/navigation"
@@ -8,8 +7,8 @@ import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
 import { FormData } from "@/src/api/types/sections/service/serviceSections.types"
 import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
-
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
+import { useTranslation } from "react-i18next"
 import HeroesForm from "./HeroForm"
 
 // Form sections to collect data from
@@ -17,6 +16,7 @@ const FORM_SECTIONS = ["hero"]
 
 export default function AddHero() {
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
   
   // Get URL parameters
   const sectionId = searchParams.get('sectionId')
@@ -108,8 +108,6 @@ export default function AddHero() {
   const getSlug = (baseSlug: string) => {
     if (isCreateMode) return "";
     
-
-    
     // Find the subsection
     const subsection = findSubsection(baseSlug);
     
@@ -125,8 +123,8 @@ export default function AddHero() {
   // Define tabs configuration
   const tabs = [
     {
-      id: "hero",
-      label: "Hero",
+      id: t("addHero.heroFormSection"),
+      label: t("addHero.heroTabLabel"),
       icon: <Layout className="h-4 w-4" />,
       component: (
         <HeroesForm
@@ -139,14 +137,15 @@ export default function AddHero() {
       )
     }
   ]
+  
   // Define save handler for the service
   const handleSaveHero = async (formData: FormData) => {
     // Extract service info from hero data for title/description
     const heroData = formData.hero || {}
     
     // Get English title and description values or fallback to the first language
-    let serviceName = "New Hero"
-    let serviceDescription = ""
+    let serviceName = t("addHero.defaultServiceName")
+    let serviceDescription = t("addHero.defaultServiceDescription")
     
     // Loop through languages to find title and description
     for (const langCode in heroData) {
@@ -183,11 +182,11 @@ export default function AddHero() {
   
   return (
     <FormShell
-      title={isCreateMode ? "Create New Hero" : "Edit Hero"}
+      title={isCreateMode ? t("addHero.createTitle") : t("addHero.editTitle")}
       subtitle={isCreateMode 
-        ? "Create a new service with multilingual content" 
-        : `Editing "${sectionItemData?.data?.name || 'Hero'}" content across multiple languages`}
-      backUrl={`/dashboard/heroSection?sectionId=${sectionId}`}
+        ? t("addHero.createSubtitle")
+        : `${t("addHero.editingPrefix")} "${sectionItemData?.data?.name || t("addHero.heroTabLabel")}" ${t("addHero.editSubtitle")}`}
+      backUrl={`${t("addHero.backUrlPath")}?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}
       sectionId={sectionId}

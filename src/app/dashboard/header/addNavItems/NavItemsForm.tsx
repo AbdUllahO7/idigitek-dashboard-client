@@ -54,19 +54,19 @@ const NavItemsForm = forwardRef<unknown, NavFormProps>(
     )
 
     const { websiteId } = useWebsiteContext()
-
     const [isLoadingData, setIsLoadingData] = useState(!slug)
     const [dataLoaded, setDataLoaded] = useState(!slug)
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
     const [existingSubSectionId, setExistingSubSectionId] = useState<string | null>(null)
     const [contentElements, setContentElements] = useState<ContentElement[]>([])
     const [isSaving, setIsSaving] = useState(false)
-
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [navItemToDelete, setNavItemToDelete] = useState<{ langCode: string; index: number } | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [navItemCountMismatch, setNavItemCountMismatch] = useState(false)
     const [isValidationDialogOpen, setIsValidationDialogOpen] = useState(false)
+
+
 
     const { toast } = useToast()
 

@@ -1588,6 +1588,71 @@
     "toastImageUploadErrorTitle": "Resim Yükleme Başarısız",
     "toastImageUploadErrorDescription": "Resim yüklenemedi"
   },
+  "industryPage": {
+  "// Sayfa Yapılandırması": "",
+  "title": "Endüstri Yönetimi",
+  "description": "Endüstri envanterini ve çok dilli içeriği yönet",
+  "addButtonLabel": "Yeni bir endüstri öğesi ekle",
+  "emptyStateMessage": "Hiçbir endüstri bulunamadı. 'Yeni Endüstri Ekle' düğmesine tıklayarak ilk endüstrinizi oluşturun.",
+  "noSectionMessage": "Lütfen bir endüstri eklemeden önce bir endüstri bölümü oluşturun.",
+  "mainSectionRequiredMessage": "Lütfen bir endüstri eklemeden önce ana bölüm bilgilerini girin.",
+  "emptyFieldsMessage": "Lütfen bir endüstri eklemeden önce ana bölümdeki tüm zorunlu alanları doldurun.",
+  "sectionIntegrationTitle": "Endüstri Bölümü İçeriği",
+  "sectionIntegrationDescription": "Endüstri bölümü içeriğini birden fazla dilde yönetin.",
+  "addSectionButtonLabel": "Bir endüstri ekle section",
+  "editSectionButtonLabel": "Bir endüstri bölümünü düzenle",
+  "saveSectionButtonLabel": "Endüstri Bölümünü Kaydet",
+  "listTitle": "Endüstri Listesi",
+
+  "// Tablo Sütunları": "",
+  "columnName": "Ad",
+  "columnDescription": "Açıklama",
+  "columnStatus": "Durum",
+  "columnOrder": "Sıra",
+  "columnSubsections": "Alt Bölümler",
+  "main": "Ana",
+
+  "// İletişim Kutusu Başlıkları": "",
+  "createIndustryTitle": "Endüstri",
+  "deleteIndustryItem": "Endüstri Öğesini Sil",
+  "confirmDelete": "Onayla",
+
+  "// Yükleniyor Durumlar": "",
+  "loadingData": "Yükleniyor Endüstri Verileri...",
+  "loadingSubsections": "Hala Alt Bölüm Verileri yükleniyor...",
+  "loadingItems": "Endüstri Öğeleri Yükleniyor...",
+
+  "// Messages": "",
+  "expectedSubsectionName": "Beklenen Alt Bölüm Adı:",
+  "subsectionCreated": "Ana Alt Bölüm Oluşturuldu:",
+  "subsectionNameCheck": "Ana Alt Bölüm Adı Kontrol Edildi:",
+  "finalSubsectionResult": "Son Alt Bölüm Sonucu:",
+  "settingSectionData": "Bölüm Verilerini Ayarla:",
+
+  "//Actions": "",
+  "addNew": "Yeni Ekle",
+  "edit": "Değiştir",
+  "delete": "Sil",
+  "save": "Kaydet",
+  "cancel": "İptal",
+  "create": "Oluştur",
+
+  "//Status": "",
+  "active": "Aktif",
+  "etkin değil": "Etkin değil",
+  "yayınlandı": "Yayınlandı",
+  "taslak": "Taslak",
+
+  "//Gezinme": "",
+  "backToList": "Listeye Geri Dön",
+  "viewDetails": "Ayrıntıları Görüntüle",
+
+  "// Yapılandırma Bilgileri": "",
+  "currentConfig": "Geçerli Yapılandırma",
+  "language": "Dil",
+  "sectionName": "Bölüm Adı",
+  "sectionType": "Bölüm Türü"
+  },
   "addIndustryPage": {
     "// Page Configuration": "",
     "tabLabel": "Endüstri Öğeleri",
@@ -1790,6 +1855,264 @@
     "validationPassed": "Doğrulama Geçti",
     "savingInProgress": "Kaydetme Devam Ediyor",
     "saveCompleted": "Kaydetme Tamamlandı"
+  },
+  "heroPage": {
+      "// Loading States": "",
+      "loadingHeroData": "Ana bölüm verisi yükleniyor...",
+      "loadingData": "Veriler yükleniyor...",
+      "loadingSubsection": "Alt bölüm yükleniyor...",
+      "saving": "Kaydediliyor...",
+      
+      "// Page Configuration": "",
+      "title": "Ana Yönetim",
+      "description": "Ana envanterinizi ve çok dilli içeriğinizi yönetin",
+      "addButtonLabel": "Yeni Nav Öğesi Ekle",
+      "listTitle": "Ana Listesi",
+      "editPath": "heroSection/addHero",
+      
+      "// Messages": "",
+      "emptyStateMessage": "Ana bulunamadı. \"Yeni Ana Ekle\" düğmesine tıklayarak ilk Ana'nızı oluşturun.",
+      "noSectionMessage": "Ana eklemeden önce lütfen bir Ana bölümü oluşturun.",
+      "mainSectionRequiredMessage": "Ana eklemeden önce lütfen ana bölüm verilerinizi girin.",
+      "emptyFieldsMessage": "Ana eklemeden önce lütfen ana bölümdeki tüm gerekli alanları tamamlayın.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "Ana Bölüm İçeriği",
+      "sectionIntegrationDescription": "Ana bölüm içeriğinizi birden fazla dilde yönetin.",
+      "addSectionButtonLabel": "Ana Bölümü Ekle",
+      "editSectionButtonLabel": "Ana Bölümünü Düzenle",
+      "saveSectionButtonLabel": "Ana Bölümünü Kaydet",
+      
+      "// Table Columns": "",
+      "nameColumn": "Ad",
+      "descriptionColumn": "Açıklama",
+      "statusColumn": "Durum",
+      "orderColumn": "Sıra",
+      "subsectionsColumn": "Alt Bölümler",
+      "mainBadge": "Ana",
+      
+      "// Dialog Titles": "",
+      "createDialogTitle": "Ana",
+      "deleteDialogTitle": "Bölümü Sil",
+      "deleteDialogConfirm": "Onayla",
+      
+      "// Debug Messages": "",
+      "hasMainSubSectionChanged": "hasMainSubSection değişti",
+      "websiteSubsectionsCheck": "Web sitesi alt bölümleri kontrolü:",
+      "mainSubsectionCreated": "Ana alt bölüm oluşturuldu:",
+      "mainSubsectionNameCheck": "Ana alt bölüm adı kontrolü:",
+      
+      "// Component Status": "",
+      "componentReady": "Bileşen Hazır",
+      "dataLoaded": "Veri Yüklendi",
+      "validationPassed": "Doğrulama Geçti",
+      "processingComplete": "İşlem Tamamlandı"
+  },
+  "addHero": {
+      "// Page Titles": "",
+      "createTitle": "Yeni Ana Oluştur",
+      "editTitle": "Ana Düzenle",
+      
+      "// Page Subtitles": "",
+      "createSubtitle": "Çok dilli içerikle yeni bir hizmet oluşturun",
+      "editSubtitle": "içeriği birden fazla dilde",
+      "editingPrefix": "Düzenleniyor",
+      
+      "// Tab Labels": "",
+      "heroTabLabel": "Ana",
+      
+      "// Default Values": "",
+      "defaultServiceName": "Yeni Ana",
+      "defaultServiceDescription": "",
+      
+      "// URL Paths": "",
+      "backUrlPath": "/dashboard/heroSection",
+      
+      "// Form Sections": "",
+      "heroFormSection": "hero",
+      
+      "// Loading States": "",
+      "loadingLanguages": "Diller yükleniyor...",
+      "loadingSectionItem": "Bölüm öğesi yükleniyor...",
+      "loadingSubsections": "Alt bölümler yükleniyor...",
+      "loadingData": "Veriler yükleniyor...",
+      
+      "// Slugs and Identifiers": "",
+      "heroSectionSlug": "hero-section",
+      "slugGeneration": "Slug oluşturuluyor...",
+      "subsectionLookup": "Alt bölüm aranıyor...",
+      
+      "// Form Processing": "",
+      "processingFormData": "Form verileri işleniyor...",
+      "extractingHeroData": "Ana verileri çıkarılıyor...",
+      "creatingServicePayload": "Hizmet yükü oluşturuluyor...",
+      "savingData": "Veriler kaydediliyor...",
+      
+      "// Mode Handling": "",
+      "createMode": "create",
+      "editMode": "edit",
+      "modeDetection": "Mod algılanıyor...",
+      
+      "// API Operations": "",
+      "fetchingLanguages": "Diller getiriliyor...",
+      "fetchingSectionItem": "Bölüm öğesi getiriliyor...",
+      "fetchingSubsections": "Alt bölümler getiriliyor...",
+      "savingService": "Hizmet kaydediliyor..."
+  },
+  "HeroLanguageCard": {
+      "// Card Header": "",
+      "heroSection": "Ana Bölüm",
+      "primaryBadge": "Birincil",
+      
+      "// Card Description": "",
+      "manageContentPrefix": "Ana içeriğini yönet",
+      "urlSettingsNote": "(Burada yapılandırılan URL ayarları tüm diller için geçerlidir)",
+      
+      "// Button Labels": "",
+      "addHeroButton": "Ana Ekle",
+      
+      "// Accessibility": "",
+      "heroCardTitle": "Dil için ana içerik",
+      "primaryLanguageNote": "Birincil dil ayarları"
+  },
+  "heroesForm": {
+      "// Loading States": "",
+      "loadingHeroData": "Ana bölüm verileri yükleniyor...",
+      "saving": "Kaydediliyor...",
+      "updatingHeroes": "Analar Güncelleniyor",
+      "creatingHeroes": "Analar Oluşturuluyor",
+      "saveDescription": "Değişikliklerinizi kaydederken lütfen bekleyin...",
+      
+      "// Section Names": "",
+      "sectionName": "Analar Bölümü",
+      "sectionDescription": "Web sitesi için analar bölümü",
+      
+      "// Element Names": "",
+      "heroTitle": "Ana {{heroIndex}} - Başlık",
+      "heroDescription": "Ana {{heroIndex}} - Açıklama",
+      "heroExploreButton": "Ana {{heroIndex}} - Keşfet Butonu",
+      "heroExploreButtonType": "Ana {{heroIndex}} - Keşfet Butonu Türü",
+      "heroExploreButtonUrl": "Ana {{heroIndex}} - Keşfet Butonu URL",
+      "heroRequestButton": "Ana {{heroIndex}} - Talep Butonu",
+      "heroRequestButtonType": "Ana {{heroIndex}} - Talep Butonu Türü",
+      "heroRequestButtonUrl": "Ana {{heroIndex}} - Talep Butonu URL",
+      "heroImage": "Ana {{heroIndex}} - Resim",
+      
+      "// Toast Messages - Remove": "",
+      "cannotRemove": "Kaldırılamaz",
+      "needAtLeastOneHero": "En az bir ana gereklidir",
+      "heroDeleted": "Ana silindi",
+      "heroDeletedFromDatabase": "Ana {{heroNumber}} veritabanından silindi",
+      "heroRemoved": "Ana kaldırıldı",
+      "heroRemovedSuccessfully": "Ana başarıyla kaldırıldı.",
+      "errorRemoving": "Hata",
+      "errorRemovingHero": "Ana kaldırılırken bir hata oluştu.",
+      
+      "// Toast Messages - Add": "",
+      "heroAdded": "Ana eklendi",
+      "heroAddedDescription": "Yeni bir ana eklendi. Lütfen detayları doldurun ve değişikliklerinizi kaydedin.",
+      
+      "// Toast Messages - Validation": "",
+      "validationError": "Doğrulama Hatası",
+      "allLanguagesSameCount": "Tüm dillerin aynı sayıda anası olmalıdır.",
+      "fillAllRequiredFields": "Lütfen tüm gerekli alanları doğru şekilde doldurun.",
+      
+      "// Toast Messages - Loading": "",
+      "errorLoadingData": "Veri yükleme hatası",
+      "failedToLoadHeroData": "Ana verileri yüklenemedi. Lütfen tekrar deneyin.",
+      
+      "// Toast Messages - Image Upload": "",
+      "imageUploadError": "Resim Yükleme Hatası",
+      "failedToUploadImage": "Ana {{heroIndex}} için resim yüklenemedi. Lütfen tekrar deneyin.",
+      "configurationError": "Yapılandırma Hatası",
+      "imageMissingForHero": "Ana {{heroIndex}} için resim içerik öğesi eksik.",
+      
+      "// Toast Messages - Save Success": "",
+      "heroesUpdatedSuccessfully": "Analar bölümü başarıyla güncellendi!",
+      "heroesCreatedSuccessfully": "Analar bölümü başarıyla oluşturuldu!",
+      "allContentSaved": "Tüm içerik kaydedildi.",
+      
+      "// Toast Messages - Save Error": "",
+      "warning": "Uyarı",
+      "failedToReloadData": "Kaydetmeden sonra veriler yeniden yüklenemedi.",
+      "errorUpdatingHeroes": "Analar bölümü güncellenirken hata",
+      "errorCreatingHeroes": "Analar bölümü oluşturulurken hata",
+      
+      "// Button Labels": "",
+      "saveHeroes": "Anaları Kaydet",
+      "updateHeroes": "Anaları Güncelle",
+      
+      "// Validation Messages": "",
+      "samNumberOfHeroes": "Her dilin aynı sayıda anası olmalıdır",
+      
+      "// Dialog Titles": "",
+      "deleteHero": "Ana Sil",
+      "deleteHeroConfirm": "Ana Sil",
+      "deleteHeroService": "Ana {{index}}",
+      
+      "// Default Values": "",
+      "defaultButtonType": "varsayılan",
+      "imagePlaceholder": "resim-yer-tutucusu",
+      
+      "// Console Messages": "",
+      "formValuesAfterProcess": "Ana verileri işlendikten sonra form değerleri:",
+      "refetchingData": "Veriler yeniden getiriliyor:",
+      "formValuesBeforeSave": "Kaydetmeden önce form değerleri:",
+      "uploadingImageForHero": "Ana için resim yükleniyor",
+      "uploadResult": "Yükleme sonucu:",
+      "noImageFileProvided": "Ana {{heroIndex}} için resim dosyası sağlanmadı",
+      "imageElementNotFound": "Ana {{heroIndex}} için resim içerik öğesi bulunamadı",
+      "formValuesAfterSave": "Kaydetmeden sonra form değerleri:",
+      "refetchedData": "Yeniden getirilen veriler:",
+      "saveOperationFailed": "Kaydetme işlemi başarısız:",
+      "errorRemovingHeroConsole": "Ana kaldırma hatası:",
+      "errorProcessingHeroData": "Ana verileri işleme hatası:",
+      
+      "// Error Messages": "",
+      "parentSectionRequired": "Alt bölüm oluşturmak için üst bölüm ID'si gereklidir",
+      "failedToCreateSubsection": "Alt bölüm ID'si oluşturma veya alma başarısız",
+      "unknownError": "Bilinmeyen bir hata oluştu"
+  },
+  "heroCard": {
+      "// Card Title": "",
+      "heroTitle": "Ana {{index}}",
+      
+      "// Form Labels": "",
+      "titleLabel": "Başlık",
+      "descriptionLabel": "Açıklama",
+      "exploreButtonTextLabel": "Keşfet Butonu Metni",
+      "exploreButtonLinkTypeLabel": "Keşfet Butonu Bağlantı Türü",
+      "exploreButtonUrlLabel": "Keşfet Butonu URL'si",
+      "requestButtonTextLabel": "Talep Butonu Metni",
+      "requestButtonLinkTypeLabel": "Talep Butonu Bağlantı Türü",
+      "requestButtonUrlLabel": "Talep Butonu URL'si",
+      "heroImageLabel": "Ana Resmi",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "Başlığı girin",
+      "descriptionPlaceholder": "Açıklamayı girin",
+      "exploreButtonPlaceholder": "Keşfet Butonu metnini girin",
+      "requestButtonPlaceholder": "Talep Butonu metnini girin",
+      "urlPlaceholder": "https://example.com",
+      
+      "// Radio Options": "",
+      "defaultOption": "Varsayılan",
+      "specialLinkOption": "Özel Bağlantı",
+      
+      "// Helper Text": "",
+      "optionalText": "(isteğe bağlı)",
+      "appliesToAllLanguages": "(tüm diller için geçerlidir)",
+      "uploadImageText": "Resim Yükle",
+      
+      "// Validation Messages": "",
+      "imageSizeError": "Resim 2MB'den küçük olmalıdır",
+      
+      "// Alt Text": "",
+      "heroImageAlt": "Ana {{index}} resmi",
+      
+      "// Button Labels": "",
+      "deleteHero": "Ana Sil",
+      "expandCollapse": "Ana Kartını Genişlet/Daralt"
   },
   "common": {
     "welcome": "Hoş geldiniz",

@@ -70,10 +70,7 @@ export default function HeaderPage() {
   }, [language])
 
   // Get translations for the current language
-  const headerTranslations = useMemo(() => {
-    return headerSectionTranslations[language as keyof typeof headerSectionTranslations] || headerSectionTranslations.en
-  }, [language])
-  
+
   const HEADER_CONFIG = useMemo(() => ({
     title: t('HeaderConfig.title', 'Header Management'),
     description: t('HeaderConfig.description', 'Manage your Header inventory and multilingual content'),
@@ -139,9 +136,7 @@ export default function HeaderPage() {
 
   // Debug changes in hasMainSubSection
   useEffect(() => {
-    if (!isFirstRender.current && prevHasMainSubSection.current !== hasMainSubSection) {
-      console.log(`hasMainSubSection changed from ${prevHasMainSubSection.current} to ${hasMainSubSection}`);
-    }
+
     
     prevHasMainSubSection.current = hasMainSubSection;
     if (isFirstRender.current) {
@@ -197,11 +192,7 @@ export default function HeaderPage() {
         mainSubSection = foundMainSubSection ? websiteData : null;
       }
       
-      console.log("Website subsections check:", { 
-        foundMainSubSection, 
-        mainSubSection,
-        matchesName: mainSubSection ? mainSubSection.name === expectedName : false
-      });
+
     }
     
     // Update state based on what we found
@@ -236,7 +227,6 @@ export default function HeaderPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
     
     // Check if subsection has the correct name (now using translated name)
     const expectedName = headerSectionConfig.subSectionName;
@@ -245,12 +235,7 @@ export default function HeaderPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectName);
     
-    // Log the name check
-    console.log("Main subsection name check:", {
-      actualName: subsection.name,
-      expectedName,
-      isCorrect: hasCorrectName
-    });
+
     
     // If we have section data from the subsection, update it
     if (subsection.section) {
@@ -310,7 +295,6 @@ export default function HeaderPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-     
     />
   );
 

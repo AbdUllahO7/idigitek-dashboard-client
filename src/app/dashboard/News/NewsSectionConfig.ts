@@ -50,10 +50,10 @@ export const getNewsSectionConfig = (language: string = 'en') => {
   const translations = newsSectionTranslations[language as keyof typeof newsSectionTranslations] || newsSectionTranslations.en;
   
   return {
-    name: translations.sectionName,
+    name: "News Section Basic",
     slug: "News-main",
-    subSectionName: translations.sectionName,
-    description: translations.sectionDescription,
+    subSectionName: "translations.sectionName",
+    description: "News section for managing service information",
     isMain: true,
     type: translations.type,
     // Define fields with translated labels

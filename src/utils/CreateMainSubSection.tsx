@@ -44,6 +44,51 @@ function debounce(func: (...args: any[]) => void, wait: number) {
   return executedFunction;
 }
 
+// Helper function to find elements across different language labels
+const findElementByFieldAcrossLanguages = (contentElements: any[], fieldId: string, sectionConfig: any) => {
+  // First try to find by field ID (new approach)
+  let element = contentElements.find(el => 
+    el.name === fieldId || 
+    (el.metadata && el.metadata.fieldId === fieldId)
+  )
+  
+  if (element) return element
+  
+  // Try to find by current field label
+  const currentField = sectionConfig.fields.find((f: any) => f.id === fieldId)
+  if (currentField) {
+    element = contentElements.find(el => el.name === currentField.label)
+    if (element) return element
+  }
+  
+  // If not found, try all possible translations of this field
+  const possibleLabels: string[] = []
+  
+  // Add all possible translations based on field ID
+  if (fieldId === 'sectionBadge') {
+    possibleLabels.push(
+      'Name of Section (Header)', // English
+      'اسم القسم (الرئيسي)', // Arabic  
+      'Bölüm Adı (Başlık)' // Turkish
+    )
+  }
+  
+
+  
+  // Find element by any of the possible labels
+  for (const label of possibleLabels) {
+    element = contentElements.find(el => el.name === label)
+    if (element) return element
+  }
+  
+  // Last resort: if only one element exists and one field exists, assume they match
+  if (contentElements.length === 1 && sectionConfig.fields.length === 1) {
+    return contentElements[0]
+  }
+  
+  return null
+}
+
 export default function CreateMainSubSection({
   sectionId,
   sectionConfig,
@@ -53,8 +98,9 @@ export default function CreateMainSubSection({
   // Hooks
   const { toast } = useToast()
   const { t } = useTranslation()
-  const {language} = useLanguage()
+  const { language } = useLanguage()
   const isRtl = language === "ar"
+  
   // State
   const [isCreating, setIsCreating] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
@@ -117,6 +163,13 @@ export default function CreateMainSubSection({
     }
   }, [completeSubsectionsData]);
   
+  // Force form reinitialization when language changes
+  useEffect(() => {
+    if (formsInitialized && language) {
+      setFormsInitialized(false) // This will trigger form reinitialization
+    }
+  }, [language])
+  
   const { 
     data: languagesData, 
     isLoading: isLoadingLanguages 
@@ -130,7 +183,7 @@ export default function CreateMainSubSection({
   const buildFormSchema = useCallback(() => {
     const schemaObj: Record<string, any> = {}
     
-    sectionConfig.fields.forEach(field => {
+    sectionConfig.fields.forEach((field: any) => {
       if (field.required) {
         if (field.type === 'textarea' || field.type === 'text' || field.type === 'badge') {
           schemaObj[field.id] = z.string().min(1, `${field.label} ${t('mainSubsection.formFieldRequired')}`)
@@ -149,7 +202,7 @@ export default function CreateMainSubSection({
   
   // Get default values
   const getFormDefaultValues = useCallback(() => {
-    return sectionConfig.fields.reduce((acc, field) => {
+    return sectionConfig.fields.reduce((acc: any, field: any) => {
       acc[field.id] = ''
       return acc
     }, {} as Record<string, string>)
@@ -249,7 +302,7 @@ export default function CreateMainSubSection({
     }
   }, [completeSubsectionsData, onFormValidityChange, subsection, t])
   
-  // Initialize forms with data
+  // Initialize forms with data - FIXED VERSION
   useEffect(() => {
     if (
       contentElements.length > 0 &&
@@ -258,14 +311,21 @@ export default function CreateMainSubSection({
       languages.length > 0 &&
       Object.keys(languageForms).length > 0
     ) {
+      console.log('Initializing forms with language:', language)
+      
       languages.forEach((lang: { languageID: string | number; _id: any }) => {
         const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
         if (!form) return
         const fieldValues: Record<string, string> = {}
         
-        fields.forEach(field => {
-          const element = contentElements.find(el => el.name === field.label)
-          if (!element) return
+        fields.forEach((field: any) => {
+          // Use the helper function to find element across languages
+          const element = findElementByFieldAcrossLanguages(contentElements, field.id, sectionConfig)
+          if (!element) {
+            console.warn(`Could not find element for field: ${field.id} (${field.label})`)
+            return
+          }
+          
           const translations = contentTranslations[element._id] || []
           const translation = translations.find(t =>
             (typeof t.language === 'string' && t.language === lang._id) ||
@@ -284,7 +344,7 @@ export default function CreateMainSubSection({
       
       setFormsInitialized(true)
     }
-  }, [contentElements, contentTranslations, languages, fields, languageForms, formsInitialized])
+  }, [contentElements, contentTranslations, languages, fields, languageForms, formsInitialized, language, sectionConfig])
   
   // Check if any required fields are empty in the default language form
   const checkFormsEmpty = useCallback(() => {
@@ -297,7 +357,7 @@ export default function CreateMainSubSection({
     const values = form.getValues()
     
     let isEmpty = false
-    fields.forEach(field => {
+    fields.forEach((field: any) => {
       if (field.required && (!values[field.id] || values[field.id].trim() === '')) {
         isEmpty = true
       }
@@ -365,7 +425,7 @@ export default function CreateMainSubSection({
     return true
   }
   
-  // Create new subsection
+  // Create new subsection - FIXED VERSION
   const handleCreateSubsection = async () => {
     if (!(await validateAllForms())) return
     try {
@@ -395,16 +455,22 @@ export default function CreateMainSubSection({
         setIsCreatingElements(true)
         
         // Create elements and translations with proper error handling
-        const elementPromises = sectionConfig.fields.map(async (field, index) => {
+        const elementPromises = sectionConfig.fields.map(async (field: any, index: number) => {
           try {
             const elementData = {
-              name: field.label,
+              name: field.id, // Use field.id instead of field.label for language independence
+              displayName: field.label, // Store current translation as display name
               defaultContent: languageForms[defaultLanguage.languageID].getValues()[field.id],
               type: field.type === 'textarea' ? 'text' : 'text',
               order: index,
               parent: createdSubsection._id,
               WebSiteId: websiteId,
-              isActive: true
+              isActive: true,
+              metadata: {
+                fieldId: field.id,
+                fieldType: field.type,
+                originalLabel: field.label
+              }
             }
             
             const elementResponse = await createElementMutation.mutateAsync(elementData)
@@ -484,7 +550,7 @@ export default function CreateMainSubSection({
     }
   }
   
-  // Update existing subsection
+  // Update existing subsection - FIXED VERSION
   const handleUpdateSubsection = async () => {
     if (!(await validateAllForms())) return
     try {
@@ -501,14 +567,37 @@ export default function CreateMainSubSection({
       // Update elements and translations with proper error handling
       const updatePromises = contentElements.map(async (element) => {
         try {
-          const field = sectionConfig.fields.find(f => f.label === element.name)
-          if (!field) return
+          // Use the helper function to find the corresponding field
+          let field = null
+          for (const f of sectionConfig.fields) {
+            const foundElement = findElementByFieldAcrossLanguages([element], f.id, sectionConfig)
+            if (foundElement) {
+              field = f
+              break
+            }
+          }
+          
+          if (!field) {
+            console.warn(`Could not find matching field for element: ${element.name}`)
+            return
+          }
           
           if (defaultLanguage && languageForms[defaultLanguage.languageID]) {
             const defaultContent = languageForms[defaultLanguage.languageID].getValues()[field.id]
             await updateElementMutation.mutateAsync({
               id: element._id,
-              data: { defaultContent }
+              data: { 
+                defaultContent,
+                // Migrate to new naming scheme if needed
+                name: field.id,
+                displayName: field.label,
+                metadata: {
+                  fieldId: field.id,
+                  fieldType: field.type,
+                  originalLabel: field.label,
+                  migrated: true
+                }
+              }
             })
           }
           
@@ -598,7 +687,7 @@ export default function CreateMainSubSection({
         <TabsContent key={lang.languageID} value={String(lang.languageID)}>
           <Form {...form}>
             <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
-              {sectionConfig.fields.map((field) => (
+              {sectionConfig.fields.map((field: any) => (
                 <FormField
                   key={`${lang.languageID}-${field.id}`}
                   control={form.control}

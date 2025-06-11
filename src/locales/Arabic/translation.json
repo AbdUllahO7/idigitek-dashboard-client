@@ -1802,8 +1802,8 @@
   "industryLanguageCard": {
     "// Card Header": "",
     "sectionTitle": "قسم الصناعة",
-    "cardDescription": "إدارة محتوى البطل لـ {langCode}",
-    "heroContent": "محتوى البطل",
+    "cardDescription": "إدارة محتوى اللوح الرئيسي لـ {langCode}",
+    "heroContent": "محتوى اللوح الرئيسي",
     
     "// Form Fields": "",
     "titleLabel": "العنوان",
@@ -1884,8 +1884,8 @@
     "allContentSaved": "تم حفظ جميع المحتويات.",
     
     "// Error Messages": "",
-    "errorUpdatingSection": "خطأ في تحديث قسم البطل",
-    "errorCreatingSection": "خطأ في إنشاء قسم البطل",
+    "errorUpdatingSection": "خطأ في تحديث قسم اللوح الرئيسي",
+    "errorCreatingSection": "خطأ في إنشاء قسم اللوح الرئيسي",
     
     "// Button Labels": "",
     "updateIndustryContent": "تحديث محتوى الصناعة",
@@ -1926,6 +1926,264 @@
     "validationPassed": "تم اجتياز التحقق",
     "savingInProgress": "الحفظ قيد التقدم",
     "saveCompleted": "تم إتمام الحفظ"
+  },
+  "heroPage": {
+      "// Loading States": "",
+      "loadingHeroData": "جارٍ تحميل بيانات قسم اللوح الرئيسي...",
+      "loadingData": "جارٍ تحميل البيانات...",
+      "loadingSubsection": "جارٍ تحميل القسم الفرعي...",
+      "saving": "جارٍ الحفظ...",
+      
+      "// Page Configuration": "",
+      "title": "إدارة اللوح الرئيسي",
+      "description": "إدارة مخزون اللوح الرئيسي والمحتوى متعدد اللغات",
+      "addButtonLabel": "إضافة عنصر تنقل جديد",
+      "listTitle": "قائمة اللوح الرئيسي",
+      "editPath": "heroSection/addHero",
+      
+      "// Messages": "",
+      "emptyStateMessage": "لم يتم العثور على بطل. قم بإنشاء اللوح الرئيسي الأول الخاص بك بالنقر على زر \"إضافة بطل جديد\".",
+      "noSectionMessage": "يرجى إنشاء قسم اللوح الرئيسي أولاً قبل إضافة اللوح الرئيسي.",
+      "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة اللوح الرئيسي.",
+      "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة اللوح الرئيسي.",
+      
+      "// Section Integration": "",
+      "sectionIntegrationTitle": "محتوى قسم اللوح الرئيسي",
+      "sectionIntegrationDescription": "إدارة محتوى قسم اللوح الرئيسي بلغات متعددة.",
+      "addSectionButtonLabel": "إضافة قسم اللوح الرئيسي",
+      "editSectionButtonLabel": "تحرير قسم اللوح الرئيسي",
+      "saveSectionButtonLabel": "حفظ قسم اللوح الرئيسي",
+      
+      "// Table Columns": "",
+      "nameColumn": "الاسم",
+      "descriptionColumn": "الوصف",
+      "statusColumn": "الحالة",
+      "orderColumn": "الترتيب",
+      "subsectionsColumn": "الأقسام الفرعية",
+      "mainBadge": "الرئيسي",
+      
+      "// Dialog Titles": "",
+      "createDialogTitle": "اللوح الرئيسي",
+      "deleteDialogTitle": "حذف القسم",
+      "deleteDialogConfirm": "تأكيد",
+      
+      "// Debug Messages": "",
+      "hasMainSubSectionChanged": "تغير hasMainSubSection من",
+      "websiteSubsectionsCheck": "فحص الأقسام الفرعية للموقع:",
+      "mainSubsectionCreated": "تم إنشاء القسم الفرعي الرئيسي:",
+      "mainSubsectionNameCheck": "فحص اسم القسم الفرعي الرئيسي:",
+      
+      "// Component Status": "",
+      "componentReady": "المكون جاهز",
+      "dataLoaded": "تم تحميل البيانات",
+      "validationPassed": "تم اجتياز التحقق",
+      "processingComplete": "اكتملت المعالجة"
+  },
+  "addHero": {
+    "// Page Titles": "",
+    "createTitle": "إنشاء بطل جديد",
+    "editTitle": "تحرير اللوح الرئيسي",
+    
+    "// Page Subtitles": "",
+    "createSubtitle": "إنشاء خدمة جديدة بمحتوى متعدد اللغات",
+    "editSubtitle": "المحتوى عبر لغات متعددة",
+    "editingPrefix": "تحرير",
+    
+    "// Tab Labels": "",
+    "heroTabLabel": "اللوح الرئيسي",
+    
+    "// Default Values": "",
+    "defaultServiceName": "بطل جديد",
+    "defaultServiceDescription": "",
+    
+    "// URL Paths": "",
+    "backUrlPath": "/dashboard/heroSection",
+    
+    "// Form Sections": "",
+    "heroFormSection": "hero",
+    
+    "// Loading States": "",
+    "loadingLanguages": "جارٍ تحميل اللغات...",
+    "loadingSectionItem": "جارٍ تحميل عنصر القسم...",
+    "loadingSubsections": "جارٍ تحميل الأقسام الفرعية...",
+    "loadingData": "جارٍ تحميل البيانات...",
+    
+    "// Slugs and Identifiers": "",
+    "heroSectionSlug": "hero-section",
+    "slugGeneration": "جارٍ إنشاء الرابط...",
+    "subsectionLookup": "البحث عن القسم الفرعي...",
+    
+    "// Form Processing": "",
+    "processingFormData": "معالجة بيانات النموذج...",
+    "extractingHeroData": "استخراج بيانات اللوح الرئيسي...",
+    "creatingServicePayload": "إنشاء حمولة الخدمة...",
+    "savingData": "حفظ البيانات...",
+    
+    "// Mode Handling": "",
+    "createMode": "create",
+    "editMode": "edit",
+    "modeDetection": "اكتشاف الوضع...",
+    
+    "// API Operations": "",
+    "fetchingLanguages": "جلب اللغات...",
+    "fetchingSectionItem": "جلب عنصر القسم...",
+    "fetchingSubsections": "جلب الأقسام الفرعية...",
+    "savingService": "حفظ الخدمة..."
+  },
+  "HeroLanguageCard": {
+      "// Card Header": "",
+      "heroSection": "قسم اللوح الرئيسي",
+      "primaryBadge": "الأساسي",
+      
+      "// Card Description": "",
+      "manageContentPrefix": "إدارة محتوى اللوح الرئيسي لـ",
+      "urlSettingsNote": "(إعدادات الرابط المكونة هنا تنطبق على جميع اللغات)",
+      
+      "// Button Labels": "",
+      "addHeroButton": "إضافة بطل",
+      
+      "// Accessibility": "",
+      "heroCardTitle": "محتوى اللوح الرئيسي للغة",
+      "primaryLanguageNote": "إعدادات اللغة الأساسية"
+  },
+  "heroesForm": {
+      "// Loading States": "",
+      "loadingHeroData": "جارٍ تحميل بيانات قسم الأبطال...",
+      "saving": "جارٍ الحفظ...",
+      "updatingHeroes": "تحديث الأبطال",
+      "creatingHeroes": "إنشاء الأبطال",
+      "saveDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
+      
+      "// Section Names": "",
+      "sectionName": "قسم الأبطال",
+      "sectionDescription": "قسم الأبطال للموقع الإلكتروني",
+      
+      "// Element Names": "",
+      "heroTitle": "اللوح الرئيسي {{heroIndex}} - العنوان",
+      "heroDescription": "اللوح الرئيسي {{heroIndex}} - الوصف",
+      "heroExploreButton": "اللوح الرئيسي {{heroIndex}} - زر الاستكشاف",
+      "heroExploreButtonType": "اللوح الرئيسي {{heroIndex}} - نوع زر الاستكشاف",
+      "heroExploreButtonUrl": "اللوح الرئيسي {{heroIndex}} - رابط زر الاستكشاف",
+      "heroRequestButton": "اللوح الرئيسي {{heroIndex}} - زر الطلب",
+      "heroRequestButtonType": "اللوح الرئيسي {{heroIndex}} - نوع زر الطلب",
+      "heroRequestButtonUrl": "اللوح الرئيسي {{heroIndex}} - رابط زر الطلب",
+      "heroImage": "اللوح الرئيسي {{heroIndex}} - الصورة",
+      
+      "// Toast Messages - Remove": "",
+      "cannotRemove": "لا يمكن الإزالة",
+      "needAtLeastOneHero": "تحتاج إلى بطل واحد على الأقل",
+      "heroDeleted": "تم حذف اللوح الرئيسي",
+      "heroDeletedFromDatabase": "تم حذف اللوح الرئيسي {{heroNumber}} من قاعدة البيانات",
+      "heroRemoved": "تم إزالة اللوح الرئيسي",
+      "heroRemovedSuccessfully": "تم إزالة اللوح الرئيسي بنجاح.",
+      "errorRemoving": "خطأ",
+      "errorRemovingHero": "حدث خطأ أثناء إزالة اللوح الرئيسي.",
+      
+      "// Toast Messages - Add": "",
+      "heroAdded": "تم إضافة اللوح الرئيسي",
+      "heroAddedDescription": "تم إضافة بطل جديد. يرجى ملء التفاصيل وحفظ التغييرات.",
+      
+      "// Toast Messages - Validation": "",
+      "validationError": "خطأ في التحقق",
+      "allLanguagesSameCount": "يجب أن تحتوي جميع اللغات على نفس عدد الأبطال.",
+      "fillAllRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح.",
+      
+      "// Toast Messages - Loading": "",
+      "errorLoadingData": "خطأ في تحميل البيانات",
+      "failedToLoadHeroData": "فشل في تحميل بيانات اللوح الرئيسي. يرجى المحاولة مرة أخرى.",
+      
+      "// Toast Messages - Image Upload": "",
+      "imageUploadError": "خطأ في رفع الصورة",
+      "failedToUploadImage": "فشل في رفع الصورة للبطل {{heroIndex}}. يرجى المحاولة مرة أخرى.",
+      "configurationError": "خطأ في التكوين",
+      "imageMissingForHero": "عنصر محتوى الصورة مفقود للبطل {{heroIndex}}.",
+      
+      "// Toast Messages - Save Success": "",
+      "heroesUpdatedSuccessfully": "تم تحديث قسم الأبطال بنجاح!",
+      "heroesCreatedSuccessfully": "تم إنشاء قسم الأبطال بنجاح!",
+      "allContentSaved": "تم حفظ جميع المحتويات.",
+      
+      "// Toast Messages - Save Error": "",
+      "warning": "تحذير",
+      "failedToReloadData": "فشل في إعادة تحميل البيانات بعد الحفظ.",
+      "errorUpdatingHeroes": "خطأ في تحديث قسم الأبطال",
+      "errorCreatingHeroes": "خطأ في إنشاء قسم الأبطال",
+      
+      "// Button Labels": "",
+      "saveHeroes": "حفظ الأبطال",
+      "updateHeroes": "تحديث الأبطال",
+      
+      "// Validation Messages": "",
+      "samNumberOfHeroes": "يجب أن تحتوي كل لغة على نفس عدد الأبطال",
+      
+      "// Dialog Titles": "",
+      "deleteHero": "حذف اللوح الرئيسي",
+      "deleteHeroConfirm": "حذف اللوح الرئيسي",
+      "deleteHeroService": "اللوح الرئيسي {{index}}",
+      
+      "// Default Values": "",
+      "defaultButtonType": "افتراضي",
+      "imagePlaceholder": "عنصر نائب للصورة",
+      
+      "// Console Messages": "",
+      "formValuesAfterProcess": "قيم النموذج بعد معالجة بيانات الأبطال:",
+      "refetchingData": "إعادة جلب البيانات:",
+      "formValuesBeforeSave": "قيم النموذج قبل الحفظ:",
+      "uploadingImageForHero": "رفع الصورة للبطل",
+      "uploadResult": "نتيجة الرفع:",
+      "noImageFileProvided": "لم يتم توفير ملف صورة للبطل {{heroIndex}}",
+      "imageElementNotFound": "عنصر محتوى الصورة غير موجود للبطل {{heroIndex}}",
+      "formValuesAfterSave": "قيم النموذج بعد الحفظ:",
+      "refetchedData": "البيانات المعاد جلبها:",
+      "saveOperationFailed": "فشلت عملية الحفظ:",
+      "errorRemovingHeroConsole": "خطأ في إزالة اللوح الرئيسي:",
+      "errorProcessingHeroData": "خطأ في معالجة بيانات اللوح الرئيسي:",
+      
+      "// Error Messages": "",
+      "parentSectionRequired": "معرف القسم الأصلي مطلوب لإنشاء قسم فرعي",
+      "failedToCreateSubsection": "فشل في إنشاء أو استرداد معرف القسم الفرعي",
+      "unknownError": "حدث خطأ غير معروف"
+  },
+  "heroCard": {
+      "// Card Title": "",
+      "heroTitle": "اللوح الرئيسي {{index}}",
+      
+      "// Form Labels": "",
+      "titleLabel": "العنوان",
+      "descriptionLabel": "الوصف",
+      "exploreButtonTextLabel": "نص زر الاستكشاف",
+      "exploreButtonLinkTypeLabel": "نوع رابط زر الاستكشاف",
+      "exploreButtonUrlLabel": "رابط زر الاستكشاف",
+      "requestButtonTextLabel": "نص زر الطلب",
+      "requestButtonLinkTypeLabel": "نوع رابط زر الطلب",
+      "requestButtonUrlLabel": "رابط زر الطلب",
+      "heroImageLabel": "صورة اللوح الرئيسي",
+      
+      "// Placeholders": "",
+      "titlePlaceholder": "أدخل العنوان",
+      "descriptionPlaceholder": "أدخل الوصف",
+      "exploreButtonPlaceholder": "أدخل نص زر الاستكشاف",
+      "requestButtonPlaceholder": "أدخل نص زر الطلب",
+      "urlPlaceholder": "https://example.com",
+      
+      "// Radio Options": "",
+      "defaultOption": "افتراضي",
+      "specialLinkOption": "رابط خاص",
+      
+      "// Helper Text": "",
+      "optionalText": "(اختياري)",
+      "appliesToAllLanguages": "(ينطبق على جميع اللغات)",
+      "uploadImageText": "رفع صورة",
+      
+      "// Validation Messages": "",
+      "imageSizeError": "يجب أن تكون الصورة أقل من 2 ميجابايت",
+      
+      "// Alt Text": "",
+      "heroImageAlt": "صورة اللوح الرئيسي {{index}}",
+      
+      "// Button Labels": "",
+      "deleteHero": "حذف اللوح الرئيسي",
+      "expandCollapse": "توسيع/طي بطاقة اللوح الرئيسي"
   },
   "common": {
     "welcome": "مرحبا",

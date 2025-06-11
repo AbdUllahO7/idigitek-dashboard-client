@@ -10,6 +10,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Save, AlertTriangle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
 import { useToast } from "@/src/hooks/use-toast";
@@ -31,6 +32,7 @@ import { HeroesFormState } from "@/src/api/types/sections/heroSection/HeroSectio
 import { processAndLoadData } from "../../services/addService/Utils/load-form-data";
 import apiClient from "@/src/lib/api-client";
 import { useHeroImages } from "./utils/useHeroImages";
+import { useLanguage } from "@/src/context/LanguageContext";
 
 interface FormData {
   [key: string]: Array<{
@@ -50,8 +52,10 @@ interface FormData {
 const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
   ({ languageIds, activeLanguages, onDataChange, slug, ParentSectionId }, ref) => {
     const { websiteId } = useWebsiteContext();
+    const { t } = useTranslation();
     const formSchema = createHeroSectionSchema(languageIds, activeLanguages);
     const defaultValues = createHeroSectionDefaultValues(languageIds, activeLanguages);
+    const {language} = useLanguage()
 
     const form = useForm<FormData>({
       resolver: zodResolver(formSchema),
@@ -187,8 +191,8 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
       const currentSteps = form.getValues()[langCode] || [];
       if (currentSteps.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one hero",
+          title: t("heroesForm.cannotRemove"),
+          description: t("heroesForm.needAtLeastOneHero"),
           variant: "destructive",
         });
         setIsDeleting(false);
@@ -217,8 +221,8 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
             });
 
             toast({
-              title: "Hero deleted",
-              description: `Hero ${heroNumber} has been deleted from the database`,
+              title: t("heroesForm.heroDeleted"),
+              description: t("heroesForm.heroDeletedFromDatabase", { heroNumber }),
             });
           }
 
@@ -257,17 +261,17 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
         });
 
         toast({
-          title: "Hero removed",
-          description: "The hero has been removed successfully.",
+          title: t("heroesForm.heroRemoved"),
+          description: t("heroesForm.heroRemovedSuccessfully"),
         });
 
         validateFormHeroCounts();
         updateState({ hasUnsavedChanges: true });
       } catch (error) {
-        console.error("Error removing hero:", error);
+        console.error(t("heroesForm.errorRemovingHeroConsole"), error);
         toast({
-          title: "Error",
-          description: "There was an error removing the hero.",
+          title: t("heroesForm.errorRemoving"),
+          description: t("heroesForm.errorRemovingHero"),
           variant: "destructive",
         });
       } finally {
@@ -287,6 +291,7 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
       toast,
       validateFormHeroCounts,
       updateState,
+      t,
     ]);
 
     const processHeroesData = useCallback(
@@ -346,10 +351,10 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
                   title: useTranslationContent(titleElement, ""),
                   description: useTranslationContent(descriptionElement, ""),
                   exploreButton: useTranslationContent(exploreButtonElement, ""),
-                  exploreButtonType: useTranslationContent(exploreButtonTypeElement, "default", true), // Use primary language
+                  exploreButtonType: useTranslationContent(exploreButtonTypeElement, t("heroesForm.defaultButtonType"), true), // Use primary language
                   exploreButtonUrl: useTranslationContent(exploreButtonUrlElement, "", true), // Use primary language
                   requestButton: useTranslationContent(requestButtonElement, ""),
-                  requestButtonType: useTranslationContent(requestButtonTypeElement, "default", true), // Use primary language
+                  requestButtonType: useTranslationContent(requestButtonTypeElement, t("heroesForm.defaultButtonType"), true), // Use primary language
                   requestButtonUrl: useTranslationContent(requestButtonUrlElement, "", true), // Use primary language
                   image: imageElement?.imageUrl || "",
                 };
@@ -360,10 +365,10 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
                   title: "",
                   description: "",
                   exploreButton: "",
-                  exploreButtonType: "default",
+                  exploreButtonType: t("heroesForm.defaultButtonType"),
                   exploreButtonUrl: "",
                   requestButton: "",
-                  requestButtonType: "default",
+                  requestButtonType: t("heroesForm.defaultButtonType"),
                   requestButtonUrl: "",
                   image: "",
                 },
@@ -378,28 +383,28 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
               validateCounts: validateFormHeroCounts,
             }
           );
-          console.log("Form values after processHeroesData:", form.getValues());
+          console.log(t("heroesForm.formValuesAfterProcess"), form.getValues());
         } catch (error) {
-          console.error("Error processing hero data:", error);
+          console.error(t("heroesForm.errorProcessingHeroData"), error);
           toast({
-            title: "Error loading data",
-            description: "Failed to load hero data. Please try again.",
+            title: t("heroesForm.errorLoadingData"),
+            description: t("heroesForm.failedToLoadHeroData"),
             variant: "destructive",
           });
         } finally {
           updateState({ isLoadingData: false });
         }
       },
-      [form, languageIds, activeLanguages, updateState, validateFormHeroCounts, toast]
+      [form, languageIds, activeLanguages, updateState, validateFormHeroCounts, toast, t]
     );
 
     useEffect(() => {
       if (!slug || state.dataLoaded || isLoadingSubsection || !completeSubsectionData?.data) {
         return;
       }
-      console.log("Refetching data:", completeSubsectionData.data);
+      console.log(t("heroesForm.refetchingData"), completeSubsectionData.data);
       processHeroesData(completeSubsectionData.data);
-    }, [completeSubsectionData, isLoadingSubsection, state.dataLoaded, slug, processHeroesData]);
+    }, [completeSubsectionData, isLoadingSubsection, state.dataLoaded, slug, processHeroesData, t]);
 
     // Combined form watch effect - handles all form changes
     useEffect(() => {
@@ -428,10 +433,10 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           title: "",
           description: "",
           exploreButton: "",
-          exploreButtonType: "default",
+          exploreButtonType: t("heroesForm.defaultButtonType"),
           exploreButtonUrl: "",
           requestButton: "",
-          requestButtonType: "default",
+          requestButtonType: t("heroesForm.defaultButtonType"),
           requestButtonUrl: "",
           image: "",
         };
@@ -445,9 +450,9 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
             const heroIndex = currentHeroes.length; // This will be the index of the new hero
             
             if (primaryHeroes[heroIndex]) {
-              newHero.exploreButtonType = primaryHeroes[heroIndex].exploreButtonType || "default";
+              newHero.exploreButtonType = primaryHeroes[heroIndex].exploreButtonType || t("heroesForm.defaultButtonType");
               newHero.exploreButtonUrl = primaryHeroes[heroIndex].exploreButtonUrl || "";
-              newHero.requestButtonType = primaryHeroes[heroIndex].requestButtonType || "default";
+              newHero.requestButtonType = primaryHeroes[heroIndex].requestButtonType || t("heroesForm.defaultButtonType");
               newHero.requestButtonUrl = primaryHeroes[heroIndex].requestButtonUrl || "";
             }
           }
@@ -461,26 +466,26 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
         validateFormHeroCounts();
         updateState({ hasUnsavedChanges: true });
         toast({
-          title: "Hero added",
-          description: "A new hero has been added. Please fill in the details and save your changes.",
+          title: t("heroesForm.heroAdded"),
+          description: t("heroesForm.heroAddedDescription"),
         });
       },
-      [form, validateFormHeroCounts, updateState, toast, primaryLanguageRef]
+      [form, validateFormHeroCounts, updateState, toast, primaryLanguageRef, t]
     );
 
     const confirmDeleteStep = useCallback((langCode: string, index: number) => {
       const currentHeroes = form.getValues()[langCode] || [];
       if (currentHeroes.length <= 1) {
         toast({
-          title: "Cannot remove",
-          description: "You need at least one hero",
+          title: t("heroesForm.cannotRemove"),
+          description: t("heroesForm.needAtLeastOneHero"),
           variant: "destructive",
         });
         return;
       }
       setStepToDelete({ langCode, index });
       setDeleteDialogOpen(true);
-    }, [form, toast]);
+    }, [form, toast, t]);
 
     const handleSave = useCallback(async () => {
       const isValid = await form.trigger();
@@ -489,8 +494,8 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
       if (!hasEqualHeroCounts) {
         updateState({ isValidationDialogOpen: true });
         toast({
-          title: "Validation Error",
-          description: "All languages must have the same number of heroes.",
+          title: t("heroesForm.validationError"),
+          description: t("heroesForm.allLanguagesSameCount"),
           variant: "destructive",
         });
         return;
@@ -498,8 +503,8 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
 
       if (!isValid) {
         toast({
-          title: "Validation Error",
-          description: "Please fill all required fields correctly.",
+          title: t("heroesForm.validationError"),
+          description: t("heroesForm.fillAllRequiredFields"),
           variant: "destructive",
         });
         return;
@@ -509,18 +514,18 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
 
       try {
         const allFormValues = form.getValues();
-        console.log("Form values before save:", allFormValues);
+        console.log(t("heroesForm.formValuesBeforeSave"), allFormValues);
         let sectionId = state.existingSubSectionId;
 
         if (!sectionId) {
           if (!ParentSectionId) {
-            throw new Error("Parent section ID is required to create a subsection");
+            throw new Error(t("heroesForm.parentSectionRequired"));
           }
 
           const subsectionData = {
-            name: "Heroes Section",
+            name: t("heroesForm.sectionName"),
             slug: slug || `heroes-section-${Date.now()}`,
-            description: "Heroes section for the website",
+            description: t("heroesForm.sectionDescription"),
             defaultContent: "",
             isActive: true,
             order: 0,
@@ -535,7 +540,7 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
         }
 
         if (!sectionId) {
-          throw new Error("Failed to create or retrieve subsection ID");
+          throw new Error(t("heroesForm.failedToCreateSubsection"));
         }
 
         const langCodeToIdMap = activeLanguages.reduce((acc: Record<string, string>, lang: { languageID: string; _id: string }) => {
@@ -551,15 +556,15 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
         for (let i = 0; i < heroCount; i++) {
           const heroIndex = i + 1;
           const elementNames = {
-            title: `Hero ${heroIndex} - Title`,
-            description: `Hero ${heroIndex} - Description`,
-            exploreButton: `Hero ${heroIndex} - ExploreButton`,
-            exploreButtonType: `Hero ${heroIndex} - ExploreButtonType`,
-            exploreButtonUrl: `Hero ${heroIndex} - ExploreButtonUrl`,
-            requestButton: `Hero ${heroIndex} - RequestButton`,
-            requestButtonType: `Hero ${heroIndex} - RequestButtonType`,
-            requestButtonUrl: `Hero ${heroIndex} - RequestButtonUrl`,
-            image: `Hero ${heroIndex} - Image`,
+            title: t("heroesForm.heroTitle", { heroIndex }),
+            description: t("heroesForm.heroDescription", { heroIndex }),
+            exploreButton: t("heroesForm.heroExploreButton", { heroIndex }),
+            exploreButtonType: t("heroesForm.heroExploreButtonType", { heroIndex }),
+            exploreButtonUrl: t("heroesForm.heroExploreButtonUrl", { heroIndex }),
+            requestButton: t("heroesForm.heroRequestButton", { heroIndex }),
+            requestButtonType: t("heroesForm.heroRequestButtonType", { heroIndex }),
+            requestButtonUrl: t("heroesForm.heroRequestButtonUrl", { heroIndex }),
+            image: t("heroesForm.heroImage", { heroIndex }),
           };
 
           const elements: Record<string, ContentElement | null> = {
@@ -594,7 +599,7 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
                 parent: sectionId,
                 isActive: true,
                 order: i * 9 + elementTypes.findIndex((t) => t.key === key), // Updated for 9 fields
-                defaultContent: type === "image" ? "image-placeholder" : "",
+                defaultContent: type === "image" ? t("heroesForm.imagePlaceholder") : "",
               });
               elements[key] = newElement.data;
               updateState({
@@ -652,66 +657,64 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
             }
 
             // URL fields - only save from primary language to avoid duplicates
-          // Replace this section in your handleSave function:
-  // URL fields - only save from primary language to avoid duplicates
-  const primaryLangCode = activeLanguages[0]?.languageID;
-  if (langCode === primaryLangCode) {
-    if (elements.exploreButtonType) {
-      const exploreButtonTypeContent = hero.exploreButtonType || "default";
-      translations.push({
-        _id: "",
-        content: exploreButtonTypeContent,
-        language: langId,
-        contentElement: elements.exploreButtonType._id,
-        isActive: true,
-      });
-    }
-    
-    // Only create translation if URL is not empty
-    if (elements.exploreButtonUrl && hero.exploreButtonUrl && hero.exploreButtonUrl.trim() !== "") {
-      translations.push({
-        _id: "",
-        content: hero.exploreButtonUrl.trim(),
-        language: langId,
-        contentElement: elements.exploreButtonUrl._id,
-        isActive: true,
-      });
-    }
-    
-    if (elements.requestButtonType) {
-      const requestButtonTypeContent = hero.requestButtonType || "default";
-      translations.push({
-        _id: "",
-        content: requestButtonTypeContent,
-        language: langId,
-        contentElement: elements.requestButtonType._id,
-        isActive: true,
-      });
-    }
-    
-    // Only create translation if URL is not empty
-    if (elements.requestButtonUrl && hero.requestButtonUrl && hero.requestButtonUrl.trim() !== "") {
-      translations.push({
-        _id: "",
-        content: hero.requestButtonUrl.trim(),
-        language: langId,
-        contentElement: elements.requestButtonUrl._id,
-        isActive: true,
-      });
-    }
-  }
+            const primaryLangCode = activeLanguages[0]?.languageID;
+            if (langCode === primaryLangCode) {
+              if (elements.exploreButtonType) {
+                const exploreButtonTypeContent = hero.exploreButtonType || t("heroesForm.defaultButtonType");
+                translations.push({
+                  _id: "",
+                  content: exploreButtonTypeContent,
+                  language: langId,
+                  contentElement: elements.exploreButtonType._id,
+                  isActive: true,
+                });
+              }
+              
+              // Only create translation if URL is not empty
+              if (elements.exploreButtonUrl && hero.exploreButtonUrl && hero.exploreButtonUrl.trim() !== "") {
+                translations.push({
+                  _id: "",
+                  content: hero.exploreButtonUrl.trim(),
+                  language: langId,
+                  contentElement: elements.exploreButtonUrl._id,
+                  isActive: true,
+                });
+              }
+              
+              if (elements.requestButtonType) {
+                const requestButtonTypeContent = hero.requestButtonType || t("heroesForm.defaultButtonType");
+                translations.push({
+                  _id: "",
+                  content: requestButtonTypeContent,
+                  language: langId,
+                  contentElement: elements.requestButtonType._id,
+                  isActive: true,
+                });
+              }
+              
+              // Only create translation if URL is not empty
+              if (elements.requestButtonUrl && hero.requestButtonUrl && hero.requestButtonUrl.trim() !== "") {
+                translations.push({
+                  _id: "",
+                  content: hero.requestButtonUrl.trim(),
+                  language: langId,
+                  contentElement: elements.requestButtonUrl._id,
+                  isActive: true,
+                });
+              }
+            }
           });
 
           const imageFile = heroImages[i];
           if (imageFile && elements.image) {
-            console.log("Uploading image for hero", i, imageFile);
+            console.log(t("heroesForm.uploadingImageForHero"), i, imageFile);
             try {
               const formData = new FormData();
               formData.append("image", imageFile);
               const uploadResult = await apiClient.post(`/content-elements/${elements.image._id}/image`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
               });
-              console.log("Upload result:", uploadResult.data);
+              console.log(t("heroesForm.uploadResult"), uploadResult.data);
 
               if (uploadResult.data?.imageUrl) {
                 Object.entries(allFormValues).forEach(([langCode]) => {
@@ -721,20 +724,20 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
                 });
               } 
             } catch (uploadError) {
-              console.error("Image upload failed for hero", i, uploadError);
+              console.error(t("heroesForm.imageUploadError"), i, uploadError);
               toast({
-                title: "Image Upload Error",
-                description: `Failed to upload image for Hero ${heroIndex}. Please try again.`,
+                title: t("heroesForm.imageUploadError"),
+                description: t("heroesForm.failedToUploadImage", { heroIndex }),
                 variant: "destructive",
               });
             }
           } else if (!imageFile && elements.image) {
-            console.log(`No image file provided for Hero ${heroIndex}`);
+            console.log(t("heroesForm.noImageFileProvided", { heroIndex }));
           } else if (!elements.image) {
-            console.error(`Image content element not found for Hero ${heroIndex}`);
+            console.error(t("heroesForm.imageElementNotFound", { heroIndex }));
             toast({
-              title: "Configuration Error",
-              description: `Image content element missing for Hero ${heroIndex}.`,
+              title: t("heroesForm.configurationError"),
+              description: t("heroesForm.imageMissingForHero", { heroIndex }),
               variant: "destructive",
             });
           }
@@ -758,10 +761,10 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           });
         }
 
-        console.log("Form values after save:", form.getValues());
+        console.log(t("heroesForm.formValuesAfterSave"), form.getValues());
         toast({
-          title: state.existingSubSectionId ? "Heroes section updated successfully!" : "Heroes section created successfully!",
-          description: "All content has been saved.",
+          title: state.existingSubSectionId ? t("heroesForm.heroesUpdatedSuccessfully") : t("heroesForm.heroesCreatedSuccessfully"),
+          description: t("heroesForm.allContentSaved"),
           duration: 5000,
         });
 
@@ -769,13 +772,13 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           updateState({ isLoadingData: true, dataLoaded: false });
           const result = await refetch();
           if (result.data?.data) {
-            console.log("Refetched data:", result.data.data);
+            console.log(t("heroesForm.refetchedData"), result.data.data);
             processHeroesData(result.data.data);
           } else {
             updateState({ isLoadingData: false });
             toast({
-              title: "Warning",
-              description: "Failed to reload data after save.",
+              title: t("heroesForm.warning"),
+              description: t("heroesForm.failedToReloadData"),
               variant: "destructive",
             });
           }
@@ -783,10 +786,10 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           updateState({ hasUnsavedChanges: false, isLoadingData: false });
         }
       } catch (error) {
-        console.error("Save operation failed:", error);
+        console.error(t("heroesForm.saveOperationFailed"), error);
         toast({
-          title: state.existingSubSectionId ? "Error updating heroes section" : "Error creating heroes section",
-          description: error instanceof Error ? error.message : "An unknown error occurred",
+          title: state.existingSubSectionId ? t("heroesForm.errorUpdatingHeroes") : t("heroesForm.errorCreatingHeroes"),
+          description: error instanceof Error ? error.message : t("heroesForm.unknownError"),
           variant: "destructive",
           duration: 5000,
         });
@@ -811,6 +814,7 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
       refetch,
       processHeroesData,
       updateState,
+      t,
     ]);
 
     createFormRef(ref, {
@@ -831,21 +835,21 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
       return (
         <div className="flex items-center justify-center p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Loading heroes section data...</p>
+          <p className="text-muted-foreground">{t("heroesForm.loadingHeroData")}</p>
         </div>
       );
     }
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <LoadingDialog
           isOpen={state.isSaving}
-          title={state.existingSubSectionId ? "Updating Heroes" : "Creating Heroes"}
-          description="Please wait while we save your changes..."
+          title={state.existingSubSectionId ? t("heroesForm.updatingHeroes") : t("heroesForm.creatingHeroes")}
+          description={t("heroesForm.saveDescription")}
         />
 
         <Form {...form}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" >
             {languageIds.map((langId: Key | null | undefined, langIndex: number) => {
               const langCode = String(langId) in languageCodes ? languageCodes[String(langId)] : String(langId);
               const isFirstLanguage = langIndex === 0;
@@ -870,7 +874,7 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           {state.heroCountMismatch && (
             <div className="flex items-center text-amber-500 mr-4">
               <AlertTriangle className="h-4 w-4 mr-2" />
-              <span className="text-sm">Each language must have the same number of heroes</span>
+              <span className="text-sm">{t("heroesForm.samNumberOfHeroes")}</span>
             </div>
           )}
           <Button
@@ -882,12 +886,12 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
             {state.isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t("heroesForm.saving")}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                {state.existingSubSectionId ? "Update Heroes" : "Save Heroes"}
+                {state.existingSubSectionId ? t("heroesForm.updateHeroes") : t("heroesForm.saveHeroes")}
               </>
             )}
           </Button>
@@ -896,11 +900,11 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
         <DeleteSectionDialog
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
-          serviceName={stepToDelete ? `Hero ${stepToDelete.index + 1}` : ""}
+          serviceName={stepToDelete ? t("heroesForm.deleteHeroService", { index: stepToDelete.index + 1 }) : ""}
           onConfirm={removeProcessStep}
           isDeleting={isDeleting}
-          title="Delete Hero"
-          confirmText="Delete Hero"
+          title={t("heroesForm.deleteHero")}
+          confirmText={t("heroesForm.deleteHeroConfirm")}
         />
 
         <ValidationDialog
