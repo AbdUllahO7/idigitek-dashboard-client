@@ -3180,7 +3180,178 @@
         "errorRemovingDesc": "حدث خطأ في إزالة السؤال الشائع من قاعدة البيانات",
         "validationError": "خطأ في التحقق"
       }
-    },
+  },
+  "faqFormSection": {
+      "section": {
+        "title": "قسم الأسئلة الشائعة",
+        "description": "إدارة محتوى الأسئلة الشائعة باللغة العربية"
+      },
+      "item": {
+        "defaultTitle": "سؤال شائع {{number}}",
+        "fields": {
+          "question": {
+            "label": "السؤال",
+            "placeholder": "أدخل السؤال"
+          },
+          "answer": {
+            "label": "الإجابة",
+            "placeholder": "أدخل الإجابة"
+          }
+        }
+      },
+      "actions": {
+        "addFaq": "إضافة سؤال شائع",
+        "save": "حفظ محتوى الأسئلة الشائعة",
+        "update": "تحديث محتوى الأسئلة الشائعة",
+        "delete": "حذف قسم الأسئلة الشائعة",
+        "saving": "جاري الحفظ...",
+        "deleting": "جاري الحذف..."
+      },
+      "loading": {
+        "loadingData": "جاري تحميل بيانات قسم الأسئلة الشائعة...",
+        "creatingSection": "إنشاء قسم الأسئلة الشائعة",
+        "updatingSection": "تحديث قسم الأسئلة الشائعة",
+        "deletingSection": "حذف قسم الأسئلة الشائعة",
+        "refreshingData": "تحديث البيانات",
+        "pleaseWait": "يرجى الانتظار أثناء حفظ التغييرات...",
+        "pleaseWaitDelete": "يرجى الانتظار أثناء حذف قسم الأسئلة الشائعة...",
+        "pleaseWaitRefresh": "تحديث الواجهة بعد الحذف..."
+      },
+      "validation": {
+        "faqCountMismatch": "يجب أن يحتوي كل لغة على نفس عدد الأسئلة الشائعة",
+        "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+        "cannotRemove": "لا يمكن الإزالة",
+        "needAtLeastOneFaq": "تحتاج إلى سؤال شائع واحد على الأقل"
+      },
+      "dialogs": {
+        "deleteFaq": {
+          "title": "حذف سؤال شائع",
+          "description": "هل أنت متأكد من حذف هذا السؤال الشائع؟ لا يمكن التراجع عن هذا الإجراء.",
+          "confirmText": "حذف سؤال شائع"
+        },
+        "deleteSection": {
+          "title": "حذف قسم الأسئلة الشائعة",
+          "description": "هل أنت متأكد من حذف قسم الأسئلة الشائعة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.",
+          "warnings": [
+            "سيتم إزالة جميع الأسئلة والإجابات الشائعة نهائيًا",
+            "لا يمكن التراجع عن هذا الإجراء"
+          ]
+        },
+        "validationError": {
+          "title": "عدم تطابق عدد الأسئلة الشائعة",
+          "description": "يجب أن يحتوي كل لغة على نفس عدد الأسئلة الشائعة قبل الحفظ. يرجى إضافة أو إزالة الأسئلة الشائعة للتأكد من أن جميع اللغات لديها نفس العدد:",
+          "close": "إغلاق"
+        }
+      },
+      "toast": {
+        "faqAdded": "تم إضافة سؤال شائع",
+        "faqAddedDesc": "تم إضافة سؤال شائع جديد إلى القسم.",
+        "faqDeleted": "تم حذف سؤال شائع",
+        "faqDeletedDesc": "تم حذف السؤال الشائع {{number}} من قاعدة البيانات",
+        "faqRemoved": "تم إزالة سؤال شائع",
+        "faqRemovedDesc": "تم إزالة السؤال الشائع بنجاح.",
+        "sectionCreated": "تم إنشاء قسم الأسئلة الشائعة بنجاح!",
+        "sectionUpdated": "تم تحديث قسم الأسئلة الشائعة بنجاح!",
+        "contentSaved": "تم حفظ جميع التغييرات.",
+        "creatingSection": "إنشاء قسم أسئلة شائعة جديد...",
+        "creatingSectionDesc": "إعداد محتوى الأسئلة الشائعة الجديد.",
+        "refreshingContent": "تحديث المحتوى",
+        "refreshingContentDesc": "تحميل المحتوى المحدث...",
+        "errorCreating": "خطأ في إنشاء قسم الأسئلة الشائعة",
+        "errorUpdating": "خطأ في تحديث قسم الأسئلة الشائعة",
+        "errorRemoving": "خطأ في إزالة سؤال شائع",
+        "errorRemovingDesc": "حدث خطأ أثناء إزالة السؤال الشائع من قاعدة البيانات",
+        "validationError": "خطأ في التحقق"
+      },
+      "table": {
+        "name": "الاسم",
+        "description": "الوصف",
+        "status": "الحالة",
+        "order": "الترتيب",
+        "subsections": "الأقسام الفرعية",
+        "main": "رئيسي"
+      }
+  },
+  "addFaq": {
+      "createTitle": "إنشاء عنصر أسئلة شائعة جديد",
+      "editTitle": "تعديل عنصر الأسئلة الشائعة",
+      "createSubtitle": "إنشاء عنصر أسئلة شائعة جديد بمحتوى متعدد اللغات",
+      "editSubtitle": "تعديل محتوى \"{{name}}\" عبر لغات متعددة",
+      "backUrl": "العودة إلى لوحة تحكم الأسئلة الشائعة",
+      "tabs": {
+        "faqItems": "عناصر الأسئلة الشائعة"
+      },
+      "defaultHeaderName": "رأس جديد"
+  },
+  "addFaqForm": {
+      "loadingText": "جارٍ تحميل بيانات قسم الأسئلة الشائعة...",
+      "saveButton": {
+        "create": "حفظ محتوى الأسئلة الشائعة",
+        "update": "تحديث محتوى الأسئلة الشائعة",
+        "saving": "جارٍ الحفظ..."
+      },
+      "validation": {
+        "errorTitle": "خطأ في التحقق",
+        "errorDescription": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+        "mismatchTitle": "عدم تطابق عدد الأسئلة الشائعة",
+        "mismatchDescription": "يجب أن تحتوي كل لغة على نفس عدد الأسئلة الشائعة قبل الحفظ. يرجى إضافة أو إزالة الأسئلة لضمان تطابق العدد.",
+        "mismatchWarning": "يجب أن تحتوي كل لغة على نفس عدد الأسئلة الشائعة",
+        "languageCount": "{lang}: {count} أسئلة شائعة"
+      },
+      "dialog": {
+        "createTitle": "إنشاء قسم الأسئلة الشائعة",
+        "updateTitle": "تحديث قسم الأسئلة الشائعة",
+        "createDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
+        "deleteTitle": "حذف الأسئلة الشائعة",
+        "deleteConfirm": "حذف الأسئلة الشائعة"
+      },
+      "toast": {
+        "addFaq": "تمت إضافة سؤال شائع",
+        "addFaqDescription": "تمت إضافة سؤال شائع جديد إلى القسم.",
+        "deleteFaq": "تم حذف السؤال الشائع",
+        "deleteFaqDescription": "تم حذف السؤال الشائع رقم {number} من قاعدة البيانات",
+        "cannotDelete": "لا يمكن الحذف",
+        "cannotDeleteDescription": "يجب أن يكون هناك سؤال شائع واحد على الأقل",
+        "createSection": "جارٍ إنشاء قسم أسئلة شائعة جديد...",
+        "createSectionDescription": "جارٍ إعداد محتوى الأسئلة الشائعة الجديد.",
+        "createSuccess": "تم إنشاء قسم الأسئلة الشائعة بنجاح!",
+        "updateSuccess": "تم تحديث قسم الأسئلة الشائعة بنجاح!",
+        "saveSuccessDescription": "تم حفظ جميع التغييرات.",
+        "refreshing": "جارٍ تحديث المحتوى",
+        "refreshingDescription": "جارٍ تحميل المحتوى المحدث...",
+        "createError": "خطأ في إنشاء قسم الأسئلة الشائعة",
+        "updateError": "خطأ في تحديث قسم الأسئلة الشائعة",
+        "deleteError": "خطأ في حذف السؤال الشائع",
+        "deleteErrorDescription": "حدث خطأ أثناء حذف السؤال الشائع من قاعدة البيانات",
+        "errorDescription": "حدث خطأ غير معروف"
+      }
+  },
+  "faqItem": {
+      "title": "السؤال الشائع {{number}}",
+      "questionLabel": "السؤال",
+      "questionPlaceholder": "أدخل سؤال الأسئلة الشائعة",
+      "answerLabel": "الإجابة",
+      "answerPlaceholder": "أدخل الإجابة التفصيلية لهذا السؤال",
+      "socialLinks": {
+        "title": "الروابط الاجتماعية",
+        "appliesToAll": "يُطبق على جميع اللغات",
+        "addButton": "إضافة رابط اجتماعي",
+        "platformLabel": "اسم المنصة",
+        "platformPlaceholder": "مثال: تويتر، فيسبوك",
+        "urlLabel": "الرابط",
+        "urlPlaceholder": "https://example.com",
+        "imageLabel": "صورة الرابط الاجتماعي",
+        "imageNote": "سيتم استخدام هذه الصورة عبر جميع اللغات",
+        "noLinks": "لم تُضف روابط اجتماعية بعد",
+        "noLinksDescription": "انقر على \"إضافة رابط اجتماعي\" للبدء",
+        "linkCount": "{{count}} رابط(روابط) اجتماعي(ة)"
+      }
+  },
+  "faqLanguageCard": {
+      "title": "قسم الأسئلة الشائعة",
+      "description": "إدارة محتوى الأسئلة الشائعة للغة {{language}}",
+      "addFaqButton": "إضافة سؤال شائع"
+  },
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

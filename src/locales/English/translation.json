@@ -3084,7 +3084,7 @@
         "iconControlDesc": "Icons defined here will be used for all languages"
       }
   },
-   "faqForm": {
+  "faqForm": {
       "section": {
         "title": "FAQ Section",
         "description": "Manage FAQ content for {{language}}"
@@ -3166,6 +3166,177 @@
         "errorRemovingDesc": "There was an error removing the FAQ from the database",
         "validationError": "Validation Error"
       }
+  },
+  "faqFormSection": {
+      "section": {
+        "title": "FAQ Section",
+        "description": "Manage FAQ content for English"
+      },
+      "item": {
+        "defaultTitle": "FAQ {{number}}",
+        "fields": {
+          "question": {
+            "label": "Question",
+            "placeholder": "Enter question"
+          },
+          "answer": {
+            "label": "Answer",
+            "placeholder": "Enter answer"
+          }
+        }
+      },
+      "actions": {
+        "addFaq": "Add FAQ",
+        "save": "Save FAQ Content",
+        "update": "Update FAQ Content",
+        "delete": "Delete FAQ Section",
+        "saving": "Saving...",
+        "deleting": "Deleting..."
+      },
+      "loading": {
+        "loadingData": "Loading FAQ section data...",
+        "creatingSection": "Creating FAQ Section",
+        "updatingSection": "Updating FAQ Section",
+        "deletingSection": "Deleting FAQ Section",
+        "refreshingData": "Refreshing Data",
+        "pleaseWait": "Please wait while we save your changes...",
+        "pleaseWaitDelete": "Please wait while we delete the FAQ section...",
+        "pleaseWaitRefresh": "Updating the interface after deletion..."
+      },
+      "validation": {
+        "faqCountMismatch": "Each language must have the same number of FAQs",
+        "fillRequiredFields": "Please fill all required fields correctly",
+        "cannotRemove": "Cannot remove",
+        "needAtLeastOneFaq": "You need at least one FAQ"
+      },
+      "dialogs": {
+        "deleteFaq": {
+          "title": "Delete FAQ",
+          "description": "Are you sure you want to delete this FAQ? This action cannot be undone.",
+          "confirmText": "Delete FAQ"
+        },
+        "deleteSection": {
+          "title": "Delete FAQ Section",
+          "description": "Are you sure you want to delete this entire FAQ section? This action cannot be undone.",
+          "warnings": [
+            "All FAQ questions and answers will be permanently removed",
+            "This action cannot be undone"
+          ]
+        },
+        "validationError": {
+          "title": "FAQ Count Mismatch",
+          "description": "Each language must have the same number of FAQs before saving. Please add or remove FAQs to ensure all languages have the same count:",
+          "close": "Close"
+        }
+      },
+      "toast": {
+        "faqAdded": "FAQ added",
+        "faqAddedDesc": "A new FAQ has been added to the section.",
+        "faqDeleted": "FAQ deleted",
+        "faqDeletedDesc": "FAQ {{number}} has been deleted from the database",
+        "faqRemoved": "FAQ removed",
+        "faqRemovedDesc": "The FAQ has been removed successfully.",
+        "sectionCreated": "FAQ section created successfully!",
+        "sectionUpdated": "FAQ section updated successfully!",
+        "contentSaved": "All changes have been saved.",
+        "creatingSection": "Creating new FAQ section...",
+        "creatingSectionDesc": "Setting up your new FAQ content.",
+        "refreshingContent": "Refreshing content",
+        "refreshingContentDesc": "Loading the updated content...",
+        "errorCreating": "Error creating FAQ section",
+        "errorUpdating": "Error updating FAQ section",
+        "errorRemoving": "Error removing FAQ",
+        "errorRemovingDesc": "There was an error removing the FAQ from the database",
+        "validationError": "Validation Error"
+      },
+      "table": {
+        "name": "Name",
+        "description": "Description",
+        "status": "Status",
+        "order": "Order",
+        "subsections": "Subsections",
+        "main": "Main"
+      }
+  },
+  "addFaq": {
+      "createTitle": "Create New FAQ Item",
+      "editTitle": "Edit FAQ Item",
+      "createSubtitle": "Create a new FAQ item with multilingual content",
+      "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+      "backUrl": "Back to FAQ Dashboard",
+      "tabs": {
+        "faqItems": "FAQ Items"
+      },
+      "defaultHeaderName": "New Header"
+  },
+  "addFaqForm": {
+      "loadingText": "Loading FAQ section data...",
+      "saveButton": {
+        "create": "Save FAQ Content",
+        "update": "Update FAQ Content",
+        "saving": "Saving..."
+      },
+      "validation": {
+        "errorTitle": "Validation Error",
+        "errorDescription": "Please fill all required fields correctly",
+        "mismatchTitle": "FAQ Count Mismatch",
+        "mismatchDescription": "Each language must have the same number of FAQs before saving. Please add or remove FAQs to ensure all languages have the same count:",
+        "mismatchWarning": "Each language must have the same number of FAQs",
+        "languageCount": "{language}: {count} FAQs"
+      },
+      "dialog": {
+        "createTitle": "Creating FAQ Section",
+        "updateTitle": "Updating FAQ Section",
+        "createDescription": "Please wait while we save your changes...",
+        "deleteTitle": "Delete FAQ",
+        "deleteConfirm": "Delete FAQ"
+      },
+      "toast": {
+        "addFaq": "FAQ added",
+        "addFaqDescription": "A new FAQ has been added to the section.",
+        "deleteFaq": "FAQ deleted",
+        "deleteFaqDescription": "FAQ {number} has been deleted from the database",
+        "cannotDelete": "Cannot remove",
+        "cannotDeleteDescription": "You need at least one FAQ",
+        "createSection": "Creating new FAQ section...",
+        "createSectionDescription": "Setting up your new FAQ content.",
+        "createSuccess": "FAQ section created successfully!",
+        "updateSuccess": "FAQ section updated successfully!",
+        "saveSuccessDescription": "All changes have been saved.",
+        "refreshing": "Refreshing content",
+        "refreshingDescription": "Loading the updated content...",
+        "createError": "Error creating FAQ section",
+        "updateError": "Error updating FAQ section",
+        "deleteError": "Error removing FAQ",
+        "deleteErrorDescription": "There was an error removing the FAQ from the database",
+        "errorDescription": "Unknown error occurred"
+      }
+    },
+  "faqItem": {
+      "title": "FAQ {{number}}",
+      "questionLabel": "Question",
+      "questionPlaceholder": "Enter your FAQ question",
+      "answerLabel": "Answer",
+      "answerPlaceholder": "Enter the detailed answer to this question",
+      "socialLinks": {
+        "title": "Social Links",
+        "appliesToAll": "Applies to all languages",
+        "addButton": "Add Social Link",
+        "platformLabel": "Platform Name",
+        "platformPlaceholder": "e.g., Twitter, Facebook",
+        "urlLabel": "URL",
+        "urlPlaceholder": "https://example.com",
+        "imageLabel": "Social Link Image",
+        "imageNote": "This image will be used across all languages",
+        "noLinks": "No social links added yet",
+        "noLinksDescription": "Click \"Add Social Link\" to get started",
+        "linkCount": "{{count}} social link(s)"
+      }
+    },
+  "faqLanguageCard": {
+      "title": "FAQ Section",
+      "description": "Manage FAQ content for {{language}}",
+      "addFaqButton": "Add FAQ"
     },
   "common": {
     "welcome": "Welcome",

@@ -11,24 +11,23 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { faqSectionConfig } from "./FaqSectionConfig"
-
-
+import { useTranslation } from "react-i18next"
+import { getFaqSectionConfig } from "./FaqSectionConfig"
 
 // Column definitions
-const FAQ_COLUMNS = [
+const getFaqColumns = (t: (key: string) => string) => [
   {
-    header: "Name",
+    header: t('faqFormSection.table.name'),
     accessor: "name",
     className: "font-medium"
   },
   {
-    header: "Description",
+    header: t('faqFormSection.table.description'),
     accessor: "description",
     cell: TruncatedCell
   },
   {
-    header: "Status",
+    header: t('faqFormSection.table.status'),
     accessor: "isActive",
     cell: (item: any, value: boolean) => (
       <div className="flex flex-col gap-2">
@@ -36,7 +35,7 @@ const FAQ_COLUMNS = [
           {StatusCell(item, value)}
           {item.isMain && (
             <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
+              {t('faqFormSection.table.main')}
             </span>
           )}
         </div>
@@ -44,40 +43,43 @@ const FAQ_COLUMNS = [
     )
   },
   {
-    header: "Order",
+    header: t('faqFormSection.table.order'),
     accessor: "order"
   },
   {
-    header: "Subsections",
+    header: t('faqFormSection.table.subsections'),
     accessor: "subsections.length",
     cell: CountBadgeCell
   }
 ]
 
 export default function FaqPage() {
+  const { t ,i18n} = useTranslation();
   const searchParams = useSearchParams()
   const sectionId = searchParams.get("sectionId")
   const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
-
-  const FAQ_CONFIG = useMemo (() => ({
-    title: "Faq Management",
-    description: "Manage your Faq inventory and multilingual content",
-      addButtonLabel: "Add New Nav Item",
-    emptyStateMessage: "No Faq found. Create your first Faq by clicking the \"Add New Faq\" button.",
-    noSectionMessage: "Please create a Faq section first before adding Faq.",
-    mainSectionRequiredMessage: "Please enter your main section data before adding Faq.",
-    emptyFieldsMessage: "Please complete all required fields in the main section before adding Faq.",
-    sectionIntegrationTitle: "Faq Section Content",
-    sectionIntegrationDescription: "Manage your Faq section content in multiple languages.",
-    addSectionButtonLabel: "Add Faq Section",
-    editSectionButtonLabel: "Edit Faq Section",
-    saveSectionButtonLabel: "Save Faq Section",
-    listTitle: "Faq List",
+    const currentLanguage = i18n.language; 
+    const faqSectionConfig = getFaqSectionConfig(currentLanguage);
+  const FAQ_CONFIG = useMemo(() => ({
+    title: t('faqFormSection.section.title'),
+    description: t('faqFormSection.section.description', { language: t('language') }),
+    addButtonLabel: t('faqFormSection.actions.addFaq'),
+    emptyStateMessage: t('faqFormSection.toast.faqRemovedDesc', { defaultValue: 'No FAQs found. Create your first FAQ.' }),
+    noSectionMessage: t('faqFormSection.toast.noSectionMessage', { defaultValue: 'Please create a FAQ section.' }),
+    mainSectionRequiredMessage: t('faqFormSection.toast.mainSectionRequiredMessage', { defaultValue: 'Please enter main section data.' }),
+    emptyFieldsMessage: t('faqFormSection.validation.fillRequiredFields'),
+    sectionIntegrationTitle: t('faqFormSection.section.title'),
+    sectionIntegrationDescription: t('faqFormSection.section.description', { language: t('language') }),
+    addSectionButtonLabel: t('faqFormSection.actions.addFaq'),
+    editSectionButtonLabel: t('faqFormSection.actions.update'),
+    saveSectionButtonLabel: t('faqFormSection.actions.save'),
+    listTitle: t('faqFormSection.section.title'),
     editPath: "FAQ/addFAQ"
-  }), [] );
+  }), [t]);
+
   // Refs to track previous values for debugging
   const prevHasMainSubSection = useRef(hasMainSubSection);
   const isFirstRender = useRef(true);
@@ -97,7 +99,7 @@ export default function FaqPage() {
     isLoading: isLoadingSectionSubsections
   } = useGetBySectionId(sectionId || "")
 
-  // Use the generic list hook for Faq management
+  // Use the generic list hook for FAQ management
   const {
     section: faqSection,
     items: navItems,
@@ -121,7 +123,6 @@ export default function FaqPage() {
     editPath: FAQ_CONFIG.editPath
   })
 
-
   // Debug changes in hasMainSubSection
   useEffect(() => {
     if (!isFirstRender.current && prevHasMainSubSection.current !== hasMainSubSection) {
@@ -136,7 +137,6 @@ export default function FaqPage() {
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {
-
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
       setIsLoadingMainSubSection(true);
@@ -165,7 +165,6 @@ export default function FaqPage() {
         foundMainSubSection = sectionData.isMain === true && sectionData.name === expectedName;
         mainSubSection = foundMainSubSection ? sectionData : null;
       }
-
     }
     
     // If we didn't find anything in the section-specific data, check the website-wide data
@@ -191,8 +190,6 @@ export default function FaqPage() {
       });
     }
     
-  
-    
     // Update state based on what we found
     setHasMainSubSection(foundMainSubSection);
     setIsLoadingMainSubSection(false);
@@ -202,7 +199,6 @@ export default function FaqPage() {
       const sectionInfo = typeof mainSubSection.section === 'string' 
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
-      
       
       // Set local section data
       setSectionData(sectionInfo);
@@ -263,10 +259,7 @@ export default function FaqPage() {
     Boolean(defaultAddButtonDisabled) || 
     isLoadingMainSubSection ||
     (Boolean(sectionId) && !hasMainSubSection) ||
-    (navItems.length > 0); // This disables the button if there's already at least one NavItem
-
-
-
+    (navItems.length > 0);
 
   // Custom message for empty state 
   const emptyStateMessage = !faqSection && !sectionData 
@@ -278,7 +271,7 @@ export default function FaqPage() {
   // Components
   const NavItemsTable = (
     <GenericTable
-      columns={FAQ_COLUMNS}
+      columns={getFaqColumns(t)}
       data={navItems}
       onEdit={handleEdit}
       onDelete={showDeleteDialog}
@@ -291,7 +284,7 @@ export default function FaqPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Faq"
+      title={t('faqFormSection.section.title')}
     />
   );
 
@@ -302,8 +295,8 @@ export default function FaqPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Section"
-      confirmText="Confirm"
+      title={t('faqFormSection.dialogs.deleteSection.title')}
+      confirmText={t('faqFormSection.dialogs.deleteFaq.confirmText')}
     />
   );
 
