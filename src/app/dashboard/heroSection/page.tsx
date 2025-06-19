@@ -13,7 +13,6 @@ import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
 import { getHeroSectionConfig } from "./HeroSectionConfig"
 import { useTranslation } from "react-i18next"
-import NavigationCards from "./navigation/NavigationCards"
 
 // Column definitions
 const Hero_COLUMNS = [
@@ -336,14 +335,6 @@ export default function HeroPage() {
         />
       )}
 
-      {/* Navigation Management Cards - Standalone Navigation System */}
-      {sectionId && (
-        <div className="mt-8">
-          <div className="border-t pt-8">
-            <NavigationCards sectionId={sectionId} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
