@@ -20,6 +20,9 @@ export interface Section extends Resource {
   createdAt?: string;
   updatedAt?: string;
   subName?: string;
+  sectionType?:string,
+  type?:string,
+  slug?:string,
 }
 
 export interface SectionItem {

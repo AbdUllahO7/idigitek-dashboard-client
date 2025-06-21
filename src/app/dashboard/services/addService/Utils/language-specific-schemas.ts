@@ -254,7 +254,7 @@ const schemaDefinitions = {
     }),
   };
 
-export const createHeroSchema = (languageIds: string[], activeLanguages: Language[]) => {
+export const createHeroSchema = (languageIds: string[], activeLanguages: Language[] ,   includeSubNavigation: boolean = false) => {
     const schema = createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.hero);
     return z.object({
       ...schema.shape,
@@ -282,7 +282,7 @@ export const createTeamSchema = (languageIds: string[], activeLanguages: Languag
 };
 
 
-export const createProjectBasicInfoSchema = (languageIds: string[], activeLanguages: Language[]) => {
+export const createProjectBasicInfoSchema = (languageIds: string[], activeLanguages: Language[] ,  includeSubNavigation: boolean = false) => {
     const schema = createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.projectBasicInfo);
     return z.object({
       ...schema.shape,
@@ -290,7 +290,7 @@ export const createProjectBasicInfoSchema = (languageIds: string[], activeLangua
     });
 };
 
-export const createContactInformationInfoSchema = (languageIds: string[], activeLanguages: Language[]) => {
+export const createContactInformationInfoSchema = (languageIds: string[], activeLanguages: Language[] ,  includeSubNavigation: boolean = false) => {
     return   createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.ContactInformationInfo);
      
 };
@@ -383,7 +383,7 @@ export const createImageGallerySchema = (languageIds: string[], activeLanguages:
     return createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.galleryImage);
 };
 
-export const createBlogSchema = (languageIds: string[], activeLanguages: Language[]) =>
+export const createBlogSchema = (languageIds: string[], activeLanguages: Language[] , includeSubNavigation: boolean = false) =>
   z.object({
     ...createLanguageSchema(languageIds, activeLanguages, schemaDefinitions.blog).shape,
     backgroundImage: z.string().optional(),

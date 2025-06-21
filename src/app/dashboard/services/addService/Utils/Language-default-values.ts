@@ -141,7 +141,7 @@ const createLanguageDefaultValues = <T>(
   return { ...defaultValues, ...languageValues };
 };
 
-export const createHeroDefaultValues = (languageIds: string[], activeLanguages: Language[]) => {
+export const createHeroDefaultValues = (languageIds: string[], activeLanguages: Language[] ,   includeSubNavigation: boolean = false) => {
     return createLanguageDefaultValues(
       languageIds,
       activeLanguages,
@@ -157,7 +157,7 @@ export const createOverDefaultValues = (languageIds: string[], activeLanguages: 
     );
 };
 
-export const createProjectDefaultValues = (languageIds: string[], activeLanguages: any[]) => {
+export const createProjectDefaultValues = (languageIds: string[], activeLanguages: any[] ,  includeSubNavigation: boolean = false) => {
   const defaultValues: Record<string, any> = {};
 
   languageIds.forEach((langId) => {
@@ -236,7 +236,7 @@ export const createSectionsDefaultValues = (languageIds: string[], activeLanguag
     ),
   };
 };
-export const createBlogDefaultValues = (languageIds: string[], activeLanguages: Language[]) => {
+export const createBlogDefaultValues = (languageIds: string[], activeLanguages: Language[] ,includeSubNavigation: boolean = false) => {
     return createLanguageDefaultValues(languageIds, activeLanguages, defaultValueDefinitions.blog);
 };
 export const createHeroSectionDefaultValues = (languageIds: string[], activeLanguages: Language[]) => {

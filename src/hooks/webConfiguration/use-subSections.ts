@@ -87,23 +87,23 @@ export function useSubSections() {
   };
   
   // Get complete subsections by WebSite ID with all content elements and translations
-  // const useGetCompleteByWebSiteId = (
-  //   websiteId: string,
-  //   activeOnly = true,
-  //   limit = 100,
-  //   skip = 0
-  // ) => {
-  //   return useQuery({
-  //     queryKey: [...completeSubsectionsByWebSiteKey(websiteId), { activeOnly, limit, skip }],
-  //     queryFn: async () => {
-  //       const { data } = await apiClient.get(`${endpoint}/website/${websiteId}/complete`, {
-  //         params: { activeOnly, limit, skip }
-  //       });
-  //       return data;
-  //     },
-  //     enabled: !!websiteId && websiteId !== "null"
-  //   });
-  // };
+  const useGetCompleteByWebSiteId = (
+    websiteId: string,
+    activeOnly = true,
+    limit = 100,
+    skip = 0
+  ) => {
+    return useQuery({
+      queryKey: [...completeSubsectionsByWebSiteKey(websiteId), { activeOnly, limit, skip }],
+      queryFn: async () => {
+        const { data } = await apiClient.get(`${endpoint}/website/${websiteId}/complete`, {
+          params: { activeOnly, limit, skip }
+        });
+        return data;
+      },
+      enabled: !!websiteId && websiteId !== "null"
+    });
+  };
   // Get all subsections
   const useGetAll = (activeOnly = true, limit = 100, skip = 0, includeContentCount = false) => {
     return useQuery({
@@ -561,7 +561,7 @@ export function useSubSections() {
     useGetCompleteById,
     useGetCompleteBySlug,
     useGetByWebSiteId,
-    // useGetCompleteByWebSiteId,
+    useGetCompleteByWebSiteId,
     useGetMainByWebSiteId,
     // useManageActivation,
     useToggleActive,

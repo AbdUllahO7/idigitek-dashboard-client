@@ -5,8 +5,8 @@ import { FieldConfig } from "@/src/api/types/hooks/MultilingualSection.types";
 // Translation keys for team navigation section
 export const teamNavigationTranslations = {
   en: {
-    sectionName: "Team Navigation",
-    sectionDescription: "Navigation configuration for team section",
+    sectionName: "Navigation",
+    sectionDescription: "{t('Navigation.NavigationConfiguration')} for team section",
     navigationName: "Navigation Name",
     navigationUrl: "Navigation URL",
     navigationDescription: "Navigation Description",
@@ -18,7 +18,7 @@ export const teamNavigationTranslations = {
     urlDescription: "Enter the URL for this navigation item. Can be relative (/team) or absolute (https://example.com/team)"
   },
   ar: {
-    sectionName: "تنقل الفريق",
+    sectionName: "Navigation",
     sectionDescription: "إعداد التنقل لقسم الفريق",
     navigationName: "اسم التنقل",
     navigationUrl: "رابط التنقل",
@@ -31,7 +31,7 @@ export const teamNavigationTranslations = {
     urlDescription: "أدخل الرابط لعنصر التنقل هذا. يمكن أن يكون نسبياً (/team) أو مطلقاً (https://example.com/team)"
   },
   tr: {
-    sectionName: "Takım Navigasyonu",
+    sectionName: "Navigation",
     sectionDescription: "Takım bölümü için navigasyon yapılandırması",
     navigationName: "Navigasyon Adı",
     navigationUrl: "Navigasyon URL'si",

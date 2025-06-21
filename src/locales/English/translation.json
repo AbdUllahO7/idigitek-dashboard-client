@@ -4319,6 +4319,18 @@
     "addBenefit": "Add Benefit"
   },
 
+  "Navigation" : {
+    "ContentConfiguration" : "Content Configuration",
+    "NavigationConfiguration" : "Content Configuration",
+    "EditNavigation" : "Edit Navigation",
+    "CreateNavigation" : "Create Navigation",
+    "description" : "Update the navigation name and URL for the section.",
+    "description1":"Configure the navigation settings for your section.",
+    "NavigationLanguages" : "Navigation Languages",
+    "NavigationSettings" : "Navigation Settings",
+    "AddSubNavigation" : "Add SubNavigation",
+    "enable": "Enable sub-navigation for this service"
+  },
   "common": {
     "welcome": "Welcome",
     "logout": "Log out",

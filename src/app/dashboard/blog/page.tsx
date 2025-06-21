@@ -12,6 +12,11 @@ import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
 import { blogSectionConfig } from "./BlogSectionConfig"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
+import { Navigation, Users } from "lucide-react"
+import CreateNavigationSubSection from "../team/navigation/CreateNavigationSubSection"
+import { getTeamNavigationSectionConfig } from "../team/navigation/team-navigation-config"
+import { useTranslation } from "react-i18next"
 
 // Configuration for the Blog page
 const BLOG_CONFIG = {
@@ -72,11 +77,15 @@ const BLOG_COLUMNS = [
 
 export default function BlogPage() {
   const searchParams = useSearchParams()
+    const { t, i18n } = useTranslation()
+
   const sectionId = searchParams.get("sectionId")
   const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
   const { websiteId } = useWebsiteContext();
+  const NavigationConfig = getTeamNavigationSectionConfig(i18n.language);
+  const [hasNavigationSubSection, setHasNavigationSubSection] = useState<boolean>(false)
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
@@ -119,62 +128,130 @@ export default function BlogPage() {
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {    
-
-    
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
       setIsLoadingMainSubSection(true);
       return;
     }
     
+    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data);
+    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data);
+    
     // We're done loading, now check the data
     let foundMainSubSection = false;
+    let foundNavigationSubSection = false;
     let mainSubSection = null;
     
-    // Get expected name from configuration
-    const expectedSlug = blogSectionConfig.name;
+    // 🔧 FIXED: Use NEWS configurations instead of team configurations
+    const expectedNewsSlug = blogSectionConfig.name; // This is correct for NEWS
+    const expectedNavigationSlug = NavigationConfig.name; // This is correct for NEWS navigation
+
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
       const sectionData = sectionSubsections.data;
       
       if (Array.isArray(sectionData)) {
-        // Find the main subsection in the array with correct name
+        // 🔧 FIXED: Find the main NEWS subsection (not team!)
         mainSubSection = sectionData.find(sub => 
-          sub.isMain === true && sub.name === expectedSlug
+          sub.isMain === true && sub.name === expectedNewsSlug
         );
         foundMainSubSection = !!mainSubSection;
-      } else {
-        // Single object response
-        foundMainSubSection = sectionData.isMain === true && sectionData.name === expectedSlug;
-        mainSubSection = foundMainSubSection ? sectionData : null;
-      }
-      
 
+        // Check for navigation subsection - be more flexible in matching
+        const navigationSubSection = sectionData.find(sub => {
+          // Match by type first (most reliable)
+          if (sub.type === NavigationConfig.type) return true;
+          // Match by name
+          if (sub.name === expectedNavigationSlug) return true;
+          // Match by partial name (in case of slug differences)
+          if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true;
+          return false;
+        });
+        foundNavigationSubSection = !!navigationSubSection;
+        
+        console.log('📋 Found in section data:', {
+          mainSubSection: mainSubSection?.name,
+          foundMainSubSection,
+          foundNavigationSubSection
+        });
+      } else {
+        // Single object response - check if it's news main or navigation
+        if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
+          foundMainSubSection = true;
+          mainSubSection = sectionData;
+        }
+        
+        // Check if it's a news navigation subsection
+        if (sectionData.type === NavigationConfig.type || 
+            sectionData.name === expectedNavigationSlug ||
+            (sectionData.name && sectionData.name.toLowerCase().includes('news') && sectionData.name.toLowerCase().includes('navigation'))) {
+          foundNavigationSubSection = true;
+        }
+      }
     }
     
     // If we didn't find anything in the section-specific data, check the website-wide data
-    if (!foundMainSubSection && mainSubSectionData?.data) {
+    if ((!foundMainSubSection || !foundNavigationSubSection) && mainSubSectionData?.data) {
       const websiteData = mainSubSectionData.data;
       
       if (Array.isArray(websiteData)) {
-        // Find the main subsection in the array with correct name
-        mainSubSection = websiteData.find(sub => 
-          sub.isMain === true && sub.name === expectedSlug
-        );
-        foundMainSubSection = !!mainSubSection;
-      } else {
-        // Single object response
-        foundMainSubSection = websiteData.isMain === true && websiteData.name === expectedSlug;
-        mainSubSection = foundMainSubSection ? websiteData : null;
-      }
+        // 🔧 FIXED: Find the main NEWS subsection (not team!)
+        if (!foundMainSubSection) {
+          mainSubSection = websiteData.find(sub => 
+            sub.isMain === true && sub.name === expectedNewsSlug
+          );
+          foundMainSubSection = !!mainSubSection;
+        }
 
+        // Check for navigation subsection - be more flexible in matching
+        if (!foundNavigationSubSection) {
+          const navigationSubSection = websiteData.find(sub => {
+            // Match by type first (most reliable)
+            if (sub.type === NavigationConfig.type) return true;
+            // Match by name
+            if (sub.name === expectedNavigationSlug) return true;
+            // Match by partial name (in case of slug differences)
+            if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true;
+            return false;
+          });
+          foundNavigationSubSection = !!navigationSubSection;
+        }
+        
+        console.log('📋 Found in website data:', {
+          mainSubSection: mainSubSection?.name,
+          foundMainSubSection,
+          foundNavigationSubSection
+        });
+      } else {
+        // Single object response - check what type it is
+        if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
+          foundMainSubSection = true;
+          mainSubSection = websiteData;
+        }
+        
+        // Check if it's a navigation subsection
+        if (!foundNavigationSubSection && (
+          websiteData.type === NavigationConfig.type || 
+          websiteData.name === expectedNavigationSlug ||
+          (websiteData.name && websiteData.name.toLowerCase().includes('news') && websiteData.name.toLowerCase().includes('navigation'))
+        )) {
+          foundNavigationSubSection = true;
+        }
+      }
     }
     
-
-    
     // Update state based on what we found
+    console.log('📰 News detection results:', {
+      foundMainSubSection,
+      foundNavigationSubSection,
+      mainSubSection: mainSubSection?.name,
+      expectedNewsSlug,
+      expectedNavigationSlug
+    });
+    
     setHasMainSubSection(foundMainSubSection);
+    setHasNavigationSubSection(foundNavigationSubSection);
     setIsLoadingMainSubSection(false);
     
     // Extract section data from the main subsection if we found one
@@ -183,14 +260,15 @@ export default function BlogPage() {
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
       
-      
       // Set local section data
       setSectionData(sectionInfo);
       
-      // Update the blogSection in useGenericList hook if not already set
+      // Update the newsSection in useGenericList hook if not already set
       if (blogSection === null) {
         setSection(sectionInfo);
       }
+      
+      console.log('✅ News section data set:', sectionInfo);
     }
     
   }, [
@@ -200,7 +278,10 @@ export default function BlogPage() {
     isLoadingSectionSubsections, 
     sectionId, 
     blogSection, 
-    setSection
+    setSection,
+    blogSectionConfig.name,        
+    NavigationConfig.name,     
+    NavigationConfig.type      
   ]);
 
   // Handle main subsection creation
@@ -230,7 +311,36 @@ export default function BlogPage() {
       refetchMainSubSection();
     }
   };
-
+  // Handle navigation subsection creation
+  const handleNavigationSubSectionCreated = (subsection: any) => {
+    console.log('📰 News navigation subsection created:', subsection);
+    
+    // 🔧 FIXED: Check if subsection has the correct name or type for NEWS
+    const expectedSlug = NavigationConfig.name;
+    const expectedType = NavigationConfig.type;
+    const hasCorrectIdentifier = (
+      subsection.name === expectedSlug || 
+      subsection.type === expectedType ||
+      (subsection.name && subsection.name.toLowerCase().includes('news') && subsection.name.toLowerCase().includes('navigation'))
+    );
+    
+    // Set that we have a navigation subsection now
+    setHasNavigationSubSection(hasCorrectIdentifier);
+    
+    console.log('📰 News navigation subsection check:', {
+      actualName: subsection.name,
+      expectedSlug,
+      expectedType,
+      hasCorrectIdentifier
+    });
+    
+    // Force refetch of all subsection data
+    if (refetchMainSubSection) {
+      setTimeout(() => {
+        refetchMainSubSection();
+      }, 1000); // Give it a bit more time to ensure data is saved
+    }
+  };
   // Logic for disabling the add button
   const isAddButtonDisabled: boolean = 
     Boolean(defaultAddButtonDisabled) || 
@@ -297,13 +407,38 @@ export default function BlogPage() {
       
       {/* Main subsection management (only shown when section exists) */}
       {sectionId && (
-        <CreateMainSubSection 
-          sectionId={sectionId}
-          sectionConfig={blogSectionConfig}
-          onSubSectionCreated={handleMainSubSectionCreated}
-          onFormValidityChange={() => {/* We don't need to track form validity */}}
-        />
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="content" className="flex items-center gap-2">
+              <Users size={16} />
+              {t('Navigation.ContentConfiguration')}
+            </TabsTrigger>
+            <TabsTrigger value="navigation" className="flex items-center gap-2">
+              <Navigation size={16} />
+              {t('Navigation.NavigationConfiguration')}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="content" className="mt-6">
+            <CreateMainSubSection 
+              sectionId={sectionId}
+              sectionConfig={blogSectionConfig}
+              onSubSectionCreated={handleMainSubSectionCreated}
+              onFormValidityChange={() => {/* We don't need to track form validity */}}
+            />
+          </TabsContent>
+          
+          <TabsContent value="navigation" className="mt-6">
+            <CreateNavigationSubSection 
+              sectionId={sectionId}
+              sectionConfig={NavigationConfig}
+              onSubSectionCreated={handleNavigationSubSectionCreated}
+              onFormValidityChange={() => {/* We don't need to track form validity */}}
+            />
+          </TabsContent>
+        </Tabs>
       )}
+      
     </div>
   );
 }

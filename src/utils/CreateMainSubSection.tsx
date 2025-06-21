@@ -72,8 +72,6 @@ const findElementByFieldAcrossLanguages = (contentElements: any[], fieldId: stri
     )
   }
   
-
-  
   // Find element by any of the possible labels
   for (const label of possibleLabels) {
     element = contentElements.find(el => el.name === label)
@@ -206,7 +204,7 @@ export default function CreateMainSubSection({
   const { language } = useLanguage()
   const isRtl = language === "ar"
   
-  // State - Removed activeTab since we're using cards
+  // State
   const [isCreating, setIsCreating] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
   const [isCreatingElements, setIsCreatingElements] = useState(false)
@@ -221,6 +219,10 @@ export default function CreateMainSubSection({
   const [isExpanded, setIsExpanded] = useState(true)
   const [languageForms, setLanguageForms] = useState<Record<string, any>>({})
   const languagesInitialized = useRef(false)
+  
+  // 🔧 FIXED: Add state to track if this component is processing
+  const [isProcessing, setIsProcessing] = useState(false)
+  const lastProcessedDataRef = useRef<string>('')
 
   const { websiteId } = useWebsiteContext();
 
@@ -243,6 +245,9 @@ export default function CreateMainSubSection({
   
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
   
+  // 🔧 FIXED: Add a key to track refetch requests from this component
+  const mainSubsectionRefetchKey = useRef(0)
+  
   // Data fetching with refetch capability
   const {
     data: completeSubsectionsData,
@@ -259,18 +264,21 @@ export default function CreateMainSubSection({
   const createTranslationMutation = useCreateTranslation();
   const updateTranslationMutation = useUpdateTranslation();
 
-  // Reset the forms state when data changes and ensure forms are properly refreshed
+  // 🔧 FIXED: More controlled form reinitialization
   useEffect(() => {
-    if (completeSubsectionsData?.data) {
-      // Reset form initialization to force reload of form data
-      setFormsInitialized(false);
+    if (completeSubsectionsData?.data && !isProcessing) {
+      const dataKey = JSON.stringify(completeSubsectionsData.data)
+      if (lastProcessedDataRef.current !== dataKey) {
+        setFormsInitialized(false);
+        lastProcessedDataRef.current = dataKey
+      }
     }
-  }, [completeSubsectionsData]);
+  }, [completeSubsectionsData, isProcessing]);
   
   // Force form reinitialization when language changes
   useEffect(() => {
     if (formsInitialized && language) {
-      setFormsInitialized(false) // This will trigger form reinitialization
+      setFormsInitialized(false)
     }
   }, [language])
   
@@ -366,7 +374,7 @@ export default function CreateMainSubSection({
     }
   }, [languages, formInstances])
   
-  // Initialize selected languages (removed activeTab initialization)
+  // Initialize selected languages
   useEffect(() => {
     if (languages.length > 0 && !languagesInitialized.current) {
       setSelectedLanguages(languages.map((lang: { _id: any }) => lang._id))
@@ -374,32 +382,29 @@ export default function CreateMainSubSection({
     }
   }, [languages])
   
-  // FIXED: Process complete subsection data - check for correct section name AND isMain flag
+  // 🔧 FIXED: More specific filtering for MAIN subsections only
   useEffect(() => {
-    console.log('Checking subsections data:', completeSubsectionsData?.data);
-    console.log('Looking for section config:', sectionConfig.name, sectionConfig.type);
+    console.log(`[MAIN-${sectionConfig.name}] Checking subsections data:`, completeSubsectionsData?.data);
+    console.log(`[MAIN-${sectionConfig.name}] Looking for section config:`, sectionConfig.name, sectionConfig.type);
     
-    if (completeSubsectionsData?.data && completeSubsectionsData.data.length > 0) {
-      // Find main subsection with correct name and isMain flag - be more specific
+    if (completeSubsectionsData?.data && completeSubsectionsData.data.length > 0 && !isProcessing) {
+      // 🔧 FIXED: ONLY look for MAIN subsections that match this config
       const mainSubsection = completeSubsectionsData.data.find((sub: { isMain: boolean; name: string; type: string }) => {
-        console.log('Checking subsection:', { name: sub.name, type: sub.type, isMain: sub.isMain });
+        console.log(`[MAIN-${sectionConfig.name}] Checking subsection:`, { 
+          name: sub.name, 
+          type: sub.type, 
+          isMain: sub.isMain,
+          matches: sub.isMain === true && (sub.name === sectionConfig.name || sub.type === sectionConfig.type)
+        });
         
-        // Must be main and have the correct name
-        if (sub.isMain === true && sub.name === sectionConfig.name) {
-          console.log('Found by name match');
-          return true;
-        }
-        // Also check by type if name doesn't match but type does
-        if (sub.isMain === true && sub.type === sectionConfig.type) {
-          console.log('Found by type match');
-          return true;
-        }
-        return false;
+        // Must be main and have the correct name/type - be very specific
+        return sub.isMain === true && (sub.name === sectionConfig.name || sub.type === sectionConfig.type);
       });
       
-      console.log('Found main subsection:', mainSubsection);
+      console.log(`[MAIN-${sectionConfig.name}] Found main subsection:`, mainSubsection);
       
       if (mainSubsection && JSON.stringify(mainSubsection) !== JSON.stringify(subsection)) {
+        console.log(`[MAIN-${sectionConfig.name}] Setting main subsection data`);
         setSubsection(mainSubsection)
         setSubsectionExists(true)
         if (mainSubsection.elements && mainSubsection.elements.length > 0) {
@@ -417,8 +422,7 @@ export default function CreateMainSubSection({
           onFormValidityChange(true)
         }
       } else if (!mainSubsection) {
-        // Reset state if no main subsection found
-        console.log('No matching main subsection found, resetting state');
+        console.log(`[MAIN-${sectionConfig.name}] No matching main subsection found, resetting state`);
         setSubsection(null)
         setSubsectionExists(false)
         setContentElements([])
@@ -428,9 +432,8 @@ export default function CreateMainSubSection({
           onFormValidityChange(false, t('mainSubsection.enterMainSectionData'))
         }
       }
-    } else {
-      // Reset state if no data
-      console.log('No subsections data, resetting state');
+    } else if (!completeSubsectionsData?.data || completeSubsectionsData.data.length === 0) {
+      console.log(`[MAIN-${sectionConfig.name}] No subsections data, resetting state`);
       setSubsection(null)
       setSubsectionExists(false)
       setContentElements([])
@@ -440,18 +443,19 @@ export default function CreateMainSubSection({
         onFormValidityChange(false, t('mainSubsection.enterMainSectionData'))
       }
     }
-  }, [completeSubsectionsData, onFormValidityChange, subsection, t, sectionConfig.name, sectionConfig.type])
+  }, [completeSubsectionsData, onFormValidityChange, subsection, t, sectionConfig.name, sectionConfig.type, isProcessing])
   
-  // Initialize forms with data - FIXED VERSION
+  // Initialize forms with data
   useEffect(() => {
     if (
       contentElements.length > 0 &&
       Object.keys(contentTranslations).length > 0 &&
       !formsInitialized &&
       languages.length > 0 &&
-      Object.keys(languageForms).length > 0
+      Object.keys(languageForms).length > 0 &&
+      !isProcessing
     ) {
-      console.log('Initializing forms with language:', language)
+      console.log(`[MAIN-${sectionConfig.name}] Initializing forms with language:`, language)
       
       languages.forEach((lang: { languageID: string | number; _id: any }) => {
         const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
@@ -459,10 +463,9 @@ export default function CreateMainSubSection({
         const fieldValues: Record<string, string> = {}
         
         fields.forEach((field: any) => {
-          // Use the helper function to find element across languages
           const element = findElementByFieldAcrossLanguages(contentElements, field.id, sectionConfig)
           if (!element) {
-            console.warn(`Could not find element for field: ${field.id} (${field.label})`)
+            console.warn(`[MAIN-${sectionConfig.name}] Could not find element for field: ${field.id} (${field.label})`)
             return
           }
           
@@ -484,7 +487,7 @@ export default function CreateMainSubSection({
       
       setFormsInitialized(true)
     }
-  }, [contentElements, contentTranslations, languages, fields, languageForms, formsInitialized, language, sectionConfig])
+  }, [contentElements, contentTranslations, languages, fields, languageForms, formsInitialized, language, sectionConfig, isProcessing])
   
   // Check if any required fields are empty in the default language form
   const checkFormsEmpty = useCallback(() => {
@@ -503,7 +506,6 @@ export default function CreateMainSubSection({
       }
     })
     
-    // Only update if there's a change to avoid unnecessary re-renders
     setHasEmptyRequiredFields(prev => {
       if (prev !== isEmpty) {
         return isEmpty
@@ -511,7 +513,6 @@ export default function CreateMainSubSection({
       return prev
     })
     
-    // Only set expanded if we're in edit mode and fields are empty
     if (isEmpty && isEditMode) {
       setIsExpanded(true)
     }
@@ -534,7 +535,7 @@ export default function CreateMainSubSection({
   
   // Watch for form changes to validate in real-time
   useEffect(() => {
-    if (defaultLanguage && languageForms[defaultLanguage.languageID] && formsInitialized) {
+    if (defaultLanguage && languageForms[defaultLanguage.languageID] && formsInitialized && !isProcessing) {
       const form = languageForms[defaultLanguage.languageID]
       const subscription = form.watch(() => {
         debouncedCheckFormsEmpty()
@@ -544,7 +545,7 @@ export default function CreateMainSubSection({
         debouncedCheckFormsEmpty.cancel()
       }
     }
-  }, [defaultLanguage, languageForms, formsInitialized, debouncedCheckFormsEmpty])
+  }, [defaultLanguage, languageForms, formsInitialized, debouncedCheckFormsEmpty, isProcessing])
   
   // Validate all forms
   const validateAllForms = async () => {
@@ -564,11 +565,13 @@ export default function CreateMainSubSection({
     return true
   }
   
-  // Create new subsection - FIXED VERSION
+  // 🔧 FIXED: Create new subsection with better state management
   const handleCreateSubsection = async () => {
     if (!(await validateAllForms())) return
     try {
+      setIsProcessing(true) // Prevent interference
       setIsCreating(true)
+      
       const subSectionData = {
         name: sectionConfig.name,
         description: sectionConfig.description,
@@ -583,16 +586,17 @@ export default function CreateMainSubSection({
         languages: selectedLanguages,
         metadata: {
           fields: sectionConfig.fields,
-          elementsMapping: sectionConfig.elementsMapping
+          elementsMapping: sectionConfig.elementsMapping,
+          componentType: 'main' // Add identifier
         }
       }
 
-      console.log('Creating subsection with data:', subSectionData);
+      console.log(`[MAIN-${sectionConfig.name}] Creating subsection with data:`, subSectionData);
 
       const response = await createMutation.mutateAsync(subSectionData)
       if (response?.data) {
         const createdSubsection = response.data
-        console.log('Subsection created:', createdSubsection);
+        console.log(`[MAIN-${sectionConfig.name}] Subsection created:`, createdSubsection);
         setSubsection(createdSubsection)
         setIsCreatingElements(true)
         
@@ -600,8 +604,8 @@ export default function CreateMainSubSection({
         const elementPromises = sectionConfig.fields.map(async (field: any, index: number) => {
           try {
             const elementData = {
-              name: field.id, // Use field.id instead of field.label for language independence
-              displayName: field.label, // Store current translation as display name
+              name: field.id,
+              displayName: field.label,
               defaultContent: languageForms[defaultLanguage.languageID].getValues()[field.id],
               type: field.type === 'textarea' ? 'text' : 'text',
               order: index,
@@ -611,7 +615,8 @@ export default function CreateMainSubSection({
               metadata: {
                 fieldId: field.id,
                 fieldType: field.type,
-                originalLabel: field.label
+                originalLabel: field.label,
+                componentType: 'main' // Add identifier
               }
             }
             
@@ -670,33 +675,40 @@ export default function CreateMainSubSection({
         setIsEditMode(false)
         setIsExpanded(false)
         
-        // After all operations are complete, refetch the data to update the UI
+        // 🔧 FIXED: Controlled refetch with delay
+        mainSubsectionRefetchKey.current += 1
         setTimeout(async () => {
           try {
+            console.log(`[MAIN-${sectionConfig.name}] Refetching data after creation`);
             await refetchCompleteSubsections()
           } catch (refetchError) {
             console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.creation')}:`, refetchError)
+          } finally {
+            setIsProcessing(false) // Allow processing again
           }
-        }, 500)
+        }, 1000)
       }
     } catch (error: any) {
-      console.error("Error in handleCreateSubsection:", error)
+      console.error(`[MAIN-${sectionConfig.name}] Error in handleCreateSubsection:`, error)
       toast({
         title: t('mainSubsection.errorCreatingSubsection'),
         description: error.message || t('mainSubsection.unexpectedError'),
         variant: "destructive"
       })
+      setIsProcessing(false) // Reset on error
     } finally {
       setIsCreating(false)
       setIsCreatingElements(false)
     }
   }
   
-  // Update existing subsection - FIXED VERSION
+  // 🔧 FIXED: Update existing subsection with better state management
   const handleUpdateSubsection = async () => {
     if (!(await validateAllForms())) return
     try {
+      setIsProcessing(true) // Prevent interference
       setIsUpdating(true)
+      
       await updateMutation.mutateAsync({
         id: subsection._id,
         data: {
@@ -709,7 +721,6 @@ export default function CreateMainSubSection({
       // Update elements and translations with proper error handling
       const updatePromises = contentElements.map(async (element) => {
         try {
-          // Use the helper function to find the corresponding field
           let field = null
           for (const f of sectionConfig.fields) {
             const foundElement = findElementByFieldAcrossLanguages([element], f.id, sectionConfig)
@@ -720,7 +731,7 @@ export default function CreateMainSubSection({
           }
           
           if (!field) {
-            console.warn(`Could not find matching field for element: ${element.name}`)
+            console.warn(`[MAIN-${sectionConfig.name}] Could not find matching field for element: ${element.name}`)
             return
           }
           
@@ -730,14 +741,14 @@ export default function CreateMainSubSection({
               id: element._id,
               data: { 
                 defaultContent,
-                // Migrate to new naming scheme if needed
                 name: field.id,
                 displayName: field.label,
                 metadata: {
                   fieldId: field.id,
                   fieldType: field.type,
                   originalLabel: field.label,
-                  migrated: true
+                  migrated: true,
+                  componentType: 'main' // Add identifier
                 }
               }
             })
@@ -753,22 +764,18 @@ export default function CreateMainSubSection({
               const content = formValues[field.id]
               const elementTranslations = contentTranslations[element._id] || []
               
-              // Find the translation for this language - improved comparison
               const existingTranslation = elementTranslations.find(t => {
-                // Handle both string ID and object reference cases
                 const translationLangId = typeof t.language === 'string' ? t.language : (t.language?._id || t.language)
                 const currentLangId = lang._id
                 return translationLangId === currentLangId
               })
               
               if (existingTranslation) {
-                // If translation exists, update it
                 return await updateTranslationMutation.mutateAsync({
                   id: existingTranslation._id,
                   data: { content }
                 })
               } else {
-                // If translation doesn't exist, create it
                 return await createTranslationMutation.mutateAsync({
                   content,
                   language: lang._id,
@@ -800,27 +807,32 @@ export default function CreateMainSubSection({
       setIsEditMode(false)
       setIsExpanded(false)
       
-      // After all operations are complete, refetch the data to update the UI
+      // 🔧 FIXED: Controlled refetch with delay
+      mainSubsectionRefetchKey.current += 1
       setTimeout(async () => {
         try {
+          console.log(`[MAIN-${sectionConfig.name}] Refetching data after update`);
           await refetchCompleteSubsections()
         } catch (refetchError) {
           console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.update')}:`, refetchError)
+        } finally {
+          setIsProcessing(false) // Allow processing again
         }
-      }, 500)
+      }, 1000)
     } catch (error: any) {
-      console.error("Error in handleUpdateSubsection:", error)
+      console.error(`[MAIN-${sectionConfig.name}] Error in handleUpdateSubsection:`, error)
       toast({
         title: t('mainSubsection.errorUpdatingSubsection'),
         description: error.message || t('mainSubsection.unexpectedError'),
         variant: "destructive"
       })
+      setIsProcessing(false) // Reset on error
     } finally {
       setIsUpdating(false)
     }
   }
   
-  // Render language cards instead of tabs
+  // Render language cards
   const renderLanguageCards = () => {
     if (!languages || languages.length === 0) return null;
 
@@ -874,10 +886,6 @@ export default function CreateMainSubSection({
   }
   
   if (subsectionExists && subsection && !isEditMode) {
-    const subsectionData = {
-      ...subsection,
-      elements: contentElements
-    }
     return (
       <SuccessCard
         title={t('mainSubsection.mainSubsectionAvailableTitle')}
@@ -925,6 +933,15 @@ export default function CreateMainSubSection({
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
+            {/* Processing indicator */}
+            {isProcessing && (
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-blue-800 dark:text-blue-200 text-sm font-medium">
+                  ⚡ {t('mainSubsection.processingChanges', 'Processing changes...')}
+                </p>
+              </div>
+            )}
+            
             {/* Language cards container */}
             <div className="mb-6">
               <div className="flex items-center mb-4">
@@ -946,13 +963,14 @@ export default function CreateMainSubSection({
         {isExpanded ? (
           <>
             <ActionButton
-              isLoading={false}
+              isLoading={isProcessing}
               isCreating={isCreating}
               isCreatingElements={isCreatingElements}
               isUpdating={isUpdating}
               exists={subsectionExists}
               onClick={subsectionExists ? handleUpdateSubsection : handleCreateSubsection}
               className="flex-1"
+              disabled={isProcessing}
             />
             {subsectionExists && (
               <CancelButton
@@ -969,7 +987,8 @@ export default function CreateMainSubSection({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsExpanded(true)}
-            className="w-full py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-200 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
+            disabled={isProcessing}
+            className="w-full py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-200 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50"
           >
             <div className="flex items-center justify-center">
               <ChevronDown size={18} className="mr-2" />

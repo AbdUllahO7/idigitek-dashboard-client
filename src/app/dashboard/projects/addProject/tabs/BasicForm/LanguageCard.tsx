@@ -28,7 +28,7 @@ interface LanguageCardProps {
 
 export const LanguageCard = memo(
   ({ langCode, form, isFirstLanguage = false, onClose, onFileUpload, onFileRemove }: LanguageCardProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(true)
+    const [isCollapsed, setIsCollapsed] = useState(false)
     const [uploadedFile, setUploadedFile] = useState<File | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const { t } = useTranslation()

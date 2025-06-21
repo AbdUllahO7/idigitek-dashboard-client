@@ -13,6 +13,39 @@ import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
 import { getContactSectionConfig } from "./ContactSectionConfig"
 import { useTranslation } from "react-i18next"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
+import CreateNavigationSubSection from "../team/navigation/CreateNavigationSubSection"
+import { Navigation, Users } from "lucide-react"
+import { getTeamNavigationSectionConfig } from "../team/navigation/team-navigation-config"
+
+// Contact {t('Navigation.NavigationConfiguration')} Function
+const getContactNavigationSectionConfig = (language: string = 'en') => {
+  const configs = {
+    en: {
+      name: "Contact Navigation",
+      type: "contactNavigation",
+      description: "Navigation settings for contact section",
+      title: "Contact {t('Navigation.NavigationConfiguration')}",
+      subtitle: "Configure navigation settings for your contact section"
+    },
+    ar: {
+      name: "تنقل جهات الاتصال",
+      type: "contactNavigation", 
+      description: "إعدادات التنقل لقسم جهات الاتصال",
+      title: "تكوين تنقل جهات الاتصال",
+      subtitle: "تكوين إعدادات التنقل لقسم جهات الاتصال الخاص بك"
+    },
+    tr: {
+      name: "İletişim Navigasyonu",
+      type: "contactNavigation",
+      description: "İletişim bölümü için navigasyon ayarları", 
+      title: "İletişim Navigasyon Yapılandırması",
+      subtitle: "İletişim bölümünüz için navigasyon ayarlarını yapılandırın"
+    }
+  };
+  
+  return configs[language as keyof typeof configs] || configs.en;
+};
 
 export default function ContactPage() {
   const searchParams = useSearchParams()
@@ -24,9 +57,13 @@ export default function ContactPage() {
   const { t, i18n } = useTranslation()
   const currentLanguage = i18n.language; // 'en', 'ar', 'tr'
   const contactSectionConfig = getContactSectionConfig(currentLanguage);
+  const [hasNavigationSubSection, setHasNavigationSubSection] = useState<boolean>(false)
+  
+  // Use Contact {t('Navigation.NavigationConfiguration')} instead of Team
+  const contactNavigationConfig = getTeamNavigationSectionConfig(i18n.language);
 
   // Memoized configuration for the Contact page with translations
-  const PROJECTS_CONFIG = useMemo(() => ({
+  const CONTACTS_CONFIG = useMemo(() => ({
     title: t('contactPage.config.title'),
     description: t('contactPage.config.description'),
     addButtonLabel: t('contactPage.config.addButtonLabel'),
@@ -44,7 +81,7 @@ export default function ContactPage() {
   }), [t]);
 
   // Contact table column definitions with translations
-  const PROJECTS_COLUMNS = useMemo(() => [
+  const CONTACTS_COLUMNS = useMemo(() => [
     {
       header: t('contactPage.table.columns.name'),
       accessor: "name",
@@ -121,81 +158,162 @@ export default function ContactPage() {
   } = useGenericList({
     sectionId,
     apiHooks: useSectionItems(),
-    editPath: PROJECTS_CONFIG.editPath
+    editPath: CONTACTS_CONFIG.editPath
   })
+
+  // Handle navigation subsection creation
+  const handleNavigationSubSectionCreated = (subsection: any) => {
+    console.log('📞 Contact navigation subsection created:', subsection);
+    
+    // Check if subsection has the correct name or type for CONTACT
+    const expectedSlug = contactNavigationConfig.name;
+    const expectedType = contactNavigationConfig.type;
+    const hasCorrectIdentifier = (
+      subsection.name === expectedSlug || 
+      subsection.type === expectedType ||
+      (subsection.name && subsection.name.toLowerCase().includes('contact') && subsection.name.toLowerCase().includes('navigation'))
+    );
+    
+    // Set that we have a navigation subsection now
+    setHasNavigationSubSection(hasCorrectIdentifier);
+    
+    console.log('📞 Contact navigation subsection check:', {
+      actualName: subsection.name,
+      expectedSlug,
+      expectedType,
+      hasCorrectIdentifier
+    });
+    
+    // Force refetch of all subsection data
+    if (refetchMainSubSection) {
+      setTimeout(() => {
+        refetchMainSubSection();
+      }, 1000); // Give it a bit more time to ensure data is saved
+    }
+  };
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {    
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
-      console.log("Still loading subsection data...");
       setIsLoadingMainSubSection(true);
       return;
     }
     
+    console.log('📞 Contact data check - sectionSubsections:', sectionSubsections?.data);
+    console.log('📞 Contact data check - mainSubSectionData:', mainSubSectionData?.data);
+    
     // We're done loading, now check the data
     let foundMainSubSection = false;
+    let foundNavigationSubSection = false;
     let mainSubSection = null;
     
-    // Get expected name from configuration
-    const expectedSlug = contactSectionConfig.name;
-    console.log("Expected subsection name:", expectedSlug);
+    // Use CONTACT configurations
+    const expectedContactSlug = contactSectionConfig.name;
+    const expectedNavigationSlug = contactNavigationConfig.name;
+    
+    console.log('🔍 Looking for Contact configurations:', {
+      expectedContactSlug,
+      expectedNavigationSlug,
+      currentLanguage
+    });
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
       const sectionData = sectionSubsections.data;
       
       if (Array.isArray(sectionData)) {
-        // Find the main subsection in the array with correct name
+        // Find the main CONTACT subsection
         mainSubSection = sectionData.find(sub => 
-          sub.isMain === true && sub.name === expectedSlug
+          sub.isMain === true && sub.name === expectedContactSlug
         );
         foundMainSubSection = !!mainSubSection;
+
+        // Check for navigation subsection - be more flexible in matching
+        const navigationSubSection = sectionData.find(sub => {
+          // Match by type first (most reliable)
+          if (sub.type === contactNavigationConfig.type) return true;
+          // Match by name
+          if (sub.name === expectedNavigationSlug) return true;
+          // Match by partial name (in case of slug differences)
+          if (sub.name && sub.name.toLowerCase().includes('contact') && sub.name.toLowerCase().includes('navigation')) return true;
+          return false;
+        });
+        foundNavigationSubSection = !!navigationSubSection;
+        
+        console.log('📋 Found in section data:', {
+          mainSubSection: mainSubSection?.name,
+          foundMainSubSection,
+          foundNavigationSubSection
+        });
       } else {
-        // Single object response
-        foundMainSubSection = sectionData.isMain === true && sectionData.name === expectedSlug;
-        mainSubSection = foundMainSubSection ? sectionData : null;
+        // Single object response - check if it's contact main or navigation
+        if (sectionData.isMain === true && sectionData.name === expectedContactSlug) {
+          foundMainSubSection = true;
+          mainSubSection = sectionData;
+        }
+        
+        // Check if it's a contact navigation subsection
+        if (sectionData.type === contactNavigationConfig.type || 
+            sectionData.name === expectedNavigationSlug ||
+            (sectionData.name && sectionData.name.toLowerCase().includes('contact') && sectionData.name.toLowerCase().includes('navigation'))) {
+          foundNavigationSubSection = true;
+        }
       }
-      
-      console.log("Section subsections check:", { 
-        foundMainSubSection, 
-        mainSubSection,
-        matchesSlug: mainSubSection ? mainSubSection.name === expectedSlug : false
-      });
     }
     
     // If we didn't find anything in the section-specific data, check the website-wide data
-    if (!foundMainSubSection && mainSubSectionData?.data) {
+    if ((!foundMainSubSection || !foundNavigationSubSection) && mainSubSectionData?.data) {
       const websiteData = mainSubSectionData.data;
       
       if (Array.isArray(websiteData)) {
-        // Find the main subsection in the array with correct name
-        mainSubSection = websiteData.find(sub => 
-          sub.isMain === true && sub.name === expectedSlug
-        );
-        foundMainSubSection = !!mainSubSection;
+        // Find the main CONTACT subsection
+        if (!foundMainSubSection) {
+          mainSubSection = websiteData.find(sub => 
+            sub.isMain === true && sub.name === expectedContactSlug
+          );
+          foundMainSubSection = !!mainSubSection;
+        }
+
+        // Check for navigation subsection - be more flexible in matching
+        if (!foundNavigationSubSection) {
+          const navigationSubSection = websiteData.find(sub => {
+            // Match by type first (most reliable)
+            if (sub.type === contactNavigationConfig.type) return true;
+            // Match by name
+            if (sub.name === expectedNavigationSlug) return true;
+            // Match by partial name (in case of slug differences)
+            if (sub.name && sub.name.toLowerCase().includes('contact') && sub.name.toLowerCase().includes('navigation')) return true;
+            return false;
+          });
+          foundNavigationSubSection = !!navigationSubSection;
+        }
+        
+        console.log('📋 Found in website data:', {
+          mainSubSection: mainSubSection?.name,
+          foundMainSubSection,
+          foundNavigationSubSection
+        });
       } else {
-        // Single object response
-        foundMainSubSection = websiteData.isMain === true && websiteData.name === expectedSlug;
-        mainSubSection = foundMainSubSection ? websiteData : null;
+        // Single object response - check what type it is
+        if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedContactSlug) {
+          foundMainSubSection = true;
+          mainSubSection = websiteData;
+        }
+        
+        // Check if it's a navigation subsection
+        if (!foundNavigationSubSection && (
+          websiteData.type === contactNavigationConfig.type || 
+          websiteData.name === expectedNavigationSlug ||
+          (websiteData.name && websiteData.name.toLowerCase().includes('contact') && websiteData.name.toLowerCase().includes('navigation'))
+        )) {
+          foundNavigationSubSection = true;
+        }
       }
-      
-      console.log("Website subsections check:", { 
-        foundMainSubSection, 
-        mainSubSection,
-        matchesSlug: mainSubSection ? mainSubSection.name === expectedSlug : false
-      });
     }
     
-    console.log("Final subsection result:", { 
-      foundMainSubSection, 
-      mainSubSection,
-      name: mainSubSection?.name,
-      expectedSlug
-    });
-    
-    // Update state based on what we found
     setHasMainSubSection(foundMainSubSection);
+    setHasNavigationSubSection(foundNavigationSubSection);
     setIsLoadingMainSubSection(false);
     
     // Extract section data from the main subsection if we found one
@@ -204,8 +322,6 @@ export default function ContactPage() {
         ? { _id: mainSubSection.section } 
         : mainSubSection.section;
       
-      console.log("Setting section data:", sectionInfo);
-      
       // Set local section data
       setSectionData(sectionInfo);
       
@@ -213,6 +329,8 @@ export default function ContactPage() {
       if (contactSection === null) {
         setSection(sectionInfo);
       }
+      
+      console.log('✅ Contact section data set:', sectionInfo);
     }
     
   }, [
@@ -223,12 +341,14 @@ export default function ContactPage() {
     sectionId, 
     contactSection, 
     setSection,
-    contactSectionConfig.name
+    contactSectionConfig.name,
+    contactNavigationConfig.name,
+    contactNavigationConfig.type
   ]);
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
+    console.log("📞 Contact main subsection created:", subsection);
     
     // Check if subsection has the correct name
     const expectedSlug = contactSectionConfig.name;
@@ -238,7 +358,7 @@ export default function ContactPage() {
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
     // Log the name check
-    console.log("Main subsection name check:", {
+    console.log("📞 Contact main subsection name check:", {
       actualSlug: subsection.name,
       expectedSlug,
       isCorrect: hasCorrectSlug
@@ -269,15 +389,15 @@ export default function ContactPage() {
 
   // Custom message for empty state with translations
   const emptyStateMessage = !contactSection && !sectionData 
-    ? PROJECTS_CONFIG.noSectionMessage 
+    ? CONTACTS_CONFIG.noSectionMessage 
     : (!hasMainSubSection && !isLoadingMainSubSection && sectionId)
-      ? PROJECTS_CONFIG.mainSectionRequiredMessage
-      : PROJECTS_CONFIG.emptyStateMessage;
+      ? CONTACTS_CONFIG.mainSectionRequiredMessage
+      : CONTACTS_CONFIG.emptyStateMessage;
 
   // Components with translations
   const ContactTable = (
     <GenericTable
-      columns={PROJECTS_COLUMNS}
+      columns={CONTACTS_COLUMNS}
       data={contactItems}
       onEdit={handleEdit}
       onDelete={showDeleteDialog}
@@ -304,7 +424,6 @@ export default function ContactPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-
     />
   );
 
@@ -312,7 +431,7 @@ export default function ContactPage() {
     <div className="space-y-6">
       {/* Main list page with table and section integration */}
       <GenericListPage
-        config={PROJECTS_CONFIG}
+        config={CONTACTS_CONFIG}
         sectionId={sectionId}
         sectionConfig={contactSectionConfig}
         isAddButtonDisabled={isAddButtonDisabled}
@@ -326,14 +445,38 @@ export default function ContactPage() {
         customEmptyMessage={emptyStateMessage}
       />
       
-      {/* Main subsection management (only shown when section exists) */}
+      {/* Section Configuration Tabs (only shown when section exists) */}
       {sectionId && (
-        <CreateMainSubSection 
-          sectionId={sectionId}
-          sectionConfig={contactSectionConfig}
-          onSubSectionCreated={handleMainSubSectionCreated}
-          onFormValidityChange={() => {/* We don't need to track form validity */}}
-        />
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="content" className="flex items-center gap-2">
+              <Users size={16} />
+              {t('Navigation.ContentConfiguration')}
+            </TabsTrigger>
+            <TabsTrigger value="navigation" className="flex items-center gap-2">
+              <Navigation size={16} />
+              {t('Navigation.NavigationConfiguration')}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="content" className="mt-6">
+            <CreateMainSubSection 
+              sectionId={sectionId}
+              sectionConfig={contactSectionConfig}
+              onSubSectionCreated={handleMainSubSectionCreated}
+              onFormValidityChange={() => {/* We don't need to track form validity */}}
+            />
+          </TabsContent>
+          
+          <TabsContent value="navigation" className="mt-6">
+            <CreateNavigationSubSection 
+              sectionId={sectionId}
+              sectionConfig={contactNavigationConfig}
+              onSubSectionCreated={handleNavigationSubSectionCreated}
+              onFormValidityChange={() => {/* We don't need to track form validity */}}
+            />
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );

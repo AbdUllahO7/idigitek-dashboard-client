@@ -155,15 +155,90 @@ export const CurrentSectionsTab = ({
     setImageModalOpen(true)
   }
 
+  // 🔧 FIXED: Improved section image matching function
   const getSectionImage = (section: Section) => {
-    // Try to find the section in predefined sections to get the image
-    const predefinedSection = PREDEFINED_SECTIONS.find(
-      ps => ps.subName.toLowerCase() === section.name.toLowerCase() ||
-            ps.nameKey.includes(section.name.toLowerCase()) ||
-            ps.subName === section.sectionType
-    )
-    return predefinedSection?.image
-  }
+    if (!section) return null;
+
+    // Normalize function to clean up strings for comparison
+    const normalize = (str: string) => {
+      return str.toLowerCase()
+        .replace(/[^a-z0-9]/g, '') // Remove special characters and spaces
+        .trim();
+    };
+
+    // Get various possible names from the section
+    const possibleNames = [
+      section.name,
+      section.sectionType,
+      section.type,
+      section.slug,
+      // Add any other fields that might contain the section name
+    ].filter(Boolean).map(name => normalize(name));
+
+    console.log('Looking for image for section:', section.name, 'Possible names:', possibleNames);
+
+    // Try to find matching predefined section
+    const predefinedSection = PREDEFINED_SECTIONS.find(ps => {
+      // Normalize predefined section identifiers
+      const normalizedSubName = normalize(ps.subName);
+      const normalizedNameKey = normalize(ps.nameKey);
+      
+      // Extract the last part of nameKey (after the last dot)
+      const nameKeyParts = ps.nameKey.split('.');
+      const normalizedNameKeyLast = normalize(nameKeyParts[nameKeyParts.length - 1]);
+
+      console.log(`Checking predefined section: ${ps.subName}`, {
+        normalizedSubName,
+        normalizedNameKeyLast,
+        normalizedNameKey
+      });
+
+      // Check if any of the possible names match
+      return possibleNames.some(possibleName => {
+        const matches = (
+          // Direct match with subName
+          possibleName === normalizedSubName ||
+          // Match with the last part of nameKey (most common case)
+          possibleName === normalizedNameKeyLast ||
+          // Partial match with nameKey
+          normalizedNameKey.includes(possibleName) ||
+          possibleName.includes(normalizedSubName) ||
+          // Check common variations
+          possibleName.includes('header') && normalizedSubName.includes('header') ||
+          possibleName.includes('hero') && normalizedSubName.includes('hero') ||
+          possibleName.includes('service') && normalizedSubName.includes('service') ||
+          possibleName.includes('news') && normalizedSubName.includes('news') ||
+          possibleName.includes('solution') && normalizedSubName.includes('solution') ||
+          possibleName.includes('project') && normalizedSubName.includes('project') ||
+          possibleName.includes('team') && normalizedSubName.includes('team') ||
+          possibleName.includes('contact') && normalizedSubName.includes('contact') ||
+          possibleName.includes('footer') && normalizedSubName.includes('footer') ||
+          possibleName.includes('blog') && normalizedSubName.includes('blog') ||
+          possibleName.includes('faq') && normalizedSubName.includes('faq') ||
+          possibleName.includes('partner') && normalizedSubName.includes('partner') ||
+          possibleName.includes('comment') && normalizedSubName.includes('comment') ||
+          possibleName.includes('testimonial') && normalizedSubName.includes('comment') ||
+          possibleName.includes('process') && normalizedSubName.includes('process') ||
+          possibleName.includes('choose') && normalizedSubName.includes('choose') ||
+          possibleName.includes('why') && normalizedSubName.includes('choose')
+        );
+
+        if (matches) {
+          console.log(`✅ Match found: ${possibleName} matches ${ps.subName}`);
+        }
+
+        return matches;
+      });
+    });
+
+    if (predefinedSection) {
+      console.log(`Found image for ${section.name}:`, predefinedSection.image);
+      return predefinedSection.image;
+    }
+
+    console.log(`❌ No image found for section: ${section.name}`);
+    return null;
+  };
 
   return (
     <>
@@ -413,6 +488,16 @@ export const CurrentSectionsTab = ({
                                             alt={getTranslatedSectionName(section, t, ready)}
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover/image:scale-105"
                                             onClick={() => openImageModal(sectionImage, getTranslatedSectionName(section, t, ready))}
+                                            onError={(e) => {
+                                              console.error('Failed to load image:', sectionImage);
+                                              // Hide the image on error
+                                              const img = e.target as HTMLImageElement;
+                                              img.style.display = 'none';
+                                              // Show the parent's fallback content
+                                              if (img.parentElement) {
+                                                img.parentElement.classList.add('show-fallback');
+                                              }
+                                            }}
                                           />
                                           {/* Zoom Icon Overlay */}
                                           <div 
@@ -424,31 +509,33 @@ export const CurrentSectionsTab = ({
                                             </div>
                                           </div>
                                         </>
-                                      ) : (
-                                        <>
-                                          {/* Fallback gradient background */}
-                                          <div className={cn(
-                                            "w-full h-full flex items-center justify-center bg-gradient-to-br opacity-20",
-                                            visualInfo.bgColor || visualInfo.color
-                                          )}>
-                                            <div className="text-4xl sm:text-6xl text-slate-300 dark:text-slate-600">
-                                              {visualInfo.icon}
-                                            </div>
+                                      ) : null}
+                                      
+                                      {/* Fallback content - shown when no image or image fails to load */}
+                                      <div className={cn(
+                                        "w-full h-full flex items-center justify-center bg-gradient-to-br opacity-20",
+                                        sectionImage ? "absolute inset-0 opacity-0 show-fallback:opacity-100" : "",
+                                        visualInfo.bgColor || visualInfo.color
+                                      )}>
+                                        <div className="text-4xl sm:text-6xl text-slate-300 dark:text-slate-600">
+                                          {visualInfo.icon}
+                                        </div>
+                                      </div>
+                                      
+                                      {/* Section Icon Overlay */}
+                                      <div className={cn(
+                                        "absolute inset-0 flex items-center justify-center",
+                                        sectionImage ? "opacity-0 show-fallback:opacity-100" : ""
+                                      )}>
+                                        <div className={cn(
+                                          "p-2 sm:p-3 rounded-lg bg-gradient-to-br shadow-lg opacity-90",
+                                          visualInfo.color
+                                        )}>
+                                          <div className="text-white text-sm sm:text-base">
+                                            {visualInfo.icon}
                                           </div>
-                                          
-                                          {/* Section Icon Overlay */}
-                                          <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className={cn(
-                                              "p-2 sm:p-3 rounded-lg bg-gradient-to-br shadow-lg opacity-90",
-                                              visualInfo.color
-                                            )}>
-                                              <div className="text-white text-sm sm:text-base">
-                                                {visualInfo.icon}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </>
-                                      )}
+                                        </div>
+                                      </div>
                                       
                                       {/* Section Name Overlay */}
                                       <div className="absolute bottom-1 left-1 right-1">
@@ -527,6 +614,16 @@ export const CurrentSectionsTab = ({
         imageAlt={selectedImage.alt}
         t={t}
       />
+
+      {/* Add this CSS to your global styles or component styles */}
+      <style jsx global>{`
+        .show-fallback img {
+          display: none !important;
+        }
+        .show-fallback .opacity-0 {
+          opacity: 1 !important;
+        }
+      `}</style>
     </>
   )
 }

@@ -4376,6 +4376,18 @@
     "description": "إدارة محتوى الفوائد للغة {{lang}}",
     "addBenefit": "إضافة فائدة"
   },
+"Navigation" : {
+    "ContentConfiguration" : "تكوين المحتوى",
+    "NavigationConfiguration" : "تكوين التنقل",
+    "EditNavigation" : "تحرير التنقل",
+    "CreateNavigation": "إنشاء التنقل",
+    "description" : "تحديث اسم التنقل ورابطه للقسم",
+    "description1":"قم بتكوين إعدادات التنقل لقسمك.",
+    "NavigationLanguages" : "لغات التنقل",
+    "NavigationSettings" : "إعدادات التنقل",
+    "AddSubNavigation" : "إضافة تنقل فرعي",
+    "enable": "تفعيل التنقل الفرعي لهذه الخدمة"
+  },
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

@@ -30,7 +30,7 @@ export default function Team() {
 
   // Get translated configurations based on current language
   const teamSectionConfig = getTeamSectionConfig(i18n.language);
-  const teamNavigationConfig = getTeamNavigationSectionConfig(i18n.language);
+  const NavigationConfig = getTeamNavigationSectionConfig(i18n.language);
 
   // Configuration for the Team page using translations
   const TEAM_CONFIG = {
@@ -146,7 +146,7 @@ export default function Team() {
     
     // Get expected names from configurations
     const expectedTeamSlug = teamSectionConfig.name;
-    const expectedNavigationSlug = teamNavigationConfig.name;
+    const expectedNavigationSlug = NavigationConfig.name;
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -162,7 +162,7 @@ export default function Team() {
         // Check for navigation subsection - be more flexible in matching
         const navigationSubSection = sectionData.find(sub => {
           // Match by type first (most reliable)
-          if (sub.type === teamNavigationConfig.type) return true;
+          if (sub.type === NavigationConfig.type) return true;
           // Match by name
           if (sub.name === expectedNavigationSlug) return true;
           // Match by partial name (in case of slug differences)
@@ -178,7 +178,7 @@ export default function Team() {
         }
         
         // Check if it's a navigation subsection
-        if (sectionData.type === teamNavigationConfig.type || 
+        if (sectionData.type === NavigationConfig.type || 
             sectionData.name === expectedNavigationSlug ||
             (sectionData.name && sectionData.name.toLowerCase().includes('navigation'))) {
           foundNavigationSubSection = true;
@@ -203,7 +203,7 @@ export default function Team() {
         if (!foundNavigationSubSection) {
           const navigationSubSection = websiteData.find(sub => {
             // Match by type first (most reliable)
-            if (sub.type === teamNavigationConfig.type) return true;
+            if (sub.type === NavigationConfig.type) return true;
             // Match by name
             if (sub.name === expectedNavigationSlug) return true;
             // Match by partial name (in case of slug differences)
@@ -221,7 +221,7 @@ export default function Team() {
         
         // Check if it's a navigation subsection
         if (!foundNavigationSubSection && (
-          websiteData.type === teamNavigationConfig.type || 
+          websiteData.type === NavigationConfig.type || 
           websiteData.name === expectedNavigationSlug ||
           (websiteData.name && websiteData.name.toLowerCase().includes('navigation'))
         )) {
@@ -267,8 +267,8 @@ export default function Team() {
     teamSection, 
     setSection,
     teamSectionConfig.name,
-    teamNavigationConfig.name,
-    teamNavigationConfig.type
+    NavigationConfig.name,
+    NavigationConfig.type
   ]);
 
   // Handle main subsection creation
@@ -301,8 +301,8 @@ export default function Team() {
     console.log('Navigation subsection created:', subsection);
     
     // Check if subsection has the correct name or type
-    const expectedSlug = teamNavigationConfig.name;
-    const expectedType = teamNavigationConfig.type;
+    const expectedSlug = NavigationConfig.name;
+    const expectedType = NavigationConfig.type;
     const hasCorrectIdentifier = (
       subsection.name === expectedSlug || 
       subsection.type === expectedType ||
@@ -389,11 +389,11 @@ export default function Team() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Users size={16} />
-              Content Configuration
+              {t('Navigation.ContentConfiguration')}
             </TabsTrigger>
             <TabsTrigger value="navigation" className="flex items-center gap-2">
               <Navigation size={16} />
-              Navigation Configuration
+              {t('Navigation.NavigationConfiguration')}
             </TabsTrigger>
           </TabsList>
           
@@ -411,7 +411,7 @@ export default function Team() {
             {/* Navigation subsection management */}
             <CreateNavigationSubSection 
               sectionId={sectionId}
-              sectionConfig={teamNavigationConfig}
+              sectionConfig={NavigationConfig}
               onSubSectionCreated={handleNavigationSubSectionCreated}
               onFormValidityChange={() => {/* We don't need to track form validity */}}
             />

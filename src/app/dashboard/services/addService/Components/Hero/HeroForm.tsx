@@ -3,9 +3,11 @@
 import { forwardRef, useEffect, useState, useRef, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next"; // or your i18n hook
-import { Form } from "@/src/components/ui/form";
+import { useTranslation } from "react-i18next";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
+import { Switch } from "@/src/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections";
 import { useContentElements } from "@/src/hooks/webConfiguration/use-content-elements";
 import apiClient from "@/src/lib/api-client";
@@ -14,7 +16,7 @@ import { createLanguageCodeMap } from "../../Utils/language-utils";
 import { BackgroundImageSection } from "./SimpleImageUploader";
 import { LanguageCard } from "./LanguageCard";
 import { processAndLoadData } from "../../Utils/load-form-data";
-import { Loader2, Save, Trash2 } from "lucide-react";
+import { Loader2, Save, Navigation } from "lucide-react";
 import { createHeroDefaultValues } from "../../Utils/Language-default-values";
 import { useImageUploader } from "../../Utils/Image-uploader";
 import { createFormRef } from "../../Utils/Expose-form-data";
@@ -27,6 +29,7 @@ import { createHeroSchema } from "../../Utils/language-specific-schemas";
 import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content-translations";
 import { DeleteConfirmationDialog } from "@/src/components/DeleteConfirmationDialog";
 import { useSubsectionDeleteManager } from "@/src/hooks/DeleteSubSections/useSubsectionDeleteManager";
+import { useSearchParams } from "next/navigation";
 
 const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
   const { 
@@ -38,21 +41,23 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     initialData 
   } = props;
 
-  const { t } = useTranslation(); // i18n hook
+  const { t } = useTranslation();
   const { websiteId } = useWebsiteContext();
+  const searchParams = useSearchParams();
+  const sectionIdFromUrl = searchParams.get("sectionId") || "";
 
-  // Setup form with schema validation
-  const formSchema = createHeroSchema(languageIds, activeLanguages);
-  const defaultValues = createHeroDefaultValues(languageIds, activeLanguages);
+  // Setup form with schema validation - Updated to include navigation fields
+  const formSchema = createHeroSchema(languageIds, activeLanguages, true); 
+  const defaultValues = createHeroDefaultValues(languageIds, activeLanguages, true); 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: "onChange" // Enable validation on change for better UX
+    mode: "onChange"
   });
 
   // State management
   const [state, setState] = useState({
-    isLoadingData: !!slug, // Fixed: should be true if slug exists initially
+    isLoadingData: !!slug,
     dataLoaded: !slug,
     hasUnsavedChanges: false,
     existingSubSectionId: null as string | null,
@@ -98,6 +103,29 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
   const createContentElement = useCreateContentElement();
   const bulkUpsertTranslations = useBulkUpsertTranslations();
 
+  // Dynamic URL construction function
+  const constructDynamicUrl = useCallback((subsectionId: string) => {
+    // Get base URL from environment or use default
+    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek-client-dynamic.vercel.app";
+    
+    // Construct the dynamic URL for service details
+    const dynamicUrl = `${baseUrl}/Pages/ServiceDetailsPage/${subsectionId}`;
+    
+    return dynamicUrl;
+  }, []);
+
+  // Update dynamic URL when IDs change
+  useEffect(() => {
+    if (existingSubSectionId && websiteId) {
+      const currentDynamicUrl = form.getValues("dynamicUrl");
+      if (!currentDynamicUrl) {
+        const dynamicUrl = constructDynamicUrl(existingSubSectionId);
+        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        console.log("AUTO-SETTING Dynamic URL:", dynamicUrl);
+      }
+    }
+  }, [existingSubSectionId, websiteId, constructDynamicUrl, form]);
+
   // Image upload hook
   const { 
     imageFile, 
@@ -116,7 +144,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     }),
     validate: (file: { type: string; }) => {
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-      return validTypes.includes(file.type) || 'Only JPEG, PNG, GIF, or SVG files are allowed';
+      return validTypes.includes(file.type) || t('heroForm.validation.imageType');
     }
   });
 
@@ -136,7 +164,12 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       activeLanguages,
       {
         groupElements: (elements) => ({
-          'hero': elements.filter(el => el.type === 'text' || (el.name === 'Background Image' && el.type === 'image'))
+          'hero': elements.filter(el => 
+            el.type === 'text' || 
+            (el.name === 'Background Image' && el.type === 'image') ||
+            (el.name === 'Add SubNavigation' && el.type === 'boolean') ||
+            (el.name === 'Dynamic URL' && el.type === 'text')
+          )
         }),
         processElementGroup: (groupId, elements, langId, getTranslationContent) => {
           const elementKeyMap: Record<string, keyof typeof result> = {
@@ -151,12 +184,14 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
             backLinkText: ''
           };
           
-          elements.filter(el => el.type === 'text').forEach(element => {
-            const key = elementKeyMap[element.name];
-            if (key) {
-              result[key] = getTranslationContent(element, '');
-            }
-          });
+          elements
+            .filter(el => el.type === 'text' && el.name !== 'Dynamic URL')
+            .forEach(element => {
+              const key = elementKeyMap[element.name];
+              if (key) {
+                result[key] = getTranslationContent(element, '');
+              }
+            });
           
           return result;
         },
@@ -185,7 +220,39 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     if (bgImageElement?.imageUrl) {
       form.setValue('backgroundImage', bgImageElement.imageUrl);
     }
-  }, [form, languageIds, activeLanguages, updateState]);
+
+    // Handle subNavigation setting
+    const subNavElement = subsectionData?.elements?.find(
+      (el) => el.name === 'Add SubNavigation' && el.type === 'boolean'
+    ) || subsectionData?.contentElements?.find(
+      (el) => el.name === 'Add SubNavigation' && el.type === 'boolean'
+    );
+
+    if (subNavElement) {
+      const booleanValue = subNavElement.defaultContent === "true" || subNavElement.defaultContent === true;
+      form.setValue("addSubNavigation", booleanValue);
+    }
+
+    // Handle dynamic URL
+    const dynamicUrlElement = subsectionData?.elements?.find(
+      (el) => el.name === 'Dynamic URL' && el.type === 'text'
+    ) || subsectionData?.contentElements?.find(
+      (el) => el.name === 'Dynamic URL' && el.type === 'text'
+    );
+
+    console.log("LOADING DATA - Dynamic URL element found:", dynamicUrlElement);
+    console.log("LOADING DATA - Dynamic URL defaultContent:", dynamicUrlElement?.defaultContent);
+
+    if (dynamicUrlElement?.defaultContent) {
+      form.setValue("dynamicUrl", dynamicUrlElement.defaultContent);
+      console.log("LOADING DATA - Set dynamic URL from element:", dynamicUrlElement.defaultContent);
+    } else if (subsectionData?._id && websiteId) {
+      // Construct dynamic URL if not found in data
+      const dynamicUrl = constructDynamicUrl(subsectionData._id);
+      form.setValue("dynamicUrl", dynamicUrl);
+      console.log("LOADING DATA - Constructed dynamic URL:", dynamicUrl);
+    }
+  }, [form, languageIds, activeLanguages, updateState, websiteId, constructDynamicUrl]);
 
   // Delete functionality using the delete manager
   const deleteManager = useSubsectionDeleteManager({
@@ -197,6 +264,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     customWarnings: [
       "The hero background image will be permanently deleted",
       "All hero content and translations will be removed",
+      "Navigation settings will be lost",
       "This may affect the main visual presentation of your website"
     ],
     shouldRefetch: !!slug,
@@ -215,7 +283,6 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     },
     onDataChange,
     onDeleteSuccess: async () => {
-      // Custom success handling after deletion
       updateState({ isRefreshingAfterDelete: true });
       
       if (slug) {
@@ -260,6 +327,16 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       if (initialData.image) {
         form.setValue('backgroundImage', initialData.image);
       }
+
+      // Set default value for addSubNavigation if not provided
+      if (initialData.addSubNavigation !== undefined) {
+        form.setValue("addSubNavigation", initialData.addSubNavigation);
+      }
+
+      // Set dynamic URL if available
+      if (initialData.dynamicUrl) {
+        form.setValue("dynamicUrl", initialData.dynamicUrl);
+      }
       
       updateState({ 
         dataLoaded: true, 
@@ -289,6 +366,18 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       dataProcessed.current = true;
     }
   }, [completeSubsectionData, isLoadingSubsection, slug, processHeroData, updateState]);
+
+  // Ensure dynamic URL is always set when data is loaded
+  useEffect(() => {
+    if (dataLoaded && existingSubSectionId && websiteId) {
+      const currentDynamicUrl = form.getValues("dynamicUrl");
+      if (!currentDynamicUrl) {
+        const dynamicUrl = constructDynamicUrl(existingSubSectionId);
+        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        console.log("FALLBACK - Setting Dynamic URL after data loaded:", dynamicUrl);
+      }
+    }
+  }, [dataLoaded, existingSubSectionId, websiteId, constructDynamicUrl, form]);
 
   // Form watch effect for unsaved changes
   useEffect(() => {
@@ -345,6 +434,9 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
 
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
+    const allFormValues = form.getValues();
+    console.log("allFormValues BEFORE processing", allFormValues);
+
     // Validate form
     const isValid = await form.trigger();
     if (!isValid) {
@@ -359,8 +451,6 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     updateState({ isSaving: true });
     
     try {
-      const allFormValues = form.getValues();
-
       // Step 1: Create or update subsection
       let sectionId = existingSubSectionId;
       if (!sectionId) {
@@ -384,6 +474,11 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         const newSubSection = await createSubSection.mutateAsync(subsectionData);
         sectionId = newSubSection.data._id;
         updateState({ existingSubSectionId: sectionId });
+
+        // Update dynamic URL with the new subsection ID
+        const dynamicUrl = constructDynamicUrl(sectionId);
+        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        console.log("NEW SECTION - Dynamic URL set to:", dynamicUrl);
       } else {
         const updateData = {
           isActive: true,
@@ -395,7 +490,19 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           id: sectionId,
           data: updateData
         });
+
+        // Ensure dynamic URL is set for existing sections too
+        const currentDynamicUrl = form.getValues("dynamicUrl");
+        if (!currentDynamicUrl) {
+          const dynamicUrl = constructDynamicUrl(sectionId);
+          form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+          console.log("EXISTING SECTION - Dynamic URL set to:", dynamicUrl);
+        }
       }
+
+      // Get updated form values after dynamic URL has been set
+      const updatedFormValues = form.getValues();
+      console.log("allFormValues AFTER dynamic URL update", updatedFormValues);
 
       if (!sectionId) {
         throw new Error("Failed to create or retrieve subsection ID");
@@ -417,8 +524,26 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           }
         }
 
+        // Update subNavigation boolean element
+        const subNavElement = contentElements.find((e) => e.name === "Add SubNavigation" && e.type === "boolean");
+        if (subNavElement) {
+          await apiClient.put(`/content-elements/${subNavElement._id}`, {
+            defaultContent: String(allFormValues.addSubNavigation)
+          });
+        }
+
+        // Update dynamic URL element
+        const dynamicUrlElement = contentElements.find((e) => e.name === "Dynamic URL" && e.type === "text");
+        if (dynamicUrlElement) {
+          const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId);
+          console.log("UPDATING existing Dynamic URL element with:", finalDynamicUrl);
+          await apiClient.put(`/content-elements/${dynamicUrlElement._id}`, {
+            defaultContent: finalDynamicUrl
+          });
+        }
+
         // Update translations for text elements
-        const textElements = contentElements.filter((e) => e.type === "text");
+        const textElements = contentElements.filter((e) => e.type === "text" && e.name !== "Dynamic URL");
         const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
         const elementNameToKeyMap: Record<string, 'title' | 'description' | 'backLinkText'> = {
           'Title': 'title',
@@ -426,8 +551,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           'Back Link Text': 'backLinkText'
         };
 
-        Object.entries(allFormValues).forEach(([langCode, values]) => {
-          if (langCode === "backgroundImage") return;
+        Object.entries(updatedFormValues).forEach(([langCode, values]) => {
+          if (langCode === "backgroundImage" || langCode === "addSubNavigation" || langCode === "dynamicUrl") return;
           
           const langId = langCodeToIdMap[langCode];
           if (!langId) return;
@@ -449,9 +574,11 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           await bulkUpsertTranslations.mutateAsync(translations);
         }
       } else {
-        // Create new content elements
+        // Create new content elements - Updated to include navigation fields
         const elementTypes = [
           { type: "image", key: "backgroundImage", name: "Background Image" },
+          { type: "boolean", key: "addSubNavigation", name: "Add SubNavigation" },
+          { type: "text", key: "dynamicUrl", name: "Dynamic URL" },
           { type: "text", key: "title", name: "Title" },
           { type: "text", key: "description", name: "Description" },
           { type: "text", key: "backLinkText", name: "Back Link Text" }
@@ -462,8 +589,15 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           let defaultContent = "";
           if (el.type === "image") {
             defaultContent = "image-placeholder";
-          } else if (el.type === "text" && typeof allFormValues[defaultLangCode] === "object") {
-            const langValues = allFormValues[defaultLangCode];
+          } else if (el.type === "boolean") {
+            defaultContent = String(updatedFormValues.addSubNavigation);
+          } else if (el.key === "dynamicUrl") {
+            // Ensure dynamic URL is properly constructed
+            const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId);
+            defaultContent = finalDynamicUrl;
+            console.log("CREATING new Dynamic URL element with:", finalDynamicUrl);
+          } else if (el.type === "text" && typeof updatedFormValues[defaultLangCode] === "object") {
+            const langValues = updatedFormValues[defaultLangCode];
             defaultContent = langValues && typeof langValues === "object" && el.key in langValues
               ? langValues[el.key]
               : "";
@@ -490,12 +624,16 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           await uploadImage(bgImageElement._id, imageFile);
         }
 
-        // Create translations for new elements
-        const textElements = createdElements.filter((e) => e.key !== "backgroundImage");
+        // Create translations for new elements (excluding navigation fields)
+        const textElements = createdElements.filter((e) => 
+          e.key !== "backgroundImage" && 
+          e.key !== "addSubNavigation" && 
+          e.key !== "dynamicUrl"
+        );
         const translations: (Omit<ContentTranslation, "_id"> & { id?: string; })[] = [];
         
-        Object.entries(allFormValues).forEach(([langCode, langValues]) => {
-          if (langCode === "backgroundImage") return;
+        Object.entries(updatedFormValues).forEach(([langCode, langValues]) => {
+          if (langCode === "backgroundImage" || langCode === "addSubNavigation" || langCode === "dynamicUrl") return;
           
           const langId = langCodeToIdMap[langCode];
           if (!langId) return;
@@ -538,20 +676,24 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         }
       } else {
         // For new subsections, manually update form
-        const updatedData = {
-          ...allFormValues,
-          backgroundImage: form.getValues("backgroundImage")
+        const finalUpdatedData = {
+          ...updatedFormValues,
+          backgroundImage: form.getValues("backgroundImage"),
+          addSubNavigation: form.getValues("addSubNavigation"),
+          dynamicUrl: form.getValues("dynamicUrl"),
         };
-        
-        Object.entries(updatedData).forEach(([key, value]) => {
-          if (key !== "backgroundImage") {
+
+        Object.entries(finalUpdatedData).forEach(([key, value]) => {
+          if (key !== "backgroundImage" && key !== "addSubNavigation" && key !== "dynamicUrl") {
             Object.entries(value).forEach(([field, content]) => {
               form.setValue(`${key}.${field}`, content, { shouldDirty: false });
             });
           }
         });
         
-        form.setValue("backgroundImage", updatedData.backgroundImage, { shouldDirty: false });
+        form.setValue("backgroundImage", finalUpdatedData.backgroundImage, { shouldDirty: false });
+        form.setValue("addSubNavigation", finalUpdatedData.addSubNavigation, { shouldDirty: false });
+        form.setValue("dynamicUrl", finalUpdatedData.dynamicUrl, { shouldDirty: false });
       }
 
       return true;
@@ -590,7 +732,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     updateSubSection, 
     uploadImage, 
     activeLanguages,
-    websiteId
+    websiteId,
+    constructDynamicUrl
   ]);
 
   // Create form ref for parent component
@@ -608,11 +751,15 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     },
     extraData: {
       imageFile,
-      existingSubSectionId
+      existingSubSectionId,
+      addSubNavigation: form.getValues("addSubNavigation"),
+      dynamicUrl: form.getValues("dynamicUrl"),
     }
   });
 
   const languageCodes = createLanguageCodeMap(activeLanguages);
+
+ 
 
   return (
     <div className="space-y-6">
@@ -641,14 +788,20 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         description={t('heroForm.loadingDialogs.refreshing.description')}
       />
 
-      {/* Delete Confirmation Dialog */}
-      {/* <DeleteConfirmationDialog
-        {...deleteManager.confirmationDialogProps}
-        title={t('heroForm.deleteDialog.title')}
-        description={t('heroForm.deleteDialog.description')}
-      /> */}
-      
       <Form {...form}>
+        {/* Hidden Dynamic URL Field */}
+        <FormField
+          control={form.control}
+          name="dynamicUrl"
+          render={({ field }) => (
+            <FormItem className="hidden">
+              <FormControl>
+                <input type="hidden" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
         {/* Background Image Section */}
         <BackgroundImageSection 
           imagePreview={imagePreview || undefined} 
@@ -660,6 +813,39 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           }}          
           onRemove={handleImageRemove}
         />
+
+        {/* Navigation Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Navigation className="h-5 w-5 mr-2" />
+{t('Navigation.NavigationSettings')}            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={form.control}
+              name="addSubNavigation"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base font-medium">
+                      {t('Navigation.AddSubNavigation')}
+                    </FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      {t('Navigation.enable')}
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
         
         {/* Language Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -676,46 +862,29 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         </div>
       </Form>
       
-      {/* Action Buttons */}
-      <div className="flex justify-end items-center mt-6">
-        {/* Delete Button - Only show if there's an existing subsection */}
-        {/* {existingSubSectionId && (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={deleteManager.openDeleteDialog}
-            disabled={isLoadingData || isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
-            className="flex items-center"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            {t('heroForm.buttons.delete')}
-          </Button>
-        )} */}
-
-        {/* Save Button */}
-        <div className={existingSubSectionId ? "" : "ml-auto"}>
-          <Button 
-            type="button" 
-            onClick={handleSave} 
-            disabled={ isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
-            className="flex items-center"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('heroForm.buttons.saving')}
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                {existingSubSectionId 
-                  ? t('heroForm.buttons.update')
-                  : t('heroForm.buttons.save')
-                }
-              </>
-            )}
-          </Button>
-        </div>
+      {/* Save Button */}
+      <div className="flex justify-end mt-6">
+        <Button 
+          type="button" 
+          onClick={handleSave} 
+          disabled={ isSaving || deleteManager.isDeleting || isRefreshingAfterDelete}
+          className="flex items-center"
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t('heroForm.buttons.saving')}
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              {existingSubSectionId 
+                ? t('heroForm.buttons.update')
+                : t('heroForm.buttons.save')
+              }
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

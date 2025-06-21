@@ -262,9 +262,9 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
 
       // Handle subNavigation setting
       const subNavElement = subsectionData?.elements?.find(
-        (el) => el.name === "Add SubNavigation" && el.type === "boolean"
+        (el) => el.name === "{t('Navigation.AddSubNavigation')}" && el.type === "boolean"
       ) || subsectionData?.contentElements?.find(
-        (el) => el.name === "Add SubNavigation" && el.type === "boolean"
+        (el) => el.name === "{t('Navigation.AddSubNavigation')}" && el.type === "boolean"
       )
 
       if (subNavElement) {
@@ -587,7 +587,7 @@ useEffect(() => {
         }
 
         // Update subNavigation boolean element
-        const subNavElement = contentElements.find((e) => e.name === "Add SubNavigation" && e.type === "boolean")
+        const subNavElement = contentElements.find((e) => e.name === "{t('Navigation.AddSubNavigation')}" && e.type === "boolean")
         if (subNavElement) {
           await apiClient.put(`/content-elements/${subNavElement._id}`, {
             defaultContent: String(allFormValues.addSubNavigation)
@@ -668,7 +668,7 @@ useEffect(() => {
         // Create new content elements - Updated to include navigation fields
         const elementTypes = [
           { type: "image", key: "backgroundImage", name: "Background Image" },
-          { type: "boolean", key: "addSubNavigation", name: "Add SubNavigation" },
+          { type: "boolean", key: "addSubNavigation", name: "{t('Navigation.AddSubNavigation')}" },
           { type: "text", key: "dynamicUrl", name: "Dynamic URL" },
           { type: "text", key: "title", name: "Title" },
           { type: "text", key: "description", name: "Description" },
@@ -959,9 +959,11 @@ useEffect(() => {
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base font-medium">
-{t('Navigation.AddSubNavigation')}                    </FormLabel>
+                        {t('Navigation.AddSubNavigation')}                    
+                        </FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      {t('Navigation.enable')}
+                    {t('Navigation.enable')}
+
                     </p>
                   </div>
                   <FormControl>

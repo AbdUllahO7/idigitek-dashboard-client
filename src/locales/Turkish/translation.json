@@ -4313,6 +4313,18 @@
     "description": "{{lang}} dili için avantaj içeriğini yönetin",
     "addBenefit": "Avantaj Ekle"
   },
+  "Navigation" : {
+    "ContentConfiguration" : "İçerik Yapılandırması",
+    "NavigationConfiguration" : "Navigasyon Yapılandırması",
+    "EditNavigation" : "Navigasyonu Düzenle",
+    "CreateNavigation" : "Navigasyon Oluştur",
+    "description" : "Bölüm için navigasyon adını ve URL'yi güncelle.",
+    "description1":"Bölümünüz için gezinme ayarlarını yapılandırın.",
+    "NavigationLanguages" : "Navigasyon Dilleri",
+    "NavigationSettings" : "Navigasyon Ayarları",
+    "AddSubNavigation" : "Alt Navigasyon Ekle",
+    "enable": "Bu hizmet için alt navigasyonu etkinleştir"
+    },
   "common": {
     "welcome": "Hoş geldiniz",
     "logout": "Çıkış yap",
