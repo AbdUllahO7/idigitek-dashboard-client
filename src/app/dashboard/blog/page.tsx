@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useSectionItems } from "@/src/hooks/webConfiguration/use-section-items"
 import { useGenericList } from "@/src/hooks/useGenericList"
 import { useSubSections } from "@/src/hooks/webConfiguration/use-subSections"
@@ -11,82 +11,81 @@ import DialogCreateSectionItem from "@/src/components/DialogCreateSectionItem"
 import CreateMainSubSection from "@/src/utils/CreateMainSubSection"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import DeleteSectionDialog from "@/src/components/DeleteSectionDialog"
-import { blogSectionConfig } from "./BlogSectionConfig"
+import {  getBlogSectionConfig } from "./BlogSectionConfig"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { Navigation, Users } from "lucide-react"
 import CreateNavigationSubSection from "../team/navigation/CreateNavigationSubSection"
 import { getTeamNavigationSectionConfig } from "../team/navigation/team-navigation-config"
 import { useTranslation } from "react-i18next"
 
-// Configuration for the Blog page
-const BLOG_CONFIG = {
-  title: "Blog Management",
-  description: "Manage your Blog inventory and multilingual content",
-  addButtonLabel: "Add New Blog item",
-  emptyStateMessage: "No Blog found. Create your first Blog by clicking the \"Add New Blog\" button.",
-  noSectionMessage: "Please create a Blog section first before adding Blog.",
-  mainSectionRequiredMessage: "Please enter your main section data before adding Blog.",
-  emptyFieldsMessage: "Please complete all required fields in the main section before adding Blog.",
-  sectionIntegrationTitle: "Blog Section Content",
-  sectionIntegrationDescription: "Manage your Blog section content in multiple languages.",
-  addSectionButtonLabel: "Add Blog Section",
-  editSectionButtonLabel: "Edit Blog Section",
-  saveSectionButtonLabel: "Save Blog Section",
-  listTitle: "Blog List",
-  editPath: "blog/addBlog"
-}
 
-// Blog table column definitions
-const BLOG_COLUMNS = [
-  {
-    header: "Name",
-    accessor: "name",
-    className: "font-medium"
-  },
-  {
-    header: "Description",
-    accessor: "description",
-    cell: TruncatedCell
-  },
-  {
-    header: "Status",
-    accessor: "isActive",
-    cell: (item: any, value: boolean) => (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center">
-          {StatusCell(item, value)}
-          {item.isMain && (
-            <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  },
-  {
-    header: "Order",
-    accessor: "order"
-  },
-  {
-    header: "Subsections",
-    accessor: "subsections.length",
-    cell: CountBadgeCell
-  }
-]
 
 export default function BlogPage() {
   const searchParams = useSearchParams()
-    const { t, i18n } = useTranslation()
-
+  const { t, i18n } = useTranslation()
   const sectionId = searchParams.get("sectionId")
   const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
-  const { websiteId } = useWebsiteContext();
-  const NavigationConfig = getTeamNavigationSectionConfig(i18n.language);
+  const { websiteId } = useWebsiteContext()
+  const NavigationConfig = getTeamNavigationSectionConfig(i18n.language)
   const [hasNavigationSubSection, setHasNavigationSubSection] = useState<boolean>(false)
+  const currentLanguage = i18n.language;
+  const blogSectionConfig = getBlogSectionConfig(currentLanguage);
 
+  const BLOG_CONFIG = useMemo(() => ({
+    title: t('BlogManagement.tabLabel'),
+    description: t('BlogManagement.createSubtitle'),
+    addButtonLabel: t('BlogManagement.createTitle'),
+    emptyStateMessage: t('BlogManagement.errorMessage'),
+    noSectionMessage: t('BlogManagement.createSubtitle'),
+    mainSectionRequiredMessage: t('BlogManagement.editSubtitleDefault'),
+    emptyFieldsMessage: t('BlogManagement.errorMessage'),
+    sectionIntegrationTitle: t('BlogManagement.formSections.blog'),
+    sectionIntegrationDescription: t('BlogManagement.editSubtitleDefault'),
+    addSectionButtonLabel: t('BlogManagement.createTitle'),
+    editSectionButtonLabel: t('BlogManagement.editTitle'),
+    saveSectionButtonLabel: t('BlogManagement.savedMessage'),
+    listTitle: t('BlogManagement.backToList'),
+    editPath: "blog/addBlog"
+  }), [t])
+  const BLOG_COLUMNS = [
+    {
+      header: t('servicesPage.table.columns.name'),
+      accessor: "name",
+      className: "font-medium"
+    },
+    {
+      header: t('servicesPage.table.columns.description'),
+      accessor: "description",
+      cell: TruncatedCell
+    },
+    {
+      header: t('servicesPage.table.columns.status'),
+      accessor: "isActive",
+      cell: (item: any, value: boolean) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center">
+            {StatusCell(item, value)}
+            {item.isMain && (
+              <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                {t('servicesPage.table.badges.main')}
+              </span>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: t('servicesPage.table.columns.order'),
+      accessor: "order"
+    },
+    {
+      header: t('servicesPage.table.columns.subsections'),
+      accessor: "subsections.length",
+      cell: CountBadgeCell
+    }
+  ]
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
   
@@ -134,58 +133,63 @@ export default function BlogPage() {
       return;
     }
     
-    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data);
+    console.log('📰 Blog section data check - sectionSubsections:', sectionSubsections?.data);
+    console.log('📰 Blog section data check - mainSubSectionData:', mainSubSectionData?.data);
     
     // We're done loading, now check the data
     let foundMainSubSection = false;
     let foundNavigationSubSection = false;
-    let mainSubSection = null;
+    let mainSubsection = null;
     
-    // 🔧 FIXED: Use NEWS configurations instead of team configurations
-    const expectedNewsSlug = blogSectionConfig.name; // This is correct for NEWS
-    const expectedNavigationSlug = NavigationConfig.name; // This is correct for NEWS navigation
-
+    // Use Blog configurations
+    const expectedBlogSlug = blogSectionConfig.name; // This is correct for Blog
+    const expectedNavigationSlug = NavigationConfig.name; // This is correct for Blog navigation
+    
+    console.log('🔍 Looking for Blog configurations:', {
+      expectedBlogSlug,
+      expectedNavigationSlug,
+      currentLanguage: i18n.language
+    });
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
       const sectionData = sectionSubsections.data;
       
       if (Array.isArray(sectionData)) {
-        // 🔧 FIXED: Find the main NEWS subsection (not team!)
-        mainSubSection = sectionData.find(sub => 
-          sub.isMain === true && sub.name === expectedNewsSlug
+        // Find the main Blog subsection
+        mainSubsection = sectionData.find(sub => 
+          sub.isMain === true && sub.name === expectedBlogSlug
         );
-        foundMainSubSection = !!mainSubSection;
+        foundMainSubSection = !!mainSubsection;
 
         // Check for navigation subsection - be more flexible in matching
-        const navigationSubSection = sectionData.find(sub => {
+        const navigationSubsection = sectionData.find(sub => {
           // Match by type first (most reliable)
           if (sub.type === NavigationConfig.type) return true;
           // Match by name
           if (sub.name === expectedNavigationSlug) return true;
           // Match by partial name (in case of slug differences)
-          if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true;
+          if (sub.name && sub.name.toLowerCase().includes('blog') && sub.name.toLowerCase().includes('navigation')) return true;
           return false;
         });
-        foundNavigationSubSection = !!navigationSubSection;
+        foundNavigationSubSection = !!navigationSubsection;
         
         console.log('📋 Found in section data:', {
-          mainSubSection: mainSubSection?.name,
+          mainSubsection: mainSubsection?.name,
           foundMainSubSection,
           foundNavigationSubSection
         });
       } else {
-        // Single object response - check if it's news main or navigation
-        if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
+        // Single object response - check if it's blog main or navigation
+        if (sectionData.isMain === true && sectionData.name === expectedBlogSlug) {
           foundMainSubSection = true;
-          mainSubSection = sectionData;
+          mainSubsection = sectionData;
         }
         
-        // Check if it's a news navigation subsection
+        // Check if it's a blog navigation subsection
         if (sectionData.type === NavigationConfig.type || 
             sectionData.name === expectedNavigationSlug ||
-            (sectionData.name && sectionData.name.toLowerCase().includes('news') && sectionData.name.toLowerCase().includes('navigation'))) {
+            (sectionData.name && sectionData.name.toLowerCase().includes('blog') && sectionData.name.toLowerCase().includes('navigation'))) {
           foundNavigationSubSection = true;
         }
       }
@@ -196,57 +200,56 @@ export default function BlogPage() {
       const websiteData = mainSubSectionData.data;
       
       if (Array.isArray(websiteData)) {
-        // 🔧 FIXED: Find the main NEWS subsection (not team!)
+        // Find the main Blog subsection
         if (!foundMainSubSection) {
-          mainSubSection = websiteData.find(sub => 
-            sub.isMain === true && sub.name === expectedNewsSlug
+          mainSubsection = websiteData.find(sub => 
+            sub.isMain === true && sub.name === expectedBlogSlug
           );
-          foundMainSubSection = !!mainSubSection;
+          foundMainSubSection = !!mainSubsection;
         }
 
         // Check for navigation subsection - be more flexible in matching
         if (!foundNavigationSubSection) {
-          const navigationSubSection = websiteData.find(sub => {
+          const navigationSubsection = websiteData.find(sub => {
             // Match by type first (most reliable)
             if (sub.type === NavigationConfig.type) return true;
             // Match by name
             if (sub.name === expectedNavigationSlug) return true;
             // Match by partial name (in case of slug differences)
-            if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true;
+            if (sub.name && sub.name.toLowerCase().includes('blog') && sub.name.toLowerCase().includes('navigation')) return true;
             return false;
           });
-          foundNavigationSubSection = !!navigationSubSection;
+          foundNavigationSubSection = !!navigationSubsection;
         }
         
         console.log('📋 Found in website data:', {
-          mainSubSection: mainSubSection?.name,
+          mainSubsection: mainSubsection?.name,
           foundMainSubSection,
           foundNavigationSubSection
         });
       } else {
         // Single object response - check what type it is
-        if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
+        if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedBlogSlug) {
           foundMainSubSection = true;
-          mainSubSection = websiteData;
+          mainSubsection = websiteData;
         }
         
         // Check if it's a navigation subsection
         if (!foundNavigationSubSection && (
           websiteData.type === NavigationConfig.type || 
           websiteData.name === expectedNavigationSlug ||
-          (websiteData.name && websiteData.name.toLowerCase().includes('news') && websiteData.name.toLowerCase().includes('navigation'))
+          (websiteData.name && websiteData.name.toLowerCase().includes('blog') && websiteData.name.toLowerCase().includes('navigation'))
         )) {
           foundNavigationSubSection = true;
         }
       }
     }
     
-    // Update state based on what we found
-    console.log('📰 News detection results:', {
+    console.log('📰 Blog detection results:', {
       foundMainSubSection,
       foundNavigationSubSection,
-      mainSubSection: mainSubSection?.name,
-      expectedNewsSlug,
+      mainSubsection: mainSubsection?.name,
+      expectedBlogSlug,
       expectedNavigationSlug
     });
     
@@ -255,20 +258,20 @@ export default function BlogPage() {
     setIsLoadingMainSubSection(false);
     
     // Extract section data from the main subsection if we found one
-    if (foundMainSubSection && mainSubSection && mainSubSection.section) {
-      const sectionInfo = typeof mainSubSection.section === 'string' 
-        ? { _id: mainSubSection.section } 
-        : mainSubSection.section;
+    if (foundMainSubSection && mainSubsection && mainSubsection.section) {
+      const sectionInfo = typeof mainSubsection.section === 'string' 
+        ? { _id: mainSubsection.section } 
+        : mainSubsection.section;
       
       // Set local section data
       setSectionData(sectionInfo);
       
-      // Update the newsSection in useGenericList hook if not already set
+      // Update the blogSection in useGenericList hook if not already set
       if (blogSection === null) {
         setSection(sectionInfo);
       }
       
-      console.log('✅ News section data set:', sectionInfo);
+      console.log('✅ Blog section data set:', sectionInfo);
     }
     
   }, [
@@ -286,6 +289,7 @@ export default function BlogPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
+    console.log('Main subsection created:', subsection);
     
     // Check if subsection has the correct name
     const expectedSlug = blogSectionConfig.name;
@@ -294,7 +298,11 @@ export default function BlogPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
-  
+    console.log('Main subsection name check:', {
+      actualName: subsection.name,
+      expectedSlug,
+      isCorrect: hasCorrectSlug
+    });
     
     // If we have section data from the subsection, update it
     if (subsection.section) {
@@ -311,23 +319,24 @@ export default function BlogPage() {
       refetchMainSubSection();
     }
   };
+
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 News navigation subsection created:', subsection);
+    console.log('📰 Blog navigation subsection created:', subsection);
     
-    // 🔧 FIXED: Check if subsection has the correct name or type for NEWS
+    // Check if subsection has the correct name or type for Blog
     const expectedSlug = NavigationConfig.name;
     const expectedType = NavigationConfig.type;
     const hasCorrectIdentifier = (
       subsection.name === expectedSlug || 
       subsection.type === expectedType ||
-      (subsection.name && subsection.name.toLowerCase().includes('news') && subsection.name.toLowerCase().includes('navigation'))
+      (subsection.name && subsection.name.toLowerCase().includes('blog') && subsection.name.toLowerCase().includes('navigation'))
     );
     
     // Set that we have a navigation subsection now
     setHasNavigationSubSection(hasCorrectIdentifier);
     
-    console.log('📰 News navigation subsection check:', {
+    console.log('📰 Blog navigation subsection check:', {
       actualName: subsection.name,
       expectedSlug,
       expectedType,
@@ -341,6 +350,7 @@ export default function BlogPage() {
       }, 1000); // Give it a bit more time to ensure data is saved
     }
   };
+
   // Logic for disabling the add button
   const isAddButtonDisabled: boolean = 
     Boolean(defaultAddButtonDisabled) || 
@@ -353,7 +363,6 @@ export default function BlogPage() {
     : (!hasMainSubSection && !isLoadingMainSubSection && sectionId)
       ? BLOG_CONFIG.mainSectionRequiredMessage
       : BLOG_CONFIG.emptyStateMessage;
-
 
   // Components
   const BlogTable = (
@@ -371,7 +380,7 @@ export default function BlogPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Blog"
+      title={t('BlogManagement.tabLabel')}
     />
   );
 
@@ -382,7 +391,7 @@ export default function BlogPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Blog Item"
+      title={t('BlogManagement.tabLabel')}
       confirmText="Confirm"
     />
   );
@@ -411,11 +420,11 @@ export default function BlogPage() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Users size={16} />
-              {t('Navigation.ContentConfiguration')}
+              {t('BlogManagement.formSections.blog')}
             </TabsTrigger>
             <TabsTrigger value="navigation" className="flex items-center gap-2">
               <Navigation size={16} />
-              {t('Navigation.NavigationConfiguration')}
+              {t('BlogManagement.formSections.navigation')}
             </TabsTrigger>
           </TabsList>
           

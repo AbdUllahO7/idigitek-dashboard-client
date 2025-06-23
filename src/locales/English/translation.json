@@ -4331,6 +4331,42 @@
     "AddSubNavigation" : "Add SubNavigation",
     "enable": "Enable sub-navigation for this service"
   },
+  "HeroManagement": {
+    "createTitle": "Create New Hero Item",
+    "editTitle": "Edit Hero Item",
+    "createSubtitle": "Create a new Hero item with multilingual content",
+    "editSubtitle": "Editing \"{{itemName}}\" content across multiple languages",
+    "editSubtitleDefault": "Editing Hero item content across multiple languages",
+    "defaultItemName": "New Hero",
+    "tabLabel": "Hero",
+    "formSections": {
+      "hero": "Hero Content",
+      "navigation": "Navigation Configuration"
+    },
+    "backToList": "Back to Hero List",
+    "loadingMessage": "Loading Hero data...",
+    "savingMessage": "Saving Hero item...",
+    "savedMessage": "Hero item saved successfully",
+    "errorMessage": "Error saving Hero item"
+  },
+  "BlogManagement": {
+    "createTitle": "Create New Blog Item",
+    "editTitle": "Edit Blog Item",
+    "createSubtitle": "Create a new Blog item with multilingual content",
+    "editSubtitle": "Editing \"{{itemName}}\" content across multiple languages",
+    "editSubtitleDefault": "Editing Blog item content across multiple languages",
+    "defaultItemName": "New Blog",
+    "tabLabel": "Blog",
+    "formSections": {
+      "blog": "Blog Content",
+      "navigation": "Navigation Configuration"
+    },
+    "backToList": "Back to Blog List",
+    "loadingMessage": "Loading Blog data...",
+    "savingMessage": "Saving Blog item...",
+    "savedMessage": "Blog item saved successfully",
+    "errorMessage": "Error saving Blog item"
+  },
   "common": {
     "welcome": "Welcome",
     "logout": "Log out",

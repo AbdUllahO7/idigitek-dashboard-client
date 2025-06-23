@@ -4388,6 +4388,43 @@
     "AddSubNavigation" : "إضافة تنقل فرعي",
     "enable": "تفعيل التنقل الفرعي لهذه الخدمة"
   },
+  "HeroManagement": {
+    "createTitle": "إنشاء عنصر واجهة تقنية جديد",
+    "editTitle": "تعديل عنصر واجهة تقنية",
+    "createSubtitle": "إنشاء عنصر واجهة تقنية جديد بمحتوى متعدد اللغات",
+    "editSubtitle": "تعديل محتوى \"{{itemName}}\" عبر لغات متعددة",
+    "editSubtitleDefault": "تعديل محتوى عنصر واجهة تقنية عبر لغات متعددة",
+    "defaultItemName": "واجهة تقنية جديد",
+    "tabLabel": "واجهة تقنية",
+    "formSections": {
+      "hero": "محتوى واجهة تقنية",
+      "navigation": "تكوين التنقل"
+    },
+    "backToList": "العودة إلى قائمة واجهة تقنية",
+    "loadingMessage": "جاري تحميل بيانات واجهة تقنية...",
+    "savingMessage": "جاري حفظ عنصر واجهة تقنية...",
+    "savedMessage": "تم حفظ عنصر واجهة تقنية بنجاح",
+    "errorMessage": "خطأ أثناء حفظ عنصر واجهة تقنية"
+  },
+  "BlogManagement": {
+    "createTitle": "إنشاء عنصر مدونة جديد",
+    "editTitle": "تعديل عنصر المدونة",
+    "createSubtitle": "إنشاء عنصر مدونة جديد بمحتوى متعدد اللغات",
+    "editSubtitle": "تعديل محتوى \"{{itemName}}\" عبر لغات متعددة",
+    "editSubtitleDefault": "تعديل محتوى عنصر المدونة عبر لغات متعددة",
+    "defaultItemName": "مدونة جديدة",
+    "tabLabel": "مدونة",
+    "formSections": {
+      "blog": "محتوى المدونة",
+      "navigation": "تكوين التنقل"
+    },
+    "backToList": "العودة إلى قائمة المدونة",
+    "loadingMessage": "جاري تحميل بيانات المدونة...",
+    "savingMessage": "جاري حفظ عنصر المدونة...",
+    "savedMessage": "تم حفظ عنصر المدونة بنجاح",
+    "errorMessage": "خطأ أثناء حفظ عنصر المدونة"
+  },
+  
   "common": {
     "welcome": "مرحبا",
     "logout": "تسجيل الخروج",

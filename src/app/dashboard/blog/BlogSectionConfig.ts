@@ -1,31 +1,92 @@
-// src/hooks/service/service-section-config.ts
-
 import { FieldConfig } from "@/src/api/types/hooks/MultilingualSection.types";
 
+// Translation keys for blog section
+export const blogSectionTranslations = {
+  en: {
+    sectionName: "Blog Section Basic",
+    sectionDescription: "Blog section for managing service information",
+    sectionBadgeLabel: "Section Badge",
+    sectionTitleLabel: "Section Title",
+    sectionDescriptionLabel: "Section Description",
+    blogDetailsLabel: "Blog Details",
+    type: "Blog",
+    badgeElement: "Badge",
+    titleElement: "Title",
+    descriptionElement: "Description",
+    serviceDetailsElement: "ServiceDetails"
+  },
+  ar: {
+    sectionName: "قسم المدونة الأساسي",
+    sectionDescription: "قسم المدونة لإدارة معلومات الخدمة",
+    sectionBadgeLabel: "شارة القسم",
+    sectionTitleLabel: "عنوان القسم",
+    sectionDescriptionLabel: "وصف القسم",
+    blogDetailsLabel: "تفاصيل المدونة",
+    type: "مدونة",
+    badgeElement: "الشارة",
+    titleElement: "العنوان",
+    descriptionElement: "الوصف",
+    serviceDetailsElement: "تفاصيل الخدمة"
+  },
+  tr: {
+    sectionName: "Temel Blog Bölümü",
+    sectionDescription: "Hizmet bilgilerini yönetmek için blog bölümü",
+    sectionBadgeLabel: "Bölüm Rozeti",
+    sectionTitleLabel: "Bölüm Başlığı",
+    sectionDescriptionLabel: "Bölüm Açıklaması",
+    blogDetailsLabel: "Blog Detayları",
+    type: "Blog",
+    badgeElement: "Rozet",
+    titleElement: "Başlık",
+    descriptionElement: "Açıklama",
+    serviceDetailsElement: "Hizmet Detayları"
+  }
+};
 
-
-
-// Define service section configuration
-export const blogSectionConfig = {
-    name: "Blog Section Basic",
+// Function to get translated blog section config
+export const getBlogSectionConfig = (language: string = 'en') => {
+  const translations = blogSectionTranslations[language as keyof typeof blogSectionTranslations] || blogSectionTranslations.en;
+  
+  return {
+    name: translations.sectionName,
     slug: "Blog-main",
-    subSectionName: "Blog Section Basic",
-    description: "Blog section for managing service information",
+    subSectionName: translations.sectionName,
+    description: translations.sectionDescription,
     isMain: true,
-    type: 'Blog',
-    // Define fields with proper typing
+    type: translations.type,
+    // Define fields with translated labels
     fields: [
-        { id: "sectionBadge", label: "Section Badge", type: "text", required: true },
-        { id: "sectionTitle", label: "Section Title", type: "text", required: true },
-        { id: "sectionDescription", label: "Section Description", type: "textarea", required: false },
-        { id: "serviceDetails", label: "blog Details", type: "badge", required: true },
+      { 
+        id: "sectionBadge", 
+        label: translations.sectionBadgeLabel, 
+        type: "text", 
+        required: true 
+      },
+      { 
+        id: "sectionTitle", 
+        label: translations.sectionTitleLabel, 
+        type: "text", 
+        required: true 
+      },
+      { 
+        id: "sectionDescription", 
+        label: translations.sectionDescriptionLabel, 
+        type: "textarea", 
+        required: false 
+      },
+      { 
+        id: "serviceDetails", 
+        label: translations.blogDetailsLabel, 
+        type: "badge", 
+        required: true 
+      },
     ] as FieldConfig[],
-
-  // Define element mapping
+    // Define element mapping with translated values
     elementsMapping: {
-        "sectionBadge": "Badge",
-        "sectionTitle": "Title", 
-        "sectionDescription": "Description",
-        "serviceDetails": "ServiceDetails"
+      "sectionBadge": translations.badgeElement,
+      "sectionTitle": translations.titleElement, 
+      "sectionDescription": translations.descriptionElement,
+      "serviceDetails": translations.serviceDetailsElement
     }
+  };
 };

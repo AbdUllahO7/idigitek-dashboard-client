@@ -19,43 +19,7 @@ import CreateNavigationSubSection from "../team/navigation/CreateNavigationSubSe
 import { getTeamNavigationSectionConfig } from "../team/navigation/team-navigation-config"
 
 // Column definitions
-const Hero_COLUMNS = [
-  {
-    header: "Name",
-    accessor: "name",
-    className: "font-medium"
-  },
-  {
-    header: "Description",
-    accessor: "description",
-    cell: TruncatedCell
-  },
-  {
-    header: "Status",
-    accessor: "isActive",
-    cell: (item: any, value: boolean) => (
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center">
-          {StatusCell(item, value)}
-          {item.isMain && (
-            <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              Main
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  },
-  {
-    header: "Order",
-    accessor: "order"
-  },
-  {
-    header: "Subsections",
-    accessor: "subsections.length",
-    cell: CountBadgeCell
-  }
-]
+
 
 export default function HeroPage() {
   const searchParams = useSearchParams()
@@ -63,34 +27,72 @@ export default function HeroPage() {
   const [hasMainSubSection, setHasMainSubSection] = useState<boolean>(false)
   const [isLoadingMainSubSection, setIsLoadingMainSubSection] = useState<boolean>(true)
   const [sectionData, setSectionData] = useState<any>(null)
-  const { websiteId } = useWebsiteContext();
-  const {t , i18n} = useTranslation()
+  const { websiteId } = useWebsiteContext()
+  const { t, i18n } = useTranslation()
   const [hasNavigationSubSection, setHasNavigationSubSection] = useState<boolean>(false)
-  const NavigationConfig = getTeamNavigationSectionConfig(i18n.language);
-  
-  const Hero_CONFIG = useMemo (() => ({
-    title: "Hero Management",
-    description: "Manage your Hero inventory and multilingual content",
-      addButtonLabel: "Add New Hero Item",
-    emptyStateMessage: "No Hero found. Create your first Hero by clicking the \"Add New Hero\" button.",
-    noSectionMessage: "Please create a Hero section first before adding Hero.",
-    mainSectionRequiredMessage: "Please enter your main section data before adding Hero.",
-    emptyFieldsMessage: "Please complete all required fields in the main section before adding Hero.",
-    sectionIntegrationTitle: "Hero Section Content",
-    sectionIntegrationDescription: "Manage your Hero section content in multiple languages.",
-    addSectionButtonLabel: "Add Hero Section",
-    editSectionButtonLabel: "Edit Hero Section",
-    saveSectionButtonLabel: "Save Hero Section",
-    listTitle: "Hero List",
+  const NavigationConfig = getTeamNavigationSectionConfig(i18n.language)
+
+  const Hero_CONFIG = useMemo(() => ({
+    title: t('HeroManagement.tabLabel'),
+    description: t('HeroManagement.createSubtitle'),
+    addButtonLabel: t('HeroManagement.createTitle'),
+    emptyStateMessage: t('HeroManagement.errorMessage'),
+    noSectionMessage: t('HeroManagement.createSubtitle'),
+    mainSectionRequiredMessage: t('HeroManagement.editSubtitleDefault'),
+    emptyFieldsMessage: t('HeroManagement.errorMessage'),
+    sectionIntegrationTitle: t('HeroManagement.formSections.hero'),
+    sectionIntegrationDescription: t('HeroManagement.editSubtitleDefault'),
+    addSectionButtonLabel: t('HeroManagement.createTitle'),
+    editSectionButtonLabel: t('HeroManagement.editTitle'),
+    saveSectionButtonLabel: t('HeroManagement.savedMessage'),
+    listTitle: t('HeroManagement.backToList'),
     editPath: "heroSection/addHero"
-  }), [] );
+  }), [t])
+  const Hero_COLUMNS = [
+    {
+      header: t('servicesPage.table.columns.name'),
+      accessor: "name",
+      className: "font-medium"
+    },
+    {
+      header: t('servicesPage.table.columns.description'),
+      accessor: "description",
+      cell: TruncatedCell
+    },
+    {
+      header: t('servicesPage.table.columns.status'),
+      accessor: "isActive",
+      cell: (item: any, value: boolean) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center">
+            {StatusCell(item, value)}
+            {item.isMain && (
+              <span className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                {t('servicesPage.table.badges.main')}
+              </span>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: t('servicesPage.table.columns.order'),
+      accessor: "order"
+    },
+    {
+      header: t('servicesPage.table.columns.subsections'),
+      accessor: "subsections.length",
+      cell: CountBadgeCell
+    }
+  ]
+  
   // Refs to track previous values for debugging
-  const prevHasMainSubSection = useRef(hasMainSubSection);
-  const isFirstRender = useRef(true);
+  const prevHasMainSubSection = useRef(hasMainSubSection)
+  const isFirstRender = useRef(true)
 
   // Check if main subsection exists
   const { useGetMainByWebSiteId, useGetBySectionId } = useSubSections()
-  
+
   const {
     data: mainSubSectionData,
     isLoading: isLoadingCompleteSubsections,
@@ -126,260 +128,255 @@ export default function HeroPage() {
     apiHooks: useSectionItems(),
     editPath: Hero_CONFIG.editPath
   })
-    const currentLanguage = i18n.language; // 'en', 'ar', 'tr'
 
-    const heroSectionConfig = getHeroSectionConfig(currentLanguage)
+  const currentLanguage = i18n.language // 'en', 'ar', 'tr'
+  const heroSectionConfig = getHeroSectionConfig(currentLanguage)
+
   // Debug changes in hasMainSubSection
   useEffect(() => {
     if (!isFirstRender.current && prevHasMainSubSection.current !== hasMainSubSection) {
-      console.log(`hasMainSubSection changed from ${prevHasMainSubSection.current} to ${hasMainSubSection}`);
+      console.log(`hasMainSubSection changed from ${prevHasMainSubSection.current} to ${hasMainSubSection}`)
     }
-    
-    prevHasMainSubSection.current = hasMainSubSection;
+
+    prevHasMainSubSection.current = hasMainSubSection
     if (isFirstRender.current) {
-      isFirstRender.current = false;
+      isFirstRender.current = false
     }
-  }, [hasMainSubSection]);
+  }, [hasMainSubSection])
 
   // Determine if main subsection exists when data loads & set section data if needed
-
-  useEffect(() => {    
+  useEffect(() => {
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
-      setIsLoadingMainSubSection(true);
-      return;
+      setIsLoadingMainSubSection(true)
+      return
     }
-    
-    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data);
-    
+
+    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data)
+    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data)
+
     // We're done loading, now check the data
-    let foundMainSubSection = false;
-    let foundNavigationSubSection = false;
-    let mainSubSection = null;
-    
-    // 🔧 FIXED: Use NEWS configurations instead of team configurations
-    const expectedNewsSlug = heroSectionConfig.name; // This is correct for NEWS
-    const expectedNavigationSlug = NavigationConfig.name; // This is correct for NEWS navigation
-    
+    let foundMainSubSection = false
+    let foundNavigationSubSection = false
+    let mainSubSection = null
+
+    // Use NEWS configurations instead of team configurations
+    const expectedNewsSlug = heroSectionConfig.name // This is correct for NEWS
+    const expectedNavigationSlug = NavigationConfig.name // This is correct for NEWS navigation
+
     console.log('🔍 Looking for News configurations:', {
       expectedNewsSlug,
       expectedNavigationSlug,
       currentLanguage
-    });
-    
+    })
+
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
-      const sectionData = sectionSubsections.data;
-      
+      const sectionData = sectionSubsections.data
+
       if (Array.isArray(sectionData)) {
-        // 🔧 FIXED: Find the main NEWS subsection (not team!)
-        mainSubSection = sectionData.find(sub => 
+        // Find the main NEWS subsection
+        mainSubSection = sectionData.find(sub =>
           sub.isMain === true && sub.name === expectedNewsSlug
-        );
-        foundMainSubSection = !!mainSubSection;
+        )
+        foundMainSubSection = !!mainSubSection
 
         // Check for navigation subsection - be more flexible in matching
         const navigationSubSection = sectionData.find(sub => {
           // Match by type first (most reliable)
-          if (sub.type === NavigationConfig.type) return true;
+          if (sub.type === NavigationConfig.type) return true
           // Match by name
-          if (sub.name === expectedNavigationSlug) return true;
+          if (sub.name === expectedNavigationSlug) return true
           // Match by partial name (in case of slug differences)
-          if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true;
-          return false;
-        });
-        foundNavigationSubSection = !!navigationSubSection;
-        
+          if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true
+          return false
+        })
+        foundNavigationSubSection = !!navigationSubSection
+
         console.log('📋 Found in section data:', {
           mainSubSection: mainSubSection?.name,
           foundMainSubSection,
           foundNavigationSubSection
-        });
+        })
       } else {
         // Single object response - check if it's news main or navigation
         if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
-          foundMainSubSection = true;
-          mainSubSection = sectionData;
+          foundMainSubSection = true
+          mainSubSection = sectionData
         }
-        
+
         // Check if it's a news navigation subsection
-        if (sectionData.type === NavigationConfig.type || 
+        if (sectionData.type === NavigationConfig.type ||
             sectionData.name === expectedNavigationSlug ||
             (sectionData.name && sectionData.name.toLowerCase().includes('news') && sectionData.name.toLowerCase().includes('navigation'))) {
-          foundNavigationSubSection = true;
+          foundNavigationSubSection = true
         }
       }
     }
-    
+
     // If we didn't find anything in the section-specific data, check the website-wide data
     if ((!foundMainSubSection || !foundNavigationSubSection) && mainSubSectionData?.data) {
-      const websiteData = mainSubSectionData.data;
-      
+      const websiteData = mainSubSectionData.data
+
       if (Array.isArray(websiteData)) {
-        // 🔧 FIXED: Find the main NEWS subsection (not team!)
+        // Find the main NEWS subsection
         if (!foundMainSubSection) {
-          mainSubSection = websiteData.find(sub => 
+          mainSubSection = websiteData.find(sub =>
             sub.isMain === true && sub.name === expectedNewsSlug
-          );
-          foundMainSubSection = !!mainSubSection;
+          )
+          foundMainSubSection = !!mainSubSection
         }
 
         // Check for navigation subsection - be more flexible in matching
         if (!foundNavigationSubSection) {
           const navigationSubSection = websiteData.find(sub => {
             // Match by type first (most reliable)
-            if (sub.type === NavigationConfig.type) return true;
+            if (sub.type === NavigationConfig.type) return true
             // Match by name
-            if (sub.name === expectedNavigationSlug) return true;
+            if (sub.name === expectedNavigationSlug) return true
             // Match by partial name (in case of slug differences)
-            if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true;
-            return false;
-          });
-          foundNavigationSubSection = !!navigationSubSection;
+            if (sub.name && sub.name.toLowerCase().includes('news') && sub.name.toLowerCase().includes('navigation')) return true
+            return false
+          })
+          foundNavigationSubSection = !!navigationSubSection
         }
-        
+
         console.log('📋 Found in website data:', {
           mainSubSection: mainSubSection?.name,
           foundMainSubSection,
           foundNavigationSubSection
-        });
+        })
       } else {
         // Single object response - check what type it is
         if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
-          foundMainSubSection = true;
-          mainSubSection = websiteData;
+          foundMainSubSection = true
+          mainSubSection = websiteData
         }
-        
+
         // Check if it's a navigation subsection
         if (!foundNavigationSubSection && (
-          websiteData.type === NavigationConfig.type || 
+          websiteData.type === NavigationConfig.type ||
           websiteData.name === expectedNavigationSlug ||
           (websiteData.name && websiteData.name.toLowerCase().includes('news') && websiteData.name.toLowerCase().includes('navigation'))
         )) {
-          foundNavigationSubSection = true;
+          foundNavigationSubSection = true
         }
       }
     }
-    
-  
-    
-    setHasMainSubSection(foundMainSubSection);
-    setHasNavigationSubSection(foundNavigationSubSection);
-    setIsLoadingMainSubSection(false);
-    
+
+    setHasMainSubSection(foundMainSubSection)
+    setHasNavigationSubSection(foundNavigationSubSection)
+    setIsLoadingMainSubSection(false)
+
     // Extract section data from the main subsection if we found one
     if (foundMainSubSection && mainSubSection && mainSubSection.section) {
-      const sectionInfo = typeof mainSubSection.section === 'string' 
-        ? { _id: mainSubSection.section } 
-        : mainSubSection.section;
-      
+      const sectionInfo = typeof mainSubSection.section === 'string'
+        ? { _id: mainSubSection.section }
+        : mainSubSection.section
+
       // Set local section data
-      setSectionData(sectionInfo);
-      
+      setSectionData(sectionInfo)
+
       // Update the newsSection in useGenericList hook if not already set
       if (heroSection === null) {
-        setSection(sectionInfo);
+        setSection(sectionInfo)
       }
-      
-      console.log('✅ News section data set:', sectionInfo);
+
+      console.log('✅ News section data set:', sectionInfo)
     }
-    
+
   }, [
-    mainSubSectionData, 
-    sectionSubsections, 
-    isLoadingCompleteSubsections, 
-    isLoadingSectionSubsections, 
-    sectionId, 
-    heroSection, 
+    mainSubSectionData,
+    sectionSubsections,
+    isLoadingCompleteSubsections,
+    isLoadingSectionSubsections,
+    sectionId,
+    heroSection,
     setSection,
-    heroSectionConfig.name,        // 🔧 FIXED: Use news config
-    NavigationConfig.name,     // 🔧 FIXED: Use news navigation config
-    NavigationConfig.type      // 🔧 FIXED: Use news navigation config
-  ]);
+    heroSectionConfig.name,
+    NavigationConfig.name,
+    NavigationConfig.type
+  ])
 
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 News navigation subsection created:', subsection);
-    
-    // 🔧 FIXED: Check if subsection has the correct name or type for NEWS
-    const expectedSlug = NavigationConfig.name;
-    const expectedType = NavigationConfig.type;
+    console.log('📰 News navigation subsection created:', subsection)
+
+    // Check if subsection has the correct name or type for NEWS
+    const expectedSlug = NavigationConfig.name
+    const expectedType = NavigationConfig.type
     const hasCorrectIdentifier = (
-      subsection.name === expectedSlug || 
+      subsection.name === expectedSlug ||
       subsection.type === expectedType ||
       (subsection.name && subsection.name.toLowerCase().includes('news') && subsection.name.toLowerCase().includes('navigation'))
-    );
-    
+    )
+
     // Set that we have a navigation subsection now
-    setHasNavigationSubSection(hasCorrectIdentifier);
-    
+    setHasNavigationSubSection(hasCorrectIdentifier)
+
     console.log('📰 News navigation subsection check:', {
       actualName: subsection.name,
       expectedSlug,
       expectedType,
       hasCorrectIdentifier
-    });
-    
+    })
+
     // Force refetch of all subsection data
     if (refetchMainSubSection) {
       setTimeout(() => {
-        refetchMainSubSection();
-      }, 1000); // Give it a bit more time to ensure data is saved
+        refetchMainSubSection()
+      }, 1000) // Give it a bit more time to ensure data is saved
     }
-  };
+  }
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
-    
+    console.log("Main subsection created:", subsection)
+
     // Check if subsection has the correct name
-    const expectedName = heroSectionConfig.subSectionName;
-    const hasCorrectName = subsection.name === expectedName;
-    
+    const expectedName = heroSectionConfig.subSectionName
+    const hasCorrectName = subsection.name === expectedName
+
     // Set that we have a main subsection now (only if it also has the correct name)
-    setHasMainSubSection(subsection.isMain === true && hasCorrectName);
-    
+    setHasMainSubSection(subsection.isMain === true && hasCorrectName)
+
     // Log the name check
     console.log("Main subsection name check:", {
       actualName: subsection.name,
       expectedName,
       isCorrect: hasCorrectName
-    });
-    
+    })
+
     // If we have section data from the subsection, update it
     if (subsection.section) {
-      const sectionInfo = typeof subsection.section === 'string' 
-        ? { _id: subsection.section } 
-        : subsection.section;
-        
-      setSectionData(sectionInfo);
-      setSection(sectionInfo);
+      const sectionInfo = typeof subsection.section === 'string'
+        ? { _id: subsection.section }
+        : subsection.section
+
+      setSectionData(sectionInfo)
+      setSection(sectionInfo)
     }
-    
+
     // Refetch the main subsection data to ensure we have the latest
     if (refetchMainSubSection) {
-      refetchMainSubSection();
+      refetchMainSubSection()
     }
-  };
+  }
 
   // IMPORTANT: Here's the crux of the button enabling/disabling logic
   // Added check for navItems.length > 0 to disable when there's already a navItem
-  const isAddButtonDisabled: boolean = 
-    Boolean(defaultAddButtonDisabled) || 
+  const isAddButtonDisabled: boolean =
+    Boolean(defaultAddButtonDisabled) ||
     isLoadingMainSubSection ||
     (Boolean(sectionId) && !hasMainSubSection) ||
-    (navItems.length > 0); // This disables the button if there's already at least one NavItem
+    (navItems.length > 0) // This disables the button if there's already at least one NavItem
 
-
-
-
-  // Custom message for empty state 
-  const emptyStateMessage = !heroSection && !sectionData 
-    ? Hero_CONFIG.noSectionMessage 
+  // Custom message for empty state
+  const emptyStateMessage = !heroSection && !sectionData
+    ? Hero_CONFIG.noSectionMessage
     : (!hasMainSubSection && !isLoadingMainSubSection && sectionId)
       ? Hero_CONFIG.mainSectionRequiredMessage
-      : Hero_CONFIG.emptyStateMessage;
+      : Hero_CONFIG.emptyStateMessage
 
   // Components
   const NavItemsTable = (
@@ -389,7 +386,7 @@ export default function HeroPage() {
       onEdit={handleEdit}
       onDelete={showDeleteDialog}
     />
-  );
+  )
 
   const CreateDialog = (
     <DialogCreateSectionItem
@@ -397,9 +394,9 @@ export default function HeroPage() {
       onOpenChange={setIsCreateDialogOpen}
       sectionId={sectionId || ""}
       onServiceCreated={handleItemCreated}
-      title="Hero"
+      title={t('HeroManagement.tabLabel')}
     />
-  );
+  )
 
   const DeleteDialog = (
     <DeleteSectionDialog
@@ -408,10 +405,10 @@ export default function HeroPage() {
       serviceName={itemToDelete?.name || ""}
       onConfirm={handleDelete}
       isDeleting={isDeleting}
-      title="Delete Section"
+      title={t('HeroManagement.tabLabel')}
       confirmText="Confirm"
     />
-  );
+  )
 
   return (
     <div className="space-y-6">
@@ -430,32 +427,32 @@ export default function HeroPage() {
         noSectionCondition={!heroSection && !sectionData}
         customEmptyMessage={emptyStateMessage}
       />
-      
+
       {/* Main subsection management (only shown when section exists) */}
-  {sectionId && (
+      {sectionId && (
         <Tabs defaultValue="content" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Users size={16} />
-              {t('Navigation.ContentConfiguration')}
+              {t('HeroManagement.formSections.hero')}
             </TabsTrigger>
             <TabsTrigger value="navigation" className="flex items-center gap-2">
               <Navigation size={16} />
-              {t('Navigation.NavigationConfiguration')}
+              {t('HeroManagement.formSections.navigation')}
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="content" className="mt-6">
-            <CreateMainSubSection 
+            <CreateMainSubSection
               sectionId={sectionId}
               sectionConfig={heroSectionConfig}
               onSubSectionCreated={handleMainSubSectionCreated}
               onFormValidityChange={() => {/* We don't need to track form validity */}}
             />
           </TabsContent>
-          
+
           <TabsContent value="navigation" className="mt-6">
-            <CreateNavigationSubSection 
+            <CreateNavigationSubSection
               sectionId={sectionId}
               sectionConfig={NavigationConfig}
               onSubSectionCreated={handleNavigationSubSectionCreated}
@@ -464,8 +461,6 @@ export default function HeroPage() {
           </TabsContent>
         </Tabs>
       )}
-      
-
     </div>
-  );
+  )
 }

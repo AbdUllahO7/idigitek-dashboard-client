@@ -4325,6 +4325,42 @@
     "AddSubNavigation" : "Alt Navigasyon Ekle",
     "enable": "Bu hizmet için alt navigasyonu etkinleştir"
     },
+    "HeroManagement": {
+    "createTitle": "Yeni Kahraman Öğesi Oluştur",
+    "editTitle": "Kahraman Öğesini Düzenle",
+    "createSubtitle": "Çok dilli içerikle yeni bir Kahraman öğesi oluşturun",
+    "editSubtitle": "\"{{itemName}}\" içeriğini birden fazla dilde düzenleme",
+    "editSubtitleDefault": "Kahraman öğesi içeriğini birden fazla dilde düzenleme",
+    "defaultItemName": "Yeni Kahraman",
+    "tabLabel": "Kahraman",
+    "formSections": {
+      "hero": "Kahraman İçeriği",
+      "navigation": "Navigasyon Yapılandırması"
+    },
+    "backToList": "Kahraman Listesine Geri Dön",
+    "loadingMessage": "Kahraman verileri yükleniyor...",
+    "savingMessage": "Kahraman öğesi kaydediliyor...",
+    "savedMessage": "Kahraman öğesi başarıyla kaydedildi",
+    "errorMessage": "Kahraman öğesi kaydedilirken hata oluştu"
+  },
+  "BlogManagement": {
+    "createTitle": "Yeni Blog Öğesi Oluştur",
+    "editTitle": "Blog Öğesini Düzenle",
+    "createSubtitle": "Çok dilli içerikle yeni bir Blog öğesi oluşturun",
+    "editSubtitle": "\"{{itemName}}\" içeriğini birden fazla dilde düzenleme",
+    "editSubtitleDefault": "Blog öğesi içeriğini birden fazla dilde düzenleme",
+    "defaultItemName": "Yeni Blog",
+    "tabLabel": "Blog",
+    "formSections": {
+      "blog": "Blog İçeriği",
+      "navigation": "Navigasyon Yapılandırması"
+    },
+    "backToList": "Blog Listesine Geri Dön",
+    "loadingMessage": "Blog verileri yükleniyor...",
+    "savingMessage": "Blog öğesi kaydediliyor...",
+    "savedMessage": "Blog öğesi başarıyla kaydedildi",
+    "errorMessage": "Blog öğesi kaydedilirken hata oluştu"
+  },
   "common": {
     "welcome": "Hoş geldiniz",
     "logout": "Çıkış yap",
