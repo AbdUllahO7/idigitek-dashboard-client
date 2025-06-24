@@ -705,9 +705,9 @@
       "subtitle": "Güzel, önceden tasarlanmış bölümlerle web sitenizin yapısını oluşturun",
       "description1": "Web siteniz için logo, menü öğeleri ve iletişim bilgileri içeren üst gezinme çubuğu",
       "sections.hero.description": "Çekici başlıklar ve harekete geçirici düğmeler içeren göz alıcı ana banner",
-      "sections.services.description": "Temel hizmetlerinizi ve tekliflerinizi detaylı açıklamalarla sergileyin",
-      "sections.news.description": "Kitleniz için en son haberleri, güncellemeleri ve duyuruları görüntüleyin",
-      "sections.industrySolutions.description": "Hizmet verdiğiniz farklı endüstriler için özel çözümler sunun",
+      "sections.services.description": "Temel Bölüm ve tekliflerinizi detaylı açıklamalarla sergileyin",
+      "sections.news.description": "Kitleniz için en son Bölümler, güncellemeleri ve duyuruları görüntüleyin",
+      "sections.industrySolutions.description": "Bölüm verdiğiniz farklı endüstriler için özel çözümler sunun",
       "sections.whyChooseUs.description": "Benzersiz değer önerilerinizi ve rekabet avantajlarınızı vurgulayın",
       "sections.projects.description": "Tamamlanan projelerinizin ve vaka çalışmalarınızın portföy vitrini",
       "sections.ourProcess.description": "İş akışınızın ve metodolojinizin adım adım dökümü",
@@ -884,7 +884,7 @@
         "animatedText": "Animasyonlu Metin",
         "scrollIndicators": "Kaydırma Göstergeleri",
         
-        "serviceCards": "Hizmet Kartları",
+        "serviceCards": "Bölüm Kartları",
         "iconIntegration": "İkon Entegrasyonu",
         "hoverEffects": "Hover Efektleri",
         "gridLayout": "Izgara Düzeni",
@@ -943,7 +943,7 @@
         
         "multiColumn": "Çok Sütunlu",
         "socialIcons": "Sosyal İkonlar",
-        "newsletter": "Haber Bülteni",
+        "newsletter": "Bölüm Bülteni",
         "copyrightInfo": "Telif Hakkı Bilgisi"
       },
       
@@ -1476,26 +1476,26 @@
   },
   "createSectionItemDialog": {
     "createNew": "Yeni {{title}} Oluştur",
-    "dialogDescription": "Yeni hizmetiniz için temel bilgileri girin. Oluşturduktan sonra daha fazla ayrıntı ekleyebileceksiniz.",
+    "dialogDescription": "Yeni Bölümleriniz için temel bilgileri girin. Oluşturduktan sonra daha fazla ayrıntı ekleyebileceksiniz.",
     "nameLabel": "{{title}} Adı",
     "nameRequired": "*",
     "descriptionLabel": "Açıklama",
-    "namePlaceholder": "Hizmet adını girin",
-    "descriptionPlaceholder": "Hizmet açıklamasını girin",
+    "namePlaceholder": "Bölüm adını girin",
+    "descriptionPlaceholder": "Bölüm açıklamasını girin",
     "cancelButton": "İptal",
     "createButton": "{{title}} Oluştur",
     "creatingButton": "Oluşturuluyor...",
     "validationError": "Doğrulama Hatası",
-    "serviceNameRequired": "Hizmet adı gereklidir",
+    "serviceNameRequired": "Bölüm adı gereklidir",
     "loading": "Yükleniyor",
     "waitFetchWebsite": "Web sitesi bilgilerinizi alırken lütfen bekleyin",
     "error": "Hata",
     "failedFetchWebsite": "Web sitesi bilgileri alınamadı",
-    "createWebsiteFirst": "Hizmet eklemeden önce lütfen önce bir web sitesi oluşturun",
-    "serviceCreated": "Hizmet oluşturuldu",
-    "addDetailsMessage": "Artık hizmetinize ayrıntılar ekleyebilirsiniz",
-    "errorCreatingService": "Hizmet oluşturma hatası",
-    "errorOccurred": "Hizmet oluşturulurken bir hata oluştu"
+    "createWebsiteFirst": "Bölüm eklemeden önce lütfen önce bir web sitesi oluşturun",
+    "serviceCreated": "Bölüm oluşturuldu",
+    "addDetailsMessage": "Artık Bölüm ayrıntılar ekleyebilirsiniz",
+    "errorCreatingService": "Bölüm oluşturma hatası",
+    "errorOccurred": "Bölüm oluşturulurken bir hata oluştu"
   },
   "formShell": {
     "noActiveLanguages": "Aktif dil bulunamadı. Lütfen ayarlarda en az bir dili etkinleştirin.",
@@ -1624,7 +1624,7 @@
     "deleting": "Siliniyor...",
     "deleteSection": "Bölümü Sil",
     "deleteItem": "Öğeyi Sil",
-    "deleteService": "Hizmeti Sil",
+    "deleteService": "Bölümi Sil",
     "deleteProject": "Projeyi Sil",
     "deleteUser": "Kullanıcıyı Sil",
     "deleteLanguage": "Dili Sil",
@@ -1633,19 +1633,19 @@
     "confirmRemoval": "Kaldırmayı Onayla"
   },
   "newsPage": {
-    "title": "Haber Yönetimi",
-    "description": "Haber envanterinizi ve çok dilli içeriğinizi yönetin",
-    "addButtonLabel": "Yeni Haber Ekle",
-    "emptyStateMessage": "Haber bulunamadı. \"Yeni Haber Ekle\" düğmesine tıklayarak ilk haberinizi oluşturun.",
-    "noSectionMessage": "Haber eklemeden önce lütfen bir Haber bölümü oluşturun.",
-    "mainSectionRequiredMessage": "Haber eklemeden önce lütfen ana bölüm verilerinizi girin.",
-    "emptyFieldsMessage": "Haber eklemeden önce lütfen ana bölümdeki tüm gerekli alanları tamamlayın.",
-    "sectionIntegrationTitle": "Haber Bölümü İçeriği",
-    "sectionIntegrationDescription": "Haber bölümü içeriğinizi birden fazla dilde yönetin.",
-    "addSectionButtonLabel": "Haber Bölümü Ekle",
-    "editSectionButtonLabel": "Haber Bölümünü Düzenle",
-    "saveSectionButtonLabel": "Haber Bölümünü Kaydet",
-    "listTitle": "Haber Listesi",
+    "title": "Bölüm Yönetimi",
+    "description": "Bölüm envanterinizi ve çok dilli içeriğinizi yönetin",
+    "addButtonLabel": "Yeni Bölüm Ekle",
+    "emptyStateMessage": "Bölüm bulunamadı. \"Yeni Bölüm Ekle\" düğmesine tıklayarak ilk Bölümünüzü oluşturun.",
+    "noSectionMessage": "Bölüm eklemeden önce lütfen bir Bölüm bölümü oluşturun.",
+    "mainSectionRequiredMessage": "Bölüm eklemeden önce lütfen ana bölüm verilerinizi girin.",
+    "emptyFieldsMessage": "Bölüm eklemeden önce lütfen ana bölümdeki tüm gerekli alanları tamamlayın.",
+    "sectionIntegrationTitle": "Bölüm Bölümü İçeriği",
+    "sectionIntegrationDescription": "Bölüm bölümü içeriğinizi birden fazla dilde yönetin.",
+    "addSectionButtonLabel": "Bölüm Bölümü Ekle",
+    "editSectionButtonLabel": "Bölüm Bölümünü Düzenle",
+    "saveSectionButtonLabel": "Bölüm Bölümünü Kaydet",
+    "listTitle": "Bölüm Listesi",
     "editPath": "News/addNews",
     
     "// Table Columns": "",
@@ -1661,69 +1661,69 @@
     "inactive": "Pasif",
     
     "// Dialog Titles": "",
-    "deleteNewsItem": "Haber Öğesini Sil",
+    "deleteNewsItem": "Bölüm Öğesini Sil",
     "confirmDelete": "Onayla",
-    "createNewsTitle": "Haber"
+    "createNewsTitle": "Bölüm"
   },
   "newsSectionConfig": {
-    "sectionName": "Temel Haber Bölümü",
-    "sectionDescription": "Hizmet bilgilerini yönetmek için haber bölümü",
-    "subSectionName": "Temel Haber Bölümü",
-    "type": "Haber",
+    "sectionName": "Temel Bölüm Bölümü",
+    "sectionDescription": "Bölüm bilgilerini yönetmek için Bölüm bölümü",
+    "subSectionName": "Temel Bölüm Bölümü",
+    "type": "Bölüm",
     
     "// Field Labels": "",
     "sectionBadgeLabel": "Bölüm Rozeti",
     "sectionTitleLabel": "Bölüm Başlığı",
     "sectionDescriptionLabel": "Bölüm Açıklaması",
-    "newsDetailsLabel": "Haber Detayları",
+    "newsDetailsLabel": "Bölüm Detayları",
     
     "// Field Placeholders": "",
     "sectionBadgePlaceholder": "Bölüm rozet metnini girin",
     "sectionTitlePlaceholder": "Bölüm başlığını girin",
     "sectionDescriptionPlaceholder": "Bölüm açıklamasını girin",
-    "newsDetailsPlaceholder": "Haber detaylarını girin",
+    "newsDetailsPlaceholder": "Bölüm detaylarını girin",
     
     "// Element Mapping": "",
     "badgeElement": "Rozet",
     "titleElement": "Başlık",
     "descriptionElement": "Açıklama",
-    "serviceDetailsElement": "Hizmet Detayları",
+    "serviceDetailsElement": "Bölüm Detayları",
     
     "// Helper Text": "",
     "sectionBadgeHelper": "Bölümün üstünde rozet olarak gösterilen kısa metin",
-    "sectionTitleHelper": "Haber bölümü için ana başlık",
+    "sectionTitleHelper": "Bölüm bölümü için ana başlık",
     "sectionDescriptionHelper": "Bu bölümün ne içerdiğinin kısa açıklaması",
-    "newsDetailsHelper": "Haber öğeleri hakkında detaylı bilgiler"
+    "newsDetailsHelper": "Bölüm öğeleri hakkında detaylı bilgiler"
   },
   "addNews": {
     "// Page Titles": "",
-    "createTitle": "Yeni Haber Oluştur",
-    "editTitle": "Haber Düzenle",
+    "createTitle": "Yeni Bölüm Oluştur",
+    "editTitle": "Bölüm Düzenle",
     
     "// Page Subtitles": "",
-    "createSubtitle": "Çok dilli içerikle yeni bir hizmet oluşturun",
+    "createSubtitle": "Çok dilli içerikle yeni bir Bölüm oluşturun",
     "editSubtitle": " içeriğini birden fazla dilde düzenleme",
-    "editSubtitleFallback": "Haber içeriğini birden fazla dilde düzenleme",
+    "editSubtitleFallback": "Bölüm içeriğini birden fazla dilde düzenleme",
     
     "// Tab Labels": "",
-    "newsTab": "Haber",
-    "newsTabDescription": "Haber içeriği ve bilgilerini yönetin",
+    "newsTab": "Bölüm",
+    "newsTabDescription": "Bölüm içeriği ve bilgilerini yönetin",
     
     "// Default Values": "",
-    "defaultServiceName": "Yeni Haber",
-    "defaultServiceDescription": "Haber hizmeti açıklaması",
-    "newNewsItem": "Yeni Haber Öğesi",
+    "defaultServiceName": "Yeni Bölüm",
+    "defaultServiceDescription": "Bölüm Bölümü açıklaması",
+    "newNewsItem": "Yeni Bölüm Öğesi",
     
     "// Loading States": "",
     "loadingLanguages": "Diller yükleniyor...",
-    "loadingSectionItem": "Haber öğesi yükleniyor...",
+    "loadingSectionItem": "Bölüm öğesi yükleniyor...",
     "loadingSubsections": "Alt bölümler yükleniyor...",
     "loadingData": "Veri yükleniyor...",
     
     "// Form States": "",
     "savingChanges": "Değişiklikler kaydediliyor...",
-    "creatingNews": "Haber oluşturuluyor...",
-    "updatingNews": "Haber güncelleniyor...",
+    "creatingNews": "Bölüm oluşturuluyor...",
+    "updatingNews": "Bölüm güncelleniyor...",
     
     "// Error Messages": "",
     "errorLoadingData": "Veri yükleme hatası",
@@ -1732,12 +1732,12 @@
     "invalidData": "Geçersiz veri sağlandı",
     
     "// Success Messages": "",
-    "newsCreatedSuccessfully": "Haber başarıyla oluşturuldu",
-    "newsUpdatedSuccessfully": "Haber başarıyla güncellendi",
+    "newsCreatedSuccessfully": "Bölüm başarıyla oluşturuldu",
+    "newsUpdatedSuccessfully": "Bölüm başarıyla güncellendi",
     "changesSaved": "Değişiklikler başarıyla kaydedildi",
     
     "// Navigation": "",
-    "backToNews": "Haberlere Dön",
+    "backToNews": "Bölümlere Dön",
     "backToList": "Listeye Dön",
     "returnToDashboard": "Panele Dön",
     
@@ -1762,24 +1762,24 @@
     "descriptionPlaceholder": "Açıklama girin",
     "buttonTextLabel": "Düğme Metni",
     "buttonTextPlaceholder": "Başla",
-    "cardTitle": "Haberler Bölümü",
-    "cardDescription": "Türkçe için haber içeriğini yönetin"
+    "cardTitle": "Bölümler Bölümü",
+    "cardDescription": "Türkçe için Bölüm içeriğini yönetin"
   },
   "newsForm": {
-    "loadingData": "Haber bölümü verileri yükleniyor...",
-    "loadingDialogTitleCreating": "Haber Bölümü Oluşturuluyor",
-    "loadingDialogTitleUpdating": "Haber Bölümü Güncelleniyor",
+    "loadingData": "Bölüm bölümü verileri yükleniyor...",
+    "loadingDialogTitleCreating": "Bölüm Bölümü Oluşturuluyor",
+    "loadingDialogTitleUpdating": "Bölüm Bölümü Güncelleniyor",
     "loadingDialogDescription": "Değişiklikleriniz kaydedilirken lütfen bekleyin...",
-    "saveButton": "Haber İçeriğini Kaydet",
-    "updateButton": "Haber İçeriğini Güncelle",
+    "saveButton": "Bölüm İçeriğini Kaydet",
+    "updateButton": "Bölüm İçeriğini Güncelle",
     "savingButton": "Kaydediliyor...",
-    "toastSuccessCreate": "Haber bölümü başarıyla oluşturuldu!",
-    "toastSuccessUpdate": "Haber bölümü başarıyla güncellendi!",
+    "toastSuccessCreate": "Bölüm bölümü başarıyla oluşturuldu!",
+    "toastSuccessUpdate": "Bölüm bölümü başarıyla güncellendi!",
     "toastSuccessDescription": "Tüm içerikler kaydedildi.",
     "toastValidationErrorTitle": "Doğrulama Hatası",
     "toastValidationErrorDescription": "Lütfen tüm gerekli alanları doğru şekilde doldurun",
-    "toastErrorCreateTitle": "Haber bölümü oluşturulurken hata oluştu",
-    "toastErrorUpdateTitle": "Haber bölümü güncellenirken hata oluştu",
+    "toastErrorCreateTitle": "Bölüm bölümü oluşturulurken hata oluştu",
+    "toastErrorUpdateTitle": "Bölüm bölümü güncellenirken hata oluştu",
     "toastErrorDescription": "Bilinmeyen bir hata oluştu",
     "toastImageUploadSuccessTitle": "Resim Yüklendi",
     "toastImageUploadSuccessDescription": "Arka plan resmi başarıyla yüklendi.",
@@ -2112,7 +2112,7 @@
       "editTitle": "Ana Düzenle",
       
       "// Page Subtitles": "",
-      "createSubtitle": "Çok dilli içerikle yeni bir hizmet oluşturun",
+      "createSubtitle": "Çok dilli içerikle yeni bir Bölüm oluşturun",
       "editSubtitle": "içeriği birden fazla dilde",
       "editingPrefix": "Düzenleniyor",
       
@@ -2143,7 +2143,7 @@
       "// Form Processing": "",
       "processingFormData": "Form verileri işleniyor...",
       "extractingHeroData": "Ana verileri çıkarılıyor...",
-      "creatingServicePayload": "Hizmet yükü oluşturuluyor...",
+      "creatingServicePayload": "Bölüm yükü oluşturuluyor...",
       "savingData": "Veriler kaydediliyor...",
       
       "// Mode Handling": "",
@@ -2155,7 +2155,7 @@
       "fetchingLanguages": "Diller getiriliyor...",
       "fetchingSectionItem": "Bölüm öğesi getiriliyor...",
       "fetchingSubsections": "Alt bölümler getiriliyor...",
-      "savingService": "Hizmet kaydediliyor..."
+      "savingService": "Bölüm kaydediliyor..."
   },
   "HeroLanguageCard": {
       "// Card Header": "",
@@ -2354,7 +2354,7 @@
       "editTitle": "Projeyi Düzenle",
       
       "// Page Subtitles": "",
-      "createSubtitle": "Çok dilli içerikle yeni hizmet oluşturun",
+      "createSubtitle": "Çok dilli içerikle yeni Bölüm oluşturun",
       "editSubtitle": "\"{{projectName}}\" içeriğini birden fazla dilde düzenleme",
       
       "// Tab Labels": "",
@@ -2726,19 +2726,19 @@
     "descriptionPlaceholder": "Açıklama gir"
   },
   "servicesPage": {
-    "title": "Hizmet Yönetimi",
-    "description": "Hizmet envanterinizi ve çok dilli içeriği yönetin",
-    "addButtonLabel": "Yeni Hizmet Ekle",
-    "emptyStateMessage": "Hizmet bulunamadı. \"Yeni Hizmet Ekle\" düğmesine tıklayarak ilk hizmetinizi oluşturun.",
-    "noSectionMessage": "Hizmet eklemeden önce lütfen bir hizmet bölümü oluşturun.",
-    "mainSectionRequiredMessage": "Hizmet eklemeden önce lütfen ana bölüm verilerinizi girin.",
-    "emptyFieldsMessage": "Hizmet eklemeden önce lütfen ana bölümdeki tüm gerekli alanları doldurun.",
-    "sectionIntegrationTitle": "Hizmet Bölümü İçeriği",
-    "sectionIntegrationDescription": "Hizmet bölümü içeriğinizi birden fazla dilde yönetin.",
-    "addSectionButtonLabel": "Hizmet Bölümü Ekle",
-    "editSectionButtonLabel": "Hizmet Bölümünü Düzenle",
-    "saveSectionButtonLabel": "Hizmet Bölümünü Kaydet",
-    "listTitle": "Hizmet Listesi",
+    "title": "Bölüm Yönetimi",
+    "description": "Bölüm envanterinizi ve çok dilli içeriği yönetin",
+    "addButtonLabel": "Yeni Bölüm Ekle",
+    "emptyStateMessage": "Bölüm bulunamadı. \"Yeni Bölüm Ekle\" düğmesine tıklayarak ilk Bölümünüzü oluşturun.",
+    "noSectionMessage": "Bölüm eklemeden önce lütfen bir Bölüm bölümü oluşturun.",
+    "mainSectionRequiredMessage": "Bölüm eklemeden önce lütfen ana bölüm verilerinizi girin.",
+    "emptyFieldsMessage": "Bölüm eklemeden önce lütfen ana bölümdeki tüm gerekli alanları doldurun.",
+    "sectionIntegrationTitle": "Bölüm Bölümü İçeriği",
+    "sectionIntegrationDescription": "Bölüm bölümü içeriğinizi birden fazla dilde yönetin.",
+    "addSectionButtonLabel": "Bölüm Bölümü Ekle",
+    "editSectionButtonLabel": "Bölüm Bölümünü Düzenle",
+    "saveSectionButtonLabel": "Bölüm Bölümünü Kaydet",
+    "listTitle": "Bölüm Listesi",
     "table": {
       "columns": {
         "name": "Ad",
@@ -2752,18 +2752,18 @@
       }
     },
     "dialogs": {
-      "createTitle": "Hizmet",
+      "createTitle": "Bölüm",
       "deleteTitle": "Bölümü Sil",
       "confirmText": "Onayla"
     }
   },
   "addServicePage": {
     "titles": {
-      "create": "Yeni Hizmet Oluştur",
-      "edit": "Hizmeti Düzenle"
+      "create": "Yeni Bölüm Oluştur",
+      "edit": "Bölümü Düzenle"
     },
     "subtitles": {
-      "create": "Çok dilli içerikle yeni bir hizmet oluşturun",
+      "create": "Çok dilli içerikle yeni bir Bölüm oluşturun",
       "edit": "\"{{serviceName}}\" içeriğini birden fazla dilde düzenleme"
     },
     "tabs": {
@@ -2775,10 +2775,10 @@
       "faq": "SSS"
     },
     "defaults": {
-      "serviceName": "Yeni Hizmet"
+      "serviceName": "Yeni Bölüm"
     },
     "navigation": {
-      "backToServices": "Hizmetlere Dön"
+      "backToServices": "Bölümlere Dön"
     }
   },
   "heroForm": {
@@ -4104,40 +4104,44 @@
       "addNewShort": "Ekle",
       "addNewSections": "Önceden Tasarlanmış Bölümler Ekle",
       "currentSections": "Mevcut Website Bölümleri",
-      "searchPlaceholder": "Bölümleri ara...",
-      "browseSections": "Mevcut Bölümlere Göz At",
+      "searchPlaceholder": "Bölümlerde ara...",
+      "browseSections": "Mevcut Bölümleri Göz At",
       "noSectionsYet": "Henüz bölüm yok",
       "noSectionsDescription": "Website yapınızı oluşturmak için önceden tasarlanmış bölümler ekleyin. Bölümler herhangi bir sırada düzenlenebilir.",
       "active": "Aktif",
       "hidden": "Gizli",
-      "dragToReorder": "Bölümleri yeniden sıralamak için sürükleyin",
+      "dragToReorder": "Yeniden sıralamak için bölümleri sürükleyin",
       "changesSaved": "Değişiklikler başarıyla kaydedildi!",
       "categories": {
         "all": "Tüm Bölümler",
         "header": "Başlık",
         "hero": "Ana Banner",
         "about": "Hakkımızda",
-        "services": "Hizmetler",
+        "services": "Bölümler",
         "portfolio": "Portföy",
         "testimonials": "Referanslar",
         "contact": "İletişim",
         "footer": "Alt Bilgi",
         "blog": "Blog",
         "team": "Ekip",
-        "pricing": "Fiyatlar",
+        "pricing": "Fiyatlandırma",
         "faq": "SSS"
       },
       "toast": {
         "duplicateSection": {
-          "title": "Yinelenen bölüm",
+          "title": "Yinelenen Bölüm",
           "description": "\"{{sectionName}}\" adında bir bölüm zaten mevcut."
         },
         "sectionAdded": {
-          "title": "Bölüm eklendi",
+          "title": "Bölüm Eklendi",
           "description": "{{sectionName}} bölümü başarıyla eklendi."
         },
+        "sectionUpdated": {
+          "title": "Bölüm Güncellendi",
+          "description": "Bölüm başarıyla güncellendi."
+        },
         "errorAdding": {
-          "title": "Bölüm ekleme hatası",
+          "title": "Bölüm Ekleme Hatası",
           "description": "Bölüm eklenirken bir hata oluştu."
         },
         "error": {
@@ -4146,24 +4150,24 @@
         },
         "sectionToggled": {
           "activated": {
-            "title": "Bölüm etkinleştirildi",
-            "description": "Bölüm artık website'nizde görünür."
+            "title": "Bölüm Etkinleştirildi",
+            "description": "Bölüm artık web sitenizde görünüyor."
           },
           "deactivated": {
-            "title": "Bölüm devre dışı bırakıldı",
-            "description": "Bölüm artık website'nizde gizli."
+            "title": "Bölüm Devre Dışı Bırakıldı",
+            "description": "Bölüm artık web sitenizde gizli."
           }
         },
         "errorUpdating": {
-          "title": "Bölüm güncelleme hatası",
+          "title": "Bölüm Güncelleme Hatası",
           "description": "Bölüm durumu güncellenirken bir hata oluştu."
         },
         "orderUpdated": {
-          "title": "Sıralama güncellendi",
+          "title": "Sıralama Güncellendi",
           "description": "Bölüm sıralaması başarıyla güncellendi."
         },
         "errorUpdatingOrder": {
-          "title": "Sıralama güncelleme hatası",
+          "title": "Sıralama Güncelleme Hatası",
           "description": "Bölüm sıralaması güncellenirken bir hata oluştu."
         },
         "noValidSections": {
@@ -4171,11 +4175,11 @@
           "description": "Yeniden sıralanacak geçerli bölüm yok."
         },
         "sectionDeleted": {
-          "title": "Bölüm silindi",
+          "title": "Bölüm Silindi",
           "description": "Bölüm başarıyla silindi."
         },
         "errorDeleting": {
-          "title": "Bölüm silme hatası",
+          "title": "Bölüm Silme Hatası",
           "description": "Bölüm silinirken bir hata oluştu."
         }
       }
@@ -4348,43 +4352,43 @@
     "NavigationLanguages" : "Navigasyon Dilleri",
     "NavigationSettings" : "Navigasyon Ayarları",
     "AddSubNavigation" : "Alt Navigasyon Ekle",
-    "enable": "Bu hizmet için alt navigasyonu etkinleştir"
+    "enable": "Bu Bölüm için alt navigasyonu etkinleştir"
     },
     "HeroManagement": {
-    "createTitle": "Yeni Kahraman Öğesi Oluştur",
-    "editTitle": "Kahraman Öğesini Düzenle",
-    "createSubtitle": "Çok dilli içerikle yeni bir Kahraman öğesi oluşturun",
+    "createTitle": "Yeni Bölüm Öğesi Oluştur",
+    "editTitle": "Bölüm Öğesini Düzenle",
+    "createSubtitle": "Çok dilli içerikle yeni bir Bölüm öğesi oluşturun",
     "editSubtitle": "\"{{itemName}}\" içeriğini birden fazla dilde düzenleme",
-    "editSubtitleDefault": "Kahraman öğesi içeriğini birden fazla dilde düzenleme",
-    "defaultItemName": "Yeni Kahraman",
-    "tabLabel": "Kahraman",
+    "editSubtitleDefault": "Bölüm öğesi içeriğini birden fazla dilde düzenleme",
+    "defaultItemName": "Yeni Bölüm",
+    "tabLabel": "Özel Bölüm Oluşturmaya Başla",
     "formSections": {
-      "hero": "Kahraman İçeriği",
+      "hero": "Bölüm İçeriği",
       "navigation": "Navigasyon Yapılandırması"
     },
-    "backToList": "Kahraman Listesine Geri Dön",
-    "loadingMessage": "Kahraman verileri yükleniyor...",
-    "savingMessage": "Kahraman öğesi kaydediliyor...",
-    "savedMessage": "Kahraman öğesi başarıyla kaydedildi",
-    "errorMessage": "Kahraman öğesi kaydedilirken hata oluştu"
+    "backToList": "Bölüm Listesine Geri Dön",
+    "loadingMessage": "Bölüm verileri yükleniyor...",
+    "savingMessage": "Bölüm öğesi kaydediliyor...",
+    "savedMessage": "Bölüm öğesi başarıyla kaydedildi",
+    "errorMessage": "Bölüm öğesi kaydedilirken hata oluştu"
   },
   "BlogManagement": {
-    "createTitle": "Yeni Blog Öğesi Oluştur",
-    "editTitle": "Blog Öğesini Düzenle",
-    "createSubtitle": "Çok dilli içerikle yeni bir Blog öğesi oluşturun",
+    "createTitle": "Yeni Bölüm Öğesi Oluştur",
+    "editTitle": "Bölüm Öğesini Düzenle",
+    "createSubtitle": "Çok dilli içerikle yeni bir Bölüm öğesi oluşturun",
     "editSubtitle": "\"{{itemName}}\" içeriğini birden fazla dilde düzenleme",
-    "editSubtitleDefault": "Blog öğesi içeriğini birden fazla dilde düzenleme",
-    "defaultItemName": "Yeni Blog",
-    "tabLabel": "Blog",
+    "editSubtitleDefault": "Bölüm öğesi içeriğini birden fazla dilde düzenleme",
+    "defaultItemName": "Yeni Bölüm",
+    "tabLabel": "Bölüm",
     "formSections": {
-      "blog": "Blog İçeriği",
+      "blog": "Bölüm İçeriği",
       "navigation": "Navigasyon Yapılandırması"
     },
-    "backToList": "Blog Listesine Geri Dön",
-    "loadingMessage": "Blog verileri yükleniyor...",
-    "savingMessage": "Blog öğesi kaydediliyor...",
-    "savedMessage": "Blog öğesi başarıyla kaydedildi",
-    "errorMessage": "Blog öğesi kaydedilirken hata oluştu"
+    "backToList": "Bölüm Listesine Geri Dön",
+    "loadingMessage": "Bölüm verileri yükleniyor...",
+    "savingMessage": "Bölüm öğesi kaydediliyor...",
+    "savedMessage": "Bölüm öğesi başarıyla kaydedildi",
+    "errorMessage": "Bölüm öğesi kaydedilirken hata oluştu"
   },
   "common": {
     "welcome": "Hoş geldiniz",

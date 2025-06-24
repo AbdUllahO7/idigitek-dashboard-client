@@ -633,7 +633,7 @@
     
     "deleteDialog": {
       "title": "حذف اللغة",
-      "description": "هل أنت متأكد من أنك تريد حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "description": "هل أنت متأكد من أنك تريد حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
       "warning": {
         "title": "تحذير",
         "description": "حذف هذه اللغة سيؤدي إلى إزالة جميع المحتوى المرتبط بها."
@@ -656,7 +656,7 @@
 
     "toastMessages": {
       "languageAdded": "تم إضافة اللغة",
-      "languageAddedDesc": "تم إضافة {name} بنجاح.",
+      "languageAddedDesc": "تم إضافة {{name}}بنجاح.",
       "languageUpdated": "تم تحديث اللغة",
       "languageUpdatedDesc": "تم تحديث اللغة بنجاح.",
       "languageDeleted": "تم حذف اللغة",
@@ -717,7 +717,7 @@
       "description1": "شريط التنقل العلوي مع الشعار وعناصر القائمة ومعلومات الاتصال لموقعك الإلكتروني",
       "sections.hero.description": "بانر رئيسي جذاب مع عناوين مقنعة وأزرار دعوة للعمل",
       "sections.services.description": "اعرض خدماتك وعروضك الأساسية مع أوصاف مفصلة",
-      "sections.news.description": "اعرض آخر الأخبار والتحديثات والإعلانات لجمهورك",
+      "sections.news.description": "اعرض آخر القسم والتحديثات والإعلانات لجمهورك",
       "sections.industrySolutions.description": "قدم حلول مخصصة للصناعات المختلفة التي تخدمها",
       "sections.whyChooseUs.description": "سلط الضوء على مقترحات القيمة الفريدة والمزايا التنافسية",
       "sections.projects.description": "معرض محفظة أعمال لمشاريعك المكتملة ودراسات الحالة",
@@ -726,7 +726,7 @@
       "sections.clientComments.description": "شهادات العملاء والمراجعات لبناء الثقة والمصداقية",
       "sections.partners.description": "اعرض شعارات ومعلومات شركائك التجاريين",
       "sections.faq.description": "الأسئلة الشائعة للإجابة على استفسارات العملاء الشائعة",
-      "sections.blog.description": "قسم المدونة للمقالات والرؤى ومحتوى القيادة الفكرية",
+      "sections.blog.description": "قسم القسم للمقالات والرؤى ومحتوى القيادة الفكرية",
       "sections.contact.description": "معلومات الاتصال والنماذج وتفاصيل الموقع لاستفسارات العملاء",
       "sections.footer.description": "القسم السفلي مع الروابط ووسائل التواصل الاجتماعي ومعلومات الشركة الإضافية",
       "addDialog": {
@@ -1704,19 +1704,19 @@
 "confirmationsConfirm": "تأكيد"
   },
   "newsPage": {
-    "title": "إدارة الأخبار",
-    "description": "إدارة مخزون الأخبار والمحتوى متعدد اللغات",
+    "title": "إدارة القسم",
+    "description": "إدارة مخزون القسم والمحتوى متعدد اللغات",
     "addButtonLabel": "إضافة خبر جديد",
-    "emptyStateMessage": "لم يتم العثور على أخبار. أنشئ أول خبر لك بالنقر على زر \"إضافة خبر جديد\".",
-    "noSectionMessage": "يرجى إنشاء قسم الأخبار أولاً قبل إضافة الأخبار.",
-    "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة الأخبار.",
-    "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة الأخبار.",
-    "sectionIntegrationTitle": "محتوى قسم الأخبار",
-    "sectionIntegrationDescription": "إدارة محتوى قسم الأخبار بلغات متعددة.",
-    "addSectionButtonLabel": "إضافة قسم الأخبار",
-    "editSectionButtonLabel": "تعديل قسم الأخبار",
-    "saveSectionButtonLabel": "حفظ قسم الأخبار",
-    "listTitle": "قائمة الأخبار",
+    "emptyStateMessage": "لم يتم العثور على قسم. أنشئ أول خبر لك بالنقر على زر \"إضافة خبر جديد\".",
+    "noSectionMessage": "يرجى إنشاء قسم القسم أولاً قبل إضافة القسم.",
+    "mainSectionRequiredMessage": "يرجى إدخال بيانات القسم الرئيسي قبل إضافة القسم.",
+    "emptyFieldsMessage": "يرجى إكمال جميع الحقول المطلوبة في القسم الرئيسي قبل إضافة القسم.",
+    "sectionIntegrationTitle": "محتوى قسم القسم",
+    "sectionIntegrationDescription": "إدارة محتوى قسم القسم بلغات متعددة.",
+    "addSectionButtonLabel": "إضافة قسم القسم",
+    "editSectionButtonLabel": "تعديل قسم القسم",
+    "saveSectionButtonLabel": "حفظ قسم القسم",
+    "listTitle": "قائمة القسم",
     "editPath": "News/addNews",
     
     "// Table Columns": "",
@@ -1732,27 +1732,27 @@
     "inactive": "غير نشط",
     
     "// Dialog Titles": "",
-    "deleteNewsItem": "حذف عنصر الأخبار",
+    "deleteNewsItem": "حذف عنصر القسم",
     "confirmDelete": "تأكيد",
-    "createNewsTitle": "الأخبار"
+    "createNewsTitle": "القسم"
   },
   "newsSectionConfig": {
-    "sectionName": "قسم الأخبار الأساسي",
-    "sectionDescription": "قسم الأخبار لإدارة معلومات الخدمة",
-    "subSectionName": "قسم الأخبار الأساسي",
-    "type": "أخبار",
+    "sectionName": "قسم القسم الأساسي",
+    "sectionDescription": "قسم القسم لإدارة معلومات الخدمة",
+    "subSectionName": "قسم القسم الأساسي",
+    "type": "قسم",
     
     "// Field Labels": "",
     "sectionBadgeLabel": "شارة القسم",
     "sectionTitleLabel": "عنوان القسم",
     "sectionDescriptionLabel": "وصف القسم", 
-    "newsDetailsLabel": "تفاصيل الأخبار",
+    "newsDetailsLabel": "تفاصيل القسم",
     
     "// Field Placeholders": "",
     "sectionBadgePlaceholder": "أدخل نص شارة القسم",
     "sectionTitlePlaceholder": "أدخل عنوان القسم",
     "sectionDescriptionPlaceholder": "أدخل وصف القسم",
-    "newsDetailsPlaceholder": "أدخل تفاصيل الأخبار",
+    "newsDetailsPlaceholder": "أدخل تفاصيل القسم",
     
     "// Element Mapping": "",
     "badgeElement": "الشارة",
@@ -1762,39 +1762,39 @@
     
     "// Helper Text": "",
     "sectionBadgeHelper": "نص قصير يتم عرضه كشارة فوق القسم",
-    "sectionTitleHelper": "العنوان الرئيسي لقسم الأخبار",
+    "sectionTitleHelper": "العنوان الرئيسي لقسم القسم",
     "sectionDescriptionHelper": "وصف موجز لما يحتويه هذا القسم",
-    "newsDetailsHelper": "معلومات مفصلة حول عناصر الأخبار"
+    "newsDetailsHelper": "معلومات مفصلة حول عناصر القسم"
   },
   "addNews": {
     "// Page Titles": "",
     "createTitle": "إنشاء خبر جديد",
-    "editTitle": "تعديل الأخبار",
+    "editTitle": "تعديل القسم",
     
     "// Page Subtitles": "",
     "createSubtitle": "إنشاء خدمة جديدة مع محتوى متعدد اللغات",
     "editSubtitle": "تعديل محتوى  عبر لغات متعددة",
-    "editSubtitleFallback": "تعديل محتوى الأخبار عبر لغات متعددة",
+    "editSubtitleFallback": "تعديل محتوى القسم عبر لغات متعددة",
     
     "// Tab Labels": "",
-    "newsTab": "الأخبار",
-    "newsTabDescription": "إدارة محتوى ومعلومات الأخبار",
+    "newsTab": "القسم",
+    "newsTabDescription": "إدارة محتوى ومعلومات القسم",
     
     "// Default Values": "",
     "defaultServiceName": "خبر جديد",
-    "defaultServiceDescription": "وصف خدمة الأخبار",
-    "newNewsItem": "عنصر أخبار جديد",
+    "defaultServiceDescription": "وصف خدمة القسم",
+    "newNewsItem": "عنصر قسم جديد",
     
     "// Loading States": "",
     "loadingLanguages": "جاري تحميل اللغات...",
-    "loadingSectionItem": "جاري تحميل عنصر الأخبار...",
+    "loadingSectionItem": "جاري تحميل عنصر القسم...",
     "loadingSubsections": "جاري تحميل الأقسام الفرعية...",
     "loadingData": "جاري تحميل البيانات...",
     
     "// Form States": "",
     "savingChanges": "جاري حفظ التغييرات...",
-    "creatingNews": "جاري إنشاء الأخبار...",
-    "updatingNews": "جاري تحديث الأخبار...",
+    "creatingNews": "جاري إنشاء القسم...",
+    "updatingNews": "جاري تحديث القسم...",
     
     "// Error Messages": "",
     "errorLoadingData": "خطأ في تحميل البيانات",
@@ -1803,12 +1803,12 @@
     "invalidData": "البيانات المقدمة غير صحيحة",
     
     "// Success Messages": "",
-    "newsCreatedSuccessfully": "تم إنشاء الأخبار بنجاح",
-    "newsUpdatedSuccessfully": "تم تحديث الأخبار بنجاح",
+    "newsCreatedSuccessfully": "تم إنشاء القسم بنجاح",
+    "newsUpdatedSuccessfully": "تم تحديث القسم بنجاح",
     "changesSaved": "تم حفظ التغييرات بنجاح",
     
     "// Navigation": "",
-    "backToNews": "العودة إلى الأخبار",
+    "backToNews": "العودة إلى القسم",
     "backToList": "العودة إلى القائمة",
     "returnToDashboard": "العودة إلى لوحة التحكم",
     
@@ -1833,24 +1833,24 @@
     "descriptionPlaceholder": "أدخل الوصف",
     "buttonTextLabel": "نص الزر",
     "buttonTextPlaceholder": "ابدأ",
-    "cardTitle": "قسم الأخبار",
-    "cardDescription": "إدارة محتوى الأخبار باللغة العربية"
+    "cardTitle": "قسم القسم",
+    "cardDescription": "إدارة محتوى القسم باللغة العربية"
   },
   "newsForm": {
-    "loadingData": "جارٍ تحميل بيانات قسم الأخبار...",
-    "loadingDialogTitleCreating": "إنشاء قسم الأخبار",
-    "loadingDialogTitleUpdating": "تحديث قسم الأخبار",
+    "loadingData": "جارٍ تحميل بيانات قسم القسم...",
+    "loadingDialogTitleCreating": "إنشاء قسم القسم",
+    "loadingDialogTitleUpdating": "تحديث قسم القسم",
     "loadingDialogDescription": "يرجى الانتظار بينما نحفظ التغييرات...",
-    "saveButton": "حفظ محتوى الأخبار",
-    "updateButton": "تحديث محتوى الأخبار",
+    "saveButton": "حفظ محتوى القسم",
+    "updateButton": "تحديث محتوى القسم",
     "savingButton": "جارٍ الحفظ...",
-    "toastSuccessCreate": "تم إنشاء قسم الأخبار بنجاح!",
-    "toastSuccessUpdate": "تم تحديث قسم الأخبار بنجاح!",
+    "toastSuccessCreate": "تم إنشاء قسم القسم بنجاح!",
+    "toastSuccessUpdate": "تم تحديث قسم القسم بنجاح!",
     "toastSuccessDescription": "تم حفظ جميع المحتويات.",
     "toastValidationErrorTitle": "خطأ في التحقق",
     "toastValidationErrorDescription": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
-    "toastErrorCreateTitle": "خطأ في إنشاء قسم الأخبار",
-    "toastErrorUpdateTitle": "خطأ في تحديث قسم الأخبار",
+    "toastErrorCreateTitle": "خطأ في إنشاء قسم القسم",
+    "toastErrorUpdateTitle": "خطأ في تحديث قسم القسم",
     "toastErrorDescription": "حدث خطأ غير معروف",
     "toastImageUploadSuccessTitle": "تم رفع الصورة",
     "toastImageUploadSuccessDescription": "تم رفع صورة الخلفية بنجاح.",
@@ -1928,7 +1928,7 @@
     "createTitle": "إنشاء عنصر صناعة جديد",
     "editTitle": "تعديل عنصر الصناعة",
     "createSubtitle": "إنشاء عنصر صناعة جديد بمحتوى متعدد اللغات",
-    "editSubtitle": "تحرير محتوى \"{name}\" عبر عدة لغات",
+    "editSubtitle": "تحرير محتوى \"{{name}}\" عبر عدة لغات",
     "defaultItemName": "عنصر صناعة",
     
     "// Default Values": "",
@@ -4159,7 +4159,7 @@
       }
     }
   },
-    "useSectionManagement": {
+  "useSectionManagement": {
       "current": "الأقسام الحالية",
       "currentShort": "الحالية",
       "addNew": "إضافة جديد",
@@ -4184,7 +4184,7 @@
         "testimonials": "الشهادات",
         "contact": "الاتصال",
         "footer": "التذييل",
-        "blog": "المدونة",
+        "blog": "القسم",
         "team": "الفريق",
         "pricing": "الأسعار",
         "faq": "الأسئلة الشائعة"
@@ -4197,6 +4197,10 @@
         "sectionAdded": {
           "title": "تم إضافة القسم",
           "description": "تم إضافة قسم {{sectionName}} بنجاح."
+        },
+        "sectionUpdated": {
+          "title": "تم تحديث القسم",
+          "description": "تم تحديث القسم بنجاح."
         },
         "errorAdding": {
           "title": "خطأ في إضافة القسم",
@@ -4413,40 +4417,40 @@
     "enable": "تفعيل التنقل الفرعي لهذه الخدمة"
   },
   "HeroManagement": {
-    "createTitle": "إنشاء عنصر واجهة تقنية جديد",
-    "editTitle": "تعديل عنصر واجهة تقنية",
-    "createSubtitle": "إنشاء عنصر واجهة تقنية جديد بمحتوى متعدد اللغات",
+    "createTitle": "إنشاء عنصر قسم جديد",
+    "editTitle": "تعديل عنصرقسم",
+    "createSubtitle": "إنشاء عنصرقسم جديد بمحتوى متعدد اللغات",
     "editSubtitle": "تعديل محتوى \"{{itemName}}\" عبر لغات متعددة",
-    "editSubtitleDefault": "تعديل محتوى عنصر واجهة تقنية عبر لغات متعددة",
+    "editSubtitleDefault": "تعديل محتوى عنصرقسم عبر لغات متعددة",
     "defaultItemName": "واجهة تقنية جديد",
-    "tabLabel": "واجهة تقنية",
+    "tabLabel": "بدء إنشاء قسم خاص",
     "formSections": {
-      "hero": "محتوى واجهة تقنية",
+      "hero": "محتوىقسم",
       "navigation": "تكوين التنقل"
     },
-    "backToList": "العودة إلى قائمة واجهة تقنية",
-    "loadingMessage": "جاري تحميل بيانات واجهة تقنية...",
-    "savingMessage": "جاري حفظ عنصر واجهة تقنية...",
-    "savedMessage": "تم حفظ عنصر واجهة تقنية بنجاح",
-    "errorMessage": "خطأ أثناء حفظ عنصر واجهة تقنية"
+    "backToList": "العودة إلى قائمةقسم",
+    "loadingMessage": "جاري تحميل بياناتقسم...",
+    "savingMessage": "جاري حفظ عنصرقسم...",
+    "savedMessage": "تم حفظ عنصرقسم بنجاح",
+    "errorMessage": "خطأ أثناء حفظ عنصرقسم"
   },
   "BlogManagement": {
-    "createTitle": "إنشاء عنصر مدونة جديد",
-    "editTitle": "تعديل عنصر المدونة",
-    "createSubtitle": "إنشاء عنصر مدونة جديد بمحتوى متعدد اللغات",
+    "createTitle": "إنشاء عنصر قسم جديد",
+    "editTitle": "تعديل عنصر قسم",
+    "createSubtitle": "إنشاء عنصر قسم جديد بمحتوى متعدد اللغات",
     "editSubtitle": "تعديل محتوى \"{{itemName}}\" عبر لغات متعددة",
-    "editSubtitleDefault": "تعديل محتوى عنصر المدونة عبر لغات متعددة",
-    "defaultItemName": "مدونة جديدة",
-    "tabLabel": "مدونة",
+    "editSubtitleDefault": "تعديل محتوى عنصر قسم عبر لغات متعددة",
+    "defaultItemName": "قسم جديدة",
+    "tabLabel": "قسم",
     "formSections": {
-      "blog": "محتوى المدونة",
+      "blog": "محتوى القسم",
       "navigation": "تكوين التنقل"
     },
-    "backToList": "العودة إلى قائمة المدونة",
-    "loadingMessage": "جاري تحميل بيانات المدونة...",
-    "savingMessage": "جاري حفظ عنصر المدونة...",
-    "savedMessage": "تم حفظ عنصر المدونة بنجاح",
-    "errorMessage": "خطأ أثناء حفظ عنصر المدونة"
+    "backToList": "العودة إلى قائمة القسم",
+    "loadingMessage": "جاري تحميل بيانات القسم...",
+    "savingMessage": "جاري حفظ عنصر القسم...",
+    "savedMessage": "تم حفظ عنصر القسم بنجاح",
+    "errorMessage": "خطأ أثناء حفظ عنصر القسم"
   },
   
   "common": {

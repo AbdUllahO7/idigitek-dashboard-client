@@ -152,8 +152,6 @@ export default function HeroPage() {
       return
     }
 
-    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data)
-    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data)
 
     // We're done loading, now check the data
     let foundMainSubSection = false
@@ -164,11 +162,7 @@ export default function HeroPage() {
     const expectedNewsSlug = heroSectionConfig.name // This is correct for NEWS
     const expectedNavigationSlug = NavigationConfig.name // This is correct for NEWS navigation
 
-    console.log('🔍 Looking for News configurations:', {
-      expectedNewsSlug,
-      expectedNavigationSlug,
-      currentLanguage
-    })
+
 
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -300,7 +294,6 @@ export default function HeroPage() {
 
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 News navigation subsection created:', subsection)
 
     // Check if subsection has the correct name or type for NEWS
     const expectedSlug = NavigationConfig.name
@@ -314,12 +307,7 @@ export default function HeroPage() {
     // Set that we have a navigation subsection now
     setHasNavigationSubSection(hasCorrectIdentifier)
 
-    console.log('📰 News navigation subsection check:', {
-      actualName: subsection.name,
-      expectedSlug,
-      expectedType,
-      hasCorrectIdentifier
-    })
+
 
     // Force refetch of all subsection data
     if (refetchMainSubSection) {

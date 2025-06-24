@@ -26,6 +26,7 @@ import { BlogsFormProps } from "@/src/api/types/sections/blog/blogSection.types"
 import { createBlogSchema } from "../../../services/addService/Utils/language-specific-schemas";
 import { BlogLanguageCard } from "./BlogLanguageCard";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
   const { 
@@ -41,7 +42,7 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
   const { websiteId } = useWebsiteContext();
   const searchParams = useSearchParams();
   const sectionIdFromUrl = searchParams.get("sectionId") || "";
-
+  const {t} = useTranslation()
   // Setup form with schema validation - Updated to include navigation fields
   const formSchema = createBlogSchema(languageIds, activeLanguages, true); // Add navigation support
   const defaultValues = createBlogDefaultValues(languageIds, activeLanguages, true); // Add navigation support

@@ -717,8 +717,8 @@
     "subtitle": "Build your website structure with beautiful, pre-designed sections",
     "description1": "Top navigation bar with logo, menu items and contact information for your website",
     "sections.hero.description": "Eye-catching main banner with compelling headlines and call-to-action buttons",
-    "sections.services.description": "Showcase your core services and offerings with detailed descriptions",
-    "sections.news.description": "Display latest news, updates and announcements for your audience",
+    "sections.services.description": "Showcase your core section and offerings with detailed descriptions",
+    "sections.news.description": "Display latest Section, updates and announcements for your audience",
     "sections.industrySolutions.description": "Present tailored solutions for different industries you serve",
     "sections.whyChooseUs.description": "Highlight your unique value propositions and competitive advantages",
     "sections.projects.description": "Portfolio showcase of your completed projects and case studies",
@@ -727,7 +727,7 @@
     "sections.clientComments.description": "Customer testimonials and reviews to build trust and credibility",
     "sections.partners.description": "Display logos and information about your business partners",
     "sections.faq.description": "Frequently asked questions to address common customer inquiries",
-    "sections.blog.description": "Blog section for articles, insights and thought leadership content",
+    "sections.blog.description": "section for articles, insights and thought leadership content",
     "sections.contact.description": "Contact information, forms and location details for customer inquiries",
     "sections.footer.description": "Bottom section with links, social media and additional company information",
     "editDialog": {
@@ -904,7 +904,7 @@
       "animatedText": "Animated Text",
       "scrollIndicators": "Scroll Indicators",
       
-      "serviceCards": "Service Cards",
+      "serviceCards": "section Cards",
       "iconIntegration": "Icon Integration",
       "hoverEffects": "Hover Effects",
       "gridLayout": "Grid Layout",
@@ -1498,26 +1498,26 @@
   },
   "createSectionItemDialog" : {
   "createNew": "Create New {{title}}",
-    "dialogDescription": "Enter the basic information for your new service. You'll be able to add more details after creating it.",
+    "dialogDescription": "Enter the basic information for your new section. You'll be able to add more details after creating it.",
     "nameLabel": "{{title}} Name",
     "nameRequired": "*",
     "descriptionLabel": "Description",
-    "namePlaceholder": "Enter service name",
-    "descriptionPlaceholder": "Enter service description",
+    "namePlaceholder": "Enter section name",
+    "descriptionPlaceholder": "Enter section description",
     "cancelButton": "Cancel",
     "createButton": "Create {{title}}",
     "creatingButton": "Creating...",
     "validationError": "Validation Error",
-    "serviceNameRequired": "Service name is required",
+    "serviceNameRequired": "section name is required",
     "loading": "Loading",
     "waitFetchWebsite": "Please wait while we fetch your website information",
     "error": "Error",
     "failedFetchWebsite": "Failed to fetch website information",
-    "createWebsiteFirst": "Please create a website first before adding a service",
-    "serviceCreated": "Service created",
-    "addDetailsMessage": "Now you can add details to your service",
-    "errorCreatingService": "Error creating service",
-    "errorOccurred": "An error occurred while creating the service"
+    "createWebsiteFirst": "Please create a website first before adding a section",
+    "serviceCreated": "section created",
+    "addDetailsMessage": "Now you can add details to your section",
+    "errorCreatingService": "Error creating sersectionvice",
+    "errorOccurred": "An error occurred while creating the section"
   },
   "formShell": {
     "noActiveLanguages": "No active languages found. Please activate at least one language in settings.",
@@ -1643,28 +1643,28 @@
     "deleting": "Deleting...",
     "deleteSection": "Delete Section",
     "deleteItem": "Delete Item",
-    "deleteService": "Delete Service",
+    "deleteService": "Delete section",
     "deleteProject": "Delete Project",
     "deleteUser": "Delete User",
-    "deleteLanguage": "Delete Language",
+    "deleteLanguage": "Delete Language",    
     "deleteWebsite": "Delete Website",
     "confirmDelete": "Confirm Delete",
     "confirmRemoval": "Confirm Removal"
   },
   "newsPage": {
-    "title": "News Management",
-    "description": "Manage your News inventory and multilingual content",
-    "addButtonLabel": "Add New News item",
-    "emptyStateMessage": "No News found. Create your first News by clicking the \"Add New News\" button.",
-    "noSectionMessage": "Please create a News section first before adding News.",
-    "mainSectionRequiredMessage": "Please enter your main section data before adding News.",
-    "emptyFieldsMessage": "Please complete all required fields in the main section before adding News.",
-    "sectionIntegrationTitle": "News Section Content",
-    "sectionIntegrationDescription": "Manage your News section content in multiple languages.",
-    "addSectionButtonLabel": "Add News Section",
-    "editSectionButtonLabel": "Edit News Section",
-    "saveSectionButtonLabel": "Save News Section",
-    "listTitle": "News List",
+    "title": "Section Management",
+    "description": "Manage your Section inventory and multilingual content",
+    "addButtonLabel": "Add New Section item",
+    "emptyStateMessage": "No Section found. Create your first Section by clicking the \"Add New Section\" button.",
+    "noSectionMessage": "Please create a Section section first before adding Section.",
+    "mainSectionRequiredMessage": "Please enter your main section data before adding Section.",
+    "emptyFieldsMessage": "Please complete all required fields in the main section before adding Section.",
+    "sectionIntegrationTitle": "Section Section Content",
+    "sectionIntegrationDescription": "Manage your  section content in multiple languages.",
+    "addSectionButtonLabel": "Add  Section",
+    "editSectionButtonLabel": "Edit  Section",
+    "saveSectionButtonLabel": "Save  Section",
+    "listTitle": "Section List",
     "editPath": "News/addNews",
     
     "// Table Columns": "",
@@ -1681,27 +1681,27 @@
     "inactive": "Inactive",
     
     "// Dialog Titles": "",
-    "deleteNewsItem": "Delete News Item",
+    "deleteNewsItem": "Delete Section Item",
     "confirmDelete": "Confirm",
-    "createNewsTitle": "News"
+    "createNewsTitle": "NeSectionws"
   },
   "newsSectionConfig": {
     "sectionName": "News Section Basic",
-    "sectionDescription": "News section for managing service information",
-    "subSectionName": "News Section Basic",
+    "sectionDescription": "Section section for managing section information",
+    "subSectionName": "Section Section Basic",
     "type": "News",
     
     "// Field Labels": "",
     "sectionBadgeLabel": "Section Badge",
     "sectionTitleLabel": "Section Title", 
     "sectionDescriptionLabel": "Section Description",
-    "newsDetailsLabel": "News Details",
+    "newsDetailsLabel": "Section Details",
     
     "// Field Placeholders": "",
     "sectionBadgePlaceholder": "Enter section badge text",
     "sectionTitlePlaceholder": "Enter section title",
     "sectionDescriptionPlaceholder": "Enter section description",
-    "newsDetailsPlaceholder": "Enter news details",
+    "newsDetailsPlaceholder": "Enter Section details",
     
     "// Element Mapping": "",
     "badgeElement": "Badge",
@@ -1711,39 +1711,39 @@
     
     "// Helper Text": "",
     "sectionBadgeHelper": "Short text displayed as a badge above the section",
-    "sectionTitleHelper": "Main title for the news section",
+    "sectionTitleHelper": "Main title for the Section section",
     "sectionDescriptionHelper": "Brief description of what this section contains",
-    "newsDetailsHelper": "Detailed information about the news items"
+    "newsDetailsHelper": "Detailed information about the Section items"
   },
   "addNews": {
     "// Page Titles": "",
-    "createTitle": "Create New News",
-    "editTitle": "Edit News",
+    "createTitle": "Create New Section",
+    "editTitle": "Edit Section",
     
     "// Page Subtitles": "",
-    "createSubtitle": "Create a new service with multilingual content",
+    "createSubtitle": "Create a new section with multilingual content",
     "editSubtitle": "Editing  content across multiple languages",
-    "editSubtitleFallback": "Editing News content across multiple languages",
+    "editSubtitleFallback": "Editing Section content across multiple languages",
     
     "// Tab Labels": "",
-    "newsTab": "News",
-    "newsTabDescription": "Manage news content and information",
+    "newsTab": "Section",
+    "newsTabDescription": "Manage Section content and information",
     
     "// Default Values": "",
-    "defaultServiceName": "New News",
-    "defaultServiceDescription": "News service description",
-    "newNewsItem": "New News Item",
+    "defaultServiceName": "New Section",
+    "defaultServiceDescription": "Section section description",
+    "newNewsItem": "New Section Item",
     
     "// Loading States": "",
     "loadingLanguages": "Loading languages...",
-    "loadingSectionItem": "Loading news item...",
+    "loadingSectionItem": "Loading Section item...",
     "loadingSubsections": "Loading subsections...",
     "loadingData": "Loading data...",
     
     "// Form States": "",
     "savingChanges": "Saving changes...",
-    "creatingNews": "Creating news...",
-    "updatingNews": "Updating news...",
+    "creatingNews": "Creating Section...",
+    "updatingNews": "Updating Section...",
     
     "// Error Messages": "",
     "errorLoadingData": "Error loading data",
@@ -1752,12 +1752,12 @@
     "invalidData": "Invalid data provided",
     
     "// Success Messages": "",
-    "newsCreatedSuccessfully": "News created successfully",
-    "newsUpdatedSuccessfully": "News updated successfully",
+    "newsCreatedSuccessfully": "Section created successfully",
+    "newsUpdatedSuccessfully": "Section updated successfully",
     "changesSaved": "Changes saved successfully",
     
     "// Navigation": "",
-    "backToNews": "Back to News",
+    "backToNews": "Back to Section",
     "backToList": "Back to List",
     "returnToDashboard": "Return to Dashboard",
     
@@ -1782,24 +1782,24 @@
     "descriptionPlaceholder": "Enter description",
     "buttonTextLabel": "Button Text",
     "buttonTextPlaceholder": "Get Started",
-    "cardTitle": "News Section",
-    "cardDescription": "Manage news content for English"
+    "cardTitle": "Section",
+    "cardDescription": "Manage Section content for English"
   },
   "newsForm": {
-    "loadingData": "Loading news section data...",
-    "loadingDialogTitleCreating": "Creating News Section",
-    "loadingDialogTitleUpdating": "Updating News Section",
+    "loadingData": "Loading Section section data...",
+    "loadingDialogTitleCreating": "Creating Section Section",
+    "loadingDialogTitleUpdating": "Updating Section Section",
     "loadingDialogDescription": "Please wait while we save your changes...",
-    "saveButton": "Save News Content",
-    "updateButton": "Update News Content",
+    "saveButton": "Save Section Content",
+    "updateButton": "Update Section Content",
     "savingButton": "Saving...",
-    "toastSuccessCreate": "News section created successfully!",
-    "toastSuccessUpdate": "News section updated successfully!",
+    "toastSuccessCreate": "NeSectionws section created successfully!",
+    "toastSuccessUpdate": "Section section updated successfully!",
     "toastSuccessDescription": "All content has been saved.",
     "toastValidationErrorTitle": "Validation Error",
     "toastValidationErrorDescription": "Please fill all required fields correctly",
-    "toastErrorCreateTitle": "Error creating news section",
-    "toastErrorUpdateTitle": "Error updating news section",
+    "toastErrorCreateTitle": "Error creating Section section",
+    "toastErrorUpdateTitle": "Error updating Section section",
     "toastErrorDescription": "Unknown error occurred",
     "toastImageUploadSuccessTitle": "Image Uploaded",
     "toastImageUploadSuccessDescription": "Background image has been successfully uploaded.",
@@ -1834,7 +1834,7 @@
     "subsectionNotFound": "Subsection not found, using default slug:",
     "savingIndustry": "Saving industry item...",
     "industrySaved": "Industry item saved successfully",
-    "extractingIndustryInfo": "Extracting industry info from hero data",
+    "extractingIndustryInfo": "Extracting industry info from  data",
     "creatingIndustryPayload": "Creating industry payload",
     
     "// Navigation": "",
@@ -1949,8 +1949,8 @@
   "industryLanguageCard": {
     "// Card Header": "",
     "sectionTitle": "Industry Section",
-    "cardDescription": "Manage hero content for {langCode}",
-    "heroContent": "Hero Content",
+    "cardDescription": "Manage  content for {langCode}",
+    "heroContent": " Content",
     
     "// Form Fields": "",
     "titleLabel": "Title",
@@ -1988,7 +1988,7 @@
   },
   "industryForm": {
     "// Loading States": "",
-    "loadingHeroData": "Loading hero section data...",
+    "loadingHeroData": "Loading section data...",
     "loadingData": "Loading data...",
     "loadingSubsection": "Loading subsection...",
     "saving": "Saving...",
@@ -2031,8 +2031,8 @@
     "allContentSaved": "All content has been saved.",
     
     "// Error Messages": "",
-    "errorUpdatingSection": "Error updating hero section",
-    "errorCreatingSection": "Error creating hero section",
+    "errorUpdatingSection": "Error updating section",
+    "errorCreatingSection": "Error creating section",
     
     "// Button Labels": "",
     "updateIndustryContent": "Update Industry Content",
@@ -2076,30 +2076,30 @@
   },
   "heroPage": {
       "// Loading States": "",
-      "loadingHeroData": "Loading Hero section data...",
+      "loadingHeroData": "Loading  section data...",
       "loadingData": "Loading data...",
       "loadingSubsection": "Loading subsection...",
       "saving": "Saving...",
       
       "// Page Configuration": "",
-      "title": "Hero Management",
-      "description": "Manage your Hero inventory and multilingual content",
+      "title": "Management",
+      "description": "Manage your  inventory and multilingual content",
       "addButtonLabel": "Add New Nav Item",
-      "listTitle": "Hero List",
+      "listTitle": "List",
       "editPath": "heroSection/addHero",
       
       "// Messages": "",
-      "emptyStateMessage": "No Hero found. Create your first Hero by clicking the \"Add New Hero\" button.",
-      "noSectionMessage": "Please create a Hero section first before adding Hero.",
-      "mainSectionRequiredMessage": "Please enter your main section data before adding Hero.",
-      "emptyFieldsMessage": "Please complete all required fields in the main section before adding Hero.",
+      "emptyStateMessage": "No item found. Create your first item by clicking the \"Add New item\" button.",
+      "noSectionMessage": "Please create a section section first before adding section.",
+      "mainSectionRequiredMessage": "Please enter your main section data before adding section.",
+      "emptyFieldsMessage": "Please complete all required fields in the main section before adding section.",
       
       "// Section Integration": "",
-      "sectionIntegrationTitle": "Hero Section Content",
-      "sectionIntegrationDescription": "Manage your Hero section content in multiple languages.",
-      "addSectionButtonLabel": "Add Hero Section",
-      "editSectionButtonLabel": "Edit Hero Section",
-      "saveSectionButtonLabel": "Save Hero Section",
+      "sectionIntegrationTitle": "section  Content",
+      "sectionIntegrationDescription": "Manage your  section content in multiple languages.",
+      "addSectionButtonLabel": "Add Section",
+      "editSectionButtonLabel": "Edit Section",
+      "saveSectionButtonLabel": "Save Section",
       
       "// Table Columns": "",
       "nameColumn": "Name",
@@ -2110,7 +2110,7 @@
       "mainBadge": "Main",
       
       "// Dialog Titles": "",
-      "createDialogTitle": "Hero",
+      "createDialogTitle": "section",
       "deleteDialogTitle": "Delete Section",
       "deleteDialogConfirm": "Confirm",
       
@@ -2128,26 +2128,26 @@
   },
   "addHero": {
       "// Page Titles": "",
-      "createTitle": "Create New Hero",
-      "editTitle": "Edit Hero",
+      "createTitle": "Create New section",
+      "editTitle": "Edit section",
       
       "// Page Subtitles": "",
-      "createSubtitle": "Create a new service with multilingual content",
+      "createSubtitle": "Create a new section with multilingual content",
       "editSubtitle": "content across multiple languages",
       "editingPrefix": "Editing",
       
       "// Tab Labels": "",
-      "heroTabLabel": "Hero",
+      "heroTabLabel": "section",
       
       "// Default Values": "",
-      "defaultServiceName": "New Hero",
+      "defaultServiceName": "New section",
       "defaultServiceDescription": "",
       
       "// URL Paths": "",
       "backUrlPath": "/dashboard/heroSection",
       
       "// Form Sections": "",
-      "heroFormSection": "hero",
+      "heroFormSection": "section",
       
       "// Loading States": "",
       "loadingLanguages": "Loading languages...",
@@ -2162,8 +2162,8 @@
       
       "// Form Processing": "",
       "processingFormData": "Processing form data...",
-      "extractingHeroData": "Extracting hero data...",
-      "creatingServicePayload": "Creating service payload...",
+      "extractingHeroData": "Extracting section data...",
+      "creatingServicePayload": "Creating section payload...",
       "savingData": "Saving data...",
       
       "// Mode Handling": "",
@@ -2175,46 +2175,46 @@
       "fetchingLanguages": "Fetching languages...",
       "fetchingSectionItem": "Fetching section item...",
       "fetchingSubsections": "Fetching subsections...",
-      "savingService": "Saving service..."
+      "savingService": "Saving section..."
   },
   "HeroLanguageCard": {
       "// Card Header": "",
-      "heroSection": "Hero Section",
+      "heroSection": "Section",
       "primaryBadge": "Primary",
       
       "// Card Description": "",
-      "manageContentPrefix": "Manage hero content for",
+      "manageContentPrefix": "Manage section content for",
       "urlSettingsNote": "(URL settings configured here apply to all languages)",
       
       "// Button Labels": "",
-      "addHeroButton": "Add Hero",
+      "addHeroButton": "Add section",
       
       "// Accessibility": "",
-      "heroCardTitle": "Hero content for language",
+      "heroCardTitle": "section content for language",
       "primaryLanguageNote": "Primary language settings"
   },
   "heroesForm": {
       "// Loading States": "",
-      "loadingHeroData": "Loading heroes section data...",
+      "loadingHeroData": "Loading section data...",
       "saving": "Saving...",
-      "updatingHeroes": "Updating Heroes",
-      "creatingHeroes": "Creating Heroes",
+      "updatingHeroes": "Updating section",
+      "creatingHeroes": "Creating section",
       "saveDescription": "Please wait while we save your changes...",
       
       "// Section Names": "",
-      "sectionName": "Heroes Section",
-      "sectionDescription": "Heroes section for the website",
+      "sectionName": "Section",
+      "sectionDescription": "section for the website",
       
       "// Element Names": "",
-      "heroTitle": "Hero {{heroIndex}} - Title",
-      "heroDescription": "Hero {{heroIndex}} - Description",
-      "heroExploreButton": "Hero {{heroIndex}} - ExploreButton",
-      "heroExploreButtonType": "Hero {{heroIndex}} - ExploreButtonType",
-      "heroExploreButtonUrl": "Hero {{heroIndex}} - ExploreButtonUrl",
-      "heroRequestButton": "Hero {{heroIndex}} - RequestButton",
-      "heroRequestButtonType": "Hero {{heroIndex}} - RequestButtonType",
-      "heroRequestButtonUrl": "Hero {{heroIndex}} - RequestButtonUrl",
-      "heroImage": "Hero {{heroIndex}} - Image",
+      "heroTitle": "section {{heroIndex}} - Title",
+      "heroDescription": "section {{heroIndex}} - Description",
+      "heroExploreButton": "section {{heroIndex}} - ExploreButton",
+      "heroExploreButtonType": "section {{heroIndex}} - ExploreButtonType",
+      "heroExploreButtonUrl": "section {{heroIndex}} - ExploreButtonUrl",
+      "heroRequestButton": "section {{heroIndex}} - RequestButton",
+      "heroRequestButtonType": "section {{heroIndex}} - RequestButtonType",
+      "heroRequestButtonUrl": "section {{heroIndex}} - RequestButtonUrl",
+      "heroImage": "section {{heroIndex}} - Image",
       
       "// Toast Messages - Remove": "",
       "cannotRemove": "Cannot remove",
@@ -2227,46 +2227,46 @@
       "errorRemovingHero": "There was an error removing the hero.",
       
       "// Toast Messages - Add": "",
-      "heroAdded": "Hero added",
-      "heroAddedDescription": "A new hero has been added. Please fill in the details and save your changes.",
+      "heroAdded": "section added",
+      "heroAddedDescription": "A new section has been added. Please fill in the details and save your changes.",
       
       "// Toast Messages - Validation": "",
       "validationError": "Validation Error",
-      "allLanguagesSameCount": "All languages must have the same number of heroes.",
+      "allLanguagesSameCount": "All languages must have the same number of section.",
       "fillAllRequiredFields": "Please fill all required fields correctly.",
       
       "// Toast Messages - Loading": "",
       "errorLoadingData": "Error loading data",
-      "failedToLoadHeroData": "Failed to load hero data. Please try again.",
+      "failedToLoadHeroData": "Failed to load section data. Please try again.",
       
       "// Toast Messages - Image Upload": "",
       "imageUploadError": "Image Upload Error",
-      "failedToUploadImage": "Failed to upload image for Hero {{heroIndex}}. Please try again.",
+      "failedToUploadImage": "Failed to upload image for section {{heroIndex}}. Please try again.",
       "configurationError": "Configuration Error",
-      "imageMissingForHero": "Image content element missing for Hero {{heroIndex}}.",
+      "imageMissingForHero": "Image content element missing for section {{heroIndex}}.",
       
       "// Toast Messages - Save Success": "",
-      "heroesUpdatedSuccessfully": "Heroes section updated successfully!",
-      "heroesCreatedSuccessfully": "Heroes section created successfully!",
+      "heroesUpdatedSuccessfully": "sections section updated successfully!",
+      "heroesCreatedSuccessfully": "sections section created successfully!",
       "allContentSaved": "All content has been saved.",
       
       "// Toast Messages - Save Error": "",
       "warning": "Warning",
       "failedToReloadData": "Failed to reload data after save.",
-      "errorUpdatingHeroes": "Error updating heroes section",
-      "errorCreatingHeroes": "Error creating heroes section",
+      "errorUpdatingHeroes": "Error updating sections section",
+      "errorCreatingHeroes": "Error creating sections section",
       
       "// Button Labels": "",
-      "saveHeroes": "Save Heroes",
-      "updateHeroes": "Update Heroes",
+      "saveHeroes": "Save section",
+      "updateHeroes": "Update section",
       
       "// Validation Messages": "",
-      "samNumberOfHeroes": "Each language must have the same number of heroes",
+      "samNumberOfHeroes": "Each language must have the same number of section",
       
       "// Dialog Titles": "",
-      "deleteHero": "Delete Hero",
-      "deleteHeroConfirm": "Delete Hero",
-      "deleteHeroService": "Hero {{index}}",
+      "deleteHero": "Delete section",
+      "deleteHeroConfirm": "Delete section",
+      "deleteHeroService": "section {{index}}",
       
       "// Default Values": "",
       "defaultButtonType": "default",
@@ -2276,15 +2276,15 @@
       "formValuesAfterProcess": "Form values after processHeroesData:",
       "refetchingData": "Refetching data:",
       "formValuesBeforeSave": "Form values before save:",
-      "uploadingImageForHero": "Uploading image for hero",
+      "uploadingImageForHero": "Uploading image for section",
       "uploadResult": "Upload result:",
-      "noImageFileProvided": "No image file provided for Hero {{heroIndex}}",
-      "imageElementNotFound": "Image content element not found for Hero {{heroIndex}}",
+      "noImageFileProvided": "No image file provided for section {{heroIndex}}",
+      "imageElementNotFound": "Image content element not found for section {{heroIndex}}",
       "formValuesAfterSave": "Form values after save:",
       "refetchedData": "Refetched data:",
       "saveOperationFailed": "Save operation failed:",
-      "errorRemovingHeroConsole": "Error removing hero:",
-      "errorProcessingHeroData": "Error processing hero data:",
+      "errorRemovingHeroConsole": "Error removing section:",
+      "errorProcessingHeroData": "Error processing section data:",
       
       "// Error Messages": "",
       "parentSectionRequired": "Parent section ID is required to create a subsection",
@@ -2293,7 +2293,7 @@
   },
   "heroCard": {
       "// Card Title": "",
-      "heroTitle": "Hero {{index}}",
+      "heroTitle": "section {{index}}",
       
       "// Form Labels": "",
       "titleLabel": "Title",
@@ -2304,7 +2304,7 @@
       "requestButtonTextLabel": "Request Button Text",
       "requestButtonLinkTypeLabel": "Request Button Link Type",
       "requestButtonUrlLabel": "Request Button URL",
-      "heroImageLabel": "Hero Image",
+      "heroImageLabel": "section Image",
       
       "// Placeholders": "",
       "titlePlaceholder": "Enter title",
@@ -2326,11 +2326,11 @@
       "imageSizeError": "Image must be less than 2MB",
       
       "// Alt Text": "",
-      "heroImageAlt": "Hero {{index}} image",
+      "heroImageAlt": "section {{index}} image",
       
       "// Button Labels": "",
-      "deleteHero": "Delete Hero",
-      "expandCollapse": "Expand/Collapse Hero Card"
+      "deleteHero": "Delete section",
+      "expandCollapse": "Expand/Collapse section Card"
   },
   "projectPage": {
       "// Page Configuration": "",
@@ -2374,7 +2374,7 @@
       "editTitle": "Edit Project",
       
       "// Page Subtitles": "",
-      "createSubtitle": "Create a new service with multilingual content",
+      "createSubtitle": "Create a new section with multilingual content",
       "editSubtitle": "Editing \"{{projectName}}\" content across multiple languages",
       
       "// Tab Labels": "",
@@ -2746,19 +2746,19 @@
     "descriptionPlaceholder": "Enter description"
   },
   "servicesPage": {
-    "title": "Services Management",
-    "description": "Manage your service inventory and multilingual content",
-    "addButtonLabel": "Add New Service",
-    "emptyStateMessage": "No services found. Create your first service by clicking the \"Add New Service\" button.",
-    "noSectionMessage": "Please create a service section first before adding services.",
-    "mainSectionRequiredMessage": "Please enter your main section data before adding services.",
-    "emptyFieldsMessage": "Please complete all required fields in the main section before adding services.",
-    "sectionIntegrationTitle": "Service Section Content",
-    "sectionIntegrationDescription": "Manage your service section content in multiple languages.",
-    "addSectionButtonLabel": "Add Service Section",
-    "editSectionButtonLabel": "Edit Service Section",
-    "saveSectionButtonLabel": "Save Service Section",
-    "listTitle": "Service List",
+    "title": "Section Management",
+    "description": "Manage your Section inventory and multilingual content",
+    "addButtonLabel": "Add New Section",
+    "emptyStateMessage": "No Section found. Create your first Section by clicking the \"Add New Section\" button.",
+    "noSectionMessage": "Please create a Section section first before adding Section.",
+    "mainSectionRequiredMessage": "Please enter your main section data before adding Section.",
+    "emptyFieldsMessage": "Please complete all required fields in the main section before adding Section.",
+    "sectionIntegrationTitle": "Section Section Content",
+    "sectionIntegrationDescription": "Manage your Section section content in multiple languages.",
+    "addSectionButtonLabel": "Add Section Section",
+    "editSectionButtonLabel": "Edit Section Section",
+    "saveSectionButtonLabel": "Save ServSectionice Section",
+    "listTitle": "ServicSectione List",
     "table": {
       "columns": {
         "name": "Name",
@@ -2772,18 +2772,18 @@
       }
     },
     "dialogs": {
-      "createTitle": "Service",
+      "createTitle": "Section",
       "deleteTitle": "Delete Section",
       "confirmText": "Confirm"
     }
   },
   "addServicePage": {
     "titles": {
-      "create": "Create New Service",
-      "edit": "Edit Service"
+      "create": "Create New Section",
+      "edit": "Edit Section"
     },
     "subtitles": {
-      "create": "Create a new service with multilingual content",
+      "create": "Create a new Section with multilingual content",
       "edit": "Editing \"{{serviceName}}\" content across multiple languages"
     },
     "tabs": {
@@ -2795,25 +2795,25 @@
       "faq": "FAQ"
     },
     "defaults": {
-      "serviceName": "New Service"
+      "serviceName": "New Section"
     },
     "navigation": {
-      "backToServices": "Back to Services"
+      "backToServices": "Back to Section"
     }
   },
   "heroForm": {
     "loadingDialogs": {
       "creating": {
-        "title": "Creating Hero Section",
+        "title": "Creating Section",
         "description": "Please wait while we save your changes..."
       },
       "updating": {
-        "title": "Updating Hero Section",
+        "title": "Updating Section",
         "description": "Please wait while we save your changes..."
       },
       "deleting": {
-        "title": "Deleting Hero Section",
-        "description": "Please wait while we delete the hero section..."
+        "title": "Deleting  Section",
+        "description": "Please wait while we delete the  section..."
       },
       "refreshing": {
         "title": "Refreshing Data",
@@ -2822,12 +2822,12 @@
     },
     "deleteDialog": {
       "title": "Delete Hero Section",
-      "description": "Are you sure you want to delete this hero section? This action cannot be undone."
+      "description": "Are you sure you want to delete this  section? This action cannot be undone."
     },
     "buttons": {
-      "save": "Save Hero Content",
-      "update": "Update Hero Content", 
-      "delete": "Delete Hero Section",
+      "save": "Save  Content",
+      "update": "Update  Content", 
+      "delete": "Delete  Section",
       "saving": "Saving..."
     },
     "toasts": {
@@ -2847,19 +2847,19 @@
       },
       "save": {
         "success": {
-          "created": "Hero section created successfully!",
-          "updated": "Hero section updated successfully!",
+          "created": " section created successfully!",
+          "updated": " section updated successfully!",
           "description": "All content has been saved."
         },
         "error": {
-          "created": "Error creating hero section",
-          "updated": "Error updating hero section"
+          "created": "Error creating  section",
+          "updated": "Error updating  section"
         }
       }
     },
     "languageCard": {
-      "title": "Hero Section",
-      "description": "Manage hero content for {{language}}",
+      "title": " Section",
+      "description": "Manage  content for {{language}}",
       "fields": {
         "title": {
           "label": "Title",
@@ -4116,7 +4116,7 @@
       }
       }
   },
-  "useSectionManagement": {
+    "useSectionManagement": {
       "current": "Current Sections",
       "currentShort": "Current",
       "addNew": "Add New",
@@ -4134,9 +4134,9 @@
       "categories": {
         "all": "All Sections",
         "header": "Header",
-        "hero": "Hero",
-        "about": "About",
-        "services": "Services", 
+        "hero": "Hero Banner",
+        "about": "About Us",
+        "services": "Sections",
         "portfolio": "Portfolio",
         "testimonials": "Testimonials",
         "contact": "Contact",
@@ -4148,51 +4148,45 @@
       },
       "toast": {
         "duplicateSection": {
-          "title": "Duplicate section",
-          "description": "A section named \"{{sectionName}}\" already exists."
+          "title": "Duplicate Section",
+          "description": "A section with the name \"{{sectionName}}\" already exists."
         },
         "sectionAdded": {
-          "title": "Section added",
+          "title": "Section Added",
           "description": "{{sectionName}} section has been added successfully."
         },
+        "sectionUpdated": {
+          "title": "Section Updated", 
+          "description": "Section has been updated successfully."
+        },
         "errorAdding": {
-          "title": "Error adding section",
+          "title": "Error Adding Section",
           "description": "An error occurred while adding the section."
         },
         "error": {
           "title": "Error",
           "description": "Section ID is missing."
         },
-         "languages": {
-    "en": "English",
-    "ar": "العربية",
-    "tr": "Türkçe",
-    "flags": {
-      "en": "🇺🇸",
-      "ar": "🇸🇦", 
-      "tr": "🇹🇷"
-    }
-  },
         "sectionToggled": {
           "activated": {
-            "title": "Section activated",
+            "title": "Section Activated",
             "description": "Section is now visible on your website."
           },
           "deactivated": {
-            "title": "Section deactivated", 
+            "title": "Section Deactivated",
             "description": "Section is now hidden on your website."
           }
         },
         "errorUpdating": {
-          "title": "Error updating section",
+          "title": "Error Updating Section",
           "description": "An error occurred while updating the section status."
         },
         "orderUpdated": {
-          "title": "Order updated",
+          "title": "Order Updated",
           "description": "Section order has been updated successfully."
         },
         "errorUpdatingOrder": {
-          "title": "Error updating order",
+          "title": "Error Updating Order",
           "description": "An error occurred while updating section order."
         },
         "noValidSections": {
@@ -4200,15 +4194,15 @@
           "description": "No valid sections to reorder."
         },
         "sectionDeleted": {
-          "title": "Section deleted",
+          "title": "Section Deleted",
           "description": "The section has been deleted successfully."
         },
         "errorDeleting": {
-          "title": "Error deleting section",
+          "title": "Error Deleting Section",
           "description": "An error occurred while deleting the section."
         }
       }
-  },
+    },
   "ContactForms": {
       "title": "Contact Forms Management",
       "subtitle": "Manage and respond to customer inquiries",
@@ -4378,43 +4372,43 @@
     "NavigationLanguages" : "Navigation Languages",
     "NavigationSettings" : "Navigation Settings",
     "AddSubNavigation" : "Add SubNavigation",
-    "enable": "Enable sub-navigation for this service"
+    "enable": "Enable sub-navigation for this section"
   },
   "HeroManagement": {
-    "createTitle": "Create New Hero Item",
-    "editTitle": "Edit Hero Item",
-    "createSubtitle": "Create a new Hero item with multilingual content",
+    "createTitle": "Create New  Item",
+    "editTitle": "Edit  Item",
+    "createSubtitle": "Create a new  item with multilingual content",
     "editSubtitle": "Editing \"{{itemName}}\" content across multiple languages",
-    "editSubtitleDefault": "Editing Hero item content across multiple languages",
-    "defaultItemName": "New Hero",
-    "tabLabel": "Hero",
+    "editSubtitleDefault": "Editing  item content across multiple languages",
+    "defaultItemName": "New",
+    "tabLabel": "Start Create Special Section",
     "formSections": {
-      "hero": "Hero Content",
+      "hero": " Content",
       "navigation": "Navigation Configuration"
     },
-    "backToList": "Back to Hero List",
-    "loadingMessage": "Loading Hero data...",
-    "savingMessage": "Saving Hero item...",
-    "savedMessage": "Hero item saved successfully",
-    "errorMessage": "Error saving Hero item"
+    "backToList": "Back to  List",
+    "loadingMessage": "Loading  data...",
+    "savingMessage": "Saving  item...",
+    "savedMessage": " item saved successfully",
+    "errorMessage": "Error saving  item"
   },
   "BlogManagement": {
-    "createTitle": "Create New Blog Item",
-    "editTitle": "Edit Blog Item",
-    "createSubtitle": "Create a new Blog item with multilingual content",
+    "createTitle": "Create New Section Item",
+    "editTitle": "Edit Section Item",
+    "createSubtitle": "Create a new SectionSection item with multilingual content",
     "editSubtitle": "Editing \"{{itemName}}\" content across multiple languages",
-    "editSubtitleDefault": "Editing Blog item content across multiple languages",
-    "defaultItemName": "New Blog",
-    "tabLabel": "Blog",
+    "editSubtitleDefault": "Editing Section item content across multiple languages",
+    "defaultItemName": "New Section",
+    "tabLabel": "Section",
     "formSections": {
-      "blog": "Blog Content",
+      "blog": "Section Content",
       "navigation": "Navigation Configuration"
     },
-    "backToList": "Back to Blog List",
-    "loadingMessage": "Loading Blog data...",
-    "savingMessage": "Saving Blog item...",
-    "savedMessage": "Blog item saved successfully",
-    "errorMessage": "Error saving Blog item"
+    "backToList": "Back to Section List",
+    "loadingMessage": "Loading Section data...",
+    "savingMessage": "Saving Section item...",
+    "savedMessage": "Section item saved successfully",
+    "errorMessage": "Error saving Section item"
   },
   "common": {
     "welcome": "Welcome",
