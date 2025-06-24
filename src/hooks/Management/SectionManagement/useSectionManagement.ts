@@ -10,6 +10,13 @@ import type { Section } from "@/src/api/types/hooks/section.types"
 import type { DeleteItemData } from "@/src/api/types/hooks/Common.types"
 import { PredefinedSection } from "@/src/api/types/management/SectionManagement.type"
 
+// Type for multilingual names
+interface MultilingualName {
+  en: string;
+  ar: string;
+  tr: string;
+}
+
 export const useSectionManagement = (hasWebsite: boolean) => {
   const { websiteId } = useWebsiteContext()
   const { user } = useAuth()
@@ -25,6 +32,10 @@ export const useSectionManagement = (hasWebsite: boolean) => {
   const [activeTab, setActiveTab] = useState("current")
   const [orderedSections, setOrderedSections] = useState<Section[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  
+  // New state for add section dialog
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [sectionToAdd, setSectionToAdd] = useState<PredefinedSection | null>(null)
 
   // Hooks
   const {
@@ -32,6 +43,7 @@ export const useSectionManagement = (hasWebsite: boolean) => {
     useCreate: useCreateSection,
     useDelete: useDeleteSection,
     useToggleActive: useToggleSectionActive,
+    useUpdate: useUpdateSection,
   } = useSections()
 
   const { useActivateSection, useCreateUserSection } = useUserSections()
@@ -51,6 +63,7 @@ export const useSectionManagement = (hasWebsite: boolean) => {
   const deleteSectionMutation = useDeleteSection()
   const toggleSectionActiveMutation = useToggleSectionActive()
   const updateSectionOrderMutation = useUpdateOrder()
+  const updateSectionMutation = useUpdateSection()
 
   // Effects
   useEffect(() => {
@@ -58,7 +71,8 @@ export const useSectionManagement = (hasWebsite: boolean) => {
       createSectionMutation.isSuccess || 
       deleteSectionMutation.isSuccess || 
       toggleSectionActiveMutation.isSuccess ||
-      updateSectionOrderMutation.isSuccess
+      updateSectionOrderMutation.isSuccess ||
+      updateSectionMutation.isSuccess
     ) {
       refetchSections()
     }
@@ -67,6 +81,7 @@ export const useSectionManagement = (hasWebsite: boolean) => {
     deleteSectionMutation.isSuccess,
     toggleSectionActiveMutation.isSuccess,
     updateSectionOrderMutation.isSuccess,
+    updateSectionMutation.isSuccess,
     refetchSections,
   ])
 
@@ -98,15 +113,96 @@ export const useSectionManagement = (hasWebsite: boolean) => {
     )
   }
 
-  // Handlers
-  const handleAddPredefinedSection = (predefinedSection: PredefinedSection) => {
-    const englishName = predefinedSection.subName
-    const translatedName = ready ? t(predefinedSection.nameKey, predefinedSection.nameKey.split('.').pop() || '') : predefinedSection.nameKey.split('.').pop() || ''
+  // Helper function to check if a section name matches the custom name
+  const checkSectionNameMatch = (section: Section, customName: string): boolean => {
+    const lowerCustomName = customName.toLowerCase().trim()
+    if (!lowerCustomName) return false
+    
+    // Check if section.name is a string (old format) or object (new multilingual format)
+    if (typeof section.name === 'string') {
+      return section.name.toLowerCase() === lowerCustomName
+    } 
+    
+    // If it's a multilingual object, check all language variants
+    if (typeof section.name === 'object' && section.name !== null) {
+      const nameObj = section.name as any
+      return (
+        (nameObj.en && nameObj.en.toLowerCase() === lowerCustomName) ||
+        (nameObj.ar && nameObj.ar.toLowerCase() === lowerCustomName) ||
+        (nameObj.tr && nameObj.tr.toLowerCase() === lowerCustomName)
+      )
+    }
+    
+    return false
+  }
+
+  // Simplified function to create multilingual content
+  const createMultilingualContent = (content: string) => {
+    return {
+      en: content,
+      ar: content, // For now, use the same content. You can enhance this later with actual translations
+      tr: content
+    }
+  }
+
+  // New handler to open the add section dialog
+  const handleOpenAddDialog = (predefinedSection: PredefinedSection) => {
+    setSectionToAdd(predefinedSection)
+    setShowAddDialog(true)
+  }
+
+  // New handler to close the add section dialog
+  const handleCloseAddDialog = () => {
+    setShowAddDialog(false)
+    setSectionToAdd(null)
+  }
+
+  // Handler to create section with multilingual names
+  const handleConfirmAddSection = (predefinedSection: PredefinedSection, customNames: MultilingualName) => {
+    // Trim all names
+    const trimmedCustomNames = {
+      en: customNames.en.trim(),
+      ar: customNames.ar.trim(),
+      tr: customNames.tr.trim()
+    }
+    
+    // Check if any name is empty
+    if (!trimmedCustomNames.en || !trimmedCustomNames.ar || !trimmedCustomNames.tr) {
+      toast({
+        title: ready ? t("useSectionManagement.toast.error.title") : "Error",
+        description: "Section names cannot be empty for any language.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check for duplicate names (check all language variants)
+    const hasDuplicateName = orderedSections?.some((section: Section) => 
+      checkSectionNameMatch(section, trimmedCustomNames.en) || 
+      checkSectionNameMatch(section, trimmedCustomNames.ar) || 
+      checkSectionNameMatch(section, trimmedCustomNames.tr) ||
+      section.subName === predefinedSection.subName
+    )
+
+    if (hasDuplicateName) {
+      toast({
+        title: ready ? t("useSectionManagement.toast.duplicateSection.title") : "Duplicate section",
+        description: ready ? 
+          t("useSectionManagement.toast.duplicateSection.description", { sectionName: trimmedCustomNames.en }) : 
+          `A section with one of these names already exists.`,
+        variant: "destructive",
+      })
+      return
+    }
+    
+    // Use the provided multilingual names directly
+    const multilingualName = trimmedCustomNames
     const translatedDescription = ready ? t(predefinedSection.descriptionKey, '') : ''
+    const multilingualDescription = createMultilingualContent(translatedDescription)
     
     const newSectionData = {
-      name: englishName,
-      description: translatedDescription,
+      name: multilingualName,
+      description: multilingualDescription,
       subName: predefinedSection.subName,
       image: predefinedSection.image,
       order: orderedSections.length,
@@ -115,30 +211,21 @@ export const useSectionManagement = (hasWebsite: boolean) => {
       WebSiteId: websiteId,
     }
 
-    if (orderedSections?.some((section: Section) => section.name === englishName || section.subName === predefinedSection.subName)) {
-      toast({
-        title: ready ? t("useSectionManagement.toast.duplicateSection.title") : "Duplicate section",
-        description: ready ? 
-          t("useSectionManagement.toast.duplicateSection.description", { sectionName: translatedName }) : 
-          `A section named "${translatedName}" already exists.`,
-        variant: "destructive",
-      })
-      return
-    }
-
     if (createUserSectionMutation) {
       createUserSectionMutation.mutate(newSectionData, {
         onSuccess: () => {
           toast({
             title: ready ? t("useSectionManagement.toast.sectionAdded.title") : "Section added",
             description: ready ? 
-              t("useSectionManagement.toast.sectionAdded.description", { sectionName: translatedName }) : 
-              `${translatedName} section has been added successfully.`,
+              t("useSectionManagement.toast.sectionAdded.description", { sectionName: trimmedCustomNames.en }) : 
+              `${trimmedCustomNames.en} section has been added successfully.`,
           })
           showSuccessMessage()
           setActiveTab("current")
+          handleCloseAddDialog()
         },
         onError: (error: any) => {
+          console.error("Error creating user section:", error)
           toast({
             title: ready ? t("useSectionManagement.toast.errorAdding.title") : "Error adding section",
             description: ready ? 
@@ -154,17 +241,19 @@ export const useSectionManagement = (hasWebsite: boolean) => {
           toast({
             title: ready ? t("useSectionManagement.toast.sectionAdded.title") : "Section added",
             description: ready ? 
-              t("useSectionManagement.toast.sectionAdded.description", { sectionName: translatedName }) : 
-              `${translatedName} section has been added successfully.`,
+              t("useSectionManagement.toast.sectionAdded.description", { sectionName: trimmedCustomNames.en }) : 
+              `${trimmedCustomNames.en} section has been added successfully.`,
           })
           showSuccessMessage()
           setActiveTab("current")
+          handleCloseAddDialog()
 
           if (createdSection._id) {
             createUserSectionRelation(createdSection._id)
           }
         },
         onError: (error: any) => {
+          console.error("Error creating section:", error)
           toast({
             title: ready ? t("useSectionManagement.toast.errorAdding.title") : "Error adding section",
             description: ready ? 
@@ -175,6 +264,39 @@ export const useSectionManagement = (hasWebsite: boolean) => {
         },
       })
     }
+  }
+
+  // Keep the original handler for backwards compatibility (now opens dialog)
+  const handleAddPredefinedSection = (predefinedSection: PredefinedSection) => {
+    handleOpenAddDialog(predefinedSection)
+  }
+
+  // Handler to update section
+  const handleUpdateSection = (sectionId: string, updateData: { name: MultilingualName }) => {
+    updateSectionMutation.mutate(
+      { id: sectionId, data: updateData },
+      {
+        onSuccess: () => {
+          toast({
+            title: ready ? t("useSectionManagement.toast.sectionUpdated.title") : "Section updated",
+            description: ready ? 
+              t("useSectionManagement.toast.sectionUpdated.description") : 
+              "Section has been updated successfully.",
+          })
+          showSuccessMessage()
+        },
+        onError: (error: any) => {
+          console.error("Error updating section:", error)
+          toast({
+            title: ready ? t("useSectionManagement.toast.errorUpdating.title") : "Error updating section",
+            description: ready ? 
+              t("useSectionManagement.toast.errorUpdating.description") : 
+              error.message || "An error occurred while updating the section.",
+            variant: "destructive",
+          })
+        },
+      }
+    )
   }
 
   const handleToggleActive = (section: Section) => {
@@ -213,6 +335,7 @@ export const useSectionManagement = (hasWebsite: boolean) => {
           )
         },
         onError: (error: any) => {
+          console.error("Error toggling section status:", error)
           toast({
             title: ready ? t("useSectionManagement.toast.errorUpdating.title") : "Error updating section",
             description: ready ? 
@@ -257,6 +380,7 @@ export const useSectionManagement = (hasWebsite: boolean) => {
         refetchSections()
       },
       onError: (error: any) => {
+        console.error("Error updating section order:", error)
         toast({
           title: ready ? t("useSectionManagement.toast.errorUpdatingOrder.title") : "Error updating order",
           description: ready ? 
@@ -283,6 +407,7 @@ export const useSectionManagement = (hasWebsite: boolean) => {
           showSuccessMessage()
         },
         onError: (error: any) => {
+          console.error("Error deleting section:", error)
           toast({
             title: ready ? t("useSectionManagement.toast.errorDeleting.title") : "Error deleting section",
             description: ready ? 
@@ -305,6 +430,10 @@ export const useSectionManagement = (hasWebsite: boolean) => {
     orderedSections,
     isDragging,
     
+    // New dialog state
+    showAddDialog,
+    sectionToAdd,
+    
     // Data
     websiteSections,
     isLoadingSections,
@@ -316,6 +445,7 @@ export const useSectionManagement = (hasWebsite: boolean) => {
     deleteSectionMutation,
     toggleSectionActiveMutation,
     createUserSectionMutation,
+    updateSectionMutation,
     
     // Setters
     setItemToDelete,
@@ -327,7 +457,11 @@ export const useSectionManagement = (hasWebsite: boolean) => {
     setIsDragging,
     
     // Handlers
-    handleAddPredefinedSection,
+    handleAddPredefinedSection, // This now opens the dialog
+    handleOpenAddDialog,
+    handleCloseAddDialog,
+    handleConfirmAddSection, // This actually creates the section
+    handleUpdateSection, // This updates the section
     handleToggleActive,
     handleReorder,
     confirmDelete,

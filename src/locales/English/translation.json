@@ -4,6 +4,12 @@
     "light":"Light"
   },
   "Dashboard_sideBar": {
+     "sectionType": "Section Type",
+    "customSectionName": "Custom Section Name", 
+    "originalSectionType": "Original Type",
+    "allLanguages": "All Languages",
+    "currentLanguage": "Current",
+    "multilingualSection": "Multilingual Section",
     "title": "Admin Dashboard",
     "menu": "Menu",
     "unknownUser": "Unknown user",
@@ -624,15 +630,7 @@
       }
     },
 
-    "editDialog": {
-      "title": "Edit Language",
-      "description": "Make changes to the language details below.",
-      "labels": {
-        "languageId": "Language ID",
-        "languageName": "Language Name",
-        "active": "Active"
-      }
-    },
+  
 
     "deleteDialog": {
       "title": "Delete Language",
@@ -732,7 +730,19 @@
     "sections.blog.description": "Blog section for articles, insights and thought leadership content",
     "sections.contact.description": "Contact information, forms and location details for customer inquiries",
     "sections.footer.description": "Bottom section with links, social media and additional company information",
-    
+    "editDialog": {
+      "title": "Edit Language",
+      "description": "Make changes to the language details below.",
+      "nameIn": "Name in{{languageName}}",
+      "save":"Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "labels": {
+        "languageId": "Language ID",
+        "languageName": "Language Name",
+        "active": "Active"
+      }
+    },
     "title": "Website Sections",
     "currentSections": "Current Website Sections",
     "addNewSections": "Add Pre-designed Sections",
@@ -741,7 +751,34 @@
     "addNewMobile": "Add",
     "browseSections": "Browse Available Sections",
     "addToWebsite": "Add to Website",
-    
+    "addDialog": {
+      "title": "Add Section to Website",
+      "multilingualName": "Section Names (All Languages)",
+      "nameInEN": "Name in English",
+      "nameInAR": "Name in Arabic", 
+      "nameInTR": "Name in Turkish",
+      "namePlaceholderEN": "Enter section name in English...",
+      "namePlaceholderAR": "أدخل اسم القسم بالعربية...",
+      "namePlaceholderTR": "Türkçe bölüm adını girin...",
+      "hintEN": "This will be the English name displayed to English users.",
+      "hintAR": "هذا سيكون الاسم العربي المعروض للمستخدمين العرب.",
+      "hintTR": "Bu, Türk kullanıcılarına gösterilecek Türkçe isim olacaktır.",
+      "multilingualHint": "Names will be displayed based on user's selected language.",
+      "whatYouGet": "What you'll get",
+      "cancel": "Cancel",
+      "addSection": "Add Section",
+      "adding": "Adding...",
+      "validation": {
+        "nameRequired": "Section name is required",
+        "nameMinLength": "Section name must be at least 2 characters",
+        "nameMaxLength": "Section name must be less than 50 characters",
+        "completAllLanguages": "Please complete all language fields"
+      }
+    },
+     "clickOutsideToClose": "Click outside to close",
+      "multilingualSection": "Multilingual Section",
+    "sectionType": "Section Type",
+  
     "categories": {
       "all": "All Sections",
       "layout": "Layout",
@@ -758,7 +795,9 @@
       "showSection": "Show section",
       "deleteSection": "Delete Section",
       "deleteSectionTooltip": "Delete section",
-      "duplicateSection": "Duplicate section"
+      "duplicateSection": "Duplicate section",
+      "editSectionName" : "Edit section name",
+      "editNotAvailable": "Edit not available"
     },
     
     "states": {
@@ -4124,6 +4163,16 @@
           "title": "Error",
           "description": "Section ID is missing."
         },
+         "languages": {
+    "en": "English",
+    "ar": "العربية",
+    "tr": "Türkçe",
+    "flags": {
+      "en": "🇺🇸",
+      "ar": "🇸🇦", 
+      "tr": "🇹🇷"
+    }
+  },
         "sectionToggled": {
           "activated": {
             "title": "Section activated",

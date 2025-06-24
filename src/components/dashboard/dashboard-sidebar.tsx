@@ -32,6 +32,8 @@ import {
   Contact,
   TouchpadOff,
   Files,
+  Type,
+  Globe,
 } from "lucide-react"
 import { Button } from "../ui/button"
 import { cn } from "@/src/lib/utils"
@@ -44,6 +46,8 @@ import { useMediaQuery } from "@/src/hooks/useMediaQuery"
 import { Badge } from "../ui/badge"
 import { useTranslation } from "react-i18next"
 import { useLanguage } from "@/src/context/LanguageContext"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { PREDEFINED_SECTIONS } from "@/src/Const/SectionsData"
 
 /**
  * Props for the DashboardSidebar component
@@ -62,6 +66,10 @@ interface NavItem {
   icon: React.ElementType
   sectionId?: string
   roles?: string[]
+  customName?: string // Custom name based on current language
+  originalName?: string // Original predefined name for tooltip
+  isMultilingual?: boolean // 🎯 NEW: Whether this section has multilingual names
+  multilingualNames?: { en: string; ar: string; tr: string } // 🎯 NEW: All language names for tooltip
 }
 
 /**
@@ -220,7 +228,7 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null)
   const { t, ready } = useTranslation()
-  const { isLoaded } = useLanguage()
+  const { isLoaded, language } = useLanguage() // 🎯 UPDATED: Get current language
 
   // Check if screen is mobile
   const isMobile = useMediaQuery("(max-width: 1024px)")
@@ -245,6 +253,70 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
     refetch: refetchWebsiteSections,
     dataUpdatedAt,
   } = useGetByWebsiteId(websiteId || "", false, !!websiteId)
+
+  // 🎯 UPDATED: Function to get section identifier for matching with multilingual support
+  const getSectionIdentifier = (section: Section) => {
+    // Try to match by subName first (most reliable)
+    if (section.subName) {
+      return section.subName.toLowerCase()
+    }
+    // Fallback to processed English name for multilingual sections
+    if (typeof section.name === 'object' && section.name.en) {
+      return section.name.en.toLowerCase().replace(/\s/g, "")
+    }
+    // Fallback to processed name for legacy sections
+    if (typeof section.name === 'string') {
+      return section.name.toLowerCase().replace(/\s/g, "")
+    }
+    return 'unknown'
+  }
+
+  // 🎯 UPDATED: Function to get the original section name for tooltip with multilingual support
+  const getOriginalSectionName = (section: Section) => {
+    if (section.subName) {
+      // Find the predefined section to get translated name
+      const predefinedSection = PREDEFINED_SECTIONS.find(ps => ps.subName === section.subName)
+      if (predefinedSection && ready) {
+        return t(predefinedSection.nameKey, predefinedSection.nameKey.split('.').pop() || '')
+      }
+    }
+    return null
+  }
+
+  // 🎯 NEW: Function to get section display name based on current language
+  const getSectionDisplayName = (section: Section) => {
+    // Handle multilingual names based on current language
+    if (typeof section.name === 'object') {
+      // Use current language if available
+      if (section.name[language as keyof typeof section.name]) {
+        return section.name[language as keyof typeof section.name]
+      }
+      // Fallback to English
+      if (section.name.en) {
+        return section.name.en
+      }
+    }
+    
+    // Handle legacy string names
+    if (typeof section.name === 'string' && section.name.trim()) {
+      return section.name.trim()
+    }
+    
+    // Final fallback to translated predefined name
+    if (section.subName) {
+      const predefinedSection = PREDEFINED_SECTIONS.find(ps => ps.subName === section.subName)
+      if (predefinedSection && ready) {
+        return t(predefinedSection.nameKey, predefinedSection.nameKey.split('.').pop() || '')
+      }
+    }
+    
+    return section.subName || 'Unknown Section'
+  }
+
+  // 🎯 NEW: Function to check if section has multilingual names
+  const hasMultilingualNames = (section: Section) => {
+    return typeof section.name === 'object' && section.name.en && section.name.ar && section.name.tr
+  }
 
   // Manual refresh function for sections
   const handleManualRefresh = useCallback(() => {
@@ -289,7 +361,7 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
     }
   }, [pathname, handleManualRefresh])
 
-  // Filter nav items based on role and active sections
+  // 🎯 UPDATED: Filter nav items based on role and active sections with custom names
   const filterNavItems = (
     userRole: string | undefined,
     activeSections: Section[],
@@ -297,8 +369,15 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
     sectionOrderMap: Map<string, SectionOrder>,
   ) => {
     try {
-      // Get active section IDs from the API data
-      const activeSectionIds = activeSections.map((section: Section) => section.name.toLowerCase().replace(/\s/g, ""))
+      // 🎯 UPDATED: Create a mapping of section identifiers to section data
+      const sectionDataMap = new Map<string, Section>()
+      activeSections.forEach((section: Section) => {
+        const identifier = getSectionIdentifier(section)
+        sectionDataMap.set(identifier, section)
+      })
+
+      // Get active section identifiers
+      const activeSectionIds = Array.from(sectionDataMap.keys())
 
       // Start with all non-section-based nav items that match the user's role
       const baseNavItems = allNavItems.filter((item) => {
@@ -312,7 +391,7 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
         return !item.sectionId
       })
 
-      // Then add section-specific items that match active sections
+      // 🎯 UPDATED: Add section-specific items with custom names
       const sectionNavItems = allNavItems
         .filter((item) => {
           // Only process items with section IDs
@@ -323,6 +402,19 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
         .map((item) => {
           // Create a copy to modify
           const newItem = { ...item }
+          
+          // 🎯 NEW: Get the section data and set custom name with multilingual support
+          const sectionData = sectionDataMap.get(item.sectionId!)
+          if (sectionData) {
+            // Use the display name based on current language
+            newItem.customName = getSectionDisplayName(sectionData)
+            // Get the original translated name for tooltip
+            newItem.originalName = getOriginalSectionName(sectionData)
+            // Store multilingual info for tooltip
+            newItem.isMultilingual = hasMultilingualNames(sectionData)
+            newItem.multilingualNames = hasMultilingualNames(sectionData) ? sectionData.name : undefined
+          }
+          
           return newItem
         })
         // Sort section-specific items based on order from sectionOrderMap
@@ -377,7 +469,7 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
     if (websiteSections?.data?.length > 0) {
       const activeSections = websiteSections.data.filter((section: Section) => section.isActive)
       activeSections.forEach((section: Section) => {
-        const sectionId = section.name.toLowerCase().replace(/\s/g, "")
+        const sectionId = getSectionIdentifier(section)
         sectionNameMap.set(sectionId, section.name)
         if (section._id) {
           idMapping.set(sectionId, section._id)
@@ -395,9 +487,7 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
 
       // Store active section IDs in localStorage for persistence
       const storageKey = currentUserId ? `selectedSections_${currentUserId}` : "selectedSections"
-      const activeSectionIds = activeSections.map((section: { name: string }) =>
-        section.name.toLowerCase().replace(/\s/g, ""),
-      )
+      const activeSectionIds = activeSections.map((section: Section) => getSectionIdentifier(section))
       localStorage.setItem(storageKey, JSON.stringify(activeSectionIds))
     }
 
@@ -464,6 +554,16 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
     }
   }, [ready, t])
 
+  // 🎯 NEW: Function to get display name for navigation item
+  const getDisplayName = (item: NavItem) => {
+    // Use custom name if available (for sections)
+    if (item.customName) {
+      return item.customName
+    }
+    // Fallback to translated name
+    return safeTranslate(item.titleKey, item.titleKey.split(".").pop() || "")
+  }
+
   // Render navigation items
   const renderNavItems = () => {
     // Show loading state if still loading
@@ -501,9 +601,13 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
           {navItems.map((item, index) => {
             const isActive = pathname === item.href
             const isNavigating = navigatingTo === item.href
-            const translatedTitle = safeTranslate(item.titleKey, item.titleKey.split(".").pop() || "")
+            const displayName = getDisplayName(item)
+            const hasCustomName = !!item.customName
+            const originalName = item.originalName
+            const isMultilingual = item.isMultilingual // 🎯 NEW
 
-            return (
+            // 🎯 UPDATED: Navigation item with multilingual support
+            const NavigationButton = (
               <Button
                 key={item.href}
                 variant={isActive ? "default" : "ghost"}
@@ -527,10 +631,84 @@ export default function DashboardSidebar({ isSidebarOpen = false, toggleSidebar 
                     )}
                   />
                 )}
-                <span className="truncate text-left">{translatedTitle}</span>
+                
+                {/* 🎯 UPDATED: Display name with multilingual indicators */}
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className="truncate text-left">{displayName}</span>
+                  {isMultilingual && (
+                    <Globe className={cn(
+                      "h-3 w-3 flex-shrink-0",
+                      isActive ? "text-primary-foreground/70" : "text-green-500"
+                    )} />
+                  )}
+                  {hasCustomName && !isMultilingual && originalName && (
+                    <Type className={cn(
+                      "h-3 w-3 flex-shrink-0",
+                      isActive ? "text-primary-foreground/70" : "text-blue-500"
+                    )} />
+                  )}
+                </div>
+                
                 {isActive && <ChevronRight className="ml-auto h-4 w-4 flex-shrink-0" />}
               </Button>
             )
+
+            // 🎯 UPDATED: Enhanced tooltip with multilingual support
+            if (hasCustomName && (originalName || isMultilingual)) {
+              return (
+                <TooltipProvider key={item.href}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {NavigationButton}
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-[280px]">
+                      <div className="space-y-2">
+                        <div className="font-semibold text-sm flex items-center gap-2">
+                          {isMultilingual && <Globe className="h-3 w-3" />}
+                          {displayName}
+                        </div>
+                        
+                        {isMultilingual && item.multilingualNames && (
+                          <div className="space-y-1">
+                            <div className="text-xs text-muted-foreground font-medium">
+                              {safeTranslate("Dashboard_sideBar.allLanguages", "All Languages")}:
+                            </div>
+                            <div className="text-xs space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span>🇺🇸</span>
+                                <span className="font-medium">EN:</span>
+                                <span>{item.multilingualNames.en}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span>🇸🇦</span>
+                                <span className="font-medium">AR:</span>
+                                <span dir="rtl">{item.multilingualNames.ar}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span>🇹🇷</span>
+                                <span className="font-medium">TR:</span>
+                                <span>{item.multilingualNames.tr}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground pt-1 border-t">
+                              {safeTranslate("Dashboard_sideBar.currentLanguage", "Current")}: {language.toUpperCase()}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {!isMultilingual && originalName && originalName !== displayName && (
+                          <div className="text-xs text-muted-foreground">
+                            {safeTranslate("Dashboard_sideBar.sectionType", "Section Type")}: {originalName}
+                          </div>
+                        )}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
+            }
+
+            return NavigationButton
           })}
         </nav>
       </>

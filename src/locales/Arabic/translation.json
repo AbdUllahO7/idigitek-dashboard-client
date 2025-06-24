@@ -630,16 +630,7 @@
       }
     },
 
-    "editDialog": {
-      "title": "تعديل اللغة",
-      "description": "قم بإجراء تغييرات على تفاصيل اللغة أدناه.",
-      "labels": {
-        "languageId": "معرف اللغة",
-        "languageName": "اسم اللغة",
-        "active": "نشط"
-      }
-    },
-
+    
     "deleteDialog": {
       "title": "حذف اللغة",
       "description": "هل أنت متأكد من أنك تريد حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
@@ -738,7 +729,40 @@
       "sections.blog.description": "قسم المدونة للمقالات والرؤى ومحتوى القيادة الفكرية",
       "sections.contact.description": "معلومات الاتصال والنماذج وتفاصيل الموقع لاستفسارات العملاء",
       "sections.footer.description": "القسم السفلي مع الروابط ووسائل التواصل الاجتماعي ومعلومات الشركة الإضافية",
-      
+      "addDialog": {
+        "title": "إضافة قسم إلى الموقع الإلكتروني",
+        "customName": "اسم قسم مخصص",
+        "namePlaceholder": "أدخل اسمًا لهذا القسم...",
+        "nameHint": "سيتم عرض هذا الاسم في إدارة الأقسام, ويمكن تغييره لاحقًا",
+        "whatYouGet": "ما ستحصل عليه",
+        "cancel": "إلغاء",
+        "addSection": "إضافة قسم",
+        "adding": "جارٍ الإضافة...",
+        "validation": {
+        "nameRequired": "اسم القسم مطلوب",
+        "nameMinLength": "يجب ألا يقل طول اسم القسم عن حرفين",
+        "nameMaxLength": "يجب ألا يقل طول اسم القسم عن 50 حرفًا"
+        },
+        "clickOutsideToClose": "انقر للخارج للإغلاق",
+        "features": {
+        "fullyCustomizable": "قسم قابل للتخصيص بالكامل",
+        "mobileResponsive": "تصميم متجاوب مع الأجهزة المحمولة",
+        "modernDesign": "تصميم عصري واحترافي"
+        }
+      },
+      "editDialog": {
+      "title": "تعديل اللغة",
+      "nameIn": "الاسم {languageName}",
+      "description": "قم بإجراء تغييرات على تفاصيل اللغة أدناه.",
+      "save":" حفظ التغييرات",
+      "saving": "جاري الحفظ...",
+      "cancel": "إلغاء",
+      "labels": {
+        "languageId": "معرف اللغة",
+        "languageName": "اسم اللغة",
+        "active": "نشط"
+      }
+    },
       "title": "أقسام الموقع الإلكتروني",
       "currentSections": "أقسام الموقع الحالية",
       "addNewSections": "إضافة أقسام مصممة مسبقاً",
@@ -835,7 +859,7 @@
       },
       
       "modal": {
-        "deleteConfirmation": "سيؤدي هذا إلى حذف القسم نهائياً. لا يمكن التراجع عن هذا الإجراء، وسيتم فقدان أي محتوى في هذا القسم.",
+        "deleteConfirmation": "سيؤدي هذا إلى حذف القسم نهائياً. لا يمكن التراجع عن هذا الإجراء, وسيتم فقدان أي محتوى في هذا القسم.",
         "cancel": "إلغاء",
         "delete": "حذف القسم",
         "clickOutsideToClose": "انقر خارج النافذة للإغلاق"
@@ -1923,7 +1947,7 @@
     "// Messages": "",
     "searchingSubsection": "البحث عن قسم فرعي بالمعرف:",
     "subsectionFound": "تم العثور على القسم الفرعي:",
-    "subsectionNotFound": "لم يتم العثور على القسم الفرعي، استخدام المعرف الافتراضي:",
+    "subsectionNotFound": "لم يتم العثور على القسم الفرعي, استخدام المعرف الافتراضي:",
     "savingIndustry": "جاري حفظ عنصر الصناعة...",
     "industrySaved": "تم حفظ عنصر الصناعة بنجاح",
     "extractingIndustryInfo": "استخراج معلومات الصناعة من البيانات الأساسية",
@@ -2042,7 +2066,7 @@
     "imageUploadError": "فشل رفع الصورة:",
     
     "// File Validation": "",
-    "invalidFileType": "فقط ملفات JPEG، PNG، GIF، أو SVG مسموحة",
+    "invalidFileType": "فقط ملفات JPEG, PNG, GIF, أو SVG مسموحة",
     "validationError": "خطأ في التحقق",
     "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
     
@@ -2661,13 +2685,13 @@
     "imageUploaded": "تم رفع الصورة",
     "imageUploadedDescription": "تم رفع صورة الخلفية بنجاح",
     "imageUploadFailed": "فشل رفع الصورة",
-    "imageUploadFailedDescription": "فشل في رفع الصورة، يرجى المحاولة مرة أخرى",
+    "imageUploadFailedDescription": "فشل في رفع الصورة, يرجى المحاولة مرة أخرى",
     "teamSectionCreated": "تم إنشاء قسم الفريق بنجاح!",
     "teamSectionUpdated": "تم تحديث قسم الفريق بنجاح!",
     "errorCreatingTeamSection": "خطأ في إنشاء قسم الفريق",
     "errorUpdatingTeamSection": "خطأ في تحديث قسم الفريق",
     "unknownError": "حدث خطأ غير معروف",
-    "imageValidationError": "يُسمح فقط بملفات JPEG، PNG، GIF، أو SVG",
+    "imageValidationError": "يُسمح فقط بملفات JPEG, PNG, GIF, أو SVG",
     "parentSectionIdRequired": "معرف القسم الأصلي مطلوب لإنشاء قسم فرعي",
     "failedToCreateSubsection": "فشل في إنشاء أو استرجاع معرف القسم الفرعي",
     "contentSaved": "تم حفظ جميع المحتويات",
@@ -3512,7 +3536,7 @@
         "appliesToAll": "يُطبق على جميع اللغات",
         "addButton": "إضافة رابط اجتماعي",
         "platformLabel": "اسم المنصة",
-        "platformPlaceholder": "مثال: تويتر، فيسبوك",
+        "platformPlaceholder": "مثال: تويتر, فيسبوك",
         "urlLabel": "الرابط",
         "urlPlaceholder": "https://example.com",
         "imageLabel": "صورة الرابط الاجتماعي",

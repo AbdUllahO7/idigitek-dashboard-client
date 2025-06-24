@@ -12,6 +12,7 @@ import { SectionHeader } from "./SectionHeader"
 import { CurrentSectionsTab } from "./CurrentSectionsTab"
 import { AvailableSectionsTab } from "./AvailableSectionsTab"
 import { DeleteDialog } from "./DeleteDialog"
+import { AddSectionDialog } from "./AddSectionDialog"
 
 export function SectionManagement({ hasWebsite }: ManagementProps) {
   const {
@@ -22,6 +23,10 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     categoryFilter,
     activeTab,
     orderedSections,
+    
+    // New dialog state
+    showAddDialog,
+    sectionToAdd,
     
     // Data
     isLoadingSections,
@@ -42,6 +47,8 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
     
     // Handlers
     handleAddPredefinedSection,
+    handleCloseAddDialog,
+    handleConfirmAddSection,
     handleToggleActive,
     handleReorder,
     confirmDelete,
@@ -61,6 +68,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
       type: "section",
     })
   }
+  const sectionManagement = useSectionManagement(hasWebsite)
 
   // Handle cancelling delete
   const handleCancelDelete = () => {
@@ -201,6 +209,8 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                     isToggling={toggleSectionActiveMutation.isPending}
                     toggleSectionId={toggleSectionActiveMutation.variables?.id}
                     t={t}
+                            onUpdateSection={sectionManagement.handleUpdateSection} // ✅ This fixes the error
+
                     ready={ready}
                   />
                 </div>
@@ -216,7 +226,7 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
                     categoryFilter={categoryFilter}
                     onSearchChange={setSearchQuery}
                     onCategoryChange={setCategoryFilter}
-                    onAddSection={handleAddPredefinedSection}
+                    onAddSection={handleAddPredefinedSection} // This now opens the dialog
                     isLoading={
                       createSectionMutation.isPending ||
                       (createUserSectionMutation?.isPending ?? false)
@@ -237,6 +247,19 @@ export function SectionManagement({ hasWebsite }: ManagementProps) {
             isDeleting={deleteSectionMutation.isPending}
             t={t}
             ready={ready}
+          />
+
+          {/* Add Section Dialog */}
+          <AddSectionDialog
+            isOpen={showAddDialog}
+            onClose={handleCloseAddDialog}
+            section={sectionToAdd}
+            onConfirm={handleConfirmAddSection}
+            isLoading={
+              createSectionMutation.isPending ||
+              (createUserSectionMutation?.isPending ?? false)
+            }
+            t={t}
           />
         </div>
       </div>

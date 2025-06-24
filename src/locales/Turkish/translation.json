@@ -621,15 +621,7 @@
         "delete": "Dili sil"
       }
     },
-    "editDialog": {
-      "title": "Dili Düzenle",
-      "description": "Aşağıdaki dil detaylarında değişiklik yapın.",
-      "labels": {
-        "languageId": "Dil ID",
-        "languageName": "Dil Adı",
-        "active": "Aktif"
-      }
-    },
+
     "deleteDialog": {
       "title": "Dili Sil",
       "description": "\"{name}\" dilini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
@@ -726,7 +718,40 @@
       "sections.blog.description": "Makaleler, görüşler ve düşünce liderliği içeriği için blog bölümü",
       "sections.contact.description": "Müşteri sorguları için iletişim bilgileri, formlar ve konum detayları",
       "sections.footer.description": "Bağlantılar, sosyal medya ve ek şirket bilgileri içeren alt bölüm",
-      
+      "editDialog": {
+      "title": "Dili Düzenle",
+      "description": "Aşağıdaki dil detaylarında değişiklik yapın.",
+      "nameIn": "Ad{languageName}}",
+      "save" : "Kaydet",
+      "saving": "Kaydediliyor...",
+      "cancel": "İptal",
+      "labels": {
+        "languageId": "Dil ID",
+        "languageName": "Dil Adı",
+        "active": "Aktif"
+      }
+    },
+      "addDialog": {
+        "title": "Web Sitesine Bölüm Ekle",
+        "customName": "Özel Bölüm Adı",
+        "namePlaceholder": "Bu bölüm için bir ad girin...",
+        "nameHint": "Bu ad bölüm yönetiminizde görüntülenecek ve daha sonra değiştirilebilir.",
+        "whatYouGet": "Ne alacaksınız",
+        "cancel": "İptal",
+        "addSection": "Bölüm Ekle",
+        "adding": "Ekleniyor...",
+        "validation": {
+        "nameRequired": "Bölüm adı gerekli",
+        "nameMinLength": "Bölüm adı en az 2 karakter olmalıdır",
+        "nameMaxLength": "Bölüm adı 50 karakterden az olmalıdır"
+        },
+        "clickOutsideToClose": "Kapatmak için dışarıya tıklayın",
+        "features": {
+        "fullyCustomizable": "Tamamen özelleştirilebilir bölüm",
+        "mobileResponsive": "Mobil duyarlı tasarım",
+        "modernDesign": "Modern ve profesyonel stil"
+        }
+      },
       "title": "Web Sitesi Bölümleri",
       "currentSections": "Mevcut Web Sitesi Bölümleri",
       "addNewSections": "Önceden Tasarlanmış Bölümler Ekle",

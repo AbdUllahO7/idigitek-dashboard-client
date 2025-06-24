@@ -17,19 +17,43 @@ import {
   Settings,
   Image as ImageIcon,
   ZoomIn,
-  X
+  X,
+  Type,
+  Tag,
+  Languages,
+  Edit3,
+  Save,
+  XCircle,
+  Check,
+  AlertCircle
 } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
 import { Badge } from "@/src/components/ui/badge"
+import { Label } from "@/src/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/tooltip"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { cn } from "@/src/lib/utils"
 import { useLanguage } from "@/src/context/LanguageContext"
 import type { Section } from "@/src/api/types/hooks/section.types"
-import { filterCurrentSections, getSectionVisualInfo, getTranslatedSectionName } from "@/src/utils/management/sectionHelper"
+import { filterCurrentSections, getSectionVisualInfo } from "@/src/utils/management/sectionHelper"
 import { TFunction } from "i18next"
 import { useState } from "react"
 import { PREDEFINED_SECTIONS } from "@/src/Const/SectionsData"
+import { getMultilingualDescription, getMultilingualName, hasMultilingualName } from "@/src/hooks/Management/SectionManagement/MultilingualManagement"
+
+// Multilingual name interface
+interface MultilingualName {
+  en: string;
+  ar: string;
+  tr: string;
+}
+
+interface MultilingualErrors {
+  en?: string;
+  ar?: string;
+  tr?: string;
+}
 
 interface CurrentSectionsTabProps {
   hasWebsite: boolean
@@ -40,8 +64,11 @@ interface CurrentSectionsTabProps {
   onToggleActive: (section: Section) => void
   onDelete: (section: Section) => void
   onReorder: (sections: Section[]) => void
+  onUpdateSection?: (sectionId: string, updateData: { name: MultilingualName }) => void // 🎯 Made optional
   isToggling: boolean
   toggleSectionId?: string
+  isUpdating?: boolean
+  updateSectionId?: string
   t: TFunction
   ready: boolean
 }
@@ -104,6 +131,219 @@ const ImageModal = ({
   )
 }
 
+// Edit Form Component
+// Edit Form Component - Without Tabs Design
+const EditSectionNameForm = ({
+  section,
+  onSave,
+  onCancel,
+  isLoading,
+  t
+}: {
+  section: Section
+  onSave: (names: MultilingualName) => void
+  onCancel: () => void
+  isLoading: boolean
+  t: TFunction
+}) => {
+  const [editNames, setEditNames] = useState<MultilingualName>(() => {
+    if (typeof section.name === 'object' && section.name !== null) {
+      return {
+        en: (section.name as any).en || '',
+        ar: (section.name as any).ar || '',
+        tr: (section.name as any).tr || ''
+      }
+    }
+    // Legacy string name - convert to multilingual
+    const nameStr = typeof section.name === 'string' ? section.name : '';
+    return {
+      en: nameStr,
+      ar: nameStr,
+      tr: nameStr
+    }
+  });
+
+  const [nameErrors, setNameErrors] = useState<MultilingualErrors>({})
+
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+    { code: 'tr', name: 'Türkçe', flag: '🇹🇷' }
+  ] as const
+
+  const validateName = (name: string) => {
+    if (!name.trim()) {
+      return t("sectionManagement.editDialog.validation.nameRequired", "Section name is required")
+    }
+    if (name.trim().length < 2) {
+      return t("sectionManagement.editDialog.validation.nameMinLength", "Section name must be at least 2 characters")
+    }
+    if (name.trim().length > 50) {
+      return t("sectionManagement.editDialog.validation.nameMaxLength", "Section name must be less than 50 characters")
+    }
+    return ""
+  }
+
+  const validateAllNames = () => {
+    const errors: MultilingualErrors = {}
+    let hasErrors = false
+
+    languages.forEach(({ code }) => {
+      const error = validateName(editNames[code])
+      if (error) {
+        errors[code] = error
+        hasErrors = true
+      }
+    })
+
+    setNameErrors(errors)
+    return !hasErrors
+  }
+
+  const handleNameChange = (language: 'en' | 'ar' | 'tr', value: string) => {
+    setEditNames(prev => ({
+      ...prev,
+      [language]: value
+    }))
+    
+    // Clear error for this language
+    if (nameErrors[language]) {
+      setNameErrors(prev => ({
+        ...prev,
+        [language]: undefined
+      }))
+    }
+  }
+
+  const handleSave = () => {
+    if (!validateAllNames()) {
+      return
+    }
+
+    const trimmedNames: MultilingualName = {
+      en: editNames.en.trim(),
+      ar: editNames.ar.trim(),
+      tr: editNames.tr.trim()
+    }
+
+    onSave(trimmedNames)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && Object.keys(nameErrors).length === 0) {
+      handleSave()
+    } else if (e.key === 'Escape') {
+      onCancel()
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 space-y-4"
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <Edit3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <h4 className="font-semibold text-blue-900 dark:text-blue-100">
+          {t("sectionManagement.editDialog.title", "Edit Section Names")}
+        </h4>
+      </div>
+
+      {/* All Language Inputs - No Tabs */}
+      <div className="space-y-4">
+        {languages.map(({ code, name, flag }) => (
+          <div key={code} className="space-y-2">
+            <Label 
+              htmlFor={`edit-name-${code}`} 
+              className="text-sm font-medium flex items-center gap-2"
+            >
+              <span className="text-base">{flag}</span>
+              <Languages className="h-3 w-3" />
+              {t(`sectionManagement.editDialog.nameIn${code.toUpperCase()}`, `${name}`)}
+              {nameErrors[code] && <AlertCircle className="h-3 w-3 text-red-500" />}
+            </Label>
+            <Input
+              id={`edit-name-${code}`}
+              type="text"
+              value={editNames[code]}
+              onChange={(e) => handleNameChange(code as 'en' | 'ar' | 'tr', e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={t(`sectionManagement.editDialog.namePlaceholder${code.toUpperCase()}`, `Enter section name in ${name}...`)}
+              className={cn(
+                "w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 transition-colors",
+                code === 'ar' && "text-right",
+                nameErrors[code] && "border-red-300 dark:border-red-700 focus:border-red-500 dark:focus:border-red-500"
+              )}
+              disabled={isLoading}
+              dir={code === 'ar' ? 'rtl' : 'ltr'}
+            />
+            {nameErrors[code] && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400"
+              >
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span>{nameErrors[code]}</span>
+              </motion.div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Overall validation summary */}
+      {Object.keys(nameErrors).length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3"
+        >
+          <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="font-medium">
+              {t("sectionManagement.editDialog.validation.completeAllLanguages", "Please complete all language fields")}
+            </span>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2 pt-2">
+        <Button
+          onClick={handleSave}
+          disabled={isLoading || Object.keys(nameErrors).length > 0 || !editNames.en.trim() || !editNames.ar.trim() || !editNames.tr.trim()}
+          size="sm"
+          className="bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center gap-2"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-3 w-3 animate-spin" />
+              {t("sectionManagement.editDialog.saving", "Saving...")}
+            </>
+          ) : (
+            <>
+              <Save className="h-3 w-3" />
+              {t("sectionManagement.editDialog.save", "Save")}
+            </>
+          )}
+        </Button>
+        <Button
+          onClick={onCancel}
+          disabled={isLoading}
+          variant="outline"
+          size="sm"
+          className="rounded-lg flex items-center gap-2"
+        >
+          <XCircle className="h-3 w-3" />
+          {t("sectionManagement.editDialog.cancel", "Cancel")}
+        </Button>
+      </div>
+    </motion.div>
+  )
+}
+
 const expandVariants = {
   collapsed: { 
     height: 0,
@@ -126,8 +366,11 @@ export const CurrentSectionsTab = ({
   onToggleActive,
   onDelete,
   onReorder,
+  onUpdateSection,
   isToggling,
   toggleSectionId,
+  isUpdating = false,
+  updateSectionId,
   t,
   ready
 }: CurrentSectionsTabProps) => {
@@ -135,6 +378,7 @@ export const CurrentSectionsTab = ({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{src: string, alt: string}>({src: '', alt: ''})
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null)
   
   const filteredCurrentSections = filterCurrentSections(orderedSections, searchQuery, t, ready)
 
@@ -155,96 +399,123 @@ export const CurrentSectionsTab = ({
     setImageModalOpen(true)
   }
 
-  // 🔧 FIXED: Improved section image matching function
+  const handleEditSection = (sectionId: string) => {
+    setEditingSectionId(sectionId)
+  }
+
+  const handleSaveEdit = (sectionId: string, names: MultilingualName) => {
+    if (onUpdateSection) {
+      onUpdateSection(sectionId, { name: names })
+      setEditingSectionId(null)
+    } else {
+      console.warn('onUpdateSection prop is not provided')
+      // Show a toast error if the function is not available
+     
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingSectionId(null)
+  }
+
+  // Enhanced section image matching function with multilingual support
   const getSectionImage = (section: Section) => {
     if (!section) return null;
 
-    // Normalize function to clean up strings for comparison
-    const normalize = (str: string) => {
-      return str.toLowerCase()
-        .replace(/[^a-z0-9]/g, '') // Remove special characters and spaces
-        .trim();
+    const normalize = (value: any): string => {
+      if (!value) return '';
+      
+      if (typeof value === 'object' && value !== null) {
+        if ('en' in value || 'ar' in value || 'tr' in value) {
+          const multilingualValue = value as any;
+          const nameInCurrentLang = multilingualValue[language] || multilingualValue.en || multilingualValue.ar || multilingualValue.tr || '';
+          return nameInCurrentLang.toString().toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+        }
+        
+        return value.toString().toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      }
+      
+      return value.toString().toLowerCase().replace(/[^a-z0-9]/g, '').trim();
     };
 
-    // Get various possible names from the section
     const possibleNames = [
       section.name,
       section.sectionType,
       section.type,
       section.slug,
-      // Add any other fields that might contain the section name
-    ].filter(Boolean).map(name => normalize(name));
+      section.subName,
+      ...(typeof section.name === 'object' && section.name !== null ? [
+        (section.name as any).en,
+        (section.name as any).ar,
+        (section.name as any).tr
+      ] : [])
+    ].filter(Boolean).map(name => normalize(name)).filter(name => name.length > 0);
 
-    console.log('Looking for image for section:', section.name, 'Possible names:', possibleNames);
-
-    // Try to find matching predefined section
     const predefinedSection = PREDEFINED_SECTIONS.find(ps => {
-      // Normalize predefined section identifiers
       const normalizedSubName = normalize(ps.subName);
       const normalizedNameKey = normalize(ps.nameKey);
-      
-      // Extract the last part of nameKey (after the last dot)
       const nameKeyParts = ps.nameKey.split('.');
       const normalizedNameKeyLast = normalize(nameKeyParts[nameKeyParts.length - 1]);
 
-      console.log(`Checking predefined section: ${ps.subName}`, {
-        normalizedSubName,
-        normalizedNameKeyLast,
-        normalizedNameKey
-      });
-
-      // Check if any of the possible names match
       return possibleNames.some(possibleName => {
-        const matches = (
-          // Direct match with subName
+        return (
           possibleName === normalizedSubName ||
-          // Match with the last part of nameKey (most common case)
           possibleName === normalizedNameKeyLast ||
-          // Partial match with nameKey
           normalizedNameKey.includes(possibleName) ||
           possibleName.includes(normalizedSubName) ||
-          // Check common variations
-          possibleName.includes('header') && normalizedSubName.includes('header') ||
-          possibleName.includes('hero') && normalizedSubName.includes('hero') ||
-          possibleName.includes('service') && normalizedSubName.includes('service') ||
-          possibleName.includes('news') && normalizedSubName.includes('news') ||
-          possibleName.includes('solution') && normalizedSubName.includes('solution') ||
-          possibleName.includes('project') && normalizedSubName.includes('project') ||
-          possibleName.includes('team') && normalizedSubName.includes('team') ||
-          possibleName.includes('contact') && normalizedSubName.includes('contact') ||
-          possibleName.includes('footer') && normalizedSubName.includes('footer') ||
-          possibleName.includes('blog') && normalizedSubName.includes('blog') ||
-          possibleName.includes('faq') && normalizedSubName.includes('faq') ||
-          possibleName.includes('partner') && normalizedSubName.includes('partner') ||
-          possibleName.includes('comment') && normalizedSubName.includes('comment') ||
-          possibleName.includes('testimonial') && normalizedSubName.includes('comment') ||
-          possibleName.includes('process') && normalizedSubName.includes('process') ||
-          possibleName.includes('choose') && normalizedSubName.includes('choose') ||
-          possibleName.includes('why') && normalizedSubName.includes('choose')
+          (possibleName.includes('header') && normalizedSubName.includes('header')) ||
+          (possibleName.includes('hero') && normalizedSubName.includes('hero')) ||
+          (possibleName.includes('service') && normalizedSubName.includes('service')) ||
+          (possibleName.includes('news') && normalizedSubName.includes('news')) ||
+          (possibleName.includes('solution') && normalizedSubName.includes('solution')) ||
+          (possibleName.includes('project') && normalizedSubName.includes('project')) ||
+          (possibleName.includes('team') && normalizedSubName.includes('team')) ||
+          (possibleName.includes('contact') && normalizedSubName.includes('contact')) ||
+          (possibleName.includes('footer') && normalizedSubName.includes('footer')) ||
+          (possibleName.includes('blog') && normalizedSubName.includes('blog')) ||
+          (possibleName.includes('faq') && normalizedSubName.includes('faq')) ||
+          (possibleName.includes('partner') && normalizedSubName.includes('partner')) ||
+          (possibleName.includes('comment') && normalizedSubName.includes('comment')) ||
+          (possibleName.includes('testimonial') && normalizedSubName.includes('comment')) ||
+          (possibleName.includes('process') && normalizedSubName.includes('process')) ||
+          (possibleName.includes('choose') && normalizedSubName.includes('choose')) ||
+          (possibleName.includes('why') && normalizedSubName.includes('choose'))
         );
-
-        if (matches) {
-          console.log(`✅ Match found: ${possibleName} matches ${ps.subName}`);
-        }
-
-        return matches;
       });
     });
 
-    if (predefinedSection) {
-      console.log(`Found image for ${section.name}:`, predefinedSection.image);
-      return predefinedSection.image;
-    }
+    return predefinedSection?.image || null;
+  };
 
-    console.log(`❌ No image found for section: ${section.name}`);
+  const getSectionDisplayName = (section: Section) => {
+    if (section.displayName) {
+      return section.displayName;
+    }
+    return getMultilingualName(section, language as any);
+  };
+
+  const getSectionTypeInfo = (section: Section) => {
+    if (section.subName) {
+      const predefinedSection = PREDEFINED_SECTIONS.find(ps => ps.subName === section.subName);
+      if (predefinedSection && ready) {
+        return {
+          originalName: t(predefinedSection.nameKey, predefinedSection.nameKey.split('.').pop() || ''),
+          category: predefinedSection.category
+        };
+      }
+    }
     return null;
+  };
+
+  const hasCustomMultilingualName = (section: Section) => {
+    return hasMultilingualName(section);
   };
 
   return (
     <>
       <div className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm rounded-2xl md:rounded-3xl border border-white/20 dark:border-slate-700/50 shadow-xl overflow-hidden">
         
-        {/* Responsive Tab Header */}
+        {/* Tab Header */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50 p-3 sm:p-4 md:p-5 lg:p-6 border-b border-slate-200 dark:border-slate-700">
           <div className="flex flex-col gap-3 md:gap-4">
             
@@ -269,7 +540,6 @@ export const CurrentSectionsTab = ({
 
             {/* Controls Row */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              {/* Search - Full width on mobile */}
               <div className="relative flex-1 sm:flex-initial sm:min-w-0">
                 <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <Input
@@ -281,7 +551,6 @@ export const CurrentSectionsTab = ({
                 />
               </div>
 
-              {/* Add button */}
               <Button
                 onClick={onAddNewClick}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-3 sm:px-4 py-2 rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base touch-manipulation"
@@ -294,7 +563,7 @@ export const CurrentSectionsTab = ({
           </div>
         </div>
 
-        {/* Responsive Tab Content */}
+        {/* Tab Content */}
         <div className="p-3 sm:p-4 md:p-5 lg:p-6">
           {!hasWebsite ? (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl md:rounded-2xl p-4 md:p-6 text-center">
@@ -323,9 +592,13 @@ export const CurrentSectionsTab = ({
               >
                 {filteredCurrentSections.map((section: Section) => {
                   const visualInfo = getSectionVisualInfo(section);
-                  const sectionId = section._id || `section-${section.name}`;
+                  const sectionId = section._id || `section-${getMultilingualName(section, language as any)}`;
                   const isExpanded = expandedSections.has(sectionId);
                   const sectionImage = getSectionImage(section);
+                  const isEditing = editingSectionId === sectionId;
+                  
+                  const displayName = getSectionDisplayName(section);
+                  const typeInfo = getSectionTypeInfo(section);
                   
                   return (
                     <Reorder.Item
@@ -338,13 +611,13 @@ export const CurrentSectionsTab = ({
                         whileTap={{ scale: 0.99 }}
                         className="group bg-white dark:bg-slate-800/90 rounded-xl md:rounded-2xl border border-slate-200/80 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl dark:hover:shadow-slate-900/20 backdrop-blur-sm overflow-hidden"
                       >
-                        {/* Main Section Header - Clickable */}
+                        {/* Main Section Header */}
                         <div 
                           className="p-3 sm:p-4 md:p-5 lg:p-6 flex items-center gap-2 sm:gap-3 md:gap-4 cursor-pointer"
-                          onClick={() => toggleExpanded(sectionId)}
+                          onClick={() => !isEditing && toggleExpanded(sectionId)}
                         >
                           
-                          {/* Responsive Drag Handle */}
+                          {/* Drag Handle */}
                           <div 
                             className="text-slate-400 dark:text-slate-500 border border-dashed border-slate-200 dark:border-slate-700 p-1.5 sm:p-2 rounded-lg md:rounded-xl cursor-grab hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors touch-manipulation flex-shrink-0"
                             onMouseDown={(e) => e.stopPropagation()}
@@ -353,19 +626,76 @@ export const CurrentSectionsTab = ({
                             <GripVertical className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                           </div>
 
-                          {/* Responsive Section Icon */}
+                          {/* Section Icon */}
                           <div className={`p-2 sm:p-2.5 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-br ${visualInfo.color} shadow-lg flex-shrink-0`}>
                             <div className="text-white text-sm sm:text-base">
                               {visualInfo.icon}
                             </div>
                           </div>
 
-                          {/* Section Info - Responsive */}
+                          {/* Section Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1 sm:mb-2">
-                              <h3 className="font-bold text-sm sm:text-base md:text-lg text-slate-900 dark:text-slate-100 truncate">
-                                {getTranslatedSectionName(section, t, ready)}
-                              </h3>
+                              
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <h3 className="font-bold text-sm sm:text-base md:text-lg text-slate-900 dark:text-slate-100 truncate">
+                                  {displayName}
+                                </h3>
+                                
+                                {hasCustomMultilingualName(section) && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Badge 
+                                          variant="secondary"
+                                          className="text-xs bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300 flex items-center gap-1"
+                                        >
+                                          <Languages className="h-3 w-3" />
+                                          {language.toUpperCase()}
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <div className="space-y-1">
+                                          <p className="text-sm font-medium">
+                                            {t("sectionManagement.multilingualSection", "Multilingual Section")}
+                                          </p>
+                                          <div className="text-xs space-y-1">
+                                            {typeof section.name === 'object' && (
+                                              <>
+                                                <div>🇺🇸 EN: {(section.name as any).en}</div>
+                                                <div>🇸🇦 AR: {(section.name as any).ar}</div>
+                                                <div>🇹🇷 TR: {(section.name as any).tr}</div>
+                                              </>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                                
+                                {typeInfo && typeInfo.originalName !== displayName && !hasCustomMultilingualName(section) && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Badge 
+                                          variant="secondary"
+                                          className="text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 flex items-center gap-1"
+                                        >
+                                          <Type className="h-3 w-3" />
+                                          {typeInfo.originalName}
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="text-sm">
+                                          {t("sectionManagement.sectionType", "Section Type")}: {typeInfo.originalName}
+                                        </p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                              </div>
+                              
                               <div className="flex items-center gap-2">
                                 <Badge
                                   className={cn(
@@ -399,11 +729,41 @@ export const CurrentSectionsTab = ({
                             <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 dark:text-slate-500" />
                           </motion.div>
 
-                          {/* Responsive Actions - Always visible on mobile */}
+                          {/* Actions */}
                           <div 
                             className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0"
                             onClick={(e) => e.stopPropagation()}
                           >
+                            {/* Edit Button */}
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onUpdateSection) {
+                                        handleEditSection(sectionId);
+                                      }
+                                    }}
+                                    disabled={isUpdating || isEditing || !onUpdateSection}
+                                    className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg md:rounded-xl touch-manipulation disabled:opacity-50"
+                                  >
+                                    <Edit3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-sm">
+                                    {onUpdateSection 
+                                      ? t("sectionManagement.actions.editSectionName", "Edit section name")
+                                      : t("sectionManagement.actions.editNotAvailable", "Edit not available")
+                                    }
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -460,9 +820,29 @@ export const CurrentSectionsTab = ({
                           </div>
                         </div>
 
+                        {/* Edit Form */}
+                        <AnimatePresence>
+                          {isEditing && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="px-3 sm:px-4 md:px-5 lg:px-6 pb-4"
+                            >
+                              <EditSectionNameForm
+                                section={section}
+                                onSave={(names) => handleSaveEdit(sectionId, names)}
+                                onCancel={handleCancelEdit}
+                                isLoading={isUpdating && updateSectionId === sectionId}
+                                t={t}
+                              />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
                         {/* Expandable Content */}
                         <AnimatePresence>
-                          {isExpanded && (
+                          {isExpanded && !isEditing && (
                             <motion.div
                               variants={expandVariants}
                               initial="collapsed"
@@ -473,7 +853,7 @@ export const CurrentSectionsTab = ({
                               <div className="px-3 sm:px-4 md:px-5 lg:px-6 pb-4 md:pb-6 border-t border-slate-200/50 dark:border-slate-700/50">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 md:gap-6 mt-4 text-center items-center">
                                   
-                            
+                                  
                                   {/* Section Preview/Image */}
                                   <div className="space-y-3">
                                     <h4 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 text-sm">
@@ -485,24 +865,20 @@ export const CurrentSectionsTab = ({
                                         <>
                                           <img
                                             src={sectionImage}
-                                            alt={getTranslatedSectionName(section, t, ready)}
+                                            alt={displayName}
                                             className="w-full h-full object-cover transition-transform duration-300 group-hover/image:scale-105"
-                                            onClick={() => openImageModal(sectionImage, getTranslatedSectionName(section, t, ready))}
+                                            onClick={() => openImageModal(sectionImage, displayName)}
                                             onError={(e) => {
-                                              console.error('Failed to load image:', sectionImage);
-                                              // Hide the image on error
                                               const img = e.target as HTMLImageElement;
                                               img.style.display = 'none';
-                                              // Show the parent's fallback content
                                               if (img.parentElement) {
                                                 img.parentElement.classList.add('show-fallback');
                                               }
                                             }}
                                           />
-                                          {/* Zoom Icon Overlay */}
                                           <div 
                                             className="absolute inset-0 bg-black/0 group-hover/image:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/image:opacity-100"
-                                            onClick={() => openImageModal(sectionImage, getTranslatedSectionName(section, t, ready))}
+                                            onClick={() => openImageModal(sectionImage, displayName)}
                                           >
                                             <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full p-2 transform scale-0 group-hover/image:scale-100 transition-transform duration-300">
                                               <ZoomIn className="h-4 w-4 text-slate-700 dark:text-slate-300" />
@@ -511,7 +887,6 @@ export const CurrentSectionsTab = ({
                                         </>
                                       ) : null}
                                       
-                                      {/* Fallback content - shown when no image or image fails to load */}
                                       <div className={cn(
                                         "w-full h-full flex items-center justify-center bg-gradient-to-br opacity-20",
                                         sectionImage ? "absolute inset-0 opacity-0 show-fallback:opacity-100" : "",
@@ -522,7 +897,6 @@ export const CurrentSectionsTab = ({
                                         </div>
                                       </div>
                                       
-                                      {/* Section Icon Overlay */}
                                       <div className={cn(
                                         "absolute inset-0 flex items-center justify-center",
                                         sectionImage ? "opacity-0 show-fallback:opacity-100" : ""
@@ -537,11 +911,10 @@ export const CurrentSectionsTab = ({
                                         </div>
                                       </div>
                                       
-                                      {/* Section Name Overlay */}
                                       <div className="absolute bottom-1 left-1 right-1">
                                         <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded p-1">
                                           <p className="text-xs text-slate-600 dark:text-slate-400 text-center truncate">
-                                            {getTranslatedSectionName(section, t, ready)}
+                                            {displayName}
                                           </p>
                                         </div>
                                       </div>
@@ -549,7 +922,6 @@ export const CurrentSectionsTab = ({
                                   </div>
                                 </div>
 
-                                {/* Additional Information */}
                                 {section.createdAt && (
                                   <div className="mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
                                     <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -615,7 +987,6 @@ export const CurrentSectionsTab = ({
         t={t}
       />
 
-      {/* Add this CSS to your global styles or component styles */}
       <style jsx global>{`
         .show-fallback img {
           display: none !important;

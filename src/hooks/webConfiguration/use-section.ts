@@ -1,14 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/src/lib/api-client';
-import { Section } from '@/src/api/types/hooks/section.types';
-import { useAuth } from '@/src/context/AuthContext'; // Import auth context to get current user
+import { 
+  Section, 
+  SectionItem, 
+  SubSection,
+  CreateSectionRequest,
+  UpdateSectionRequest,
+  SectionResponse,
+  SectionQueryParams,
+  SupportedLanguage,
+  MultilingualName,
+  MultilingualDescription,
+  SectionOrderUpdateRequest
+} from '@/src/api/types/hooks/section.types';
+import { useAuth } from '@/src/context/AuthContext';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { toast } from '../use-toast';
+import { getMultilingualDescription, getMultilingualName } from '../Management/SectionManagement/MultilingualManagement';
 
 // Base section hook
 export function useSections() {
   const queryClient = useQueryClient();
   const endpoint = '/sections';
-  const { user } = useAuth(); // Get current user to include in cache keys
+  const { user } = useAuth();
+  const { language } = useLanguage();
   
   // Get a user-specific prefix for cache keys
   const getUserPrefix = () => {
@@ -17,22 +32,44 @@ export function useSections() {
   };
 
   // Query keys
-  const sectionsKey = ['sections', getUserPrefix()]; // Include user in base key
+  const sectionsKey = ['sections', getUserPrefix()];
   const sectionKey = (id: string) => [...sectionsKey, id];
   const completeDataKey = (id: string) => [...sectionKey(id), 'complete'];
   const allCompleteDataKey = [...sectionsKey, 'allComplete'];
   const websiteSectionsKey = (websiteId: string) => [...sectionsKey, 'website', websiteId];
   const websiteSectionsCompleteKey = (websiteId: string) => [...websiteSectionsKey(websiteId), 'complete'];
 
+  // 🎯 UPDATED: Helper function to get section name by current language using utility
+  const getSectionNameByLanguage = (section: Section): string => {
+    if (section.displayName) {
+      return section.displayName; // Use server-provided display name
+    }
+    
+    return getMultilingualName(section, language as SupportedLanguage);
+  };
+
+  // 🎯 UPDATED: Helper function to get section description by current language using utility
+  const getSectionDescriptionByLanguage = (section: Section): string => {
+    if (section.displayDescription) {
+      return section.displayDescription; // Use server-provided display description
+    }
+    
+    return getMultilingualDescription(section, language as SupportedLanguage);
+  };
+
   // Get all sections (optionally with section items count)
   const useGetAll = (includeItemsCount = false, activeOnly = true) => {
     return useQuery({
-      queryKey: [...sectionsKey, { includeItemsCount, activeOnly }],
-      queryFn: async () => {
+      queryKey: [...sectionsKey, { includeItemsCount, activeOnly, language }],
+      queryFn: async (): Promise<SectionResponse> => {
         try {
-          const { data } = await apiClient.get(endpoint, {
-            params: { includeItemsCount, activeOnly }
-          });
+          const params: SectionQueryParams = { 
+            includeItemsCount, 
+            activeOnly,
+            language: language as SupportedLanguage
+          };
+          
+          const { data } = await apiClient.get(endpoint, { params });
           return data;
         } catch (error: any) {
           console.error("Error fetching sections:", error);
@@ -45,12 +82,15 @@ export function useSections() {
   // Get a single section by ID (optionally with section items)
   const useGetById = (id: string, includeItems = false) => {
     return useQuery({
-      queryKey: [...sectionKey(id), { includeItems }],
-      queryFn: async () => {
+      queryKey: [...sectionKey(id), { includeItems, language }],
+      queryFn: async (): Promise<SectionResponse> => {
         try {
-          const { data } = await apiClient.get(`${endpoint}/${id}`, {
-            params: { includeItems }
-          });
+          const params: SectionQueryParams = { 
+            includeItems,
+            language: language as SupportedLanguage
+          };
+          
+          const { data } = await apiClient.get(`${endpoint}/${id}`, { params });
           return data;
         } catch (error: any) {
           console.error(`Error fetching section ${id}:`, error);
@@ -62,24 +102,24 @@ export function useSections() {
   };
 
   /**
-   * Get all sections for a specific website
-   * @param websiteId Website ID
-   * @param includeInactive Whether to include inactive sections
+   * 🎯 UPDATED: Get all sections for a specific website with language support
    */
   const useGetByWebsiteId = (
     websiteId: string,
     includeInactive = false,
     enabled = true
   ) => {
-    // Include both websiteId and user in the query key
     return useQuery({
-      queryKey: [...websiteSectionsKey(websiteId), { includeInactive }],
-      queryFn: async () => {
+      queryKey: [...websiteSectionsKey(websiteId), { includeInactive, language }],
+      queryFn: async (): Promise<SectionResponse> => {
         try {
-          const params = new URLSearchParams();
-          params.append('includeInactive', String(includeInactive));
+          const params: SectionQueryParams = {
+            includeInactive,
+            language: language as SupportedLanguage,
+            websiteId
+          };
           
-          const { data } = await apiClient.get(`${endpoint}/website/${websiteId}?${params.toString()}`);
+          const { data } = await apiClient.get(`${endpoint}/website/${websiteId}`, { params });
           return data;
         } catch (error: any) {
           console.error(`Error fetching sections for website ${websiteId}:`, error);
@@ -87,57 +127,27 @@ export function useSections() {
         }
       },
       enabled: !!websiteId && enabled,
-      // Force refetching when user changes
       staleTime: 0, 
     });
   };
 
-
-  //   websiteId: string,
-  //   includeInactive = false,
-  //   languageId?: string,
-  //   enabled = true
-  // ) => {
-  //   return useQuery({
-  //     queryKey: [...websiteSectionsCompleteKey(websiteId), { includeInactive, languageId }],
-  //     queryFn: async () => {
-  //       try {
-  //         const params = new URLSearchParams();
-  //         params.append('includeInactive', String(includeInactive));
-  //         if (languageId) {
-  //           params.append('languageId', languageId);
-  //         }
-          
-  //         const { data } = await apiClient.get(`${endpoint}/website/${websiteId}/complete?${params.toString()}`);
-  //         return data;
-  //       } catch (error: any) {
-  //         console.error(`Error fetching complete section data for website ${websiteId}:`, error);
-  //         throw error;
-  //       }
-  //     },
-  //     enabled: !!websiteId && enabled,
-  //     // Force refetching when user changes
-  //     staleTime: 0,
-  //   });
-  // };
-
-  // Create a new section
+  // 🎯 UPDATED: Create a new section with multilingual support
   const useCreate = () => {
     return useMutation({
-      mutationFn: async (createDto: Omit<Section, '_id'>) => {
+      mutationFn: async (createDto: CreateSectionRequest): Promise<Section> => {
         try {
+          // Validation is handled by the utility functions and backend
           const { data } = await apiClient.post(endpoint, createDto);
           return data;
         } catch (error: any) {
-          // Enhance error handling for duplicate entries
+          // Enhanced error handling for duplicate entries
           if (error.message?.includes('duplicate') || 
               error.message?.includes('E11000') || 
               error.message?.includes('already exists')) {
-            const enhancedError = new Error(`A section with the name "${createDto.name}" already exists.`);
+            const enhancedError = new Error(`A section with one of these names already exists.`);
             throw enhancedError;
           }
           
-          // Forward the original error
           throw error;
         }
       },
@@ -160,23 +170,23 @@ export function useSections() {
     });
   };
 
-  // Update a section
+  // 🎯 UPDATED: Update a section with multilingual support
   const useUpdate = () => {
     return useMutation({
-      mutationFn: async ({ id, data }: { id: string; data: Partial<Section> }) => {
+      mutationFn: async ({ id, data }: { id: string; data: UpdateSectionRequest }): Promise<Section> => {
         try {
+          // Validation is handled by the utility functions and backend
           const { data: responseData } = await apiClient.put(`${endpoint}/${id}`, data);
           return responseData;
         } catch (error: any) {
-          // Enhance error handling for duplicate entries
+          // Enhanced error handling for duplicate entries
           if (error.message?.includes('duplicate') || 
               error.message?.includes('E11000') || 
               error.message?.includes('already exists')) {
-            const enhancedError = new Error(`A section with the name "${data.name}" already exists.`);
+            const enhancedError = new Error(`A section with one of these names already exists.`);
             throw enhancedError;
           }
           
-          // Forward the original error
           throw error;
         }
       },
@@ -184,10 +194,9 @@ export function useSections() {
         // Update cached data and invalidate queries
         queryClient.setQueryData(sectionKey(id), data);
         queryClient.invalidateQueries({ queryKey: sectionsKey });
-        // Also invalidate complete data queries that include this section
         queryClient.invalidateQueries({ queryKey: completeDataKey(id) });
         queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
-        // Also invalidate website-specific queries if the section has a WebSiteId
+        
         if (data.WebSiteId) {
           queryClient.invalidateQueries({ 
             queryKey: websiteSectionsKey(data.WebSiteId.toString()) 
@@ -200,10 +209,10 @@ export function useSections() {
     });
   };
 
-  // Toggle active status
+  // Toggle active status (unchanged)
   const useToggleActive = () => {
     return useMutation({
-      mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }): Promise<Section> => {
         try {
           const { data: responseData } = await apiClient.patch(`${endpoint}/${id}/status`, { isActive });
           return responseData;
@@ -213,13 +222,11 @@ export function useSections() {
         }
       },
       onSuccess: (data, { id }) => {
-        // Update cached data and invalidate queries
         queryClient.setQueryData(sectionKey(id), data);
         queryClient.invalidateQueries({ queryKey: sectionsKey });
-        // Also invalidate complete data queries that include this section
         queryClient.invalidateQueries({ queryKey: completeDataKey(id) });
         queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
-        // Also invalidate website-specific queries if the section has a WebSiteId
+        
         if (data.WebSiteId) {
           queryClient.invalidateQueries({ 
             queryKey: websiteSectionsKey(data.WebSiteId.toString()) 
@@ -232,21 +239,18 @@ export function useSections() {
     });
   };
 
-  // Delete a section
+  // Delete a section (unchanged)
   const useDelete = (hardDelete: boolean = false) => {
     return useMutation({
-      mutationFn: async (id: string) => {
+      mutationFn: async (id: string): Promise<{ websiteId?: string }> => {
         try {
-          // First, get the section to know its WebSiteId
           const { data: section } = await apiClient.get(`${endpoint}/${id}`);
           const websiteId = section?.data?.WebSiteId;
           
-          // Then delete the section
           await apiClient.delete(`${endpoint}/${id}`, {
             params: { hardDelete }
           });
           
-          // Return the websiteId for use in onSuccess
           return { websiteId };
         } catch (error) {
           console.error(`Error deleting section ${id}:`, error);
@@ -254,13 +258,11 @@ export function useSections() {
         }
       },
       onSuccess: ({ websiteId }, id) => {
-        // Remove and invalidate all related queries
         queryClient.removeQueries({ queryKey: sectionKey(id) });
         queryClient.removeQueries({ queryKey: completeDataKey(id) });
         queryClient.invalidateQueries({ queryKey: sectionsKey });
         queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
         
-        // Also invalidate website-specific queries if we have the WebSiteId
         if (websiteId) {
           queryClient.invalidateQueries({ 
             queryKey: websiteSectionsKey(websiteId.toString()) 
@@ -273,93 +275,134 @@ export function useSections() {
     });
   };
 
-    // const useUpdateOrder = () => {
-    // const queryClient = useQueryClient();
-    // const { user } = useAuth();
-
-    // const getUserPrefix = () => {
-    //   const userId = user?.id || 'anonymous';
-    //   return userId ? `user-${userId}` : 'anonymous';
-    // };
-
-    // const sectionsKey = ['sections', getUserPrefix()];
-    // const sectionKey = (id: string) => [...sectionsKey, id];
-    // const websiteSectionsKey = (websiteId: string) => [...sectionsKey, 'website', websiteId];
-    // const websiteSectionsCompleteKey = (websiteId: string) => [...websiteSectionsKey(websiteId), 'complete'];
-
-    // return useMutation({
-    //   mutationFn: async (sections: { id: string; order: number; websiteId: string }[]) => {
-    //     try {
-    //       const response = await apiClient.patch(`/sections/order`, sections);
-    //       // Ensure response.data is an array
-    //       if (!Array.isArray(response.data)) {
-    //         throw new Error('Expected an array of sections in the response');
-    //       }
-    //       return response.data; // Return the array of updated sections
-    //     } catch (error: any) {
-    //       console.error('Error updating section orders:', error);
-    //       if (error.message?.includes('Max retries reached')) {
-    //         throw new Error('Unable to update section order due to high system load. Please try again later.');
-    //       }
-    //       if (error.message?.includes('Order value')) {
-    //         throw new Error(error.message);
-    //       }
-    //       if (error.message?.includes('Section not found')) {
-    //         throw new Error('One or more sections not found or do not belong to the specified website');
-    //       }
-    //       throw new Error('Failed to update section orders');
-    //     }
-    //   },
-    //   onSuccess: (data: Section[]) => {
-    //     // Ensure data is an array before iterating
-    //     if (Array.isArray(data)) {
-    //       data.forEach((section: Section) => {
-    //         if (section._id) {
-    //           queryClient.setQueryData(sectionKey(section._id), section);
-    //         }
-    //       });
-    //       // Invalidate queries
-    //       queryClient.invalidateQueries({ queryKey: sectionsKey });
-    //       queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
-    //       const websiteIds = [...new Set(data.map((section: Section) => section.WebSiteId.toString()))];
-    //       websiteIds.forEach((websiteId) => {
-    //         queryClient.invalidateQueries({ queryKey: websiteSectionsKey(websiteId) });
-    //         queryClient.invalidateQueries({ queryKey: websiteSectionsCompleteKey(websiteId) });
-    //       });
-    //     } else {
-    //       console.error('onSuccess: Expected data to be an array, received:', data);
-    //     }
-    //   },
-    //   onError: (error: any) => {
-    //     console.error('Mutation error:', error);
-    //     toast({
-    //       title: 'Error updating order',
-    //       description: error.message || 'An error occurred while updating section order.',
-    //       variant: 'destructive',
-    //     });
-    //   },
-    // });
-    // };
+  // 🎯 NEW: Update section order with proper typing
+  const useUpdateOrder = () => {
+    return useMutation({
+      mutationFn: async (orderData: SectionOrderUpdateRequest): Promise<Section[]> => {
+        try {
+          const { data } = await apiClient.patch(`${endpoint}/order`, orderData);
+          return data;
+        } catch (error: any) {
+          console.error('Error updating section order:', error);
+          throw error;
+        }
+      },
+      onSuccess: (updatedSections) => {
+        // Invalidate all section queries to ensure fresh data
+        queryClient.invalidateQueries({ queryKey: sectionsKey });
+        queryClient.invalidateQueries({ queryKey: allCompleteDataKey });
+        
+        // Update individual section cache and invalidate website-specific queries
+        updatedSections.forEach(section => {
+          if (section._id) {
+            queryClient.setQueryData(sectionKey(section._id), section);
+          }
+          if (section.WebSiteId) {
+            queryClient.invalidateQueries({ 
+              queryKey: websiteSectionsKey(section.WebSiteId.toString()) 
+            });
+            queryClient.invalidateQueries({ 
+              queryKey: websiteSectionsCompleteKey(section.WebSiteId.toString()) 
+            });
+          }
+        });
+      },
+    });
+  };
 
   // Add a manual function to clear all section-related cache for a user
   const clearUserSectionsCache = () => {
-    // This can be called when a user logs out or switches
     queryClient.invalidateQueries({ queryKey: sectionsKey });
   };
 
-  // Return all hooks, including the new website-specific ones and the cache clearing function
+  // Return all hooks, including helper functions
   return {
     useGetAll,
     useGetById,
-    // useGetWithCompleteData,        
-    // useGetAllWithCompleteData,
     useGetByWebsiteId,             
-    // useGetCompleteByWebsiteId,      
     useCreate,
     useUpdate,
     useToggleActive,
     useDelete,
-    // useUpdateOrder,
-    clearUserSectionsCache  // New helper to explicitly clear cache between users
+    useUpdateOrder,
+    clearUserSectionsCache,
+    
+    // Helper functions
+    getSectionNameByLanguage,
+    getSectionDescriptionByLanguage,
+  };
+}
+
+// 🎯 NEW: Hook for section items (similar pattern)
+export function useSectionItems() {
+  const queryClient = useQueryClient();
+  const endpoint = '/section-items';
+  const { user } = useAuth();
+  const { language } = useLanguage();
+  
+  const getUserPrefix = () => {
+    const userId = user?.id || user?.id;
+    return userId ? `user-${userId}` : 'anonymous';
+  };
+
+  const sectionItemsKey = ['sectionItems', getUserPrefix()];
+  const sectionItemKey = (id: string) => [...sectionItemsKey, id];
+
+  // Helper functions for section items
+  const getSectionItemNameByLanguage = (item: SectionItem): string => {
+    if (item.displayName) {
+      return item.displayName;
+    }
+    return getMultilingualName(item, language as SupportedLanguage);
+  };
+
+  const getSectionItemDescriptionByLanguage = (item: SectionItem): string => {
+    if (item.displayDescription) {
+      return item.displayDescription;
+    }
+    return getMultilingualDescription(item, language as SupportedLanguage);
+  };
+
+  return {
+    getSectionItemNameByLanguage,
+    getSectionItemDescriptionByLanguage,
+    // Add more section item operations as needed
+  };
+}
+
+// 🎯 NEW: Hook for subsections (similar pattern)
+export function useSubSections() {
+  const queryClient = useQueryClient();
+  const endpoint = '/subsections';
+  const { user } = useAuth();
+  const { language } = useLanguage();
+  
+  const getUserPrefix = () => {
+    const userId = user?.id || user?.id;
+    return userId ? `user-${userId}` : 'anonymous';
+  };
+
+  const subSectionsKey = ['subSections', getUserPrefix()];
+  const subSectionKey = (id: string) => [...subSectionsKey, id];
+
+  // Helper functions for subsections
+  const getSubSectionNameByLanguage = (subsection: SubSection): string => {
+    if (subsection.displayName) {
+      return subsection.displayName;
+    }
+    return getMultilingualName(subsection, language as SupportedLanguage);
+  };
+
+  const getSubSectionDescriptionByLanguage = (subsection: SubSection): string => {
+    if (subsection.displayDescription) {
+      return subsection.displayDescription;
+    }
+    return getMultilingualDescription(subsection, language as SupportedLanguage);
+  };
+
+  return {
+    getSubSectionNameByLanguage,
+    getSubSectionDescriptionByLanguage,
+    // Add more subsection operations as needed
   };
 }
