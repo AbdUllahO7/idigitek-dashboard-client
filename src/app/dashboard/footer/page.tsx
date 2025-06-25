@@ -133,7 +133,6 @@ export default function FooterPage() {
     editPath: Footer_CONFIG.editPath
   })
 
-  console.log("footerSection", footerSection)
 
   // Debug changes in hasMainSubSection
   useEffect(() => {
@@ -145,13 +144,7 @@ export default function FooterPage() {
 
   // Determine if main subsection exists when data loads & set section data if needed
   useEffect(() => {
-    console.log("🔄 Footer useEffect running:", {
-      isLoadingCompleteSubsections,
-      isLoadingSectionSubsections,
-      sectionId,
-      hasMainSubSection,
-      footerSection
-    });
+
     
     // First check if we are still loading
     if (isLoadingCompleteSubsections || (sectionId && isLoadingSectionSubsections)) {
@@ -166,24 +159,16 @@ export default function FooterPage() {
     // Get expected name from configuration (now translated)
     const expectedName = footerSectionConfig.subSectionName;
     
-    console.log("🔍 Footer Debug - Expected name:", expectedName);
-    console.log("🔍 Footer Debug - sectionSubsections?.data:", sectionSubsections?.data);
-    console.log("🔍 Footer Debug - mainSubSectionData?.data:", mainSubSectionData?.data);
+
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
       const sectionData = sectionSubsections.data;
-      console.log("🔍 Checking section-specific subsections:", sectionData);
       
       if (Array.isArray(sectionData)) {
         // Find the main subsection in the array with correct name
-        console.log("🔍 Array of subsections, looking for main with name:", expectedName);
         sectionData.forEach((sub, index) => {
-          console.log(`🔍 Subsection ${index}:`, {
-            name: sub.name,
-            isMain: sub.isMain,
-            matches: sub.isMain === true && sub.name === expectedName
-          });
+         
         });
         
         mainSubSection = sectionData.find(sub => {
@@ -194,7 +179,6 @@ export default function FooterPage() {
           // Also try matching if it contains "Footer" and "Basic" for backward compatibility
           if (sub.isMain === true && sub.name && 
               (sub.name.toLowerCase().includes('footer') && sub.name.toLowerCase().includes('basic'))) {
-            console.log("🔍 Found footer subsection with flexible matching:", sub.name);
             return true;
           }
           return false;
@@ -202,32 +186,21 @@ export default function FooterPage() {
         foundMainSubSection = !!mainSubSection;
       } else {
         // Single object response
-        console.log("🔍 Single subsection object:", {
-          name: sectionData.name,
-          isMain: sectionData.isMain,
-          matches: sectionData.isMain === true && sectionData.name === expectedName
-        });
+
         foundMainSubSection = sectionData.isMain === true && sectionData.name === expectedName;
         mainSubSection = foundMainSubSection ? sectionData : null;
       }
     }
     
-    console.log("🔍 After section-specific check:", { foundMainSubSection, mainSubSection });
     
     // If we didn't find anything in the section-specific data, check the website-wide data
     if (!foundMainSubSection && mainSubSectionData?.data) {
       const websiteData = mainSubSectionData.data;
-      console.log("🔍 Checking website-wide subsections:", websiteData);
       
       if (Array.isArray(websiteData)) {
         // Find the main subsection in the array with correct name
-        console.log("🔍 Website data - Array of subsections, looking for main with name:", expectedName);
         websiteData.forEach((sub, index) => {
-          console.log(`🔍 Website Subsection ${index}:`, {
-            name: sub.name,
-            isMain: sub.isMain,
-            matches: sub.isMain === true && sub.name === expectedName
-          });
+         
         });
         
         mainSubSection = websiteData.find(sub => {
@@ -238,7 +211,6 @@ export default function FooterPage() {
           // Also try matching if it contains "Footer" and "Basic" for backward compatibility
           if (sub.isMain === true && sub.name && 
               (sub.name.toLowerCase().includes('footer') && sub.name.toLowerCase().includes('basic'))) {
-            console.log("🔍 Found footer subsection with flexible matching:", sub.name);
             return true;
           }
           return false;
@@ -246,22 +218,13 @@ export default function FooterPage() {
         foundMainSubSection = !!mainSubSection;
       } else {
         // Single object response
-        console.log("🔍 Website data - Single subsection object:", {
-          name: websiteData.name,
-          isMain: websiteData.isMain,
-          matches: websiteData.isMain === true && websiteData.name === expectedName
-        });
+       
         foundMainSubSection = websiteData.isMain === true && websiteData.name === expectedName;
         mainSubSection = foundMainSubSection ? websiteData : null;
       }
     }
     
-    console.log("🔍 Final result:", { 
-      foundMainSubSection, 
-      mainSubSection,
-      expectedName,
-      willSetHasMainSubSection: foundMainSubSection 
-    });
+   
     
     // Update state based on what we found
     setHasMainSubSection(foundMainSubSection);
@@ -295,7 +258,6 @@ export default function FooterPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
     
     // Check if subsection has the correct name (now using properly memoized translated name)
     const expectedName = footerSectionConfig.subSectionName;
@@ -304,12 +266,7 @@ export default function FooterPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectName);
     
-    // Log the name check
-    console.log("Main subsection name check:", {
-      actualName: subsection.name,
-      expectedName,
-      isCorrect: hasCorrectName
-    });
+
     
     // If we have section data from the subsection, update it
     if (subsection.section) {

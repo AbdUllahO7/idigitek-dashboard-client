@@ -383,7 +383,6 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
               validateCounts: validateFormHeroCounts,
             }
           );
-          console.log(t("heroesForm.formValuesAfterProcess"), form.getValues());
         } catch (error) {
           console.error(t("heroesForm.errorProcessingHeroData"), error);
           toast({
@@ -402,7 +401,6 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
       if (!slug || state.dataLoaded || isLoadingSubsection || !completeSubsectionData?.data) {
         return;
       }
-      console.log(t("heroesForm.refetchingData"), completeSubsectionData.data);
       processHeroesData(completeSubsectionData.data);
     }, [completeSubsectionData, isLoadingSubsection, state.dataLoaded, slug, processHeroesData, t]);
 
@@ -514,7 +512,6 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
 
       try {
         const allFormValues = form.getValues();
-        console.log(t("heroesForm.formValuesBeforeSave"), allFormValues);
         let sectionId = state.existingSubSectionId;
 
         if (!sectionId) {
@@ -707,14 +704,12 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
 
           const imageFile = heroImages[i];
           if (imageFile && elements.image) {
-            console.log(t("heroesForm.uploadingImageForHero"), i, imageFile);
             try {
               const formData = new FormData();
               formData.append("image", imageFile);
               const uploadResult = await apiClient.post(`/content-elements/${elements.image._id}/image`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
               });
-              console.log(t("heroesForm.uploadResult"), uploadResult.data);
 
               if (uploadResult.data?.imageUrl) {
                 Object.entries(allFormValues).forEach(([langCode]) => {
@@ -732,7 +727,6 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
               });
             }
           } else if (!imageFile && elements.image) {
-            console.log(t("heroesForm.noImageFileProvided", { heroIndex }));
           } else if (!elements.image) {
             console.error(t("heroesForm.imageElementNotFound", { heroIndex }));
             toast({
@@ -761,7 +755,6 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           });
         }
 
-        console.log(t("heroesForm.formValuesAfterSave"), form.getValues());
         toast({
           title: state.existingSubSectionId ? t("heroesForm.heroesUpdatedSuccessfully") : t("heroesForm.heroesCreatedSuccessfully"),
           description: t("heroesForm.allContentSaved"),
@@ -772,7 +765,6 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           updateState({ isLoadingData: true, dataLoaded: false });
           const result = await refetch();
           if (result.data?.data) {
-            console.log(t("heroesForm.refetchedData"), result.data.data);
             processHeroesData(result.data.data);
           } else {
             updateState({ isLoadingData: false });

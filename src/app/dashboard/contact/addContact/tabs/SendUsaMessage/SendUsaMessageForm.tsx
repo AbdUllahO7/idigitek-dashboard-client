@@ -327,7 +327,6 @@ const SendUsaMessageForm = forwardRef<any, ContactFormProps>((props, ref) => {
             });
           }
         } catch (refetchError) {
-          console.log("Refetch after deletion resulted in expected error (subsection deleted)");
           updateState({ 
             dataLoaded: true,
             isLoadingData: false 

@@ -210,7 +210,6 @@ export default function ClientComments() {
   ])
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 News navigation subsection created:', subsection);
     
     // 🔧 FIXED: Check if subsection has the correct name or type for NEWS
     const expectedSlug = NavigationConfig.name;
@@ -224,12 +223,7 @@ export default function ClientComments() {
     // Set that we have a navigation subsection now
     setHasNavigationSubSection(hasCorrectIdentifier);
     
-    console.log('📰 News navigation subsection check:', {
-      actualName: subsection.name,
-      expectedSlug,
-      expectedType,
-      hasCorrectIdentifier
-    });
+
     
     // Force refetch of all subsection data
     if (refetchMainSubSection) {
@@ -244,9 +238,7 @@ export default function ClientComments() {
   }, [processSubsectionData])
   useEffect(() => {    
  
-    
-    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data);
+ 
     
     // We're done loading, now check the data
     let foundMainSubSection = false;
@@ -256,12 +248,7 @@ export default function ClientComments() {
     // 🔧 FIXED: Use NEWS configurations instead of team configurations
     const expectedNewsSlug = clientCommentsSectionConfig.name; // This is correct for NEWS
     const expectedNavigationSlug = NavigationConfig.name; // This is correct for NEWS navigation
-    
-    console.log('🔍 Looking for News configurations:', {
-      expectedNewsSlug,
-      expectedNavigationSlug,
-      currentLanguage
-    });
+
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -285,12 +272,7 @@ export default function ClientComments() {
           return false;
         });
         foundNavigationSubSection = !!navigationSubSection;
-        
-        console.log('📋 Found in section data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+
       } else {
         // Single object response - check if it's news main or navigation
         if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
@@ -334,11 +316,7 @@ export default function ClientComments() {
           foundNavigationSubSection = !!navigationSubSection;
         }
         
-        console.log('📋 Found in website data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+  
       } else {
         // Single object response - check what type it is
         if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
@@ -356,15 +334,7 @@ export default function ClientComments() {
         }
       }
     }
-    
-    // Update state based on what we found
-    console.log('📰 News detection results:', {
-      foundMainSubSection,
-      foundNavigationSubSection,
-      mainSubSection: mainSubSection?.name,
-      expectedNewsSlug,
-      expectedNavigationSlug
-    });
+
     
     setHasNavigationSubSection(foundNavigationSubSection);
     
@@ -381,7 +351,6 @@ export default function ClientComments() {
         setSection(sectionInfo);
       }
       
-      console.log('✅ News section data set:', sectionInfo);
     }
     
   }, [

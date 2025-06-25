@@ -84,7 +84,6 @@ export default function ProtectedRoute({
   
   // If not authenticated, don't render children
   if (!isAuthenticated) {
-    console.log(`[ProtectedRoute ${ROUTE_ID}] Not showing content - not authenticated`);
     return null;
   }
   

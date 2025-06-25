@@ -383,28 +383,18 @@ export default function CreateMainSubSection({
   }, [languages])
   
   // 🔧 FIXED: More specific filtering for MAIN subsections only
-  useEffect(() => {
-    console.log(`[MAIN-${sectionConfig.name}] Checking subsections data:`, completeSubsectionsData?.data);
-    console.log(`[MAIN-${sectionConfig.name}] Looking for section config:`, sectionConfig.name, sectionConfig.type);
-    
+  useEffect(() => {    
     if (completeSubsectionsData?.data && completeSubsectionsData.data.length > 0 && !isProcessing) {
       // 🔧 FIXED: ONLY look for MAIN subsections that match this config
       const mainSubsection = completeSubsectionsData.data.find((sub: { isMain: boolean; name: string; type: string }) => {
-        console.log(`[MAIN-${sectionConfig.name}] Checking subsection:`, { 
-          name: sub.name, 
-          type: sub.type, 
-          isMain: sub.isMain,
-          matches: sub.isMain === true && (sub.name === sectionConfig.name || sub.type === sectionConfig.type)
-        });
+      
         
         // Must be main and have the correct name/type - be very specific
         return sub.isMain === true && (sub.name === sectionConfig.name || sub.type === sectionConfig.type);
       });
       
-      console.log(`[MAIN-${sectionConfig.name}] Found main subsection:`, mainSubsection);
       
       if (mainSubsection && JSON.stringify(mainSubsection) !== JSON.stringify(subsection)) {
-        console.log(`[MAIN-${sectionConfig.name}] Setting main subsection data`);
         setSubsection(mainSubsection)
         setSubsectionExists(true)
         if (mainSubsection.elements && mainSubsection.elements.length > 0) {
@@ -422,7 +412,6 @@ export default function CreateMainSubSection({
           onFormValidityChange(true)
         }
       } else if (!mainSubsection) {
-        console.log(`[MAIN-${sectionConfig.name}] No matching main subsection found, resetting state`);
         setSubsection(null)
         setSubsectionExists(false)
         setContentElements([])
@@ -433,7 +422,6 @@ export default function CreateMainSubSection({
         }
       }
     } else if (!completeSubsectionsData?.data || completeSubsectionsData.data.length === 0) {
-      console.log(`[MAIN-${sectionConfig.name}] No subsections data, resetting state`);
       setSubsection(null)
       setSubsectionExists(false)
       setContentElements([])
@@ -455,7 +443,6 @@ export default function CreateMainSubSection({
       Object.keys(languageForms).length > 0 &&
       !isProcessing
     ) {
-      console.log(`[MAIN-${sectionConfig.name}] Initializing forms with language:`, language)
       
       languages.forEach((lang: { languageID: string | number; _id: any }) => {
         const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
@@ -591,12 +578,10 @@ export default function CreateMainSubSection({
         }
       }
 
-      console.log(`[MAIN-${sectionConfig.name}] Creating subsection with data:`, subSectionData);
 
       const response = await createMutation.mutateAsync(subSectionData)
       if (response?.data) {
         const createdSubsection = response.data
-        console.log(`[MAIN-${sectionConfig.name}] Subsection created:`, createdSubsection);
         setSubsection(createdSubsection)
         setIsCreatingElements(true)
         
@@ -679,7 +664,6 @@ export default function CreateMainSubSection({
         mainSubsectionRefetchKey.current += 1
         setTimeout(async () => {
           try {
-            console.log(`[MAIN-${sectionConfig.name}] Refetching data after creation`);
             await refetchCompleteSubsections()
           } catch (refetchError) {
             console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.creation')}:`, refetchError)
@@ -811,7 +795,6 @@ export default function CreateMainSubSection({
       mainSubsectionRefetchKey.current += 1
       setTimeout(async () => {
         try {
-          console.log(`[MAIN-${sectionConfig.name}] Refetching data after update`);
           await refetchCompleteSubsections()
         } catch (refetchError) {
           console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.update')}:`, refetchError)

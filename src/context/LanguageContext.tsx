@@ -19,7 +19,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [language, setLanguage] = useState<'en' | 'ar' | 'tr'>('en');
   const [textDirection, setTextDirection] = useState<'ltr' | 'rtl'>('ltr');
   const [isLoaded, setIsLoaded] = useState(false);
-    console.log('language lang', language)
 
   // Helper function to get text direction based on language
   const getTextDirection = (lang: 'en' | 'ar' | 'tr'): 'ltr' | 'rtl' => {

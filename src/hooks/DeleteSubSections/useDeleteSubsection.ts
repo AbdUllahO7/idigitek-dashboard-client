@@ -137,8 +137,6 @@ export const useDeleteSubsection = (options: DeleteSubsectionOptions): DeleteSub
             // Keep the form in its reset state
           }
         } catch (refetchError) {
-          // If refetch fails (404 expected after deletion), that's normal
-          console.log("Refetch after deletion resulted in expected error (subsection deleted)");
         }
       }
 

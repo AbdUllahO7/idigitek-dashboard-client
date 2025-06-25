@@ -136,10 +136,7 @@ export default function IndustryPage() {
       setIsLoadingMainSubSection(true);
       return;
     }
-    
-    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data);
-    
+
     // We're done loading, now check the data
     let foundMainSubSection = false;
     let foundNavigationSubSection = false;
@@ -149,11 +146,7 @@ export default function IndustryPage() {
     const expectedNewsSlug = industrySectionConfig.name; // This is correct for NEWS
     const expectedNavigationSlug = NavigationConfig.name; // This is correct for NEWS navigation
     
-    console.log('🔍 Looking for News configurations:', {
-      expectedNewsSlug,
-      expectedNavigationSlug,
-      currentLanguage
-    });
+
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -177,12 +170,7 @@ export default function IndustryPage() {
           return false;
         });
         foundNavigationSubSection = !!navigationSubSection;
-        
-        console.log('📋 Found in section data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+
       } else {
         // Single object response - check if it's news main or navigation
         if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
@@ -225,12 +213,7 @@ export default function IndustryPage() {
           });
           foundNavigationSubSection = !!navigationSubSection;
         }
-        
-        console.log('📋 Found in website data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+
       } else {
         // Single object response - check what type it is
         if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
@@ -269,7 +252,6 @@ export default function IndustryPage() {
         setSection(sectionInfo);
       }
       
-      console.log('✅ News section data set:', sectionInfo);
     }
     
   }, [
@@ -287,7 +269,6 @@ export default function IndustryPage() {
 
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 News navigation subsection created:', subsection);
     
     // 🔧 FIXED: Check if subsection has the correct name or type for NEWS
     const expectedSlug = NavigationConfig.name;
@@ -301,12 +282,7 @@ export default function IndustryPage() {
     // Set that we have a navigation subsection now
     setHasNavigationSubSection(hasCorrectIdentifier);
     
-    console.log('📰 News navigation subsection check:', {
-      actualName: subsection.name,
-      expectedSlug,
-      expectedType,
-      hasCorrectIdentifier
-    });
+
     
     // Force refetch of all subsection data
     if (refetchMainSubSection) {
@@ -318,7 +294,7 @@ export default function IndustryPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log(t("industryPage.subsectionCreated"), subsection);
+    (t("industryPage.subsectionCreated"), subsection);
     
     // Check if subsection has the correct name - FIXED: Use .name instead of .subSectionName
     const expectedSlug = industrySectionConfig.name;
@@ -327,12 +303,7 @@ export default function IndustryPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
-    // Log the name check
-    console.log(t("industryPage.subsectionNameCheck"), {
-      actualSlug: subsection.name,
-      expectedSlug,
-      isCorrect: hasCorrectSlug
-    });
+
     
     // If we have section data from the subsection, update it
     if (subsection.section) {

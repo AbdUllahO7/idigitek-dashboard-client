@@ -518,7 +518,6 @@ const syncSocialLinksBeforeValidation = useCallback(() => {
       const isValid = await form.trigger();
       const hasEqualFooterCounts = validateFormFooterCounts();
       const allFormValues = form.getValues();
-      console.log(allFormValues)
       
       if (!hasEqualFooterCounts) {
         updateState({ isValidationDialogOpen: true });

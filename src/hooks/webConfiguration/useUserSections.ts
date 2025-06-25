@@ -151,7 +151,6 @@ export function useUserSections() {
     return useMutation({
       mutationFn: async (sectionData: any) => {
         try {
-                console.log('useCreateUserSection called' , sectionData);
           const { data } = await apiClient.post(`${sectionsEndpoint}`, sectionData);
           return data;
         } catch (error: any) {

@@ -102,7 +102,6 @@ const ContactInformationForm = forwardRef<any, ContactFormProps>((props, ref) =>
     refetch 
   } = useGetCompleteBySlug(slug || '', Boolean(slug));
 
-  console.log("completeSubsectionData", completeSubsectionData);
 
   // Process contact data from API
   const processContactData = useCallback((subsectionData: SubSection | null) => {
@@ -219,7 +218,6 @@ const ContactInformationForm = forwardRef<any, ContactFormProps>((props, ref) =>
             });
           }
         } catch (refetchError) {
-          console.log("Refetch after deletion resulted in expected error (subsection deleted)");
           updateState({ 
             dataLoaded: true,
             isLoadingData: false 
@@ -289,9 +287,7 @@ const ContactInformationForm = forwardRef<any, ContactFormProps>((props, ref) =>
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
     const isValid = await form.trigger();
-    console.log("Form Errors:", form.formState.errors);
     const allFormValues = form.getValues();
-    console.log("Form Values:", allFormValues);
 
     if (!isValid) {
       toast({

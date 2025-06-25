@@ -72,7 +72,6 @@ export const extractErrorMessage = (error: any): string => {
 // Helper to safely store tokens
 const storeTokens = (tokens: AuthTokens | undefined | null) => {
   if (!tokens) {
-    console.log(`[AuthAPI ${API_ID}] No tokens to store`);
     return false;
   }
   

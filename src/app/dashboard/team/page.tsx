@@ -136,8 +136,7 @@ export default function Team() {
       return;
     }
     
-    console.log('Team data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('Team data check - mainSubSectionData:', mainSubSectionData?.data);
+   
     
     // We're done loading, now check the data
     let foundMainSubSection = false;
@@ -230,14 +229,7 @@ export default function Team() {
       }
     }
     
-    // Update state based on what we found
-    console.log('Team detection results:', {
-      foundMainSubSection,
-      foundNavigationSubSection,
-      mainSubSection: mainSubSection?.name,
-      expectedTeamSlug,
-      expectedNavigationSlug
-    });
+
     
     setHasMainSubSection(foundMainSubSection);
     setHasNavigationSubSection(foundNavigationSubSection);
@@ -298,7 +290,6 @@ export default function Team() {
 
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('Navigation subsection created:', subsection);
     
     // Check if subsection has the correct name or type
     const expectedSlug = NavigationConfig.name;

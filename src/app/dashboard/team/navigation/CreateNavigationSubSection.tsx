@@ -401,27 +401,18 @@ export default function CreateNavigationSubSection({
   
   // 🔧 FIXED: More specific filtering for NAVIGATION subsections only
   useEffect(() => {
-    console.log(`[NAV-${sectionConfig.name}] Checking subsections data:`, completeSubsectionsData?.data);
-    console.log(`[NAV-${sectionConfig.name}] Looking for section config:`, sectionConfig.name, sectionConfig.type);
-    
+  
     if (completeSubsectionsData?.data && completeSubsectionsData.data.length > 0 && !isProcessing && !userIsEditing) {
       // 🔧 FIXED: ONLY look for NAVIGATION subsections (NOT main) that match this config
       const navigationSubsection = completeSubsectionsData.data.find((sub: { name: string; type: string; isMain: boolean }) => {
-        console.log(`[NAV-${sectionConfig.name}] Checking subsection:`, { 
-          name: sub.name, 
-          type: sub.type, 
-          isMain: sub.isMain,
-          isNavigation: sub.isMain !== true && (sub.type === sectionConfig.type || sub.name === sectionConfig.name)
-        });
+       
         
         // Must NOT be main and have the correct type/name for navigation
         return sub.isMain !== true && (sub.type === sectionConfig.type || sub.name === sectionConfig.name);
       });
       
-      console.log(`[NAV-${sectionConfig.name}] Found navigation subsection:`, navigationSubsection);
       
       if (navigationSubsection && JSON.stringify(navigationSubsection) !== JSON.stringify(subsection)) {
-        console.log(`[NAV-${sectionConfig.name}] Setting navigation subsection data`);
         setSubsection(navigationSubsection)
         setSubsectionExists(true)
         if (navigationSubsection.elements && navigationSubsection.elements.length > 0) {
@@ -439,7 +430,6 @@ export default function CreateNavigationSubSection({
           onFormValidityChange(true)
         }
       } else if (!navigationSubsection) {
-        console.log(`[NAV-${sectionConfig.name}] No matching navigation subsection found, resetting state`);
         setSubsection(null)
         setSubsectionExists(false)
         setContentElements([])
@@ -450,7 +440,6 @@ export default function CreateNavigationSubSection({
         }
       }
     } else if (!completeSubsectionsData?.data || completeSubsectionsData.data.length === 0) {
-      console.log(`[NAV-${sectionConfig.name}] No subsections data, resetting state`);
       setSubsection(null)
       setSubsectionExists(false)
       setContentElements([])
@@ -472,13 +461,7 @@ export default function CreateNavigationSubSection({
       !userIsEditing && // 🔧 FIXED: Don't reset while user is editing
       (!formsInitialized || (isEditMode && !formsInitialized)) // Only initialize once when entering edit mode
     ) {
-      console.log(`[NAV-${sectionConfig.name}] Initializing forms with language:`, language, {
-        contentElementsCount: contentElements.length,
-        translationsCount: Object.keys(contentTranslations).length,
-        formsInitialized,
-        isEditMode,
-        userIsEditing
-      })
+     
       
       languages.forEach((lang: { languageID: string | number; _id: any }) => {
         const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
@@ -504,7 +487,6 @@ export default function CreateNavigationSubSection({
         
         const currentValues = form.getValues()
         if (JSON.stringify(currentValues) !== JSON.stringify(fieldValues)) {
-          console.log(`[NAV-${sectionConfig.name}] Setting form values for ${lang.languageID}:`, fieldValues)
           form.reset(fieldValues)
         }
       })
@@ -615,12 +597,10 @@ export default function CreateNavigationSubSection({
         }
       }
 
-      console.log(`[NAV-${sectionConfig.name}] Creating subsection with data:`, subSectionData);
 
       const response = await createMutation.mutateAsync(subSectionData)
       if (response?.data) {
         const createdSubsection = response.data
-        console.log(`[NAV-${sectionConfig.name}] Subsection created:`, createdSubsection);
         setSubsection(createdSubsection)
         setIsCreatingElements(true)
         
@@ -695,7 +675,6 @@ export default function CreateNavigationSubSection({
         navigationRefetchKey.current += 1
         setTimeout(async () => {
           try {
-            console.log(`[NAV-${sectionConfig.name}] Refetching data after creation`);
             await refetchCompleteSubsections()
             // Also notify parent component immediately
             if (onSubSectionCreated) {
@@ -827,7 +806,6 @@ export default function CreateNavigationSubSection({
       navigationRefetchKey.current += 1
       setTimeout(async () => {
         try {
-          console.log(`[NAV-${sectionConfig.name}] Refetching data after update`);
           await refetchCompleteSubsections()
         } catch (refetchError) {
           console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.update')}:`, refetchError)
@@ -903,11 +881,6 @@ export default function CreateNavigationSubSection({
         title="{t('Navigation.NavigationConfiguration')} Available"
         description="Navigation has been configured and is ready to use."
         onEdit={() => {
-          console.log(`[NAV-${sectionConfig.name}] Switching to edit mode, current data:`, {
-            subsection: subsection?.name,
-            contentElements: contentElements.length,
-            contentTranslations: Object.keys(contentTranslations).length
-          });
           
           // 🔧 FIXED: Force form reinitialization when entering edit mode
           setFormsInitialized(false);
@@ -917,7 +890,6 @@ export default function CreateNavigationSubSection({
           
           // 🔧 FIXED: If we don't have content elements, refetch data
           if (contentElements.length === 0 || Object.keys(contentTranslations).length === 0) {
-            console.log(`[NAV-${sectionConfig.name}] Missing data, refetching...`);
             refetchCompleteSubsections();
           }
         }}

@@ -134,10 +134,6 @@ export default function HeroPage() {
 
   // Debug changes in hasMainSubSection
   useEffect(() => {
-    if (!isFirstRender.current && prevHasMainSubSection.current !== hasMainSubSection) {
-      console.log(`hasMainSubSection changed from ${prevHasMainSubSection.current} to ${hasMainSubSection}`)
-    }
-
     prevHasMainSubSection.current = hasMainSubSection
     if (isFirstRender.current) {
       isFirstRender.current = false
@@ -187,11 +183,7 @@ export default function HeroPage() {
         })
         foundNavigationSubSection = !!navigationSubSection
 
-        console.log('📋 Found in section data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        })
+     
       } else {
         // Single object response - check if it's news main or navigation
         if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
@@ -235,11 +227,7 @@ export default function HeroPage() {
           foundNavigationSubSection = !!navigationSubSection
         }
 
-        console.log('📋 Found in website data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        })
+    
       } else {
         // Single object response - check what type it is
         if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
@@ -276,7 +264,6 @@ export default function HeroPage() {
         setSection(sectionInfo)
       }
 
-      console.log('✅ News section data set:', sectionInfo)
     }
 
   }, [
@@ -319,7 +306,6 @@ export default function HeroPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection)
 
     // Check if subsection has the correct name
     const expectedName = heroSectionConfig.subSectionName
@@ -328,12 +314,6 @@ export default function HeroPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectName)
 
-    // Log the name check
-    console.log("Main subsection name check:", {
-      actualName: subsection.name,
-      expectedName,
-      isCorrect: hasCorrectName
-    })
 
     // If we have section data from the subsection, update it
     if (subsection.section) {

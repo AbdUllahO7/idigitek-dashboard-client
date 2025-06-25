@@ -114,7 +114,6 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
       if (!currentDynamicUrl) {
         const dynamicUrl = constructDynamicUrl(existingSubSectionId, ParentSectionId, websiteId);
         form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
-        console.log("AUTO-SETTING Dynamic URL:", dynamicUrl);
       }
     }
   }, [existingSubSectionId, ParentSectionId, websiteId, constructDynamicUrl, form]);
@@ -273,17 +272,14 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
       (el) => el.name === 'Dynamic URL' && el.type === 'text'
     );
 
-    console.log("LOADING DATA - Dynamic URL element found:", dynamicUrlElement);
-    console.log("LOADING DATA - Dynamic URL defaultContent:", dynamicUrlElement?.defaultContent);
+
 
     if (dynamicUrlElement?.defaultContent) {
       form.setValue("dynamicUrl", dynamicUrlElement.defaultContent);
-      console.log("LOADING DATA - Set dynamic URL from element:", dynamicUrlElement.defaultContent);
     } else if (subsectionData?._id && ParentSectionId && websiteId) {
       // Construct dynamic URL if not found in data
       const dynamicUrl = constructDynamicUrl(subsectionData._id, sectionIdFromUrl, websiteId);
       form.setValue("dynamicUrl", dynamicUrl);
-      console.log("LOADING DATA - Constructed dynamic URL:", dynamicUrl);
     }
   }, [form, languageIds, activeLanguages, ParentSectionId, websiteId, constructDynamicUrl]);
 
@@ -316,7 +312,6 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
       if (!currentDynamicUrl) {
         const dynamicUrl = constructDynamicUrl(existingSubSectionId, sectionIdFromUrl, websiteId);
         form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
-        console.log("FALLBACK - Setting Dynamic URL after data loaded:", dynamicUrl);
       }
     }
   }, [dataLoaded, existingSubSectionId, ParentSectionId, websiteId, constructDynamicUrl, form]);
@@ -377,7 +372,6 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
   // Save handler
   const handleSave = useCallback(async () => {
     const allFormValues = form.getValues();
-    console.log("allFormValues BEFORE processing", allFormValues);
 
     // Validate form
     const isValid = await form.trigger();
@@ -420,7 +414,6 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         // Update dynamic URL with the new subsection ID
         const dynamicUrl = constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
         form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
-        console.log("NEW SECTION - Dynamic URL set to:", dynamicUrl);
       } else {
         const updateData = {
           isActive: true,
@@ -438,13 +431,11 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         if (!currentDynamicUrl) {
           const dynamicUrl = constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
           form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
-          console.log("EXISTING SECTION - Dynamic URL set to:", dynamicUrl);
         }
       }
 
       // Get updated form values after dynamic URL has been set
       const updatedFormValues = form.getValues();
-      console.log("allFormValues AFTER dynamic URL update", updatedFormValues);
 
       if (!sectionId) {
         throw new Error("Failed to create or retrieve subsection ID");
@@ -478,7 +469,6 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         const dynamicUrlElement = contentElements.find((e) => e.name === "Dynamic URL" && e.type === "text");
         if (dynamicUrlElement) {
           const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
-          console.log("UPDATING existing Dynamic URL element with:", finalDynamicUrl);
           await apiClient.put(`/content-elements/${dynamicUrlElement._id}`, {
             defaultContent: finalDynamicUrl
           });
@@ -546,7 +536,6 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
             // Ensure dynamic URL is properly constructed
             const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
             defaultContent = finalDynamicUrl;
-            console.log("CREATING new Dynamic URL element with:", finalDynamicUrl);
           } else if (el.type === "text" && typeof updatedFormValues[defaultLangCode] === "object") {
             const langValues = updatedFormValues[defaultLangCode];
             defaultContent = langValues && typeof langValues === "object" && el.key in langValues
@@ -614,7 +603,6 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         });
 
         if (translations.length > 0) {
-          console.log("Translations to be sent:", translations);
           await bulkUpsertTranslations.mutateAsync(translations);
         } else {
           console.warn("No valid translations to save");

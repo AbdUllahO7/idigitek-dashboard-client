@@ -71,7 +71,6 @@ export default function AddIndustry() {
   const findSubsection = (baseSlug: string) => {
     if (!subsectionsData?.data) return undefined;
     
-    console.log(t("addIndustryPage.searchingSubsection"), baseSlug);
     
     // Normalize the baseSlug to lowercase and handle special cases
     const normalizedBaseSlug = baseSlug.toLowerCase();
@@ -95,7 +94,6 @@ export default function AddIndustry() {
     );
     
     if (subsection) {
-      console.log(t("addIndustryPage.subsectionFound"), subsection);
       return subsection;
     }
     
@@ -109,11 +107,9 @@ export default function AddIndustry() {
     });
     
     if (partialMatch) {
-      console.log(t("addIndustryPage.subsectionFound"), partialMatch);
       return partialMatch;
     }
     
-    console.log(t("addIndustryPage.subsectionNotFound"), expectedSlug);
     return undefined;
   };
   
@@ -158,12 +154,10 @@ export default function AddIndustry() {
    
   // Define save handler for the industry
   const handleSaveIndustry = async (formData: FormData) => {
-    console.log(t("addIndustryPage.savingIndustry"));
     
     // Extract industry info from hero data for title/description
     const heroData = formData.hero || {}
     
-    console.log(t("addIndustryPage.extractingIndustryInfo"), heroData);
     
     // Get English title and description values or fallback to the first language
     let industryName = t("addIndustryPage.defaultIndustryName")
@@ -186,10 +180,7 @@ export default function AddIndustry() {
       }
     }
     
-    console.log(t("addIndustryPage.creatingIndustryPayload"), {
-      name: industryName,
-      description: industryDescription
-    });
+ 
     
     // Create the industry payload
     const industryPayload = {
@@ -200,7 +191,6 @@ export default function AddIndustry() {
       section: sectionId
     }
     
-    console.log(t("addIndustryPage.industrySaved"));
     
     // Return data for saving
     return industryPayload

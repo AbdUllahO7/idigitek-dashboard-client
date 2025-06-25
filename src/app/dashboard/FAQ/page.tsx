@@ -132,10 +132,7 @@ export default function FaqPage() {
 
   // Debug changes in hasMainSubSection
   useEffect(() => {
-    if (!isFirstRender.current && prevHasMainSubSection.current !== hasMainSubSection) {
-      console.log(`hasMainSubSection changed from ${prevHasMainSubSection.current} to ${hasMainSubSection}`);
-    }
-    
+
     prevHasMainSubSection.current = hasMainSubSection;
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -149,8 +146,6 @@ export default function FaqPage() {
       return;
     }
     
-    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data);
     
     // We're done loading, now check the data
     let foundMainSubSection = false;
@@ -161,11 +156,7 @@ export default function FaqPage() {
     const expectedNewsSlug = faqSectionConfig.name; // This is correct for NEWS
     const expectedNavigationSlug = NavigationConfig.name; // This is correct for NEWS navigation
     
-    console.log('🔍 Looking for News configurations:', {
-      expectedNewsSlug,
-      expectedNavigationSlug,
-      currentLanguage
-    });
+
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -189,12 +180,7 @@ export default function FaqPage() {
           return false;
         });
         foundNavigationSubSection = !!navigationSubSection;
-        
-        console.log('📋 Found in section data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+
       } else {
         // Single object response - check if it's news main or navigation
         if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
@@ -238,11 +224,7 @@ export default function FaqPage() {
           foundNavigationSubSection = !!navigationSubSection;
         }
         
-        console.log('📋 Found in website data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+
       } else {
         // Single object response - check what type it is
         if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
@@ -281,7 +263,6 @@ export default function FaqPage() {
         setSection(sectionInfo);
       }
       
-      console.log('✅ News section data set:', sectionInfo);
     }
     
   }, [
@@ -298,9 +279,7 @@ export default function FaqPage() {
   ]);
 
   // Handle navigation subsection creation
-  const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 News navigation subsection created:', subsection);
-    
+  const handleNavigationSubSectionCreated = (subsection: any) => {    
     // 🔧 FIXED: Check if subsection has the correct name or type for NEWS
     const expectedSlug = NavigationConfig.name;
     const expectedType = NavigationConfig.type;
@@ -313,12 +292,7 @@ export default function FaqPage() {
     // Set that we have a navigation subsection now
     setHasNavigationSubSection(hasCorrectIdentifier);
     
-    console.log('📰 News navigation subsection check:', {
-      actualName: subsection.name,
-      expectedSlug,
-      expectedType,
-      hasCorrectIdentifier
-    });
+
     
     // Force refetch of all subsection data
     if (refetchMainSubSection) {
@@ -330,7 +304,6 @@ export default function FaqPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("Main subsection created:", subsection);
     
     // Check if subsection has the correct name
     const expectedName = faqSectionConfig.subSectionName;
@@ -339,12 +312,7 @@ export default function FaqPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectName);
     
-    // Log the name check
-    console.log("Main subsection name check:", {
-      actualName: subsection.name,
-      expectedName,
-      isCorrect: hasCorrectName
-    });
+
     
     // If we have section data from the subsection, update it
     if (subsection.section) {

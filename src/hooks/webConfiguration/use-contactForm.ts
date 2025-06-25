@@ -77,7 +77,6 @@ export function useContactForm() {
         return data;
       },
       onSuccess: (data) => {
-        console.log('Contact form submitted successfully:', data);
         
         // Invalidate contacts list to show new submission (if admin is viewing)
         queryClient.invalidateQueries({ queryKey: contactsKey });
@@ -153,7 +152,6 @@ export function useContactForm() {
         return data;
       },
       onSuccess: (data, variables) => {
-        console.log('Contact status updated successfully:', data);
         
         // Update the specific contact in cache
         queryClient.invalidateQueries({ queryKey: [...contactsKey, 'detail', variables.id] });
@@ -175,9 +173,7 @@ export function useContactForm() {
         const { data } = await apiClient.delete(`${endpoint}/${id}`);
         return data;
       },
-      onSuccess: (data, id) => {
-        console.log('Contact deleted successfully:', data);
-        
+      onSuccess: (data, id) => {        
         // Remove from cache
         queryClient.removeQueries({ queryKey: [...contactsKey, 'detail', id] });
         // Update the contacts list

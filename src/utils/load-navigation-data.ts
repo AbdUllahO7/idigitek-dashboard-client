@@ -138,8 +138,6 @@ export const processAndLoadNavigationData = (
     callbacks.setDataLoaded(true);
     callbacks.setHasUnsavedChanges(false);
     callbacks.validateCounts();
-
-    console.log("Navigation data processed successfully:", processedData);
     
   } catch (error) {
     console.error("Error processing navigation data:", error);

@@ -134,7 +134,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
   // Process initial data from parent
   const processInitialData = useCallback(() => {
     if (initialData && !dataLoaded) {
-      console.log(t("industryForm.processingInitialData"));
       
       if (initialData.description) {
         form.setValue(`${defaultLangCode}.description`, initialData.description);
@@ -153,7 +152,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
 
   // Process hero data from API
   const processIndustryData = useCallback((subsectionData: SubSection | null) => {
-    console.log(t("industryForm.processingIndustryData"));
     
     processAndLoadData(
       subsectionData,
@@ -251,7 +249,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
     if (!file) return null;
     
     try {
-      console.log(t("industryForm.uploadingImage"));
       const formData = new FormData();
       formData.append("image", file);
       
@@ -311,7 +308,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
           throw new Error(t("industryForm.parentSectionRequired"));
         }
         
-        console.log(t("industryForm.creatingSubsection"));
         const subsectionData = {
           name: t("industryForm.sectionName"),
           slug: slug || `${t("industryForm.heroSectionSlug")}-${Date.now()}`,
@@ -329,7 +325,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         sectionId = newSubSection.data._id;
         updateState({ existingSubSectionId: sectionId });
       } else {
-        console.log(t("industryForm.updatingSubsection"));
         const updateData = {
           isActive: true,
           isMain: false,
@@ -347,7 +342,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
       }
 
       // Step 2: Map language codes to IDs
-      console.log(t("industryForm.mappingLanguageCodes"));
       const langCodeToIdMap = activeLanguages.reduce<Record<string, string>>((acc: { [x: string]: any; }, lang: { languageID: string | number; _id: any; }) => {
         acc[lang.languageID] = lang._id;
         return acc;
@@ -355,7 +349,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
 
       // Step 3: Handle existing content or create new content
       if (contentElements.length > 0) {
-        console.log(t("industryForm.handlingExistingContent"));
         // Handle existing content elements
         if (imageFile) {
           const imageElement = contentElements.find((e) => e.type === "image");
@@ -392,11 +385,9 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         });
 
         if (translations.length > 0) {
-          console.log(t("industryForm.updatingTranslations"));
           await bulkUpsertTranslations.mutateAsync(translations);
         }
       } else {
-        console.log(t("industryForm.creatingNewContent"));
         // Create new content elements
         const elementTypes = [
           { type: "image", key: "backgroundImage", name: t("industryForm.backgroundImageName") },
@@ -416,7 +407,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
               : "";
           }
 
-          console.log(t("industryForm.creatingContentElement"), el.name);
           const elementData = {
             name: el.name,
             type: el.type,
@@ -461,7 +451,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         });
 
         if (translations.length > 0) {
-          console.log(t("industryForm.updatingTranslations"));
           await bulkUpsertTranslations.mutateAsync(translations);
         }
       }
@@ -499,7 +488,6 @@ const IndustryForm = forwardRef<any, IndustryFormProps>((props, ref) => {
         form.setValue("backgroundImage", updatedData.backgroundImage, { shouldDirty: false });
       }
 
-      console.log(t("industryForm.saveCompleted"));
       return true;
     } catch (error) {
       console.error(t("industryForm.operationFailed"), error);

@@ -133,8 +133,7 @@ export default function BlogPage() {
       return;
     }
     
-    console.log('📰 Blog section data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('📰 Blog section data check - mainSubSectionData:', mainSubSectionData?.data);
+
     
     // We're done loading, now check the data
     let foundMainSubSection = false;
@@ -145,11 +144,7 @@ export default function BlogPage() {
     const expectedBlogSlug = blogSectionConfig.name; // This is correct for Blog
     const expectedNavigationSlug = NavigationConfig.name; // This is correct for Blog navigation
     
-    console.log('🔍 Looking for Blog configurations:', {
-      expectedBlogSlug,
-      expectedNavigationSlug,
-      currentLanguage: i18n.language
-    });
+  
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -174,11 +169,7 @@ export default function BlogPage() {
         });
         foundNavigationSubSection = !!navigationSubsection;
         
-        console.log('📋 Found in section data:', {
-          mainSubsection: mainSubsection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+     
       } else {
         // Single object response - check if it's blog main or navigation
         if (sectionData.isMain === true && sectionData.name === expectedBlogSlug) {
@@ -222,11 +213,7 @@ export default function BlogPage() {
           foundNavigationSubSection = !!navigationSubsection;
         }
         
-        console.log('📋 Found in website data:', {
-          mainSubsection: mainSubsection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+   
       } else {
         // Single object response - check what type it is
         if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedBlogSlug) {
@@ -245,13 +232,7 @@ export default function BlogPage() {
       }
     }
     
-    console.log('📰 Blog detection results:', {
-      foundMainSubSection,
-      foundNavigationSubSection,
-      mainSubsection: mainSubsection?.name,
-      expectedBlogSlug,
-      expectedNavigationSlug
-    });
+
     
     setHasMainSubSection(foundMainSubSection);
     setHasNavigationSubSection(foundNavigationSubSection);
@@ -271,7 +252,6 @@ export default function BlogPage() {
         setSection(sectionInfo);
       }
       
-      console.log('✅ Blog section data set:', sectionInfo);
     }
     
   }, [
@@ -289,7 +269,6 @@ export default function BlogPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log('Main subsection created:', subsection);
     
     // Check if subsection has the correct name
     const expectedSlug = blogSectionConfig.name;
@@ -298,11 +277,7 @@ export default function BlogPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
-    console.log('Main subsection name check:', {
-      actualName: subsection.name,
-      expectedSlug,
-      isCorrect: hasCorrectSlug
-    });
+
     
     // If we have section data from the subsection, update it
     if (subsection.section) {
@@ -322,7 +297,6 @@ export default function BlogPage() {
 
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 Blog navigation subsection created:', subsection);
     
     // Check if subsection has the correct name or type for Blog
     const expectedSlug = NavigationConfig.name;
@@ -336,12 +310,7 @@ export default function BlogPage() {
     // Set that we have a navigation subsection now
     setHasNavigationSubSection(hasCorrectIdentifier);
     
-    console.log('📰 Blog navigation subsection check:', {
-      actualName: subsection.name,
-      expectedSlug,
-      expectedType,
-      hasCorrectIdentifier
-    });
+
     
     // Force refetch of all subsection data
     if (refetchMainSubSection) {

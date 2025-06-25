@@ -38,12 +38,6 @@ export const LanguageCard = memo(
     const currentFileUrl = form.watch(`${langCode}.uploadedFile`) || ""
     const hasFile = uploadedFile || currentFileUrl
 
-    // Debug logging
-    useEffect(() => {
-      console.log(`LanguageCard ${langCode} - currentFileUrl:`, currentFileUrl)
-      console.log(`LanguageCard ${langCode} - uploadedFile:`, uploadedFile)
-      console.log(`LanguageCard ${langCode} - hasFile:`, hasFile)
-    }, [currentFileUrl, uploadedFile, hasFile, langCode])
 
     const handleClose = () => {
       if (onClose && !isFirstLanguage) {

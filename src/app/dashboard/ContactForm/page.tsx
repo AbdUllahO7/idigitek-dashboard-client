@@ -97,7 +97,6 @@ export default function ContactFormsPage() {
   const updateStatusMutation = useUpdateContactFormStatus()
   const deleteContactMutation = useDeleteContactForm()
 
-  console.log("contactsData", contactsData)
   
   const { toast } = useToast()
   const { t, ready } = useTranslation()

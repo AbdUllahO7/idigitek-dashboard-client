@@ -116,7 +116,6 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
       if (!currentDynamicUrl) {
         const dynamicUrl = constructDynamicUrl(existingSubSectionId)
         form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false })
-        console.log("AUTO-SETTING Dynamic URL:", dynamicUrl)
       }
     }
   }, [existingSubSectionId, websiteId, constructDynamicUrl, form])
@@ -152,7 +151,6 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     refetch,
   } = useGetCompleteBySlug(slug || "", Boolean(slug))
 
-  console.log("completeSubsectionData", completeSubsectionData)
 
   // Update reference when onDataChange changes
   useEffect(() => {
@@ -279,29 +277,19 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
         (el) => el.name === "Dynamic URL" && el.type === "text"
       )
 
-      console.log("LOADING DATA - Dynamic URL element found:", dynamicUrlElement)
-      console.log("LOADING DATA - Dynamic URL defaultContent:", dynamicUrlElement?.defaultContent)
-
+     
       if (dynamicUrlElement?.defaultContent) {
         form.setValue("dynamicUrl", dynamicUrlElement.defaultContent)
-        console.log("LOADING DATA - Set dynamic URL from element:", dynamicUrlElement.defaultContent)
       } else if (subsectionData?._id && websiteId) {
         // Construct dynamic URL if not found in data
         const dynamicUrl = constructDynamicUrl(subsectionData._id)
         form.setValue("dynamicUrl", dynamicUrl)
-        console.log("LOADING DATA - Constructed dynamic URL:", dynamicUrl)
       }
 
       // Handle file elements for each language separately
      if (subsectionData?.elements || subsectionData?.contentElements) {
   const allElements = subsectionData.elements || subsectionData.contentElements || []
   
-  console.log("All elements found:", allElements.map(el => ({ 
-    name: el.name, 
-    type: el.type, 
-    fileUrl: el.fileUrl,
-    defaultContent: el.defaultContent 
-  })))
   
   // Find and process file elements for each language
   activeLanguages.forEach(language => {
@@ -319,7 +307,6 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
                      (fileElement.translations && fileElement.translations[0]?.content)
       
       if (fileUrl && fileUrl !== "file-placeholder") {
-        console.log(`Setting ${langCode}.uploadedFile to:`, fileUrl)
         form.setValue(`${langCode}.uploadedFile`, fileUrl, { shouldDirty: false })
       }
     }
@@ -359,7 +346,6 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
       if (!currentDynamicUrl) {
         const dynamicUrl = constructDynamicUrl(existingSubSectionId)
         form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false })
-        console.log("FALLBACK - Setting Dynamic URL after data loaded:", dynamicUrl)
       }
     }
   }, [dataLoaded, existingSubSectionId, websiteId, constructDynamicUrl, form])
@@ -385,7 +371,6 @@ useEffect(() => {
       const langCode = language.languageID
       const fileValue = value[langCode]?.uploadedFile
       if (fileValue) {
-        console.log(`FORM WATCH: ${langCode}.uploadedFile =`, fileValue)
       }
     })
   })
@@ -495,7 +480,6 @@ useEffect(() => {
   // Save handler with optimized process
   const handleSave = useCallback(async () => {
     const allFormValues = form.getValues()
-    console.log("allFormValues BEFORE processing", allFormValues)
 
     // Validate form
     const isValid = await form.trigger()
@@ -540,7 +524,6 @@ useEffect(() => {
         // Update dynamic URL with the new subsection ID
         const dynamicUrl = constructDynamicUrl(sectionId)
         form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false })
-        console.log("NEW SECTION - Dynamic URL set to:", dynamicUrl)
       } else {
         const updateData = {
           isActive: true,
@@ -558,13 +541,11 @@ useEffect(() => {
         if (!currentDynamicUrl) {
           const dynamicUrl = constructDynamicUrl(sectionId)
           form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false })
-          console.log("EXISTING SECTION - Dynamic URL set to:", dynamicUrl)
         }
       }
 
       // Get updated form values after dynamic URL has been set
       const updatedFormValues = form.getValues()
-      console.log("allFormValues AFTER dynamic URL update", updatedFormValues)
 
       if (!sectionId) {
         throw new Error(t("projectBasicForm.failedToCreateSection", "Failed to create or retrieve subsection ID"))
@@ -598,7 +579,6 @@ useEffect(() => {
         const dynamicUrlElement = contentElements.find((e) => e.name === "Dynamic URL" && e.type === "text")
         if (dynamicUrlElement) {
           const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId)
-          console.log("UPDATING existing Dynamic URL element with:", finalDynamicUrl)
           await apiClient.put(`/content-elements/${dynamicUrlElement._id}`, {
             defaultContent: finalDynamicUrl
           })
@@ -702,7 +682,6 @@ useEffect(() => {
             // Ensure dynamic URL is properly constructed
             const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId)
             defaultContent = finalDynamicUrl
-            console.log("CREATING new Dynamic URL element with:", finalDynamicUrl)
           } else if (el.type === "text" && typeof updatedFormValues[defaultLangCode] === "object") {
             const langValues = updatedFormValues[defaultLangCode]
             defaultContent =
@@ -798,7 +777,6 @@ useEffect(() => {
 
       // Update form state with saved data
       if (slug) {
-        console.log("Refetching data after successful save...")
         const result = await refetch()
         if (result.data?.data) {
           updateState({ dataLoaded: false })

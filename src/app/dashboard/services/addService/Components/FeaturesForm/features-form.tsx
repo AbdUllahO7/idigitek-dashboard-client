@@ -308,7 +308,6 @@ const FeaturesForm = forwardRef<any, FeaturesFormProps>(
               setIsLoadingData(false);
             }
           } catch (refetchError) {
-            console.log("Refetch after deletion resulted in expected error (subsection deleted)");
             setDataLoaded(true);
             setIsLoadingData(false);
           }

@@ -137,9 +137,7 @@ export default function NewsPage() {
       setIsLoadingMainSubSection(true);
       return;
     }
-    
-    console.log('📰 News data check - sectionSubsections:', sectionSubsections?.data);
-    console.log('📰 News data check - mainSubSectionData:', mainSubSectionData?.data);
+
     
     // We're done loading, now check the data
     let foundMainSubSection = false;
@@ -149,12 +147,7 @@ export default function NewsPage() {
     // 🔧 FIXED: Use NEWS configurations instead of team configurations
     const expectedNewsSlug = newsSectionConfig.name; // This is correct for NEWS
     const expectedNavigationSlug = NavigationConfig.name; // This is correct for NEWS navigation
-    
-    console.log('🔍 Looking for News configurations:', {
-      expectedNewsSlug,
-      expectedNavigationSlug,
-      currentLanguage
-    });
+
     
     // If we have a sectionId, prioritize checking the section-specific subsections
     if (sectionId && sectionSubsections?.data) {
@@ -178,12 +171,7 @@ export default function NewsPage() {
           return false;
         });
         foundNavigationSubSection = !!navigationSubSection;
-        
-        console.log('📋 Found in section data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+
       } else {
         // Single object response - check if it's news main or navigation
         if (sectionData.isMain === true && sectionData.name === expectedNewsSlug) {
@@ -226,12 +214,7 @@ export default function NewsPage() {
           });
           foundNavigationSubSection = !!navigationSubSection;
         }
-        
-        console.log('📋 Found in website data:', {
-          mainSubSection: mainSubSection?.name,
-          foundMainSubSection,
-          foundNavigationSubSection
-        });
+
       } else {
         // Single object response - check what type it is
         if (!foundMainSubSection && websiteData.isMain === true && websiteData.name === expectedNewsSlug) {
@@ -270,7 +253,6 @@ export default function NewsPage() {
         setSection(sectionInfo);
       }
       
-      console.log('✅ News section data set:', sectionInfo);
     }
     
   }, [
@@ -288,7 +270,6 @@ export default function NewsPage() {
 
   // Handle navigation subsection creation
   const handleNavigationSubSectionCreated = (subsection: any) => {
-    console.log('📰 News navigation subsection created:', subsection);
     
     // 🔧 FIXED: Check if subsection has the correct name or type for NEWS
     const expectedSlug = NavigationConfig.name;
@@ -302,12 +283,7 @@ export default function NewsPage() {
     // Set that we have a navigation subsection now
     setHasNavigationSubSection(hasCorrectIdentifier);
     
-    console.log('📰 News navigation subsection check:', {
-      actualName: subsection.name,
-      expectedSlug,
-      expectedType,
-      hasCorrectIdentifier
-    });
+
     
     // Force refetch of all subsection data
     if (refetchMainSubSection) {
@@ -319,7 +295,6 @@ export default function NewsPage() {
 
   // Handle main subsection creation
   const handleMainSubSectionCreated = (subsection: any) => {
-    console.log("📰 News main subsection created:", subsection);
     
     // 🔧 FIXED: Check if subsection has the correct name for NEWS
     const expectedSlug = newsSectionConfig.name;
@@ -328,13 +303,6 @@ export default function NewsPage() {
     // Set that we have a main subsection now (only if it also has the correct name)
     setHasMainSubSection(subsection.isMain === true && hasCorrectSlug);
     
-    // Log the name check
-    console.log("📰 News main subsection name check:", {
-      actualSlug: subsection.name,
-      expectedSlug,
-      isCorrect: hasCorrectSlug,
-      isMain: subsection.isMain
-    });
     
     // If we have section data from the subsection, update it
     if (subsection.section) {
@@ -345,7 +313,6 @@ export default function NewsPage() {
       setSectionData(sectionInfo);
       setSection(sectionInfo);
       
-      console.log('✅ News section data updated:', sectionInfo);
     }
     
     // Refetch the main subsection data to ensure we have the latest

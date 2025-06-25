@@ -24,7 +24,6 @@ const useUpdateOrder = () => {
         mutationFn: async (sections: { id: string; order: number; websiteId: string }[]) => {
         try {
             const response = await apiClient.patch(`/sections/order`, sections);
-            console.log('API response:', response); // Debug log to inspect response
 
             // Handle different response structures
             let updatedSections = response.data;

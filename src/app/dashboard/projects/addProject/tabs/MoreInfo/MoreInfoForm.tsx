@@ -95,7 +95,6 @@ const MoreInfoForm = forwardRef<any, ProjectFormProps>((props, ref) => {
     refetch 
   } = useGetCompleteBySlug(slug || '', Boolean(slug));
 
-  console.log("completeSubsectionData", completeSubsectionData)
 
   // Update reference when onDataChange changes
   useEffect(() => {

@@ -173,7 +173,6 @@ export const processAndLoadData = (
 
       return true;
     } else {
-      console.log("No content elements found in subsection data");
       return false;
     }
   } catch (error) {
