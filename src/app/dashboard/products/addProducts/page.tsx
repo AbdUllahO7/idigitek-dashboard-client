@@ -11,6 +11,8 @@ import { FormShell } from "@/src/components/dashboard/AddSectionlogic/FormShell"
 import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import ProductForm from "./Product/ProductForm"
 import { FormDataProduct } from "@/src/api/types/sections/blog/blogSection.types"
+import { ClickableImage } from "@/src/components/ClickableImage"
+import { useTranslation } from "react-i18next"
 
 
 // Form sections to collect data from
@@ -30,7 +32,7 @@ export default function AddProduct() {
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
   const { useGetById: useGetSectionItemById } = useSectionItems()
   const { useGetBySectionItemId: useGetSubSectionsBySectionItemId } = useSubSections()
-  
+  const { t } = useTranslation()
   // Get languages
   const { 
     data: languagesData, 
@@ -192,6 +194,21 @@ export default function AddProduct() {
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
   return (
+
+     <>
+     <ClickableImage
+            imageSrc="/assets/sections/hero.png"
+            imageAlt={t('HeroManagement.tabLabel', 'Hero Section')}
+            size="large"
+            title={t('HeroManagement.tabLabel', 'Hero Section')}
+            subtitle={t('HeroManagement.createSubtitle', 'Click to view full size')}
+            t={t}
+            priority
+            className="w-full"
+            previewClassName="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-2xl h-64 md:h-80 lg:h-96"
+          />
+    
+          
     <FormShell
       title={isCreateMode ? "Create New Product" : "Edit Product"}
       subtitle={isCreateMode 
@@ -208,5 +225,6 @@ export default function AddProduct() {
       formSections={FORM_SECTIONS}
       isLoading={isLoading}
     />
+     </>
   )
 }

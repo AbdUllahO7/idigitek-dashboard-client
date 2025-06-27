@@ -9,6 +9,7 @@ import { useWebsiteContext } from "@/src/providers/WebsiteContext"
 import { FormDataPartners } from "@/src/api/types/sections/partners/partnersSection.type"
 import MultiImageForm from "../../projects/addProject/tabs/MultiImageForm"
 import { useTranslation } from "react-i18next"
+import { ClickableImage } from "@/src/components/ClickableImage"
 
 // Form sections to collect data from
 const FORM_SECTIONS = [""]
@@ -197,6 +198,20 @@ export default function AddPartners() {
   const isLoading = isLoadingLanguages || (!isCreateMode && (isLoadingSectionItem || isLoadingSubsections))
   
   return (
+      <>
+       <ClickableImage
+          imageSrc="/assets/sections/partners.png"
+          imageAlt={t('HeroManagement.tabLabel', 'Hero Section')}
+          size="large"
+          title={t('HeroManagement.tabLabel', 'Hero Section')}
+          subtitle={t('HeroManagement.createSubtitle', 'Click to view full size')}
+          t={t}
+          priority
+          className="w-full"
+          previewClassName="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-2xl h-64 md:h-80 lg:h-96"
+        />
+          
+                
     <FormShell
       title={getPageTitle()}
       subtitle={getPageSubtitle()}
@@ -211,5 +226,6 @@ export default function AddPartners() {
       formSections={FORM_SECTIONS}
       isLoading={isLoading}
     />
+      </>
   )
 }

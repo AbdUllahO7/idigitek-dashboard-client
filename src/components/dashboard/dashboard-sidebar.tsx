@@ -97,12 +97,13 @@ const allNavItems: NavItem[] = [
     roles: ["superAdmin", "owner"],
     icon: Users,
   },
-    {
+  {
     titleKey: "Dashboard_sideBar.nav.Forms",
     href: "/dashboard/ContactForm",
     roles: ["superAdmin", "owner"],
     icon: Files,
   },
+
   {
     titleKey: "Dashboard_sideBar.nav.services",
     href: "/dashboard/services",
@@ -210,6 +211,12 @@ const allNavItems: NavItem[] = [
     href: "/dashboard/addWebSiteConfiguration",
     icon: Workflow,
     roles: ["superAdmin", "owner"],
+  },
+      {
+    titleKey: "Dashboard_sideBar.nav.addNewSection",
+    href: "/dashboard/addWebSiteConfiguration?tab=sections", 
+    roles: ["superAdmin", "owner"],
+    icon: Files,
   },
   {
     titleKey: "Dashboard_sideBar.nav.idigitekAdmin",
