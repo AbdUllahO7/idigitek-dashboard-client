@@ -121,6 +121,12 @@ const allNavItems: NavItem[] = [
     icon: Megaphone,
     sectionId: "news",
   },
+    {
+    titleKey: "Dashboard_sideBar.nav.products",
+    href: "/dashboard/products",
+    icon: Megaphone,
+    sectionId: "products",
+  },
   {
     titleKey: "Dashboard_sideBar.nav.industrySolutions",
     href: "/dashboard/IndustrySolutions",
