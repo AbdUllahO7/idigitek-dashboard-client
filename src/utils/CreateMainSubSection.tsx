@@ -921,135 +921,145 @@ export default function CreateMainSubSection({
     }
   }
   
-  // 🔧 FIXED: Update existing subsection with better state management
-  const handleUpdateSubsection = async () => {
-    if (!(await validateAllForms())) return
-    try {
-      setIsProcessing(true) // Prevent interference
-      setIsUpdating(true)
-      
-      await updateMutation.mutateAsync({
-        id: subsection._id,
-        data: {
-          defaultContent: defaultLanguage && languageForms[defaultLanguage.languageID]
-            ? languageForms[defaultLanguage.languageID].getValues()
-            : {}
+const handleUpdateSubsection = async () => {
+  if (!(await validateAllForms())) return
+  try {
+    setIsProcessing(true)
+    setIsUpdating(true)
+    
+    // Update subsection
+    await updateMutation.mutateAsync({
+      id: subsection._id,
+      data: {
+        defaultContent: defaultLanguage && languageForms[defaultLanguage.languageID]
+          ? languageForms[defaultLanguage.languageID].getValues()
+          : {}
+      }
+    })
+    
+    // Process elements and translations sequentially to avoid conflicts
+    for (const element of contentElements) {
+      let field = null
+      for (const f of sectionConfig.fields) {
+        const foundElement = findElementByFieldAcrossLanguages([element], f.id, sectionConfig)
+        if (foundElement) {
+          field = f
+          break
         }
-      })
+      }
       
-      // Update elements and translations with proper error handling
-      const updatePromises = contentElements.map(async (element) => {
-        try {
-          let field = null
-          for (const f of sectionConfig.fields) {
-            const foundElement = findElementByFieldAcrossLanguages([element], f.id, sectionConfig)
-            if (foundElement) {
-              field = f
-              break
+      if (!field) {
+        console.warn(`Could not find matching field for element: ${element.name}`)
+        continue
+      }
+      
+      // Update element
+      if (defaultLanguage && languageForms[defaultLanguage.languageID]) {
+        const defaultContent = languageForms[defaultLanguage.languageID].getValues()[field.id]
+        await updateElementMutation.mutateAsync({
+          id: element._id,
+          data: { 
+            defaultContent,
+            name: field.id,
+            displayName: field.label,
+            metadata: {
+              fieldId: field.id,
+              fieldType: field.type,
+              originalLabel: field.label,
+              migrated: true,
+              componentType: 'main',
+              sectionInfo: sectionInfo
             }
           }
-          
-          if (!field) {
-            console.warn(`[MAIN-${sectionConfig.name}] Could not find matching field for element: ${element.name}`)
-            return
-          }
-          
-          if (defaultLanguage && languageForms[defaultLanguage.languageID]) {
-            const defaultContent = languageForms[defaultLanguage.languageID].getValues()[field.id]
-            await updateElementMutation.mutateAsync({
-              id: element._id,
-              data: { 
-                defaultContent,
-                name: field.id,
-                displayName: field.label,
-                metadata: {
-                  fieldId: field.id,
-                  fieldType: field.type,
-                  originalLabel: field.label,
-                  migrated: true,
-                  componentType: 'main', // Add identifier
-                  sectionInfo: sectionInfo // Store section info for reference
-                }
-              }
+        })
+      }
+      
+      // Update translations sequentially
+      for (const lang of languages) {
+        const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
+        if (!form) continue
+        
+        const formValues = form.getValues()
+        const content = formValues[field.id] || ''
+        const elementTranslations = contentTranslations[element._id] || []
+        
+        const existingTranslation = elementTranslations.find(t => {
+          const translationLangId = typeof t.language === 'string' ? t.language : (t.language?._id || t.language)
+          const currentLangId = lang._id
+          return translationLangId === currentLangId
+        })
+        
+        if (existingTranslation) {
+          // Only update if content changed
+          if (existingTranslation.content !== content) {
+            const updatedTranslation = await updateTranslationMutation.mutateAsync({
+              id: existingTranslation._id,
+              data: { content }
             })
+            
+            // IMMEDIATELY UPDATE LOCAL STATE
+            setContentTranslations(prev => ({
+              ...prev,
+              [element._id]: prev[element._id].map(t => 
+                t._id === existingTranslation._id 
+                  ? { ...t, content: content }
+                  : t
+              )
+            }))
           }
-          
-          // Update translations for this element
-          const translationPromises = languages.map(async (lang: { languageID: string | number; _id: any }) => {
-            try {
-              const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
-              if (!form) return null
-              
-              const formValues = form.getValues()
-              const content = formValues[field.id]
-              const elementTranslations = contentTranslations[element._id] || []
-              
-              const existingTranslation = elementTranslations.find(t => {
-                const translationLangId = typeof t.language === 'string' ? t.language : (t.language?._id || t.language)
-                const currentLangId = lang._id
-                return translationLangId === currentLangId
-              })
-              
-              if (existingTranslation) {
-                return await updateTranslationMutation.mutateAsync({
-                  id: existingTranslation._id,
-                  data: { content }
-                })
-              } else {
-                return await createTranslationMutation.mutateAsync({
-                  content,
-                  language: lang._id,
-                  contentElement: element._id,
-                  isActive: true
-                })
-              }
-            } catch (translationError) {
-              console.error(`${t('mainSubsection.errorUpdatingTranslation')} ${element.name} ${t('mainSubsection.inLanguage')} ${lang.languageID}:`, translationError)
-              throw translationError
-            }
+        } else {
+          // Create new translation
+          const newTranslation = await createTranslationMutation.mutateAsync({
+            content,
+            language: lang._id,
+            contentElement: element._id,
+            isActive: true
           })
           
-          await Promise.all(translationPromises)
-        } catch (elementError) {
-          console.error(`${t('mainSubsection.errorUpdatingElement')} ${element.name}:`, elementError)
-          throw elementError
+          // IMMEDIATELY UPDATE LOCAL STATE
+          setContentTranslations(prev => ({
+            ...prev,
+            [element._id]: [...(prev[element._id] || []), newTranslation.data]
+          }))
         }
-      })
-      
-      await Promise.all(updatePromises)
-      
-      checkFormsEmpty()
-      toast({
-        title: t('mainSubsection.success'),
-        description: `${t('mainSubsection.subsectionUpdated')} ${languages.length} ${t('mainSubsection.languages')}`
-      })
-      
-      setIsEditMode(false)
-      setIsExpanded(false)
-      
-      // 🔧 FIXED: Controlled refetch with delay
-      mainSubsectionRefetchKey.current += 1
-      setTimeout(async () => {
-        try {
-          await refetchCompleteSubsections()
-        } catch (refetchError) {
-          console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.update')}:`, refetchError)
-        } finally {
-          setIsProcessing(false) // Allow processing again
-        }
-      }, 1000)
-    } catch (error: any) {
-      console.error(`[MAIN-${sectionConfig.name}] Error in handleUpdateSubsection:`, error)
-      toast({
-        title: t('mainSubsection.errorUpdatingSubsection'),
-        description: error.message || t('mainSubsection.unexpectedError'),
-        variant: "destructive"
-      })
-      setIsProcessing(false) // Reset on error
-    } finally {
-      setIsUpdating(false)
+        
+        // Small delay between translations
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
     }
+    
+    // SUCCESS - Update UI immediately
+    checkFormsEmpty()
+    setIsEditMode(false)
+    setIsExpanded(false)
+    
+    toast({
+      title: t('mainSubsection.success'),
+      description: `${t('mainSubsection.subsectionUpdated')} ${languages.length} ${t('mainSubsection.languages')}`
+    })
+    
+    // FORCE IMMEDIATE REFETCH - Don't rely on timeout
+    try {
+      const { data: freshData } = await refetchCompleteSubsections()
+      console.log('Fresh data fetched:', freshData)
+    } catch (refetchError) {
+      console.error('Immediate refetch failed:', refetchError)
+      // Fallback: try again after delay
+      setTimeout(() => refetchCompleteSubsections(), 1000)
+    }
+    
+  } catch (error: any) {
+    console.error('Error in handleUpdateSubsection:', error)
+    toast({
+      title: t('mainSubsection.errorUpdatingSubsection'),
+      description: error.message || t('mainSubsection.unexpectedError'),
+      variant: "destructive"
+    })
+  } finally {
+    setIsUpdating(false)
+    setIsProcessing(false)
   }
+}
   
   // Render language cards
   const renderLanguageCards = () => {
