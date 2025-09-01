@@ -99,7 +99,7 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
   // Dynamic URL construction function
   const constructDynamicUrl = useCallback((subsectionId: string, sectionId: string, websiteId: string) => {
     // Get base URL from environment or use default
-    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek-client-dynamic.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek.com";
     
     // Construct the dynamic URL for blog details
     const dynamicUrl = `${baseUrl}/Pages/BlogDetailPage/${subsectionId}`;

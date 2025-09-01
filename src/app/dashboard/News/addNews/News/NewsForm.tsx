@@ -99,7 +99,7 @@ const NewsForm = forwardRef<any, NewsFormProps>((props, ref) => {
   // Dynamic URL construction function
   const constructDynamicUrl = useCallback((subsectionId: string, sectionId: string, websiteId: string) => {
     // Get base URL from environment or use default
-    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek-client-dynamic.vercel.app";
+    const baseUrl = process.env.https://idigitek.com || "https://idigitek.com";
     
     // Construct the dynamic URL
     const dynamicUrl = `${baseUrl}/Pages/NewsDetailPage/${subsectionId}?sectionId=${sectionId}&websiteId=${websiteId}`;

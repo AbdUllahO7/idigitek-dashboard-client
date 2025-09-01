@@ -106,7 +106,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
   // Dynamic URL construction function
   const constructDynamicUrl = useCallback((subsectionId: string) => {
     // Get base URL from environment or use default
-    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek-client-dynamic.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek.com";
     
     // Construct the dynamic URL for service details
     const dynamicUrl = `${baseUrl}/Pages/ServiceDetailsPage/${subsectionId}`;
