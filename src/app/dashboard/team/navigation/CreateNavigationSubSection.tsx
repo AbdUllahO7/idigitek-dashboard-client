@@ -29,7 +29,7 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content
 import { ActionButton, CancelButton, ErrorCard, LoadingCard, MainFormCard, SuccessCard, WarningCard } from "@/src/utils/MainSectionComponents"
 import { ClickableImage } from "@/src/components/ClickableImage"
 
-// 🎯 NEW: Extended interface to include section info
+// Extended interface to include section info
 interface CreateNavigationSubSectionProps {
   sectionId: string;
   sectionConfig: any;
@@ -97,7 +97,7 @@ const findElementByFieldAcrossLanguages = (contentElements: any[], fieldId: stri
   return null
 }
 
-// 🎯 NEW: Helper function to get fallback value for additional languages
+// Helper function to get fallback value for additional languages
 const getFallbackValueForLanguage = (
   fieldId: string, 
   sectionInfo: any, 
@@ -257,7 +257,7 @@ const NavigationLanguageCard = ({
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    console.log(`🎯 Manual setting ${field.id} = "${sectionValue}" for ${langCode}`);
+                                    console.log(`Manual setting ${field.id} = "${sectionValue}" for ${langCode}`);
                                     formField.onChange(sectionValue);
                                   }}
                                   className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
@@ -291,7 +291,7 @@ const NavigationLanguageCard = ({
 export default function CreateNavigationSubSection({
   sectionId,
   sectionConfig,
-  sectionInfo, // 🎯 NEW: Accept section info prop
+  sectionInfo,
   onSubSectionCreated,
   onFormValidityChange
 }: CreateNavigationSubSectionProps) {
@@ -317,24 +317,24 @@ export default function CreateNavigationSubSection({
   const [languageForms, setLanguageForms] = useState<Record<string, any>>({})
   const languagesInitialized = useRef(false)
   
-  // 🆕 NEW: Navigation visibility state
+  // Navigation visibility state
   const [isNavigationVisible, setIsNavigationVisible] = useState(true)
   const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false)
   
-  // 🔧 FIXED: Add state to track if this component is processing
+  // Processing state management
   const [isProcessing, setIsProcessing] = useState(false)
   const lastProcessedDataRef = useRef<string>('')
   
-  // 🔧 FIXED: Add state to track if user is actively editing
+  // Track user editing activity
   const [userIsEditing, setUserIsEditing] = useState(false)
   const editingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const { websiteId } = useWebsiteContext();
 
-  // 🎯 NEW: Debug section info
+  // Debug section info
   useEffect(() => {
     if (sectionInfo) {
-      console.log("🧭 Navigation received section info:", sectionInfo);
+      console.log("Navigation received section info:", sectionInfo);
     }
   }, [sectionInfo]);
 
@@ -357,9 +357,6 @@ export default function CreateNavigationSubSection({
   
   const { useGetByWebsite: useGetAllLanguages } = useLanguages()
   
-  // 🔧 FIXED: Add a key to track refetch requests from this component
-  const navigationRefetchKey = useRef(0)
-  
   // Data fetching with refetch capability
   const {
     data: completeSubsectionsData,
@@ -376,7 +373,7 @@ export default function CreateNavigationSubSection({
   const createTranslationMutation = useCreateTranslation();
   const updateTranslationMutation = useUpdateTranslation();
 
-  // 🆕 NEW: Load navigation visibility state from existing data
+  // Load navigation visibility state from existing data
   useEffect(() => {
     if (contentElements.length > 0) {
       const visibilityElement = contentElements.find(el => 
@@ -390,7 +387,7 @@ export default function CreateNavigationSubSection({
     }
   }, [contentElements]);
 
-  // 🔧 FIXED: More controlled form reinitialization
+  // Controlled form reinitialization
   useEffect(() => {
     if (completeSubsectionsData?.data && !isProcessing && !userIsEditing) {
       const dataKey = JSON.stringify(completeSubsectionsData.data)
@@ -401,7 +398,7 @@ export default function CreateNavigationSubSection({
     }
   }, [completeSubsectionsData, isProcessing, userIsEditing]);
   
-  // 🔧 FIXED: Only reset forms when explicitly needed, not when language changes during editing
+  // Reset forms when language changes during editing
   useEffect(() => {
     if (formsInitialized && language && !userIsEditing && !isEditMode) {
       setFormsInitialized(false)
@@ -438,7 +435,7 @@ export default function CreateNavigationSubSection({
   
   const formSchema = useMemo(() => buildFormSchema(), [buildFormSchema])
   
-  // 🎯 NEW: Get default values with section info fallback
+  // Get default values with section info fallback
   const getFormDefaultValues = useCallback((languageCode?: string) => {
     const defaults: Record<string, string> = {}
     
@@ -504,7 +501,7 @@ export default function CreateNavigationSubSection({
   
   const formInstances = useMemo(() => [form1, form2, form3, form4, form5], [form1, form2, form3, form4, form5])
   
-  // 🔧 FIXED: Track user editing activity
+  // Track user editing activity
   const markUserAsEditing = useCallback(() => {
     setUserIsEditing(true)
     if (editingTimeoutRef.current) {
@@ -533,7 +530,7 @@ export default function CreateNavigationSubSection({
     }
   }, [languages, formInstances])
   
-  // 🔧 FIXED: Set up form change listeners to track user editing
+  // Set up form change listeners to track user editing
   useEffect(() => {
     const subscriptions: any[] = []
     
@@ -562,10 +559,10 @@ export default function CreateNavigationSubSection({
     }
   }, [languages])
   
-  // 🔧 FIXED: More specific filtering for NAVIGATION subsections only
+  // Process subsection data from API
   useEffect(() => {
     if (completeSubsectionsData?.data && completeSubsectionsData.data.length > 0 && !isProcessing && !userIsEditing) {
-      // 🔧 FIXED: ONLY look for NAVIGATION subsections (NOT main) that match this config
+      // ONLY look for NAVIGATION subsections (NOT main) that match this config
       const navigationSubsection = completeSubsectionsData.data.find((sub: { name: string; type: string; isMain: boolean }) => {
         // Must NOT be main and have the correct type/name for navigation
         return sub.isMain !== true && (sub.type === sectionConfig.type || sub.name === sectionConfig.name);
@@ -610,7 +607,7 @@ export default function CreateNavigationSubSection({
     }
   }, [completeSubsectionsData, onFormValidityChange, subsection, sectionConfig.name, sectionConfig.type, isProcessing, userIsEditing])
   
-  // 🎯 NEW: Initialize forms with section data when no existing navigation data
+  // Initialize forms with section data when no existing navigation data
   useEffect(() => {
     if (
       sectionInfo &&
@@ -621,9 +618,9 @@ export default function CreateNavigationSubSection({
       !userIsEditing &&
       !formsInitialized
     ) {
-      console.log("🧭 Initializing navigation forms with section data");
-      console.log("🧭 Section info available:", sectionInfo);
-      console.log("🧭 Available language forms:", Object.keys(languageForms));
+      console.log("Initializing navigation forms with section data");
+      console.log("Section info available:", sectionInfo);
+      console.log("Available language forms:", Object.keys(languageForms));
       
       // Add a small delay to ensure forms are fully ready
       setTimeout(() => {
@@ -632,11 +629,11 @@ export default function CreateNavigationSubSection({
           const form = languageForms[langCode];
           
           if (!form) {
-            console.log(`❌ No form found for language: ${langCode}`);
+            console.log(`No form found for language: ${langCode}`);
             return;
           }
           
-          console.log(`🧭 Processing language: ${langCode}`);
+          console.log(`Processing language: ${langCode}`);
           
           const fieldValues: Record<string, string> = {};
           
@@ -647,37 +644,37 @@ export default function CreateNavigationSubSection({
             const sectionHasThisLanguage = sectionInfo.name.hasOwnProperty(langCode);
             
             if (sectionHasThisLanguage) {
-              console.log(`✅ Found matching language ${langCode} in section data`);
+              console.log(`Found matching language ${langCode} in section data`);
               
               if (field.id === 'navigationLabel' || field.id === 'label' || field.id === 'title' || field.id === 'name') {
                 value = sectionInfo.name[langCode as keyof typeof sectionInfo.name] || '';
-                console.log(`🎯 Setting ${field.id} for ${langCode}: "${value}"`);
+                console.log(`Setting ${field.id} for ${langCode}: "${value}"`);
               } else if (field.id === 'url' || field.id === 'navigationUrl' || field.id === 'link') {
                 // Only set URL for default language
                 const isDefaultLang = defaultLanguage && defaultLanguage.languageID === lang.languageID;
                 if (isDefaultLang) {
                   value = sectionInfo.navigationData.fallbackValues.navigationUrl;
-                  console.log(`🔗 Setting URL for default language ${langCode}: "${value}"`);
+                  console.log(`Setting URL for default language ${langCode}: "${value}"`);
                 }
               }
             } else {
-              console.log(`⚠️  Language ${langCode} not found in section data, using fallback`);
+              console.log(`Language ${langCode} not found in section data, using fallback`);
               // For languages not in section data, use fallback from first available language
               value = getFallbackValueForLanguage(field.id, sectionInfo, ['en', 'ar', 'tr']);
               if (value) {
-                console.log(`🔄 Fallback value for ${langCode} ${field.id}: "${value}"`);
+                console.log(`Fallback value for ${langCode} ${field.id}: "${value}"`);
               }
             }
             
             fieldValues[field.id] = value;
           });
           
-          console.log(`🧭 Final values for ${langCode}:`, fieldValues);
+          console.log(`Final values for ${langCode}:`, fieldValues);
           
           // Force set each field individually to ensure it sticks
           Object.entries(fieldValues).forEach(([fieldId, fieldValue]) => {
             if (fieldValue) {
-              console.log(`📝 Setting ${fieldId} = "${fieldValue}" for ${langCode}`);
+              console.log(`Setting ${fieldId} = "${fieldValue}" for ${langCode}`);
               form.setValue(fieldId, fieldValue, { 
                 shouldValidate: true, 
                 shouldDirty: true, 
@@ -694,7 +691,7 @@ export default function CreateNavigationSubSection({
         });
         
         setFormsInitialized(true);
-        console.log("🎉 Navigation forms initialized with section data");
+        console.log("Navigation forms initialized with section data");
       }, 100); // Small delay to ensure forms are ready
     }
   }, [
@@ -709,17 +706,17 @@ export default function CreateNavigationSubSection({
     defaultLanguage
   ]);
   
-  // 🔧 FIXED: Initialize forms with existing data - only when NOT user editing
+  // Initialize forms with existing data - only when NOT user editing
   useEffect(() => {
     if (
       contentElements.length > 0 &&
       languages.length > 0 &&
       Object.keys(languageForms).length > 0 &&
       !isProcessing &&
-      !userIsEditing && // 🔧 FIXED: Don't reset while user is editing
+      !userIsEditing && // Don't reset while user is editing
       (!formsInitialized || (isEditMode && !formsInitialized)) // Only initialize once when entering edit mode
     ) {
-      console.log("🧭 Initializing navigation forms with existing data");
+      console.log("Initializing navigation forms with existing data");
       
       languages.forEach((lang: { languageID: string | number; _id: any }) => {
         const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
@@ -829,13 +826,16 @@ export default function CreateNavigationSubSection({
     return true
   }
 
-  // Handle navigation visibility change
+  // FIXED: Handle navigation visibility change with immediate UI updates
   const handleNavigationVisibilityChange = async (isVisible: boolean) => {
     if (!subsection?._id) return;
 
+    // Optimistic update - change UI immediately
+    const previousVisibility = isNavigationVisible;
+    setIsNavigationVisible(isVisible);
+    setIsUpdatingVisibility(true);
+
     try {
-      setIsUpdatingVisibility(true);
-      
       // Find the visibility element
       const visibilityElement = contentElements.find(el => 
         el.name === "Navigation Visibility" && el.type === "boolean"
@@ -843,12 +843,21 @@ export default function CreateNavigationSubSection({
 
       if (visibilityElement) {
         // Update existing visibility element
-        await updateElementMutation.mutateAsync({
+        const response = await updateElementMutation.mutateAsync({
           id: visibilityElement._id,
           data: { 
             defaultContent: String(isVisible)
           }
         });
+
+        // Update local state immediately with server response
+        if (response?.data) {
+          setContentElements(prev => prev.map(el => 
+            el._id === visibilityElement._id 
+              ? { ...el, defaultContent: String(isVisible) }
+              : el
+          ));
+        }
       } else {
         // Create new visibility element
         const elementData = {
@@ -865,19 +874,28 @@ export default function CreateNavigationSubSection({
           }
         };
         
-        const newElement = await createElementMutation.mutateAsync(elementData);
-        setContentElements(prev => [...prev, newElement.data]);
+        const response = await createElementMutation.mutateAsync(elementData);
+        
+        // Add to local state immediately
+        if (response?.data) {
+          setContentElements(prev => [...prev, response.data]);
+        }
       }
 
-      setIsNavigationVisible(isVisible);
-      
       toast({
         title: "Success",
         description: `Navigation is now ${isVisible ? 'visible' : 'hidden'}`,
       });
 
+      // Background refetch without blocking UI
+      refetchCompleteSubsections().catch(console.error);
+
     } catch (error) {
       console.error("Failed to update navigation visibility:", error);
+      
+      // Rollback optimistic update on error
+      setIsNavigationVisible(previousVisibility);
+      
       toast({
         title: "Error",
         description: "Failed to update navigation visibility",
@@ -888,12 +906,13 @@ export default function CreateNavigationSubSection({
     }
   };
   
-  // 🔧 FIXED: Create new navigation subsection with better state management
+  // FIXED: Create new navigation subsection with immediate UI updates
   const handleCreateSubsection = async () => {
-    if (!(await validateAllForms())) return
+    if (!(await validateAllForms())) return;
+    
     try {
-      setIsProcessing(true) // Prevent interference
-      setIsCreating(true)
+      setIsProcessing(true);
+      setIsCreating(true);
       
       const subSectionData = {
         name: sectionConfig.name,
@@ -901,11 +920,11 @@ export default function CreateNavigationSubSection({
         type: sectionConfig.type,
         slug: `${sectionConfig.slug}-${Date.now()}`,
         defaultContent: defaultLanguage ? languageForms[defaultLanguage.languageID].getValues() : {},
-        isMain: false, // 🔧 FIXED: Navigation is NOT main
+        isMain: false, // Navigation is NOT main
         isActive: true,
         order: 1, // Different order from main
         section: sectionId,
-        WebSiteId : websiteId,
+        WebSiteId: websiteId,
         languages: selectedLanguages,
         metadata: {
           fields: sectionConfig.fields,
@@ -913,15 +932,19 @@ export default function CreateNavigationSubSection({
           componentType: 'navigation', // Add identifier
           sectionInfo: sectionInfo // Store section info for reference
         }
-      }
+      };
 
-      const response = await createMutation.mutateAsync(subSectionData)
+      const response = await createMutation.mutateAsync(subSectionData);
+      
       if (response?.data) {
-        const createdSubsection = response.data
-        setSubsection(createdSubsection)
-        setIsCreatingElements(true)
+        const createdSubsection = response.data;
         
-        // 🆕 NEW: Create elements including visibility element
+        // Update local state immediately
+        setSubsection(createdSubsection);
+        setSubsectionExists(true);
+        setIsCreatingElements(true);
+        
+        // Create elements including visibility element
         const elementsToCreate = [
           // Navigation visibility element (boolean)
           {
@@ -950,8 +973,13 @@ export default function CreateNavigationSubSection({
           }))
         ];
 
-        // Create elements and translations
-        const elementPromises = elementsToCreate.map(async (elementConfig: any, index: number) => {
+        const createdElements = [];
+        const newTranslations: Record<string, any[]> = {};
+
+        // Create elements and update local state progressively
+        for (let index = 0; index < elementsToCreate.length; index++) {
+          const elementConfig = elementsToCreate[index];
+          
           try {
             const elementData = {
               name: elementConfig.name,
@@ -963,128 +991,151 @@ export default function CreateNavigationSubSection({
               WebSiteId: websiteId,
               isActive: true,
               metadata: elementConfig.metadata
-            }
+            };
             
-            const elementResponse = await createElementMutation.mutateAsync(elementData)
-            const createdElement = elementResponse.data
+            const elementResponse = await createElementMutation.mutateAsync(elementData);
+            const createdElement = elementResponse.data;
             
             if (!createdElement || !createdElement._id) {
-              throw new Error(`${t('mainSubsection.errorCreatingElement')} ${elementConfig.name}`)
+              throw new Error(`Failed to create element ${elementConfig.name}`);
             }
+            
+            createdElements.push(createdElement);
+            
+            // Update local state immediately as we create each element
+            setContentElements(prev => [...prev, createdElement]);
             
             // Only create translations for text elements (not boolean)
             if (elementConfig.type === 'text') {
-              const translationPromises = languages.map(async (lang: { languageID: string | number; _id: any }) => {
+              const elementTranslations = [];
+              
+              for (const lang of languages) {
                 try {
-                  const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
-                  if (!form) return null
-                  const formValues = form.getValues()
-                  const fieldConfig = sectionConfig.fields.find((f: any) => f.id === elementConfig.name)
-                  const content = fieldConfig ? formValues[fieldConfig.id] : ''
+                  const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined;
+                  if (!form) continue;
+                  
+                  const formValues = form.getValues();
+                  const fieldConfig = sectionConfig.fields.find((f: any) => f.id === elementConfig.name);
+                  const content = fieldConfig ? formValues[fieldConfig.id] : '';
                   
                   const translationData = {
                     content: content,
                     language: lang._id,
                     contentElement: createdElement._id,
                     isActive: true
+                  };
+                  
+                  const translationResponse = await createTranslationMutation.mutateAsync(translationData);
+                  if (translationResponse?.data) {
+                    elementTranslations.push(translationResponse.data);
                   }
-                  return await createTranslationMutation.mutateAsync(translationData)
                 } catch (translationError) {
-                  console.error(`${t('mainSubsection.errorCreatingTranslation')} ${elementConfig.name} ${t('mainSubsection.inLanguage')} ${lang.languageID}:`, translationError)
-                  throw translationError
+                  console.error(`Error creating translation for ${elementConfig.name} in language ${lang.languageID}:`, translationError);
                 }
-              })
+              }
               
-              await Promise.all(translationPromises)
+              // Update translations in local state immediately
+              if (elementTranslations.length > 0) {
+                newTranslations[createdElement._id] = elementTranslations;
+                setContentTranslations(prev => ({
+                  ...prev,
+                  [createdElement._id]: elementTranslations
+                }));
+              }
             }
-            
-            return createdElement
           } catch (elementError) {
-            console.error(`${t('mainSubsection.errorCreatingElement')} ${elementConfig.name}:`, elementError)
-            throw elementError
+            console.error(`Error creating element ${elementConfig.name}:`, elementError);
+            throw elementError;
           }
-        })
+        }
         
-        const createdElements = await Promise.all(elementPromises)
-        setContentElements(createdElements)
-        
-        setSubsectionExists(true)
-        setHasEmptyRequiredFields(false)
+        // Update all states immediately
+        setHasEmptyRequiredFields(false);
+        setIsEditMode(false);
+        setIsExpanded(false);
         
         toast({
           title: "Success",
           description: `Navigation created successfully for ${languages.length} languages`
-        })
+        });
         
-        setIsEditMode(false)
-        setIsExpanded(false)
+        // Notify parent immediately with the created data
+        if (onSubSectionCreated) {
+          onSubSectionCreated(createdSubsection);
+        }
         
-        // 🔧 FIXED: Controlled refetch with delay and notification
-        navigationRefetchKey.current += 1
-        setTimeout(async () => {
-          try {
-            await refetchCompleteSubsections()
-            // Also notify parent component immediately
-            if (onSubSectionCreated) {
-              onSubSectionCreated(createdSubsection)
-            }
-          } catch (refetchError) {
-            console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.creation')}:`, refetchError)
-          } finally {
-            setIsProcessing(false) // Allow processing again
-          }
-        }, 1000)
+        // Background refetch without blocking UI
+        refetchCompleteSubsections().catch(console.error);
       }
     } catch (error: any) {
-      console.error(`[NAV-${sectionConfig.name}] Error in handleCreateSubsection:`, error)
-      setIsProcessing(false) // Reset on error
+      console.error(`[NAV-${sectionConfig.name}] Error in handleCreateSubsection:`, error);
+      toast({
+        title: "Error",
+        description: "Failed to create navigation section",
+        variant: "destructive"
+      });
     } finally {
-      setIsCreating(false)
-      setIsCreatingElements(false)
+      setIsCreating(false);
+      setIsCreatingElements(false);
+      setIsProcessing(false);
     }
-  }
+  };
   
-  // 🔧 FIXED: Update existing navigation subsection with better state management
+  // FIXED: Update existing navigation subsection with immediate UI updates
   const handleUpdateSubsection = async () => {
-    if (!(await validateAllForms())) return
+    if (!(await validateAllForms())) return;
+    
     try {
-      setIsProcessing(true) // Prevent interference
-      setIsUpdating(true)
+      setIsProcessing(true);
+      setIsUpdating(true);
       
-      await updateMutation.mutateAsync({
+      // Update subsection
+      const updateResponse = await updateMutation.mutateAsync({
         id: subsection._id,
         data: {
           defaultContent: defaultLanguage && languageForms[defaultLanguage.languageID]
             ? languageForms[defaultLanguage.languageID].getValues()
             : {}
         }
-      })
+      });
+      
+      // Update local subsection immediately
+      if (updateResponse?.data) {
+        setSubsection(updateResponse.data);
+      }
       
       // Update elements and translations
-      const updatePromises = contentElements.map(async (element) => {
+      const updatedElements = [];
+      const updatedTranslations: Record<string, any[]> = {};
+      
+      for (const element of contentElements) {
         try {
           // Skip boolean elements (like visibility)
           if (element.type === 'boolean') {
-            return;
+            updatedElements.push(element);
+            continue;
           }
 
-          let field = null
+          let field = null;
           for (const f of sectionConfig.fields) {
-            const foundElement = findElementByFieldAcrossLanguages([element], f.id, sectionConfig)
+            const foundElement = findElementByFieldAcrossLanguages([element], f.id, sectionConfig);
             if (foundElement) {
-              field = f
-              break
+              field = f;
+              break;
             }
           }
           
           if (!field) {
-            console.warn(`[NAV-${sectionConfig.name}] Could not find matching field for element: ${element.name}`)
-            return
+            console.warn(`[NAV-${sectionConfig.name}] Could not find matching field for element: ${element.name}`);
+            updatedElements.push(element);
+            continue;
           }
           
+          // Update element
           if (defaultLanguage && languageForms[defaultLanguage.languageID]) {
-            const defaultContent = languageForms[defaultLanguage.languageID].getValues()[field.id]
-            await updateElementMutation.mutateAsync({
+            const defaultContent = languageForms[defaultLanguage.languageID].getValues()[field.id];
+            
+            const elementUpdateResponse = await updateElementMutation.mutateAsync({
               id: element._id,
               data: { 
                 defaultContent,
@@ -1099,80 +1150,99 @@ export default function CreateNavigationSubSection({
                   sectionInfo: sectionInfo // Store section info for reference
                 }
               }
-            })
+            });
+            
+            // Update local element immediately
+            if (elementUpdateResponse?.data) {
+              updatedElements.push(elementUpdateResponse.data);
+            } else {
+              updatedElements.push(element);
+            }
           }
           
           // Update translations for this element
-          const translationPromises = languages.map(async (lang: { languageID: string | number; _id: any }) => {
+          const elementTranslations = [];
+          
+          for (const lang of languages) {
             try {
-              const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined
-              if (!form) return null
+              const form = lang.languageID ? languageForms[String(lang.languageID)] : undefined;
+              if (!form) continue;
               
-              const formValues = form.getValues()
-              const content = formValues[field.id]
-              const elementTranslations = contentTranslations[element._id] || []
+              const formValues = form.getValues();
+              const content = formValues[field.id];
+              const existingTranslations = contentTranslations[element._id] || [];
               
-              const existingTranslation = elementTranslations.find(t => {
-                const translationLangId = typeof t.language === 'string' ? t.language : (t.language?._id || t.language)
-                const currentLangId = lang._id
-                return translationLangId === currentLangId
-              })
+              const existingTranslation = existingTranslations.find(t => {
+                const translationLangId = typeof t.language === 'string' ? t.language : (t.language?._id || t.language);
+                const currentLangId = lang._id;
+                return translationLangId === currentLangId;
+              });
               
+              let translationResponse;
               if (existingTranslation) {
-                return await updateTranslationMutation.mutateAsync({
+                translationResponse = await updateTranslationMutation.mutateAsync({
                   id: existingTranslation._id,
                   data: { content }
-                })
+                });
               } else {
-                return await createTranslationMutation.mutateAsync({
+                translationResponse = await createTranslationMutation.mutateAsync({
                   content,
                   language: lang._id,
                   contentElement: element._id,
                   isActive: true
-                })
+                });
+              }
+              
+              if (translationResponse?.data) {
+                elementTranslations.push(translationResponse.data);
               }
             } catch (translationError) {
-              console.error(`${t('mainSubsection.errorUpdatingTranslation')} ${element.name} ${t('mainSubsection.inLanguage')} ${lang.languageID}:`, translationError)
-              throw translationError
+              console.error(`Error updating translation for ${element.name} in language ${lang.languageID}:`, translationError);
             }
-          })
+          }
           
-          await Promise.all(translationPromises)
+          // Update translations in local state immediately
+          if (elementTranslations.length > 0) {
+            updatedTranslations[element._id] = elementTranslations;
+          }
         } catch (elementError) {
-          console.error(`${t('mainSubsection.errorUpdatingElement')} ${element.name}:`, elementError)
-          throw elementError
+          console.error(`Error updating element ${element.name}:`, elementError);
+          updatedElements.push(element);
         }
-      })
+      }
       
-      await Promise.all(updatePromises)
+      // Update local state immediately
+      setContentElements(updatedElements);
+      setContentTranslations(prev => ({
+        ...prev,
+        ...updatedTranslations
+      }));
       
-      checkFormsEmpty()
+      // Update UI states immediately
+      setIsEditMode(false);
+      setIsExpanded(false);
+      checkFormsEmpty();
+      
       toast({
         title: "Success",
         description: `Navigation updated successfully for ${languages.length} languages`
-      })
+      });
       
-      setIsEditMode(false)
-      setIsExpanded(false)
+      // Background refetch without blocking UI
+      refetchCompleteSubsections().catch(console.error);
       
-      // 🔧 FIXED: Controlled refetch with delay
-      navigationRefetchKey.current += 1
-      setTimeout(async () => {
-        try {
-          await refetchCompleteSubsections()
-        } catch (refetchError) {
-          console.error(`${t('mainSubsection.errorRefetchingData')} ${t('mainSubsection.update')}:`, refetchError)
-        } finally {
-          setIsProcessing(false) // Allow processing again
-        }
-      }, 1000)
     } catch (error: any) {
-      console.error(`[NAV-${sectionConfig.name}] Error in handleUpdateSubsection:`, error)
-      setIsProcessing(false) // Reset on error
+      console.error(`[NAV-${sectionConfig.name}] Error in handleUpdateSubsection:`, error);
+      toast({
+        title: "Error",
+        description: "Failed to update navigation section",
+        variant: "destructive"
+      });
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
+      setIsProcessing(false);
     }
-  }
+  };
   
   // Render language cards
   const renderLanguageCards = () => {
@@ -1195,13 +1265,13 @@ export default function CreateNavigationSubSection({
               isRtl={isRtl}
               t={t}
               isDefault={isDefault}
-              sectionInfo={sectionInfo} // 🎯 Pass section info to each card
+              sectionInfo={sectionInfo}
             />
           );
         })}
       </div>
     );
-  }
+  };
   
   // Display states
   if (isLoadingCompleteSubsections || isLoadingLanguages) {
@@ -1232,16 +1302,16 @@ export default function CreateNavigationSubSection({
     return (
       <div className="space-y-4">
         <SuccessCard
-          title="🧭 Navigation Configuration Available"
+          title="Navigation Configuration Available"
           description="Navigation has been configured and is ready to use."
           onEdit={() => {
-            // 🔧 FIXED: Force form reinitialization when entering edit mode
+            // Force form reinitialization when entering edit mode
             setFormsInitialized(false);
             setIsEditMode(true);
             setIsExpanded(true);
             setUserIsEditing(false); // Reset user editing state
             
-            // 🔧 FIXED: If we don't have content elements, refetch data
+            // If we don't have content elements, refetch data
             if (contentElements.length === 0 || Object.keys(contentTranslations).length === 0) {
               refetchCompleteSubsections();
             }
@@ -1310,172 +1380,141 @@ export default function CreateNavigationSubSection({
     )
   }
   
-// Display states
-if (isLoadingCompleteSubsections || isLoadingLanguages) {
-  return <LoadingCard />
-}
-
-if (completeSubsectionsError) {
-  return (
-    <ErrorCard
-      errorMessage={t('mainSubsection.couldNotCheckSubsection')}
-      onRetry={() => {
-        refetchCompleteSubsections();
-      }}
-    />
-  )
-}
-
-if (languages.length === 0) {
-  return (
-    <WarningCard
-      title={t('mainSubsection.noActiveLanguagesTitle')}
-      message={t('mainSubsection.noActiveLanguagesMessage')}
-    />
-  )
-}
-
-
-// Updated render function
-// Simple RTL-fixed switch replacement - just copy this function
-const renderNavigationVisibilitySwitch = () => (
-  <Card className="mb-6">
-    <CardHeader>
-      <CardTitle className={`flex items-center text-lg ${isRtl ? 'flex-row-reverse' : ''}`}>
-        <Navigation className={`h-5 w-5 text-blue-600 dark:text-blue-400 ${isRtl ? 'ml-3' : 'mr-3'}`} />
-        <span>{t('Navigation.NavigationSettings', 'إعدادات القسم')}</span>
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div 
-        className="rounded-lg border p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800"
-        dir={isRtl ? 'rtl' : 'ltr'}
-      >
-        {/* Use CSS Grid for proper RTL layout */}
-        <div className={`grid ${isRtl ? 'grid-cols-[1fr_auto]' : 'grid-cols-[1fr_auto]'} gap-4 items-center`}>
-          {/* Text content */}
-          <div className={`space-y-0.5 ${isRtl ? 'order-2 text-right' : 'order-1 text-left'}`}>
-            <div className={`flex items-center ${isRtl ? 'flex-row-reverse justify-end' : ''}`}>
-              {isNavigationVisible ? (
-                <Eye className={`h-4 w-4 text-green-600 dark:text-green-400 ${isRtl ? 'ml-2' : 'mr-2'}`} />
-              ) : (
-                <EyeOff className={`h-4 w-4 text-red-600 dark:text-red-400 ${isRtl ? 'ml-2' : 'mr-2'}`} />
-              )}
-              <span className="text-base font-medium text-gray-900 dark:text-gray-100">
-                {t('Navigation.ShowNavigation')}
-              </span>
+  // RTL-compatible navigation visibility switch
+  const renderNavigationVisibilitySwitch = () => (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className={`flex items-center text-lg ${isRtl ? 'flex-row-reverse' : ''}`}>
+          <Navigation className={`h-5 w-5 text-blue-600 dark:text-blue-400 ${isRtl ? 'ml-3' : 'mr-3'}`} />
+          <span>{t('Navigation.NavigationSettings', 'Navigation Settings')}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div 
+          className="rounded-lg border p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800"
+          dir={isRtl ? 'rtl' : 'ltr'}
+        >
+          {/* Use CSS Grid for proper RTL layout */}
+          <div className={`grid ${isRtl ? 'grid-cols-[1fr_auto]' : 'grid-cols-[1fr_auto]'} gap-4 items-center`}>
+            {/* Text content */}
+            <div className={`space-y-0.5 ${isRtl ? 'order-2 text-right' : 'order-1 text-left'}`}>
+              <div className={`flex items-center ${isRtl ? 'flex-row-reverse justify-end' : ''}`}>
+                {isNavigationVisible ? (
+                  <Eye className={`h-4 w-4 text-green-600 dark:text-green-400 ${isRtl ? 'ml-2' : 'mr-2'}`} />
+                ) : (
+                  <EyeOff className={`h-4 w-4 text-red-600 dark:text-red-400 ${isRtl ? 'ml-2' : 'mr-2'}`} />
+                )}
+                <span className="text-base font-medium text-gray-900 dark:text-gray-100">
+                  {t('Navigation.ShowNavigation')}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {isNavigationVisible
+                  ? t('Navigation.NavigationCurrentlyVisible', 'Navigation is currently visible to users')
+                  : t('Navigation.NavigationCurrentlyHidden', 'Navigation is currently hidden from users')
+                }
+              </p>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {isNavigationVisible
-                ? t('Navigation.NavigationCurrentlyVisible', 'التنقل مرئي حالياً للمستخدمين')
-                : t('Navigation.NavigationCurrentlyHidden', 'التنقل مخفي حالياً عن المستخدمين')
-              }
-            </p>
-          </div>
-          
-          {/* Custom Switch for RTL */}
-          <div className={`${isRtl ? 'order-1' : 'order-2'}`}>
-            <button
-              type="button"
-              onClick={() => handleNavigationVisibilityChange(!isNavigationVisible)}
-              disabled={isUpdatingVisibility || !subsection?._id}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                isNavigationVisible 
-                  ? 'bg-green-500' 
-                  : 'bg-red-400'
-              } ${isUpdatingVisibility || !subsection?._id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              role="switch"
-              aria-checked={isNavigationVisible}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+            
+            {/* Custom Switch for RTL */}
+            <div className={`${isRtl ? 'order-1' : 'order-2'}`}>
+              <button
+                type="button"
+                onClick={() => handleNavigationVisibilityChange(!isNavigationVisible)}
+                disabled={isUpdatingVisibility || !subsection?._id}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                   isNavigationVisible 
-                    ? isRtl 
-                      ? 'translate-x-[-1.25rem]'  // RTL: move left when ON
-                      : 'translate-x-5'          // LTR: move right when ON
-                    : isRtl
-                      ? 'translate-x-[-0.25rem]' // RTL: slight left when OFF
-                      : 'translate-x-1'          // LTR: slight right when OFF
-                }`}
-              />
-            </button>
+                    ? 'bg-green-500' 
+                    : 'bg-red-400'
+                } ${isUpdatingVisibility || !subsection?._id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                role="switch"
+                aria-checked={isNavigationVisible}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                    isNavigationVisible 
+                      ? isRtl 
+                        ? 'translate-x-[-1.25rem]'  // RTL: move left when ON
+                        : 'translate-x-5'          // LTR: move right when ON
+                      : isRtl
+                        ? 'translate-x-[-0.25rem]' // RTL: slight left when OFF
+                        : 'translate-x-1'          // LTR: slight right when OFF
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      {/* Status indicator */}
-      <div className={`mt-3 flex items-center text-sm ${isRtl ? 'flex-row-reverse justify-end' : ''}`}>
-        <div className={`w-2 h-2 rounded-full ${isRtl ? 'ml-2' : 'mr-2'} ${
-          isNavigationVisible 
-            ? 'bg-green-500 animate-pulse' 
-            : 'bg-red-500'
-        }`} />
-        <span className={isNavigationVisible 
-          ? 'text-green-700 dark:text-green-300' 
-          : 'text-red-700 dark:text-red-300'
-        }>
-          {isNavigationVisible 
-            ? t('Navigation.StatusVisible', 'الحالة: مرئي')
-            : t('Navigation.StatusHidden', 'الحالة: مخفي')
-          }
-        </span>
-        {isUpdatingVisibility && (
-          <span className={`text-blue-600 dark:text-blue-400 text-xs ${isRtl ? 'mr-2' : 'ml-2'}`}>
-            {t('Navigation.Updating', 'جاري التحديث...')}
+        
+        {/* Status indicator */}
+        <div className={`mt-3 flex items-center text-sm ${isRtl ? 'flex-row-reverse justify-end' : ''}`}>
+          <div className={`w-2 h-2 rounded-full ${isRtl ? 'ml-2' : 'mr-2'} ${
+            isNavigationVisible 
+              ? 'bg-green-500 animate-pulse' 
+              : 'bg-red-500'
+          }`} />
+          <span className={isNavigationVisible 
+            ? 'text-green-700 dark:text-green-300' 
+            : 'text-red-700 dark:text-red-300'
+          }>
+            {isNavigationVisible 
+              ? t('Navigation.StatusVisible', 'Status: Visible')
+              : t('Navigation.StatusHidden', 'Status: Hidden')
+            }
           </span>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
+          {isUpdatingVisibility && (
+            <span className={`text-blue-600 dark:text-blue-400 text-xs ${isRtl ? 'mr-2' : 'ml-2'}`}>
+              {t('Navigation.Updating', 'Updating...')}
+            </span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
-
-
-
-return (
-  <div className="space-y-4">
-    {/* Always show the visibility switch at the top */}
+  return (
+    <div className="space-y-4">
+      {/* Always show the visibility switch at the top */}
       <ClickableImage
-                    imageSrc="/assets/PartsOfSections/header.png"
-                    imageAlt={t('HeroManagement.tabLabel', 'Hero Section')}
-                    size="large"
-                    title={t('HeroManagement.tabLabel', 'Hero Section')}
-                    subtitle={t('HeroManagement.createSubtitle', 'Click to view full size')}
-                    t={t}
-                    priority
-                    className="w-full"
-                    previewClassName="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-2xl h-64 md:h-80 lg:h-96"
-                  />
-                  
-    {renderNavigationVisibilitySwitch()}
-
-    {/* Show SuccessCard when not in edit mode and subsection exists */}
-    {!isEditMode && subsectionExists ? (
-      <SuccessCard
-        title="🧭 Navigation Configuration Available"
-        description="Navigation has been configured and is ready to use."
-        onEdit={() => {
-          setFormsInitialized(false);
-          setIsEditMode(true);
-          setIsExpanded(true);
-          setUserIsEditing(false);
-          if (contentElements.length === 0 || Object.keys(contentTranslations).length === 0) {
-            refetchCompleteSubsections();
-          }
-        }}
+        imageSrc="/assets/PartsOfSections/header.png"
+        imageAlt={t('HeroManagement.tabLabel', 'Hero Section')}
+        size="large"
+        title={t('HeroManagement.tabLabel', 'Hero Section')}
+        subtitle={t('HeroManagement.createSubtitle', 'Click to view full size')}
+        t={t}
+        priority
+        className="w-full"
+        previewClassName="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-2xl h-64 md:h-80 lg:h-96"
       />
-    ) : (
-      <MainFormCard
-        title={
-          <div
-            className="flex items-center justify-between w-full cursor-pointer"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            <div className="flex items-center">
-              <Link size={20} className="mr-3 ml-3 text-blue-600 dark:text-blue-400" />
-              <span >{subsectionExists ? t('Navigation.EditNavigation') : t('Navigation.CreateNavigation')}</span>
-            </div>
-          
+                  
+      {renderNavigationVisibilitySwitch()}
+
+      {/* Show SuccessCard when not in edit mode and subsection exists */}
+      {!isEditMode && subsectionExists ? (
+        <SuccessCard
+          title="Navigation Configuration Available"
+          description="Navigation has been configured and is ready to use."
+          onEdit={() => {
+            setFormsInitialized(false);
+            setIsEditMode(true);
+            setIsExpanded(true);
+            setUserIsEditing(false);
+            if (contentElements.length === 0 || Object.keys(contentTranslations).length === 0) {
+              refetchCompleteSubsections();
+            }
+          }}
+        />
+      ) : (
+        <MainFormCard
+          title={
+            <div
+              className="flex items-center justify-between w-full cursor-pointer"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              <div className="flex items-center">
+                <Link size={20} className="mr-3 ml-3 text-blue-600 dark:text-blue-400" />
+                <span>{subsectionExists ? t('Navigation.EditNavigation') : t('Navigation.CreateNavigation')}</span>
+              </div>
             
             <motion.div
               animate={{ rotate: isExpanded ? 0 : 180 }}
@@ -1506,7 +1545,7 @@ return (
               {isProcessing && (
                 <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                   <p className="text-green-800 dark:text-green-200 text-sm font-medium">
-                    🧭 Processing navigation changes...
+                    Processing navigation changes...
                   </p>
                 </div>
               )}
@@ -1565,7 +1604,7 @@ return (
           )}
         </div>
       </MainFormCard>
-    )}
-  </div>
-)
-} 
+      )}
+    </div>
+  )
+}
