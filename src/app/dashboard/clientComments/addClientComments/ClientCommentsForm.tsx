@@ -235,11 +235,7 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
           );
         } catch (error) {
           console.error("Error removing process step elements:", error);
-          toast({
-            title: t('clientCommentsForm.errorRemovingStep', 'Error removing step'),
-            description: t('clientCommentsForm.errorRemovingStepDescription', 'There was an error removing the step from the database'),
-            variant: "destructive",
-          });
+          
         }
       }
 
@@ -476,11 +472,7 @@ const ClientCommentsForm = forwardRef<clientCommentFormRef, clientCommentsFormPr
             }
           } catch (error) {
             console.error("Error removing clientComments elements:", error);
-            toast({
-              title: t('clientCommentsForm.errorRemovingClientComments', 'Error removing client comments'),
-              description: t('clientCommentsForm.errorRemovingClientCommentsDescription', 'There was an error removing the client comments from the database'),
-              variant: "destructive",
-            });
+          
           }
         }
 

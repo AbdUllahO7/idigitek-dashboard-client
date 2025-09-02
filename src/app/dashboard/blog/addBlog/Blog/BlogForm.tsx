@@ -650,11 +650,7 @@ const BlogForm = forwardRef<any, BlogsFormProps>((props, ref) => {
       return true;
     } catch (error) {
       console.error("Operation failed:", error);
-      toast({
-        title: existingSubSectionId ? "Error updating blog section" : "Error creating blog section",
-        variant: "destructive",
-        description: error instanceof Error ? error.message : "Unknown error occurred"
-      });
+     
       return false;
     } finally {
       updateState({ isSaving: false });

@@ -482,13 +482,7 @@ const TeamForm = forwardRef<any, teamFormProps>((props, ref) => {
       return true;
     } catch (error) {
       console.error("Operation failed:", error);
-      toast({
-        title: existingSubSectionId
-          ? t("teamForm.errorUpdatingTeamSection")
-          : t("teamForm.errorCreatingTeamSection"),
-        variant: "destructive",
-        description: error instanceof Error ? error.message : t("teamForm.unknownError"),
-      });
+   
       return false;
     } finally {
       updateState({ isSaving: false });
