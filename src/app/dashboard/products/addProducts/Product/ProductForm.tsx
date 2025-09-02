@@ -47,6 +47,7 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
   const searchParams = useSearchParams();
   const sectionIdFromUrl = searchParams.get("sectionId") || "";
   const {t} = useTranslation()
+  
   // Setup form with schema validation - Updated to include navigation fields
   const formSchema = createProductSchema(languageIds, activeLanguages, true); // Add navigation support
   const defaultValues = createProductDefaultValues(languageIds, activeLanguages, true); // Add navigation support
@@ -101,7 +102,7 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
   const bulkUpsertTranslations = useBulkUpsertTranslations();
 
   // Dynamic URL construction function
-  const constructDynamicUrl = useCallback((subsectionId: string, sectionId: string, websiteId: string) => {
+  const constructDynamicUrl = useCallback((subsectionId: string, sectionId?: string, websiteId?: string) => {
     // Get base URL from environment or use default
     const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek.com";
     
@@ -111,16 +112,39 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
     return dynamicUrl;
   }, []);
 
+  // Helper function to update dynamic URL in form and content elements
+  const updateDynamicUrl = useCallback(async (subsectionId: string, shouldUpdateContentElement: boolean = false) => {
+    const dynamicUrl = constructDynamicUrl(subsectionId, sectionIdFromUrl, websiteId);
+    
+    // Update form value
+    form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+    
+    // Update content element if it exists and we're in update mode
+    if (shouldUpdateContentElement && contentElements.length > 0) {
+      const dynamicUrlElement = contentElements.find((e) => e.name === "Dynamic URL" && e.type === "text");
+      if (dynamicUrlElement) {
+        try {
+          await apiClient.put(`/content-elements/${dynamicUrlElement._id}`, {
+            defaultContent: dynamicUrl
+          });
+        } catch (error) {
+          console.error("Failed to update dynamic URL in content element:", error);
+        }
+      }
+    }
+    
+    return dynamicUrl;
+  }, [constructDynamicUrl, form, contentElements, sectionIdFromUrl, websiteId]);
+
   // Update dynamic URL when IDs change
   useEffect(() => {
     if (existingSubSectionId && ParentSectionId && websiteId) {
       const currentDynamicUrl = form.getValues("dynamicUrl");
       if (!currentDynamicUrl) {
-        const dynamicUrl = constructDynamicUrl(existingSubSectionId, ParentSectionId, websiteId);
-        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        updateDynamicUrl(existingSubSectionId, false);
       }
     }
-  }, [existingSubSectionId, ParentSectionId, websiteId, constructDynamicUrl, form]);
+  }, [existingSubSectionId, ParentSectionId, websiteId, updateDynamicUrl, form]);
 
   // Image upload hook
   const { 
@@ -170,9 +194,11 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         form.setValue("addSubNavigation", initialData.addSubNavigation);
       }
 
-      // Set dynamic URL if available
+      // Set dynamic URL if available, otherwise construct it if we have an ID
       if (initialData.dynamicUrl) {
         form.setValue("dynamicUrl", initialData.dynamicUrl);
+      } else if (existingSubSectionId) {
+        updateDynamicUrl(existingSubSectionId, false);
       }
 
       updateState({ 
@@ -180,7 +206,7 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         hasUnsavedChanges: false 
       });
     }
-  }, [initialData, dataLoaded, defaultLangCode, form]);
+  }, [initialData, dataLoaded, defaultLangCode, form, existingSubSectionId, updateDynamicUrl, updateState]);
 
   // Process Product data from API
   const processProductData = useCallback((subsectionData: SubSection | null) => {
@@ -272,23 +298,28 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
       form.setValue("addSubNavigation", booleanValue);
     }
 
-    // Handle dynamic URL
+    // Handle dynamic URL - Always ensure it's constructed with current subsection ID
     const dynamicUrlElement = subsectionData?.elements?.find(
       (el) => el.name === 'Dynamic URL' && el.type === 'text'
     ) || subsectionData?.contentElements?.find(
       (el) => el.name === 'Dynamic URL' && el.type === 'text'
     );
 
-
-
-    if (dynamicUrlElement?.defaultContent) {
-      form.setValue("dynamicUrl", dynamicUrlElement.defaultContent);
-    } else if (subsectionData?._id && ParentSectionId && websiteId) {
-      // Construct dynamic URL if not found in data
-      const dynamicUrl = constructDynamicUrl(subsectionData._id, sectionIdFromUrl, websiteId);
-      form.setValue("dynamicUrl", dynamicUrl);
+    // Always use constructDynamicUrl to ensure consistency
+    if (subsectionData?._id && websiteId) {
+      const constructedDynamicUrl = constructDynamicUrl(subsectionData._id, sectionIdFromUrl, websiteId);
+      
+      // Check if the existing URL is different from the constructed one
+      const existingUrl = dynamicUrlElement?.defaultContent;
+      if (!existingUrl || existingUrl !== constructedDynamicUrl) {
+        // Set the constructed URL in the form
+        form.setValue("dynamicUrl", constructedDynamicUrl);
+      } else {
+        // Use the existing URL if it matches the constructed pattern
+        form.setValue("dynamicUrl", existingUrl);
+      }
     }
-  }, [form, languageIds, activeLanguages, ParentSectionId, websiteId, constructDynamicUrl]);
+  }, [form, languageIds, activeLanguages, updateState, websiteId, constructDynamicUrl, sectionIdFromUrl]);
 
   // Process initial data effect
   useEffect(() => {
@@ -310,18 +341,17 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
       });
       dataProcessed.current = true;
     }
-  }, [completeSubsectionData, isLoadingSubsection, subSectionId, processProductData]);
+  }, [completeSubsectionData, isLoadingSubsection, subSectionId, processProductData, updateState]);
 
   // Ensure dynamic URL is always set when data is loaded
   useEffect(() => {
     if (dataLoaded && existingSubSectionId && ParentSectionId && websiteId) {
       const currentDynamicUrl = form.getValues("dynamicUrl");
       if (!currentDynamicUrl) {
-        const dynamicUrl = constructDynamicUrl(existingSubSectionId, sectionIdFromUrl, websiteId);
-        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        updateDynamicUrl(existingSubSectionId, false);
       }
     }
-  }, [dataLoaded, existingSubSectionId, ParentSectionId, websiteId, constructDynamicUrl, form]);
+  }, [dataLoaded, existingSubSectionId, ParentSectionId, websiteId, updateDynamicUrl, form]);
 
   // Form watch effect for unsaved changes
   useEffect(() => {
@@ -335,7 +365,7 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
     });
     
     return () => subscription.unsubscribe();
-  }, [form, isLoadingData, dataLoaded]);
+  }, [form, isLoadingData, dataLoaded, updateState]);
 
   // Image upload handler
   const uploadImage = useCallback(async (elementId: any, file: string | Blob) => {
@@ -419,8 +449,7 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         updateState({ existingSubSectionId: sectionId });
 
         // Update dynamic URL with the new subsection ID
-        const dynamicUrl = constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
-        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        await updateDynamicUrl(sectionId, false);
       } else {
         const updateData = {
           isActive: true,
@@ -433,12 +462,8 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
           data: updateData
         });
 
-        // Ensure dynamic URL is set for existing sections too
-        const currentDynamicUrl = form.getValues("dynamicUrl");
-        if (!currentDynamicUrl) {
-          const dynamicUrl = constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
-          form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
-        }
+        // Always ensure dynamic URL is updated for existing sections
+        await updateDynamicUrl(sectionId, true);
       }
 
       // Get updated form values after dynamic URL has been set
@@ -472,13 +497,15 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
           });
         }
 
-        // Update dynamic URL element
+        // Update dynamic URL element - Always use constructDynamicUrl for consistency
         const dynamicUrlElement = contentElements.find((e) => e.name === "Dynamic URL" && e.type === "text");
         if (dynamicUrlElement) {
-          const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
+          const finalDynamicUrl = constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
           await apiClient.put(`/content-elements/${dynamicUrlElement._id}`, {
             defaultContent: finalDynamicUrl
           });
+          // Also update the form to match
+          form.setValue("dynamicUrl", finalDynamicUrl, { shouldDirty: false });
         }
 
         // Update translations for text elements
@@ -542,9 +569,8 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
           } else if (el.type === "boolean") {
             defaultContent = String(updatedFormValues.addSubNavigation);
           } else if (el.key === "dynamicUrl") {
-            // Ensure dynamic URL is properly constructed
-            const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
-            defaultContent = finalDynamicUrl;
+            // Always use constructDynamicUrl for new elements
+            defaultContent = constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId);
           } else if (el.type === "text" && typeof updatedFormValues[defaultLangCode] === "object") {
             const langValues = updatedFormValues[defaultLangCode];
             defaultContent = langValues && typeof langValues === "object" && el.key in langValues
@@ -635,12 +661,12 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
           await processProductData(result.data.data[0]);
         }
       } else {
-        // For new subsections, manually update form
+        // For new subsections, manually update form with the constructed dynamic URL
         const finalUpdatedData = {
           ...updatedFormValues,
           backgroundImage: form.getValues("backgroundImage"),
           addSubNavigation: form.getValues("addSubNavigation"),
-          dynamicUrl: form.getValues("dynamicUrl"),
+          dynamicUrl: constructDynamicUrl(sectionId, sectionIdFromUrl, websiteId), // Always use constructed URL
         };
 
         Object.entries(finalUpdatedData).forEach(([key, value]) => {
@@ -689,7 +715,9 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
     activeLanguages,
     websiteId,
     slug,
-    constructDynamicUrl
+    constructDynamicUrl,
+    updateDynamicUrl,
+    sectionIdFromUrl
   ]);
 
   // Create form ref for parent component
@@ -748,8 +776,6 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
           imageType="logo"
         />
 
-     
-
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -784,7 +810,6 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
         </Card>
            {/* Publication Date Section - Moved outside language cards */}
         <Card>
-       
           <CardContent className="pt-10">
             <FormField
               control={form.control}
@@ -824,6 +849,7 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
             />
           </CardContent>
         </Card>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {languageIds.map((langId, index) => {
             const langCode = languageCodes[langId] || langId;
@@ -837,7 +863,6 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
             );
           })}
         </div>
-        
       </Form>
       
       <div className="flex justify-end mt-6">

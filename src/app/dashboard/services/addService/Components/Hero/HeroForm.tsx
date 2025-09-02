@@ -114,16 +114,39 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     return dynamicUrl;
   }, []);
 
+  // Helper function to update dynamic URL in form and content elements
+  const updateDynamicUrl = useCallback(async (subsectionId: string, shouldUpdateContentElement: boolean = false) => {
+    const dynamicUrl = constructDynamicUrl(subsectionId);
+    
+    // Update form value
+    form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+    
+    // Update content element if it exists and we're in update mode
+    if (shouldUpdateContentElement && contentElements.length > 0) {
+      const dynamicUrlElement = contentElements.find((e) => e.name === "Dynamic URL" && e.type === "text");
+      if (dynamicUrlElement) {
+        try {
+          await apiClient.put(`/content-elements/${dynamicUrlElement._id}`, {
+            defaultContent: dynamicUrl
+          });
+        } catch (error) {
+          console.error("Failed to update dynamic URL in content element:", error);
+        }
+      }
+    }
+    
+    return dynamicUrl;
+  }, [constructDynamicUrl, form, contentElements]);
+
   // Update dynamic URL when IDs change
   useEffect(() => {
     if (existingSubSectionId && websiteId) {
       const currentDynamicUrl = form.getValues("dynamicUrl");
       if (!currentDynamicUrl) {
-        const dynamicUrl = constructDynamicUrl(existingSubSectionId);
-        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        updateDynamicUrl(existingSubSectionId, false);
       }
     }
-  }, [existingSubSectionId, websiteId, constructDynamicUrl, form]);
+  }, [existingSubSectionId, websiteId, updateDynamicUrl, form]);
 
   // Image upload hook
   const { 
@@ -232,20 +255,26 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
       form.setValue("addSubNavigation", booleanValue);
     }
 
-    // Handle dynamic URL
+    // Handle dynamic URL - Always ensure it's constructed with current subsection ID
     const dynamicUrlElement = subsectionData?.elements?.find(
       (el) => el.name === 'Dynamic URL' && el.type === 'text'
     ) || subsectionData?.contentElements?.find(
       (el) => el.name === 'Dynamic URL' && el.type === 'text'
     );
 
-  
-    if (dynamicUrlElement?.defaultContent) {
-      form.setValue("dynamicUrl", dynamicUrlElement.defaultContent);
-    } else if (subsectionData?._id && websiteId) {
-      // Construct dynamic URL if not found in data
-      const dynamicUrl = constructDynamicUrl(subsectionData._id);
-      form.setValue("dynamicUrl", dynamicUrl);
+    // Always use constructDynamicUrl to ensure consistency
+    if (subsectionData?._id && websiteId) {
+      const constructedDynamicUrl = constructDynamicUrl(subsectionData._id);
+      
+      // Check if the existing URL is different from the constructed one
+      const existingUrl = dynamicUrlElement?.defaultContent;
+      if (!existingUrl || existingUrl !== constructedDynamicUrl) {
+        // Set the constructed URL in the form
+        form.setValue("dynamicUrl", constructedDynamicUrl);
+      } else {
+        // Use the existing URL if it matches the constructed pattern
+        form.setValue("dynamicUrl", existingUrl);
+      }
     }
   }, [form, languageIds, activeLanguages, updateState, websiteId, constructDynamicUrl]);
 
@@ -327,9 +356,11 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         form.setValue("addSubNavigation", initialData.addSubNavigation);
       }
 
-      // Set dynamic URL if available
+      // Set dynamic URL if available, otherwise construct it if we have an ID
       if (initialData.dynamicUrl) {
         form.setValue("dynamicUrl", initialData.dynamicUrl);
+      } else if (existingSubSectionId) {
+        updateDynamicUrl(existingSubSectionId, false);
       }
       
       updateState({ 
@@ -337,7 +368,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         hasUnsavedChanges: false 
       });
     }
-  }, [initialData, dataLoaded, defaultLangCode, form, updateState]);
+  }, [initialData, dataLoaded, defaultLangCode, form, updateState, existingSubSectionId, updateDynamicUrl]);
 
   // Process initial data effect
   useEffect(() => {
@@ -366,11 +397,10 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     if (dataLoaded && existingSubSectionId && websiteId) {
       const currentDynamicUrl = form.getValues("dynamicUrl");
       if (!currentDynamicUrl) {
-        const dynamicUrl = constructDynamicUrl(existingSubSectionId);
-        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        updateDynamicUrl(existingSubSectionId, false);
       }
     }
-  }, [dataLoaded, existingSubSectionId, websiteId, constructDynamicUrl, form]);
+  }, [dataLoaded, existingSubSectionId, websiteId, updateDynamicUrl, form]);
 
   // Form watch effect for unsaved changes
   useEffect(() => {
@@ -468,8 +498,7 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
         updateState({ existingSubSectionId: sectionId });
 
         // Update dynamic URL with the new subsection ID
-        const dynamicUrl = constructDynamicUrl(sectionId);
-        form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
+        await updateDynamicUrl(sectionId, false);
       } else {
         const updateData = {
           isActive: true,
@@ -482,12 +511,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           data: updateData
         });
 
-        // Ensure dynamic URL is set for existing sections too
-        const currentDynamicUrl = form.getValues("dynamicUrl");
-        if (!currentDynamicUrl) {
-          const dynamicUrl = constructDynamicUrl(sectionId);
-          form.setValue("dynamicUrl", dynamicUrl, { shouldDirty: false });
-        }
+        // Always ensure dynamic URL is updated for existing sections
+        await updateDynamicUrl(sectionId, true);
       }
 
       // Get updated form values after dynamic URL has been set
@@ -521,13 +546,15 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           });
         }
 
-        // Update dynamic URL element
+        // Update dynamic URL element - Always use constructDynamicUrl for consistency
         const dynamicUrlElement = contentElements.find((e) => e.name === "Dynamic URL" && e.type === "text");
         if (dynamicUrlElement) {
-          const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId);
+          const finalDynamicUrl = constructDynamicUrl(sectionId);
           await apiClient.put(`/content-elements/${dynamicUrlElement._id}`, {
             defaultContent: finalDynamicUrl
           });
+          // Also update the form to match
+          form.setValue("dynamicUrl", finalDynamicUrl, { shouldDirty: false });
         }
 
         // Update translations for text elements
@@ -580,9 +607,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           } else if (el.type === "boolean") {
             defaultContent = String(updatedFormValues.addSubNavigation);
           } else if (el.key === "dynamicUrl") {
-            // Ensure dynamic URL is properly constructed
-            const finalDynamicUrl = updatedFormValues.dynamicUrl || constructDynamicUrl(sectionId);
-            defaultContent = finalDynamicUrl;
+            // Always use constructDynamicUrl for new elements
+            defaultContent = constructDynamicUrl(sectionId);
           } else if (el.type === "text" && typeof updatedFormValues[defaultLangCode] === "object") {
             const langValues = updatedFormValues[defaultLangCode];
             defaultContent = langValues && typeof langValues === "object" && el.key in langValues
@@ -662,12 +688,12 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
           await processHeroData(result.data.data);
         }
       } else {
-        // For new subsections, manually update form
+        // For new subsections, manually update form with the constructed dynamic URL
         const finalUpdatedData = {
           ...updatedFormValues,
           backgroundImage: form.getValues("backgroundImage"),
           addSubNavigation: form.getValues("addSubNavigation"),
-          dynamicUrl: form.getValues("dynamicUrl"),
+          dynamicUrl: constructDynamicUrl(sectionId), // Always use constructed URL
         };
 
         Object.entries(finalUpdatedData).forEach(([key, value]) => {
@@ -720,7 +746,8 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
     uploadImage, 
     activeLanguages,
     websiteId,
-    constructDynamicUrl
+    constructDynamicUrl,
+    updateDynamicUrl
   ]);
 
   // Create form ref for parent component
@@ -745,8 +772,6 @@ const HeroForm = forwardRef<any, HeroFormProps>((props, ref) => {
   });
 
   const languageCodes = createLanguageCodeMap(activeLanguages);
-
- 
 
   return (
     <div className="space-y-6">
