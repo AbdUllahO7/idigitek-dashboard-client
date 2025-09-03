@@ -17,4 +17,4 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         script: |
-          /var/scripts/deploy-dashboard.sh
+          /var/scripts/deploy-demo-dashboard.sh
