@@ -98,7 +98,7 @@ const BasicForm = forwardRef<any, ProjectFormProps>((props, ref) => {
   // Dynamic URL construction function
   const constructDynamicUrl = useCallback((subsectionId: string) => {
     // Get base URL from environment or use default
-    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek.com"
+    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://demo.idigitek.com/"
     
     // Construct the dynamic URL for project details
     const dynamicUrl = `${baseUrl}/Pages/ProjectsDetailPage/${subsectionId}`

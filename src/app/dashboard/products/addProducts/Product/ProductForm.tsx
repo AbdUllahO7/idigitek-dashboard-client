@@ -104,7 +104,7 @@ const ProductForm = forwardRef<any, BlogsFormProps>((props, ref) => {
   // Dynamic URL construction function
   const constructDynamicUrl = useCallback((subsectionId: string, sectionId?: string, websiteId?: string) => {
     // Get base URL from environment or use default
-    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://idigitek.com";
+    const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "https://demo.idigitek.com/";
     
     // Construct the dynamic URL for Product details
     const dynamicUrl = `${baseUrl}/Pages/ProductDetailPage/${subsectionId}`;
