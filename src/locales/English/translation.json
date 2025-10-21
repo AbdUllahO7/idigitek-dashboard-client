@@ -4452,7 +4452,7 @@
 
   "Navigation" : {
     "ContentConfiguration" : "Content Configuration",
-    "NavigationConfiguration" : "Content Configuration",
+    "NavigationConfiguration" : "Main menu display settings",
     "EditNavigation" : "Edit Navigation",
     "CreateNavigation" : "Create Navigation",
     "description" : "Update the navigation name and URL for the section.",
