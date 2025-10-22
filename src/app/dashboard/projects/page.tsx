@@ -412,10 +412,7 @@ export default function ProjectPage() {
   };
 
   // Logic for disabling the add button
-  const isAddButtonDisabled: boolean = 
-    Boolean(defaultAddButtonDisabled) || 
-    isLoadingMainSubSection ||
-    (Boolean(sectionId) && !hasMainSubSection);
+  const isAddButtonDisabled: boolean = !sectionId
   
   // Custom message for empty state 
   const emptyStateMessage = !projectSection && !sectionData 
@@ -508,18 +505,18 @@ export default function ProjectPage() {
       )}
 
         <GenericListPage
-        config={PROJECTS_CONFIG}
-        sectionId={sectionId}
-        sectionConfig={translatedProjectSectionConfig} // Use translated config with language parameter
-        isAddButtonDisabled={isAddButtonDisabled}
-        tableComponent={ProjectTable}
-        createDialogComponent={CreateDialog}
-        deleteDialogComponent={DeleteDialog}
-        onAddNew={handleAddNew}
-        isLoading={isLoadingProjectItems || isLoadingMainSubSection}
-        emptyCondition={projectItems.length === 0}
-        noSectionCondition={!projectSection && !sectionData}
-        customEmptyMessage={emptyStateMessage}
+          config={PROJECTS_CONFIG}
+          sectionId={sectionId}
+          sectionConfig={translatedProjectSectionConfig} 
+          isAddButtonDisabled={isAddButtonDisabled}
+          tableComponent={ProjectTable}
+          createDialogComponent={CreateDialog}
+          deleteDialogComponent={DeleteDialog}
+          onAddNew={handleAddNew}
+          isLoading={isLoadingProjectItems || isLoadingMainSubSection}
+          emptyCondition={projectItems.length === 0}
+          noSectionCondition={!projectSection && !sectionData}
+          customEmptyMessage={emptyStateMessage}
       />
       
     </div>
