@@ -19,17 +19,14 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          # Navigate to project directory
           cd /var/www/idigitek-dashboard
           
-          # Clone or pull latest code
           if [ ! -d ".git" ]; then
-            git clone https://github.com/idigitek/idigitek-dashboard.git .
+            git clone https://${{ secrets.GH_PAT }}@github.com/idigitek/idigitek-dashboard.git .
           else
             git pull origin main
           fi
           
-          # Create .env file
           cat > .env.local << EOF
           MONGODB_URI=${{ secrets.MONGODB_URI }}
           NODE_ENV=production
@@ -37,11 +34,6 @@ jobs:
           NEXT_PUBLIC_API_URL=http://72.60.36.167:4000
           EOF
           
-          # Install dependencies
           npm install
-          
-          # Build the project
           npm run build
-          
-          # Restart with PM2
           pm2 restart idigitek-dashboard || pm2 start npm --name "idigitek-dashboard" -- start -- -p 3002
