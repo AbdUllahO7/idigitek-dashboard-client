@@ -1,9 +1,7 @@
 name: Deploy idigitek-dashboard
-
 on:
   push:
     branches: [ main ]
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,13 +25,15 @@ jobs:
             git pull origin main
           fi
           
-          cat > .env.local << EOF
-          MONGODB_URI=${{ secrets.MONGODB_URI }}
-          NODE_ENV=production
-          PORT=3002
-          NEXT_PUBLIC_API_URL=http://72.60.36.167:4000
-          EOF
+          # Remove .env.local if exists
+          rm -f .env.local
           
-          npm install
+          # Install and build
+          npm ci
+          rm -rf .next
           npm run build
-          pm2 restart idigitek-dashboard || pm2 start npm --name "idigitek-dashboard" -- start -- -p 3002
+          
+          # Restart PM2
+          pm2 delete idigitek-dashboard 2>/dev/null || true
+          PORT=3002 pm2 start npm --name "idigitek-dashboard" -- start
+          pm2 save
