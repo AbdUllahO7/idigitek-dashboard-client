@@ -1,39 +1,43 @@
 name: Deploy idigitek-dashboard
+
 on:
   push:
     branches: [ main ]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: Deploy to Server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd /var/www/idigitek-dashboard
-          
-          if [ ! -d ".git" ]; then
-            git clone https://${{ secrets.GH_PAT }}@github.com/idigitek/idigitek-dashboard.git .
-          else
-            git pull origin main
-          fi
-          
-          # Remove .env.local if exists
-          rm -f .env.local
-          
-          # Install and build
-          npm ci
-          rm -rf .next
-          npm run build
-          
-          # Restart PM2
-          pm2 delete idigitek-dashboard 2>/dev/null || true
-          PORT=3002 pm2 start npm --name "idigitek-dashboard" -- start
-          pm2 save
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/idigitek-dashboard
+
+            if [ ! -d ".git" ]; then
+              git clone https://${{ secrets.GH_PAT }}@github.com/idigitek/idigitek-dashboard.git .
+            else
+              git fetch origin
+              git reset --hard origin/main
+              git clean -fd
+            fi
+
+            # Remove env file
+            rm -f .env.local
+
+            # Install & build
+            npm ci
+            rm -rf .next
+            npm run build
+
+            # Restart PM2
+            pm2 delete idigitek-dashboard 2>/dev/null || true
+            PORT=3002 pm2 start npm --name "idigitek-dashboard" -- start
+            pm2 save
