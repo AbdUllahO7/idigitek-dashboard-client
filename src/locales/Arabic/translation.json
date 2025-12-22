@@ -656,7 +656,7 @@
     
     "deleteDialog": {
       "title": "حذف اللغة",
-      "description": "هل أنت متأكد من أنك تريد حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "description": "هل أنت متأكد من أنك تريد حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
       "warning": {
         "title": "تحذير",
         "description": "حذف هذه اللغة سيؤدي إلى إزالة جميع المحتوى المرتبط بها."
@@ -679,7 +679,7 @@
 
     "toastMessages": {
       "languageAdded": "تم إضافة اللغة",
-      "languageAddedDesc": "تم إضافة {{name}}بنجاح.",
+      "languageAddedDesc": "تم إضافة {name}بنجاح.",
       "languageUpdated": "تم تحديث اللغة",
       "languageUpdatedDesc": "تم تحديث اللغة بنجاح.",
       "languageDeleted": "تم حذف اللغة",

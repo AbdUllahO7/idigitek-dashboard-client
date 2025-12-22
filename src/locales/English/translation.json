@@ -658,7 +658,7 @@
 
     "deleteDialog": {
       "title": "Delete Language",
-      "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+      "description": "Are you sure you want  delete \"{name}\"? This action cannot be undone.",
       "warning": {
         "title": "Warning",
         "description": "Deleting this language will remove all content associated with it."
@@ -681,7 +681,7 @@
 
     "toastMessages": {
       "languageAdded": "Language added",
-      "languageAddedDesc": "{{name}} has been added successfully.",
+      "languageAddedDesc": "has been added successfully.",
       "languageUpdated": "Language updated",
       "languageUpdatedDesc": "The language has been updated successfully.",
       "languageDeleted": "Language deleted",
@@ -1624,7 +1624,7 @@
     },
     "subtitle": {
       "create": "Create a new navigation item with multilingual content",
-      "edit": "Editing \"{{name}}\" content across multiple languages"
+      "edit": "Editing \"{name}\" content across multiple languages"
     },
     "tabs": {
       "navItems": "Navigation Items"
@@ -1849,7 +1849,7 @@
     "titlePlaceholder": "Enter title",
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Enter description",
-    "buttonTextLabel": "Button Text",
+    "buttonTextLabel": "Back Button Text",
     "buttonTextPlaceholder": "Get Started",
     "cardTitle": "Section",
     "cardDescription": "Manage Section content for English"
@@ -1881,7 +1881,7 @@
     "createTitle": "Create New Industry Item",
     "editTitle": "Edit Industry Item",
     "createSubtitle": "Create a new industry item with multilingual content",
-    "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+    "editSubtitle": "Editing \"{name}\" content across multiple languages",
     "defaultItemName": "industry item",
     
     "// Default Values": "",
@@ -2475,7 +2475,7 @@
       "projectCategory": "Project Category",
       "galleryText": "Gallery Text",
       "projectDate": "Project Date",
-      "buttonText": "Button Text",
+      "buttonText": "Back Button Text",
       
       "// Placeholders": "",
       "titlePlaceholder": "Enter project title",
@@ -2697,7 +2697,7 @@
     "createTitle": "Create New Team",
     "editTitle": "Edit Team",
     "createSubtitle": "Create a new team with multilingual content",
-    "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+    "editSubtitle": "Editing \"{name}\" content across multiple languages",
     "newTeamDefault": "New Team"
   },
   "teamForm": {
@@ -2737,7 +2737,7 @@
       "createTitle": "Create New Team",
       "editTitle": "Edit Team",
       "createSubtitle": "Create a new team with multilingual content",
-      "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+      "editSubtitle": "Editing \"{name}\" content across multiple languages",
       "defaultTeamName": "New Team"
     }
   },
@@ -2802,7 +2802,7 @@
     "createTitle": "Create New Client Comment item",
     "editTitle": "Edit Client Comment item",
     "createSubtitle": "Create a new Client Comment item with multilingual content",
-    "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+    "editSubtitle": "Editing \"{name}\" content across multiple languages",
     "defaultClientCommentName": "New Comment",
     "clientCommentsTabLabel": "Client Comments"
   },
@@ -3503,7 +3503,7 @@
       "createTitle": "Create New FAQ Item",
       "editTitle": "Edit FAQ Item",
       "createSubtitle": "Create a new FAQ item with multilingual content",
-      "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+      "editSubtitle": "Editing \"{name}\" content across multiple languages",
       "backUrl": "Back to FAQ Dashboard",
       "tabs": {
         "faqItems": "FAQ Items"
@@ -3614,7 +3614,7 @@
         "createTitle": "Create New Partner",
         "editTitle": "Edit Partner",
         "createSubtitle": "Create a new partner with multilingual content",
-        "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+        "editSubtitle": "Editing \"{name}\" content across multiple languages",
         "defaultPartnerName": "New Partner"
       },
       "tabs": {
@@ -3708,7 +3708,7 @@
         "createTitle": "Create New Contact",
         "editTitle": "Edit Contact",
         "createSubtitle": "Create a new contact with multilingual content",
-        "editSubtitle": "Editing \"{{name}}\" content across multiple languages",
+        "editSubtitle": "Editing \"{name}\" content across multiple languages",
         "defaultContactName": "New Contact"
       },
       "tabs": {
@@ -3898,7 +3898,7 @@
         "messagePlaceholder": "Message Placeholder",
         "subjectTitle": "Subject Title",
         "subjects": "Subjects",
-        "buttonText": "Button Text"
+        "buttonText": "Back Button Text"
       },
       "placeholders": {
         "title": "Enter form title",
@@ -3910,7 +3910,7 @@
         "messagePlaceholder": "Enter message placeholder",
         "subjectTitle": "Enter Subject Title",
         "subject": "Enter subject {{index}}",
-        "buttonText": "Enter button text"
+        "buttonText": "Enter Back Button Text"
       },
       "buttons": {
         "addSubject": "Add Subject"
@@ -3985,7 +3985,7 @@
       },
       "subtitle": {
         "create": "Create a new footer with multilingual content",
-        "edit": "Editing \"{{name}}\" content across multiple languages"
+        "edit": "Editing \"{name}\" content across multiple languages"
       },
       "tabs": {
         "footer": "Footer",

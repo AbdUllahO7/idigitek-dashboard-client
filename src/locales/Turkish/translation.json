@@ -1602,7 +1602,7 @@
     },
     "subtitle": {
       "create": "Çok dilli içerikle yeni bir navigasyon öğesi oluşturun",
-      "edit": "\"{{name}}\" içeriğini birden fazla dilde düzenleme"
+      "edit": "\"{name}\" içeriğini birden fazla dilde düzenleme"
     },
     "tabs": {
       "navItems": "Navigasyon Öğeleri"
@@ -2676,7 +2676,7 @@
     "createTitle": "Yeni bir takım oluştur",
     "editTitle": "Takımı düzenle",
     "createSubtitle": "Çok dilli içerikle yeni bir takım oluştur",
-    "editSubtitle": "Birden fazla dilde \"{{name}}\" için içeriği düzenle",
+    "editSubtitle": "Birden fazla dilde \"{name}\" için içeriği düzenle",
     "newTeamDefault": "Yeni takım"
   },
   "teamForm": {
@@ -2716,7 +2716,7 @@
       "createTitle": "Yeni Ekip Oluştur",
       "editTitle": "Ekibi Düzenle",
       "createSubtitle": "Çok dilli içerikle yeni bir ekip oluştur",
-      "editSubtitle": "\"{{name}}\" içeriğini birden fazla dilde düzenleme",
+      "editSubtitle": "\"{name}\" içeriğini birden fazla dilde düzenleme",
       "defaultTeamName": "Yeni Ekip"
     }
   },
@@ -2781,7 +2781,7 @@
     "createTitle": "Yeni Müşteri Yorumu Öğesi Oluştur",
     "editTitle": "Müşteri Yorumu Öğesini Düzenle",
     "createSubtitle": "Çok dilli içerikle yeni bir Müşteri Yorumu öğesi oluştur",
-    "editSubtitle": "\"{{name}}\" içeriğini birden fazla dilde düzenleme",
+    "editSubtitle": "\"{name}\" içeriğini birden fazla dilde düzenleme",
     "defaultClientCommentName": "Yeni Yorum",
     "clientCommentsTabLabel": "Müşteri Yorumları"
   },
@@ -3482,7 +3482,7 @@
       "createTitle": "Yeni SSS Öğesi Oluştur",
       "editTitle": "SSS Öğesini Düzenle",
       "createSubtitle": "Çok dilli içerikle yeni bir SSS öğesi oluştur",
-      "editSubtitle": "\"{{name}}\" içeriğini birden fazla dilde düzenleme",
+      "editSubtitle": "\"{name}\" içeriğini birden fazla dilde düzenleme",
       "backUrl": "SSS Kontrol Paneline Geri Dön",
       "tabs": {
         "faqItems": "SSS Öğeleri"
@@ -3594,7 +3594,7 @@
         "createTitle": "Yeni Ortak Oluştur",
         "editTitle": "Ortak Düzenle",
         "createSubtitle": "Çok dilli içerikle yeni bir ortak oluşturun",
-        "editSubtitle": "\"{{name}}\" içeriğini birden fazla dilde düzenleme",
+        "editSubtitle": "\"{name}\" içeriğini birden fazla dilde düzenleme",
         "defaultPartnerName": "Yeni Ortak"
       },
       "tabs": {
@@ -3688,7 +3688,7 @@
         "createTitle": "Yeni İletişim Oluştur",
         "editTitle": "İletişimi Düzenle",
         "createSubtitle": "Çok dilli içerikle yeni bir iletişim oluşturun",
-        "editSubtitle": "\"{{name}}\" içeriğini birden fazla dilde düzenleme",
+        "editSubtitle": "\"{name}\" içeriğini birden fazla dilde düzenleme",
         "defaultContactName": "Yeni İletişim"
       },
       "tabs": {
@@ -3965,7 +3965,7 @@
       },
       "subtitle": {
         "create": "Çok dilli içerikle yeni bir alt bilgi oluşturun",
-        "edit": "\"{{name}}\" içeriğini birden fazla dilde düzenleme"
+        "edit": "\"{name}\" içeriğini birden fazla dilde düzenleme"
       },
       "tabs": {
         "footer": "Alt Bilgi",

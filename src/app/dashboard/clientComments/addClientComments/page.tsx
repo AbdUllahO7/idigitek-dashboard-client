@@ -208,7 +208,7 @@ export default function AddIndustry() {
         : t('AddClientComment.editTitle', 'Edit Client Comment item')}
       subtitle={isCreateMode 
         ? t('AddClientComment.createSubtitle', 'Create a new Client Comment item with multilingual content') 
-        : t('AddClientComment.editSubtitle', 'Editing "{{name}}" content across multiple languages', { name: sectionItemData?.data?.name || 'Client Comment item' })}
+        : t('AddClientComment.editSubtitle', 'Editing "{name}" content across multiple languages', { name: sectionItemData?.data?.name || 'Client Comment item' })}
       backUrl={`/dashboard/clientComments?sectionId=${sectionId}`}
       activeLanguages={activeLanguages}
       serviceData={sectionItemData?.data}
