@@ -2274,7 +2274,11 @@
       "// Section Names": "",
       "sectionName": "hero-section",
       "sectionDescription": "section for the website",
-      
+      "sectionTitle": "Section",
+      "editingContentAcrossLanguages": "Editing content across multiple languages",
+      "addNewSection": "Add new section",
+      "noSectionsYet": "No sections yet",
+
       "// Element Names": "",
       "heroTitle": "section {{heroIndex}} - Title",
       "heroDescription": "section {{heroIndex}} - Description",
@@ -2365,7 +2369,8 @@
   "heroCard": {
       "// Card Title": "",
       "heroTitle": "section {{index}}",
-      
+      "sectionTitle": "section {{index}}",
+
       "// Form Labels": "",
       "titleLabel": "Title",
       "descriptionLabel": "Description",

@@ -27,12 +27,13 @@ import { useContentTranslations } from "@/src/hooks/webConfiguration/use-content
 import { createHeroSectionSchema } from "../../services/addService/Utils/language-specific-schemas";
 import { createHeroSectionDefaultValues, createLanguageCodeMap } from "../../services/addService/Utils/Language-default-values";
 import { createFormRef, getSubSectionCountsByLanguage, useForceUpdate, validateSubSectionCounts } from "../../services/addService/Utils/Expose-form-data";
-import { LanguageCard, LanguageTabs } from "./HeroLanguageCard";
+import { HeroCard } from "./HeroCard";
 import { HeroesFormState } from "@/src/api/types/sections/heroSection/HeroSection.type";
 import { processAndLoadData } from "../../services/addService/Utils/load-form-data";
 import apiClient from "@/src/lib/api-client";
 import { useHeroImages } from "./utils/useHeroImages";
 import { useLanguage } from "@/src/context/LanguageContext";
+import { Plus } from "lucide-react";
 
 interface FormData {
   [key: string]: Array<{
@@ -538,13 +539,13 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
     }, [form, state.isLoadingData, state.dataLoaded, validateFormHeroCounts, updateState]);
 
     const addHero = useCallback(
-      (langCode: string) => {
+      () => {
         const newHeroId = `hero-${Date.now()}`;
         const primaryLanguageCode = primaryLanguageRef.current;
-        
+
         // Get current primary language settings for URL fields
         const primaryHeroes = primaryLanguageCode ? form.getValues()[primaryLanguageCode] || [] : [];
-        
+
         const newHero = {
           id: newHeroId,
           title: "",
@@ -558,13 +559,13 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
         Object.keys(form.getValues()).forEach((lang) => {
           const currentHeroes = form.getValues()[lang] || [];
           const heroIndex = currentHeroes.length; // This will be the index of the new hero
-          
+
           // For non-primary languages, sync URL settings from primary language
           if (lang !== primaryLanguageCode && primaryHeroes[heroIndex]) {
             newHero.exploreButtonType = primaryHeroes[heroIndex].exploreButtonType || "default";
             newHero.exploreButtonUrl = primaryHeroes[heroIndex].exploreButtonUrl || "";
           }
-          
+
           form.setValue(lang, [...currentHeroes, newHero], {
             shouldDirty: true,
             shouldValidate: true,
@@ -581,8 +582,9 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
       [form, validateFormHeroCounts, updateState, toast, t]
     );
 
-    const confirmDeleteStep = useCallback((langCode: string, index: number) => {
-      const currentHeroes = form.getValues()[langCode] || [];
+    const confirmDeleteStep = useCallback((index: number) => {
+      const primaryLanguageCode = primaryLanguageRef.current || languageIds[0];
+      const currentHeroes = form.getValues()[primaryLanguageCode] || [];
       if (currentHeroes.length <= 1) {
         toast({
           title: t("heroesForm.cannotRemove"),
@@ -591,9 +593,9 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
         });
         return;
       }
-      setStepToDelete({ langCode, index });
+      setStepToDelete({ langCode: primaryLanguageCode, index });
       setDeleteDialogOpen(true);
-    }, [form, toast, t]);
+    }, [form, toast, t, languageIds]);
 
     const handleSave = useCallback(async () => {
       // FIXED: Reset syncing flag before validation
@@ -893,6 +895,19 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
     });
 
     const languageCodes = createLanguageCodeMap(activeLanguages);
+    const primaryLanguageCode = primaryLanguageRef.current || languageIds[0];
+
+    // Get heroes from the primary language to determine count
+    const heroes = form.watch(primaryLanguageCode) || [];
+
+    // Create language codes array for HeroCard
+    const languageCodesArray = languageIds.map((langId: Key | null | undefined) => {
+      const langCode = String(langId) in languageCodes ? languageCodes[String(langId)] : String(langId);
+      return {
+        code: langCode,
+        label: langCode.toUpperCase()
+      };
+    });
 
     if (slug && isLoadingSubsection && !state.dataLoaded) {
       return (
@@ -910,24 +925,57 @@ const HeroesForm = forwardRef<HeroFormRef, HeroFormProps>(
           title={state.existingSubSectionId ? t("heroesForm.updatingHeroes") : t("heroesForm.creatingHeroes")}
           description={t("heroesForm.saveDescription")}
         />
-       
-        <Form {...form}>
-          <LanguageTabs
-            languageCards={languageIds.map((langId: Key | null | undefined, langIndex: number) => {
-              const langCode = String(langId) in languageCodes ? languageCodes[String(langId)] : String(langId);
-              const isFirstLanguage = langIndex === 0;
 
-              return {
-                langCode,
-                isFirstLanguage,
-                form,
-                addHero,
-                removeHero: confirmDeleteStep,
-                onDeleteStep: confirmDeleteStep,
-                HeroImageUploader,
-              };
-            })}
-          />
+        <Form {...form}>
+          {/* Header Section */}
+          <div className="flex justify-between items-center mb-6 p-6 bg-card border border-border rounded-lg">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">
+                {t("heroesForm.sectionTitle")}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("heroesForm.editingContentAcrossLanguages")}
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={addHero}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {t("heroesForm.addNewSection")}
+            </Button>
+          </div>
+
+          {/* Sections */}
+          <div className="space-y-4">
+            {heroes.length === 0 ? (
+              <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
+                <p className="text-muted-foreground mb-4">{t("heroesForm.noSectionsYet")}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addHero}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  {t("heroesForm.addNewSection")}
+                </Button>
+              </div>
+            ) : (
+              heroes.map((_: any, index: number) => (
+                <HeroCard
+                  key={`hero-${index}`}
+                  index={index}
+                  form={form}
+                  onDelete={confirmDeleteStep}
+                  languageCodes={languageCodesArray}
+                  primaryLanguageCode={primaryLanguageCode}
+                  HeroImageUploader={HeroImageUploader}
+                />
+              ))
+            )}
+          </div>
         </Form>
 
         <div className="flex justify-end mt-6">

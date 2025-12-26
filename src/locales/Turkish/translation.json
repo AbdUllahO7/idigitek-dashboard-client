@@ -2254,7 +2254,11 @@
       "// Section Names": "",
       "sectionName": "Analar Bölümü",
       "sectionDescription": "Web sitesi için analar bölümü",
-      
+      "sectionTitle": "Bölüm",
+      "editingContentAcrossLanguages": "Birden fazla dilde içerik düzenleme",
+      "addNewSection": "Yeni bölüm ekle",
+      "noSectionsYet": "Henüz bölüm yok",
+
       "// Element Names": "",
       "heroTitle": "Ana {{heroIndex}} - Başlık",
       "heroDescription": "Ana {{heroIndex}} - Açıklama",
@@ -2344,7 +2348,8 @@
   "heroCard": {
       "// Card Title": "",
       "heroTitle": "Ana {{index}}",
-      
+      "sectionTitle": "Bölüm {{index}}",
+
       "// Form Labels": "",
       "titleLabel": "Başlık",
       "descriptionLabel": "Açıklama",

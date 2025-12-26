@@ -2324,7 +2324,11 @@
       "// Section Names": "",
       "sectionName": "القسم الرئيسي",
       "sectionDescription": "القسم الرئيسي للموقع الإلكتروني",
-      
+      "sectionTitle": "القسم",
+      "editingContentAcrossLanguages": "تحرير المحتوى عبر لغات متعددة",
+      "addNewSection": "إضافة قسم جديد",
+      "noSectionsYet": "لا توجد أقسام بعد",
+
       "// Element Names": "",
       "heroTitle": "اللوح الرئيسي {{heroIndex}} - العنوان",
       "heroDescription": "اللوح الرئيسي {{heroIndex}} - الوصف",
@@ -2414,7 +2418,8 @@
   "heroCard": {
       "// Card Title": "",
       "heroTitle": "اللوح الرئيسي {{index}}",
-      
+      "sectionTitle": "القسم {{index}}",
+
       "// Form Labels": "",
       "titleLabel": "العنوان",
       "descriptionLabel": "الوصف",
